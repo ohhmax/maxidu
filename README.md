@@ -104,16 +104,29 @@ Every release provides three firmware binaries tailored for different stages:
 * **Linux PC** (Ubuntu / Debian / Fedora / Arch)
 
 ### 2. Install Required Tools on Linux PC:
+
+#### **Ubuntu / Debian:**
 ```bash
 sudo apt update && sudo apt install -y minicom tftpd-hpa curl
+```
+
+#### **Arch Linux / Manjaro / EndeavourOS:**
+```bash
+sudo pacman -Syu --needed minicom tftp-hpa curl
 ```
 
 ### 3. Grant Permanent Serial Port Permissions (One-Time Setup):
 Run this command once on your Linux PC so you never need `sudo chmod 777 /dev/ttyUSB0` again:
 
-```bash
-echo 'KERNEL=="ttyUSB*", MODE="0666", GROUP="dialout"' | sudo tee /etc/udev/rules.d/99-ttyusb.rules && echo 'KERNEL=="ttyACM*", MODE="0666", GROUP="dialout"' | sudo tee -a /etc/udev/rules.d/99-ttyusb.rules && sudo usermod -aG dialout,tty $USER && sudo udevadm control --reload-rules && sudo udevadm trigger
-```
+* **Ubuntu / Debian:**
+  ```bash
+  echo 'KERNEL=="ttyUSB*", MODE="0666", GROUP="dialout"' | sudo tee /etc/udev/rules.d/99-ttyusb.rules && sudo usermod -aG dialout,tty $USER && sudo udevadm control --reload-rules && sudo udevadm trigger
+  ```
+
+* **Arch Linux:**
+  ```bash
+  echo 'KERNEL=="ttyUSB*", MODE="0666", GROUP="uucp"' | sudo tee /etc/udev/rules.d/99-ttyusb.rules && sudo usermod -aG uucp,tty $USER && sudo udevadm control --reload-rules && sudo udevadm trigger
+  ```
 
 ---
 
@@ -182,12 +195,22 @@ sudo ip link set eth0 up
 ---
 
 ### 1.2 Prepare TFTP Server on PC:
-```bash
-sudo mkdir -p /srv/tftp
-sudo chmod -R 777 /srv/tftp
-sudo curl -sL https://github.com/ohhmax/maxidu/releases/latest/download/initramfs.itb -o /srv/tftp/initramfs.itb
-sudo systemctl restart tftpd-hpa
-```
+
+* **Ubuntu / Debian:**
+  ```bash
+  sudo mkdir -p /srv/tftp
+  sudo chmod -R 777 /srv/tftp
+  sudo curl -sL https://github.com/ohhmax/maxidu/releases/latest/download/initramfs.itb -o /srv/tftp/initramfs.itb
+  sudo systemctl restart tftpd-hpa
+  ```
+
+* **Arch Linux:**
+  ```bash
+  sudo mkdir -p /srv/tftp
+  sudo chmod -R 777 /srv/tftp
+  sudo curl -sL https://github.com/ohhmax/maxidu/releases/latest/download/initramfs.itb -o /srv/tftp/initramfs.itb
+  sudo systemctl restart tftpd.service
+  ```
 
 ---
 
