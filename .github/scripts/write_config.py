@@ -6,6 +6,7 @@ config = [
     "CONFIG_TARGET_qualcommbe=y",
     "CONFIG_TARGET_qualcommbe_ipq95xx=y",
     "CONFIG_TARGET_qualcommbe_ipq95xx_DEVICE_jiorouter_ax6000-jidu6j11-6811=y",
+    "CONFIG_TARGET_qualcommbe_ipq95xx_DEVICE_jiorouter_ax6000-jidu6j11-6911=y",
     "CONFIG_TARGET_qualcommbe_ipq95xx_DEVICE_jio_jidu6811=y",
     "CONFIG_TARGET_ROOTFS_INITRAMFS=y",
     "CONFIG_TARGET_INITRAMFS_FORCE=y",

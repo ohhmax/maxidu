@@ -104,18 +104,7 @@
 		regulator-name = "vdd_usb_phy";
 	};
 
-	reserved-memory {
-		smem@4aa00000 {
-			compatible = "qcom,smem";
-			reg = <0x0 0x4aa00000 0x0 0x100000>;
-			no-map;
-		};
 
-		q6_region: wcnss@4ab00000 {
-			no-map;
-			reg = <0x0 0x4ab00000 0x0 0x2d00000>;
-		};
-	};
 
 	wcss_smp2p: smp2p-wcss {
 		compatible = "qcom,smp2p";
@@ -137,6 +126,10 @@
 			#interrupt-cells = <2>;
 		};
 	};
+};
+
+&q6_region {
+	reg = <0x0 0x4ab00000 0x0 0x2d00000>;
 };
 
 &cpu_opp_table {
@@ -377,14 +370,6 @@
 	status = "okay";
 
 	pcie@0 {
-		device_type = "pci";
-		reg = <0x0 0x0 0x0 0x0 0x0>;
-		bus-range = <0x01 0xff>;
-
-		#address-cells = <3>;
-		#size-cells = <2>;
-		ranges;
-
 		wifi1: wifi@0,0 {
 			compatible = "pci17cb,1104";
 			reg = <0x00010000 0 0 0 0>;
@@ -635,25 +620,12 @@
 
 	/* PCIe 1 (QCN9074 5GHz) */
 	pcie_qcn9074_pins: pcie-qcn9074-state {
-		clkreq-n-pins {
-			pins = "gpio25";
-			function = "pcie1_clk";
-			drive-strength = <6>;
-			bias-pull-up;
-		};
-
 		perst-n-pins {
 			pins = "gpio26";
 			function = "gpio";
 			drive-strength = <8>;
-			bias-pull-up;
+			bias-pull-down;
 			output-low;
-		};
-		wake-n-pins {
-			pins = "gpio27";
-			function = "pcie1_wake";
-			drive-strength = <6>;
-			bias-pull-up;
 		};
 	};
 

@@ -28,6 +28,14 @@ define Device/jiorouter_ax6000-jidu6j11-6811
 endef
 TARGET_DEVICES += jiorouter_ax6000-jidu6j11-6811
 
+define Device/jiorouter_ax6000-jidu6j11-6911
+\t$(call Device/jiorouter_ax6000-jidu6j11)
+\tDEVICE_VARIANT := JIDU6J11-6911
+\tDEVICE_DTS := ipq9554-jiorouter-ax6000-jidu6j11-6911
+\tSUPPORTED_DEVICES := jiorouter,ax6000-jidu6j11-6911 jiorouter,ax6000-jidu6j11 jio,jidu6811
+endef
+TARGET_DEVICES += jiorouter_ax6000-jidu6j11-6911
+
 define Device/jio_jidu6811
 \t$(call Device/jiorouter_ax6000-jidu6j11)
 \tDEVICE_VENDOR := Jio

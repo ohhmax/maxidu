@@ -6,6 +6,11 @@ uci set system.@system[0].zonename="Asia/Kolkata"
 uci set system.@system[0].timezone="IST-5:30"
 uci commit system
 
+# Configure LAN IP to 10.0.0.1
+uci set network.lan.ipaddr="10.0.0.1"
+uci add_list network.lan.ipaddr="10.0.0.254/24" 2>/dev/null || true
+uci commit network
+
 # Enable Dropbear SSH on LAN
 uci set dropbear.@dropbear[0].Interface=""
 uci commit dropbear
@@ -40,9 +45,9 @@ if uci get wireless.radio0 >/dev/null 2>&1; then
 		uci set wireless.@wifi-iface[-1].network="lan"
 		uci set wireless.@wifi-iface[-1].mode="ap"
 	fi
-	uci set wireless.default_radio0.ssid="MaxNet-5G"
-	uci set wireless.default_radio0.encryption="none"
-	uci delete wireless.default_radio0.key 2>/dev/null
+	uci set wireless.default_radio0.ssid="max_5ghz"
+	uci set wireless.default_radio0.encryption="psk2+ccmp"
+	uci set wireless.default_radio0.key="MAXNET772"
 fi
 
 if uci get wireless.radio1 >/dev/null 2>&1; then
@@ -59,9 +64,9 @@ if uci get wireless.radio1 >/dev/null 2>&1; then
 		uci set wireless.@wifi-iface[-1].network="lan"
 		uci set wireless.@wifi-iface[-1].mode="ap"
 	fi
-	uci set wireless.default_radio1.ssid="MaxNet-2.4G"
-	uci set wireless.default_radio1.encryption="none"
-	uci delete wireless.default_radio1.key 2>/dev/null
+	uci set wireless.default_radio1.ssid="max_2.4ghz"
+	uci set wireless.default_radio1.encryption="psk2+ccmp"
+	uci set wireless.default_radio1.key="MAXNET772"
 fi
 
 # Add USB Tethering interface (wan_usb) for mobile internet
