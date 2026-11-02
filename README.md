@@ -3,14 +3,14 @@
 # MaxNet OpenWrt for Jio AirFiber IDU
 ### JIDU6811 / JIDU6J11 (Qualcomm IPQ9574 / IPQ9554)
 
-Official high-performance OpenWrt **Linux 6.18 (AArch64 64-bit)** firmware for the **Jio AirFiber IDU (JIDU6811 / JIDU6J11-6811)** router.
+Official high-performance OpenWrt **Linux 6.18 (AArch64 64-bit)** firmware for the **Jio AirFiber IDU (JIDU6811 / JIDU6J11-6811 / JIDU6911)** router.
 
-[![Build Status](https://github.com/mahendraplus/maxidu/actions/workflows/maxnet.yml/badge.svg)](https://github.com/mahendraplus/maxidu/actions/workflows/maxnet.yml)
-[![Release](https://img.shields.io/github/v/release/mahendraplus/maxidu?color=blue&label=release)](https://github.com/mahendraplus/maxidu/releases/latest)
-[![License](https://img.shields.io/github/license/mahendraplus/maxidu?color=lightgrey)](LICENSE)
-[![Downloads](https://img.shields.io/github/downloads/mahendraplus/maxidu/total?color=success)](https://github.com/mahendraplus/maxidu/releases)
-[![Issues](https://img.shields.io/github/issues/mahendraplus/maxidu)](https://github.com/mahendraplus/maxidu/issues)
-[![Stars](https://img.shields.io/github/stars/mahendraplus/maxidu?style=social)](https://github.com/mahendraplus/maxidu/stargazers)
+[![Build Status](https://github.com/ohhmax/maxidu/actions/workflows/maxnet.yml/badge.svg)](https://github.com/ohhmax/maxidu/actions/workflows/maxnet.yml)
+[![Release](https://img.shields.io/github/v/release/ohhmax/maxidu?color=blue&label=release)](https://github.com/ohhmax/maxidu/releases/latest)
+[![License](https://img.shields.io/github/license/ohhmax/maxidu?color=lightgrey)](LICENSE)
+[![Downloads](https://img.shields.io/github/downloads/ohhmax/maxidu/total?color=success)](https://github.com/ohhmax/maxidu/releases)
+[![Issues](https://img.shields.io/github/issues/ohhmax/maxidu)](https://github.com/ohhmax/maxidu/issues)
+[![Stars](https://img.shields.io/github/stars/ohhmax/maxidu?style=social)](https://github.com/ohhmax/maxidu/stargazers)
 
 </div>
 
@@ -60,10 +60,10 @@ Official high-performance OpenWrt **Linux 6.18 (AArch64 64-bit)** firmware for t
 | **RAM Storage** | 🟢 Working | 512 MB DDR4 RAM @ 1600 MHz |
 | **Flash Memory** | 🟢 Working | 256 MB Winbond SPI Serial NAND (`W25N02KWZEIR`) with UBI / UBIFS Overlay |
 | **Switch & Ethernet Ports** | 🟢 Working | 1x 2.5G/1G WAN (Blue Port) + 4x Gigabit LAN (Yellow Ports) via Qualcomm PPE Hardware NAT Acceleration |
-| **5 GHz Wi-Fi 6** | 🟢 Working | Qualcomm QCN9074 PCIe (`ath11k_pci`), HE80/HE160 @ Channel 36, 30.00 dBm (`MaxNet-5G`, 100% Signal) |
-| **2.4 GHz Wi-Fi 6** | 🟢 Working | Qualcomm IPQ9574 AHB (`ath11k_ahb`), Hexagon Q6 DSP, HT20/HE20 @ Channel 1, 30.00 dBm (`MaxNet-2.4G`, 100% Signal) |
-| **USB 3.0 & 4G/5G Tethering** | 🟢 Working | SuperSpeed USB 3.0 Host + Android/iPhone Mobile USB Tethering (`rndis` / `cdc_ether`) |
-| **LuCI Web Dashboard & SSH** | 🟢 Working | Web UI: `http://192.168.1.1` \| SSH: `root@192.168.1.1` (Port 22) |
+| **5 GHz Wi-Fi 6** | 🟢 Working | Qualcomm QCN9074 PCIe (`ath11k_pci`), HE80/HE160 @ Channel 36, 30.00 dBm (`max_5ghz`, Key: `MAXNET772`) |
+| **2.4 GHz Wi-Fi 6** | 🟢 Working | Qualcomm IPQ9574 AHB (`ath11k_ahb`), Hexagon Q6 DSP, HT20/HE20 @ Channel 1, 30.00 dBm (`max_2.4ghz`, Key: `MAXNET772`) |
+| **USB 3.0 & 4G/5G Tethering** | 🟢 Working | SuperSpeed USB 3.0 Host + Android/iPhone Mobile USB Tethering (`rndis` / `cdc_ether` on `usb0`) |
+| **LuCI Web Dashboard & SSH** | 🟢 Working | Web UI: `http://10.0.0.1` (alias `10.0.0.254`) \| SSH: `root@10.0.0.1` (Port 22) |
 | **Dynamic 3-Stage LEDs** | 🟢 Working | 🔴 Booting → 🔵 Ready / Standby → 🟢 Online (Internet Reachable) |
 
 ---
@@ -72,13 +72,13 @@ Official high-performance OpenWrt **Linux 6.18 (AArch64 64-bit)** firmware for t
 
 | Setting | Default Value | Notes |
 | :--- | :--- | :--- |
-| **Router IP Address** | `192.168.1.1` | Subnet: `255.255.255.0` (`/24`) |
-| **Web Interface (LuCI)** | **[http://192.168.1.1](http://192.168.1.1)** | Accessible from any connected LAN port or Wi-Fi |
-| **SSH Access** | `ssh root@192.168.1.1` | Port `22` |
+| **Router IP Address** | `10.0.0.1` | Subnet: `255.255.255.0` (`/24`), Alias: `10.0.0.254` |
+| **Web Interface (LuCI)** | **[http://10.0.0.1](http://10.0.0.1)** | Accessible from any connected LAN port or Wi-Fi |
+| **SSH Access** | `ssh root@10.0.0.1` | Port `22` (No password required by default) |
 | **Root Password** | *(None / Blank by default)* | Set your password via LuCI or `passwd` command |
-| **Default 2.4 GHz SSID** | **`MaxNet-2.4G`** | Channel 1 (HT20), Open |
-| **Default 5 GHz SSID** | **`MaxNet-5G`** | Channel 36 (HE80), Open |
-| **Default Wi-Fi Password** | **Open / No password** | Configure WPA2/WPA3 in LuCI → Network → Wireless |
+| **Default 2.4 GHz SSID** | **`max_2.4ghz`** | Channel 1 (HT20), WPA2-PSK |
+| **Default 5 GHz SSID** | **`max_5ghz`** | Channel 36 (HE80), WPA2-PSK |
+| **Default Wi-Fi Password** | **`MAXNET772`** | Pre-configured WPA2-PSK security |
 | **Serial Console Baudrate** | `115200 8N1` | Flow control: None |
 
 ---
@@ -185,7 +185,7 @@ sudo ip link set eth0 up
 ```bash
 sudo mkdir -p /srv/tftp
 sudo chmod -R 777 /srv/tftp
-sudo curl -sL https://github.com/mahendraplus/maxidu/releases/latest/download/initramfs.itb -o /srv/tftp/initramfs.itb
+sudo curl -sL https://github.com/ohhmax/maxidu/releases/latest/download/initramfs.itb -o /srv/tftp/initramfs.itb
 sudo systemctl restart tftpd-hpa
 ```
 
@@ -228,12 +228,12 @@ bootm 0x46000000
 
 Within ~10 seconds of booting:
 
-1. **Connect via Browser**: Open **[http://192.168.1.1](http://192.168.1.1)** in your web browser. Click **Login** (no password required).
+1. **Connect via Browser**: Open **[http://10.0.0.1](http://10.0.0.1)** (or `http://10.0.0.254`) in your web browser. Click **Login** (no password required).
 2. **Connect via SSH**:
    ```bash
-   ssh root@192.168.1.1
+   ssh root@10.0.0.1
    ```
-3. **Connect via Wi-Fi**: Connect to **`MaxNet-2.4G`** or **`MaxNet-5G`** on your smartphone or laptop (both broadcast at full signal strength with no password required).
+3. **Connect via Wi-Fi**: Connect to **`max_2.4ghz`** or **`max_5ghz`** on your smartphone or laptop (Password: **`MAXNET772`**).
 
 ---
 
@@ -243,15 +243,15 @@ To make OpenWrt boot permanently in **1 second** and persist all Wi-Fi settings,
 
 ### Method A: Flash via LuCI Web Dashboard (Recommended)
 
-1. Download **`sysupgrade.bin`** from the [Latest Release](https://github.com/mahendraplus/maxidu/releases/latest).
+1. Download **`sysupgrade.bin`** from the [Latest Release](https://github.com/ohhmax/maxidu/releases/latest).
 2. Open your browser and navigate to:
    ```text
-   http://192.168.1.1/cgi-bin/luci/admin/system/flash
+   http://10.0.0.1/cgi-bin/luci/admin/system/flash
    ```
 3. Scroll down to **Flash new firmware image** and click **Flash image...**.
 4. Select the downloaded `sysupgrade.bin` file and click **Upload**.
 5. You will see the **Flash image?** confirmation screen:
-   * **Size**: `~14.74 MiB`
+   * **Size**: `~17.8 MiB`
    * *Notice*: Because you are installing OpenWrt from the RAM/Stock environment, you will see a notice: `invalid sysupgrade file Image check failed.`
 6. **Check the checkbox**: ☑️ **Force upgrade** (Allow flashing even if format check warns).
 7. Uncheck *Keep settings* if you want a clean initial installation.
@@ -264,7 +264,7 @@ To make OpenWrt boot permanently in **1 second** and persist all Wi-Fi settings,
 
 1. Transfer `sysupgrade.bin` from your PC to the router:
    ```bash
-   cat sysupgrade.bin | ssh root@192.168.1.1 "cat > /tmp/sysupgrade.bin"
+   cat sysupgrade.bin | ssh root@10.0.0.1 "cat > /tmp/sysupgrade.bin"
    ```
 2. Run sysupgrade on the router (`root@Maxnet:~#`):
    ```bash
@@ -342,7 +342,7 @@ iwinfo phy1-ap0 info
 
 #### Q: How do I change the Wi-Fi password or SSID?
 **A**:
-Open **[http://192.168.1.1](http://192.168.1.1)** → **Network → Wireless**, click **Edit** on `radio0` (5G) or `radio1` (2.4G), configure your desired SSID and WPA2/WPA3 password, and click **Save & Apply**.
+Open **[http://10.0.0.1](http://10.0.0.1)** → **Network → Wireless**, click **Edit** on `radio0` (5G) or `radio1` (2.4G), configure your desired SSID and WPA2/WPA3 password, and click **Save & Apply**.
 
 ---
 
