@@ -43,10 +43,6 @@ sed -i 's/default y if TARGET_qualcommax/default y/g' package/kernel/mac80211/at
 
 rm -rf tmp
 
-echo "[*] Copying mac80211 patches for IPQ9574 AHB support..."
-mkdir -p package/kernel/mac80211/patches/ath11k/
-cp -r "${CUSTOM_DIR}/patches/mac80211/"* package/kernel/mac80211/patches/ath11k/ 2>/dev/null || true
-
 echo "[*] Configuring .config..."
 python3 "${CUSTOM_DIR}/.github/scripts/write_config.py" .config
 make defconfig
