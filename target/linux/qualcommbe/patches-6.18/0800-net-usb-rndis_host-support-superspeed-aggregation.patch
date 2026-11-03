@@ -1,0 +1,40 @@
+From: Max <max@maxnet.lan>
+Date: Wed, 4 Nov 2026 00:30:00 +0530
+Subject: [PATCH] net: usb: rndis_host: support SuperSpeed multi-packet aggregation
+
+In SuperSpeed (5Gbps) USB 3.0 mode, modern Android devices aggregate multiple
+network frames per bulk IN transfer. With default 2048-byte URBs, batched transfers
+cause buffer overruns and xHCI TRB dequeuer faults under heavy throughput (such
+as speed tests).
+
+Increase dev->rx_urb_size to 32KB when operating at USB_SPEED_SUPER or higher,
+and 16KB otherwise. Also ignore empty 0-byte URBs to prevent bogus rx_errors.
+
+Signed-off-by: Max <max@maxnet.lan>
+---
+--- a/drivers/net/usb/rndis_host.c
++++ b/drivers/net/usb/rndis_host.c
+@@ -347,8 +347,11 @@ generic_rndis_bind(struct usbnet *dev, s
+ 	dev->rx_urb_size &= ~(dev->maxpacket - 1);
+ 
+ 	/* some devices require a receive limit above 2048 for RX aggregation */
+-	if (dev->driver_info->data & RNDIS_DRIVER_DATA_RX_AGGREGATION)
+-		dev->rx_urb_size = max_t(size_t, dev->rx_urb_size, 16 * 1024);
++	if ((dev->driver_info->data & RNDIS_DRIVER_DATA_RX_AGGREGATION) ||
++	    dev->udev->speed >= USB_SPEED_SUPER)
++		dev->rx_urb_size = max_t(size_t, dev->rx_urb_size, 32 * 1024);
++	else
++		dev->rx_urb_size = max_t(size_t, dev->rx_urb_size, 16 * 1024);
+ 
+ 	u.init->max_transfer_size = cpu_to_le32(dev->rx_urb_size);
+ 
+@@ -502,6 +505,9 @@ int rndis_rx_fixup(struct usbnet *dev, s
+ {
+ 	bool dst_mac_fixup;
+ 
++	if (skb->len == 0)
++		return 1;
++
+ 	/* This check is no longer done by usbnet */
+ 	if (skb->len < dev->net->hard_header_len)
+ 		return 0;

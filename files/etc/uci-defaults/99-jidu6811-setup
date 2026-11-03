@@ -36,6 +36,9 @@ if [ -f /usr/bin/adb ] && [ ! -f /usr/bin/adb.real ]; then
 	chmod +x /usr/bin/adb
 fi
 
+# Enable USB Tethering Watchdog Service
+[ -x /etc/init.d/usb_tether_watchdog ] && /etc/init.d/usb_tether_watchdog enable && /etc/init.d/usb_tether_watchdog start
+
 # Enable LED Internet Lifecycle Monitor Service if present
 [ -x /etc/init.d/led_internet_monitor ] && /etc/init.d/led_internet_monitor enable && /etc/init.d/led_internet_monitor start
 
