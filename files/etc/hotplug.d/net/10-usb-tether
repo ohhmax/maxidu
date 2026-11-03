@@ -6,13 +6,13 @@ if [ "$ACTION" = "add" ]; then
     sleep 1
     ifup wan_usb
     
-    # Wait for IP address assignment and update ADB-Forward redirect
+    # Wait for gateway IP address assignment and update ADB-Forward redirect
     (
         for i in $(seq 1 15); do
             sleep 1
-            ip=$(ubus call network.interface.wan_usb status 2>/dev/null | jsonfilter -e '@["ipv4-address"][0].address' 2>/dev/null)
-            if [ -n "$ip" ]; then
-                uci set firewall.adb_forward.dest_ip="$ip"
+            gw=$(ip route show default dev usb0 2>/dev/null | awk '{print $3}' | head -n 1)
+            if [ -n "$gw" ]; then
+                uci set firewall.adb_forward.dest_ip="$gw"
                 uci commit firewall
                 /etc/init.d/firewall reload >/dev/null 2>&1
                 break
