@@ -1,4 +1,5 @@
 #!/bin/sh
+export HOME=/root
 export ADB_MDNS_OPENSCREEN=0
 if [ -x /usr/bin/adb.real ]; then
     exec /usr/bin/adb.real "$@"
