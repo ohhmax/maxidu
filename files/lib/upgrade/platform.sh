@@ -45,7 +45,7 @@ platform_check_image() {
 
 	case "$board" in
 	jio,jidu6811*|jiorouter,ax6000-jidu6j11*)
-		nand_do_platform_check "$board" "$1"
+		nand_do_platform_check "jio,jidu6811" "$1" || nand_do_platform_check "$board" "$1"
 		return $?
 		;;
 	*)
