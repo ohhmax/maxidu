@@ -6,10 +6,14 @@ if [ "$ACTION" = "add" ]; then
     sleep 1
     ethtool -K usb0 gro off gso off tso off 2>/dev/null || true
     ifconfig usb0 txqueuelen 5000 2>/dev/null || true
+    ifconfig usb0 mtu 1400 2>/dev/null || true
 
     # Disable USB autosuspend on controller and root hub
     for f in /sys/bus/usb/devices/*/power/control; do echo on > "$f" 2>/dev/null; done
     for f in /sys/bus/usb/devices/*/power/autosuspend; do echo -1 > "$f" 2>/dev/null; done
+
+    # Disable USB 3.0 LPM on Samsung Galaxy device
+    echo "04e8:6864:k" > /sys/module/usbcore/parameters/quirks 2>/dev/null || true
 
     ifup wan_usb
     
