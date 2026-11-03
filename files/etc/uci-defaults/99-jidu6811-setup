@@ -1,73 +1,19 @@
 #!/bin/sh
 
 # Set system hostname and timezone
-uci set system.@system[0].hostname="Maxnet"
+uci set system.@system[0].hostname="Maxnet-USB"
 uci set system.@system[0].zonename="Asia/Kolkata"
 uci set system.@system[0].timezone="IST-5:30"
 uci commit system
 
-# Configure LAN IP to 10.0.0.1
+# Configure LAN IP to 10.0.0.1 and secondary alias 10.0.0.254
 uci set network.lan.ipaddr="10.0.0.1"
 uci add_list network.lan.ipaddr="10.0.0.254/24" 2>/dev/null || true
 uci commit network
 
-# Enable Dropbear SSH on LAN
+# Enable Dropbear SSH on all interfaces
 uci set dropbear.@dropbear[0].Interface=""
 uci commit dropbear
-
-# Extract real hardware calibration data from 0:ART partition
-. /lib/functions.sh
-art=$(find_mtd_chardev "0:ART")
-if [ -n "$art" ]; then
-	mkdir -p /lib/firmware/ath11k/IPQ9574/hw1.0
-	dd if=$art of=/lib/firmware/ath11k/IPQ9574/hw1.0/cal-ahb-c000000.wifi.bin bs=4096 skip=1 count=32 2>/dev/null
-	mkdir -p /lib/firmware/ath11k/QCN9074/hw1.0
-	dd if=$art of=/lib/firmware/ath11k/QCN9074/hw1.0/cal-pci-0001:01:00.0.bin bs=4096 skip=76 count=32 2>/dev/null
-fi
-
-# Fallback board.bin templates if not present
-mkdir -p /lib/firmware/ath11k/IPQ9574/hw1.0
-[ ! -e /lib/firmware/ath11k/IPQ9574/hw1.0/board.bin ] && [ -f /lib/firmware/ath11k/IPQ9574/hw1.0/bdwlan.bin ] && ln -sf /lib/firmware/ath11k/IPQ9574/hw1.0/bdwlan.bin /lib/firmware/ath11k/IPQ9574/hw1.0/board.bin
-
-# Ensure wireless config exists
-[ ! -f /etc/config/wireless ] || [ ! -s /etc/config/wireless ] && wifi config 2>/dev/null || true
-
-# Enable wireless radios if detected
-if uci get wireless.radio0 >/dev/null 2>&1; then
-	uci set wireless.radio0.disabled="0"
-	uci set wireless.radio0.band="5g"
-	uci set wireless.radio0.channel="36"
-	uci set wireless.radio0.htmode="HE80"
-	uci set wireless.radio0.country="IN"
-	if ! uci get wireless.default_radio0 >/dev/null 2>&1; then
-		uci add wireless wifi-iface
-		uci set wireless.@wifi-iface[-1].device="radio0"
-		uci set wireless.@wifi-iface[-1].network="lan"
-		uci set wireless.@wifi-iface[-1].mode="ap"
-	fi
-	uci set wireless.default_radio0.ssid="max_5ghz"
-	uci set wireless.default_radio0.encryption="psk2+ccmp"
-	uci set wireless.default_radio0.key="MAXNET772"
-fi
-
-if uci get wireless.radio1 >/dev/null 2>&1; then
-	uci set wireless.radio1.disabled="0"
-	uci set wireless.radio1.band="2g"
-	uci set wireless.radio1.channel="1"
-	uci set wireless.radio1.htmode="HT20"
-	uci set wireless.radio1.noscan="1"
-	uci set wireless.radio1.legacy_rates="1"
-	uci set wireless.radio1.country="IN"
-	if ! uci get wireless.default_radio1 >/dev/null 2>&1; then
-		uci add wireless wifi-iface
-		uci set wireless.@wifi-iface[-1].device="radio1"
-		uci set wireless.@wifi-iface[-1].network="lan"
-		uci set wireless.@wifi-iface[-1].mode="ap"
-	fi
-	uci set wireless.default_radio1.ssid="max_2.4ghz"
-	uci set wireless.default_radio1.encryption="psk2+ccmp"
-	uci set wireless.default_radio1.key="MAXNET772"
-fi
 
 # Add USB Tethering interface (wan_usb) for mobile internet
 if ! uci get network.wan_usb >/dev/null 2>&1; then
@@ -75,15 +21,22 @@ if ! uci get network.wan_usb >/dev/null 2>&1; then
 	uci set network.wan_usb.proto="dhcp"
 	uci set network.wan_usb.device="usb0"
 	uci commit network
-	if uci get firewall.@zone[1] >/dev/null 2>&1; then
-		uci add_list firewall.@zone[1].network="wan_usb"
-		uci commit firewall
-	fi
 fi
 
-# Enable LED Internet Lifecycle Monitor Service
-/etc/init.d/led_internet_monitor enable
-/etc/init.d/led_internet_monitor start
+# Ensure wan_usb is part of the wan firewall zone
+if uci get firewall.@zone[1] >/dev/null 2>&1; then
+	uci add_list firewall.@zone[1].network="wan_usb" 2>/dev/null || true
+	uci commit firewall
+fi
 
-uci commit wireless
+# Setup ADB wrapper if adb is installed as real binary
+if [ -f /usr/bin/adb ] && [ ! -f /usr/bin/adb.real ]; then
+	mv /usr/bin/adb /usr/bin/adb.real
+	cp /usr/bin/adb-wrapper /usr/bin/adb
+	chmod +x /usr/bin/adb
+fi
+
+# Enable LED Internet Lifecycle Monitor Service if present
+[ -x /etc/init.d/led_internet_monitor ] && /etc/init.d/led_internet_monitor enable && /etc/init.d/led_internet_monitor start
+
 exit 0

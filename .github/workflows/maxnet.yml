@@ -5,6 +5,7 @@ on:
     branches:
       - Max
       - main
+      - usb-lan-adb
     paths-ignore:
       - 'README.md'
       - 'docs/**'
@@ -36,8 +37,14 @@ jobs:
         run: |
           CDATE=$(date +'%Y.%m.%d')
           RUN_NUM="${{ github.run_number }}"
-          SEM_VER="v2.2.${RUN_NUM}"
-          TAG_NAME="v2.2.${RUN_NUM}-b${RUN_NUM}"
+          BRANCH="${{ github.ref_name }}"
+          if [ "$BRANCH" = "usb-lan-adb" ]; then
+            SEM_VER="v2.2-minimal-usb3-b${RUN_NUM}"
+            TAG_NAME="v2.2-minimal-usb3-b${RUN_NUM}"
+          else
+            SEM_VER="v2.2.${RUN_NUM}"
+            TAG_NAME="v2.2.${RUN_NUM}-b${RUN_NUM}"
+          fi
           echo "semver=${SEM_VER}" >> $GITHUB_OUTPUT
           echo "tag_name=${TAG_NAME}" >> $GITHUB_OUTPUT
 

@@ -632,7 +632,7 @@
 	usb_supply_pin: usb-supply-pin {
 		pins = "gpio64";
 		function = "gpio";
-		drive-strength = <8>;
+		drive-strength = <16>;
 		bias-pull-up;
 		output-high;
 	};
@@ -640,6 +640,9 @@
 
 &usb_0_dwc3 {
 	dr_mode = "host";
+	snps,parkmode-disable-ss-quirk;
+	snps,dis_u2_susphy_quirk;
+	snps,dis_u3_susphy_quirk;
 };
 
 &usb_0_qmpphy {
