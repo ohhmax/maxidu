@@ -120,23 +120,24 @@ Access **`http://10.0.0.1/`** in any web browser connected to a LAN port:
 
 ---
 
-## 🛠️ Kernel Fix: High-Speed Multi-Packet Aggregation
+## 🛠️ Kernel Fix: High-Speed Multi-Packet Aggregation & RX Starvation Prevention
 
 ### The Root Cause:
-Stock Linux `rndis_host.c` assumes a 1:1 mapping between bulk IN USB transfers and network packets (`sk_buff`). Modern 5G smartphones (especially Samsung Galaxy devices on Android 14/15/16) aggregate dozens of Ethernet frames into single 32 KB transfers followed by zero padding.
+1. **Multi-Frame Aggregation (`rndis_host`):** Stock Linux `rndis_host.c` assumes a 1:1 mapping between bulk IN USB transfers and network packets (`sk_buff`). Modern 5G smartphones (especially Samsung Galaxy devices on Android 14/15/16) aggregate dozens of Ethernet frames into single 32 KB transfers followed by zero padding. Stock drivers flag trailing zeros as length errors, accumulating `rx_errors` and halting the interface.
+2. **RX Ring Starvation & Deadlock (`usbnet`):** Linux `usbnet.c` sets `rx_qlen = 5 * MAX_QUEUE_MEMORY / rx_urb_size`. For SuperSpeed 32 KB URBs, `rx_qlen` is only **13 URBs** (~416 KB). At sustained high throughput (>45 MB/s), any transient USB PHY jitter drains all 13 URBs within milliseconds. If an `-EPROTO` error triggers the 125ms throttle timer, `usbnet_bh()` skips replenishing URBs while the queue is empty, permanently starving the host controller ring and causing complete internet dropouts.
 
-On unpatched kernels:
-1. Downlink traffic > 45 MB/s triggers multi-frame bulk transfers.
-2. The stock driver processes the first frame, ignores subsequent aggregated frames, and flags trailing zero padding as length errors.
-3. Linux `usbnet.c` records thousands of `rx_errors++`.
-4. After 20 consecutive errors, the driver triggers `EVENT_RX_KILL`, terminating the USB RX pipe and dropping internet connectivity.
-
-### The Solution in MaxNet `usb-lan-adb`:
-Patch `0800-net-usb-rndis_host-support-superspeed-aggregation.patch` introduces:
-* `FLAG_MULTI_PACKET` declaration on `rndis_info`.
-* Inner packet extraction loop in `rndis_rx_fixup()` that unpacks each concatenated frame into its own `sk_buff` and delivers it via `usbnet_skb_return()`.
-* Graceful termination on padding zeros without incrementing error counters.
-* Full line-rate stability tested beyond 1.3+ GB continuous transfers with **0 errors**.
+### The Two-Tiered Solution in MaxNet `usb-lan-adb`:
+* **Patch `0800-net-usb-rndis_host-support-superspeed-aggregation.patch`:**
+  - Enables `FLAG_MULTI_PACKET` on `rndis_info`.
+  - Inner packet extraction loop in `rndis_rx_fixup()` that unpacks each concatenated frame into its own `sk_buff` and delivers it via `usbnet_skb_return()`.
+  - Graceful termination on padding zeros without incrementing error counters.
+* **Patch `0801-net-usb-usbnet-prevent-rx-queue-starvation.patch`:**
+  - Expands SuperSpeed `rx_qlen` to at least **32 URBs (~1 MB depth)** and `tx_qlen` to 64 URBs.
+  - Aggressive queue replenishment: `rx_alloc_submit()` refills up to `RX_QLEN` immediately whenever `dev->rxq.qlen == 0`.
+  - Anti-deadlock bypass: in `usbnet_bh()`, if `dev->rxq.qlen == 0`, immediately submits replenishment URBs without waiting for the throttle timer.
+  - Self-healing `EVENT_RX_HALT`: unblocks RX processing even if `usb_clear_halt()` encounters transient USB errors.
+* **Self-Healing Watchdog:**
+  - Automated detection and hardware-level USB bus rebind (`unbind` -> `bind` on `/sys/bus/usb/drivers/usb/*-*`) to reset xHCI controller rings and recover leases in under 3 seconds if connectivity ever stalls.
 
 ---
 
