@@ -2,15 +2,13 @@
 
 # MaxNet OpenWrt for Jio AirFiber IDU
 ### JIDU6811 / JIDU6J11 (Qualcomm IPQ9574 / IPQ9554)
+#### Specialized Branch: `usb-lan-adb` (USB 3.0 SuperSpeed + LAN + ADB + Port 80 Web Monitor)
 
-Official high-performance OpenWrt **Linux 6.18 (AArch64 64-bit)** firmware for the **Jio AirFiber IDU (JIDU6811 / JIDU6J11-6811 / JIDU6911)** router.
+Official high-performance OpenWrt **Linux 6.18 (AArch64 64-bit)** firmware engineered specifically for high-speed mobile tethering, pure Gigabit LAN routing, and remote ADB modem management.
 
 [![Build Status](https://github.com/ohhmax/maxidu/actions/workflows/maxnet.yml/badge.svg)](https://github.com/ohhmax/maxidu/actions/workflows/maxnet.yml)
 [![Release](https://img.shields.io/github/v/release/ohhmax/maxidu?color=blue&label=release)](https://github.com/ohhmax/maxidu/releases/latest)
 [![License](https://img.shields.io/github/license/ohhmax/maxidu?color=lightgrey)](LICENSE)
-[![Downloads](https://img.shields.io/github/downloads/ohhmax/maxidu/total?color=success)](https://github.com/ohhmax/maxidu/releases)
-[![Issues](https://img.shields.io/github/issues/ohhmax/maxidu)](https://github.com/ohhmax/maxidu/issues)
-[![Stars](https://img.shields.io/github/stars/ohhmax/maxidu?style=social)](https://github.com/ohhmax/maxidu/stargazers)
 
 </div>
 
@@ -18,37 +16,45 @@ Official high-performance OpenWrt **Linux 6.18 (AArch64 64-bit)** firmware for t
 
 ## 📑 Table of Contents
 
-- [☕ Support This Project](#-support-this-project)
+- [⚡ Specialized Edition Features (`usb-lan-adb`)](#-specialized-edition-features-usb-lan-adb)
 - [📊 Hardware Specifications & Subsystem Status](#-hardware-specifications--subsystem-status)
 - [🔑 Default Firmware Settings](#-default-firmware-settings)
-- [📦 Release Files Explained](#-release-files-explained)
-- [🛠️ Prerequisites & PC Setup](#️-prerequisites--pc-setup)
-- [🔌 Hardware Serial UART Connection](#-hardware-serial-uart-connection)
-- [🔐 U-Boot Login & Password Retrieval](#-u-boot-login--password-retrieval)
-- [🚀 Step 1: Safe RAM Boot via TFTP (Testing Mode)](#-step-1-safe-ram-boot-via-tftp-testing-mode)
-- [🌐 Step 2: Accessing OpenWrt](#-step-2-accessing-openwrt)
-- [💾 Step 3: Permanent Production Installation (Persistent Flash)](#-step-3-permanent-production-installation-persistent-flash)
-  - [Method A: Web Dashboard (LuCI GUI)](#method-a-flash-via-luci-web-dashboard-recommended)
-  - [Method B: Terminal (SSH Command Line)](#method-b-flash-via-ssh-terminal)
-  - [Configuring Permanent U-Boot Autoboot](#step-33-configure-permanent-u-boot-autoboot)
-- [💡 Tips & Advanced Features](#-tips--advanced-features)
-  - [1. USB 4G/5G Phone Tethering](#1-usb-4g5g-phone-tethering)
-  - [2. Dynamic 3-Stage LED Status Indicators](#2-dynamic-3-stage-led-status-indicators)
-  - [3. Wi-Fi Management & Verification](#3-wi-fi-management--verification)
-- [❓ Comprehensive Troubleshooting & FAQ](#-comprehensive-troubleshooting--faq)
+- [🖥️ Port 80 Monochrome Web Monitor](#️-port-80-monochrome-web-monitor)
+- [🛠️ Kernel Fix: High-Speed Multi-Packet Aggregation](#️-kernel-fix-high-speed-multi-packet-aggregation)
+- [📦 Installation & Flashing Instructions](#-installation--flashing-instructions)
+  - [Method A: SSH Flash via Terminal (Fastest)](#method-a-ssh-flash-via-terminal-fastest)
+  - [Method B: RAM Boot via TFTP in U-Boot](#method-b-ram-boot-via-tftp-in-u-boot)
+- [💡 Connected ADB Device & 5G Management](#-connected-adb-device--5g-management)
+- [❓ FAQ & Technical Notes](#-faq--technical-notes)
 
 ---
 
-## ☕ Support This Project
+## ⚡ Specialized Edition Features (`usb-lan-adb`)
 
-> 💡 **Fuel development & keep this project actively maintained!**
-> 
-> Creating and maintaining open-source custom firmware for modern Wi-Fi 6 Qualcomm hardware takes extensive reverse engineering and testing. If this firmware helped you, consider supporting the work:
+This branch is a streamlined, enterprise-grade firmware tailored specifically for users who connect a 5G/4G smartphone or USB modem as their primary WAN gateway:
 
-### UPI Payment:
-```text
-9824584454@ybl
-```
+1. **SuperSpeed USB 3.0 (5000 Mbps) with Multi-Packet Aggregation:**
+   - Custom Linux 6.18 kernel patch (`0800-net-usb-rndis_host-support-superspeed-aggregation.patch`).
+   - Fixes the classic Linux `rndis_host` bug where downlink speeds exceeding 45 MB/s (>360 Mbps) trigger packet drops (`rx_errors`) and `EVENT_RX_KILL` interface crashes.
+   - Tested and verified at full line rate (>135 Mbps single stream, multi-stream gigabit bursts) with **0 packet drops and 0 errors across millions of packets**.
+
+2. **Firmware-Level Zero-Wi-Fi Architecture (Maximum Free RAM):**
+   - Completely removes Wi-Fi drivers (`ath11k`, `mac80211`, `cfg80211`) and proprietary firmware blobs (~30 MB).
+   - Qualcomm Hexagon Q6 wireless coprocessor (`q6v5_wcss`) and radios (`wifi0`, `wifi1`) are permanently disabled at Device Tree (`DTS`) and kernel level.
+   - Reclaims ~150–200 MB of system RAM previously consumed by Host Memory Buffers (HMB), leaving **~300+ MB of RAM free** for line-rate routing and caching.
+
+3. **Built-in Android Debug Bridge (ADB):**
+   - Native ADB client and daemon integrated into the rootfs.
+   - Pre-installed authorization keys allowing passwordless, zero-touch remote management of roof-mounted or headless smartphones.
+   - Query live 5G signal metrics (RSRP, SINR, RSRQ, Band n77), battery health, thermals, and reboot device via CLI.
+
+4. **Zero-Overhead Monochrome Web Monitor on Port 80:**
+   - Ultra-clean, dark terminal-style dashboard accessible at `http://10.0.0.1/`.
+   - Strictly monochrome (grayscale, black/white, zero emojis) with monospace typography.
+   - **Pure On-Demand Execution:** Zero background loops, no cron jobs, 0.00% background CPU utilization, and `< 1.1 MB` RAM consumption.
+
+5. **Qualcomm PPE Hardware Acceleration:**
+   - 4x Gigabit LAN ports (`lan1`–`lan4`) accelerated with Qualcomm Packet Processing Engine (PPE) hardware offload.
 
 ---
 
@@ -56,15 +62,16 @@ Official high-performance OpenWrt **Linux 6.18 (AArch64 64-bit)** firmware for t
 
 | Subsystem | Status | Technical Details |
 | :--- | :---: | :--- |
-| **CPU Architecture** | 🟢 Working | Quad-Core ARM Cortex-A73 @ 2.2 GHz (AArch64 64-bit, Linux 6.18) |
-| **RAM Storage** | 🟢 Working | 512 MB DDR4 RAM @ 1600 MHz |
-| **Flash Memory** | 🟢 Working | 256 MB Winbond SPI Serial NAND (`W25N02KWZEIR`) with UBI / UBIFS Overlay |
-| **Switch & Ethernet Ports** | 🟢 Working | 1x 2.5G/1G WAN (Blue Port) + 4x Gigabit LAN (Yellow Ports) via Qualcomm PPE Hardware NAT Acceleration |
-| **5 GHz Wi-Fi 6** | 🟢 Working | Qualcomm QCN9074 PCIe (`ath11k_pci`), HE80/HE160 @ Channel 36, 30.00 dBm (`max_5ghz`, Key: `MAXNET772`) |
-| **2.4 GHz Wi-Fi 6** | 🟢 Working | Qualcomm IPQ9574 AHB (`ath11k_ahb`), Hexagon Q6 DSP, HT20/HE20 @ Channel 1, 30.00 dBm (`max_2.4ghz`, Key: `MAXNET772`) |
-| **USB 3.0 & 4G/5G Tethering** | 🟢 Working | SuperSpeed USB 3.0 Host + Android/iPhone Mobile USB Tethering (`rndis` / `cdc_ether` on `usb0`) |
-| **LuCI Web Dashboard & SSH** | 🟢 Working | Web UI: `http://10.0.0.1` (alias `10.0.0.254`) \| SSH: `root@10.0.0.1` (Port 22) |
-| **Dynamic 3-Stage LEDs** | 🟢 Working | 🔴 Booting → 🔵 Ready / Standby → 🟢 Online (Internet Reachable) |
+| **SoC / CPU** | 🟢 Active | Qualcomm IPQ9574 (Quad-Core ARM Cortex-A73 @ 2.2 GHz, AArch64 64-bit) |
+| **System Memory** | 🟢 Optimized | 512 MB DDR4 RAM (~300+ MB Free, Zero Wi-Fi DMA Overhead) |
+| **Storage (Flash)** | 🟢 Active | 256 MB Winbond SPI NAND (`/overlay` with ~173 MB free space) |
+| **USB 3.0 Subsystem** | 🟢 SuperSpeed | Locked SuperSpeed 5000 Mbps (`dwc3-qcom`), MTU 1400 |
+| **Ethernet LAN** | 🟢 Active | 4x Gigabit LAN (Yellow Ports, `lan1`–`lan4`) bridged to `br-lan` with PPE hardware NAT |
+| **Ethernet WAN** | 🟢 Ready | 1x 2.5G/1G WAN (Blue Port, `wan`) |
+| **Wi-Fi Subsystems** | ⚪ Disabled | Permanently disabled at DTS/Firmware level to optimize RAM & thermals |
+| **Web Monitor** | 🟢 Active | Lightweight Port 80 Monochrome Dashboard (`http://10.0.0.1/`) |
+| **SSH Management** | 🟢 Active | Port 22 (`root@10.0.0.1`), Dropbear with blank password default |
+| **ADB Management** | 🟢 Active | Local ADB daemon + wrapper (`adb devices`, `adb shell`) |
 
 ---
 
@@ -72,303 +79,154 @@ Official high-performance OpenWrt **Linux 6.18 (AArch64 64-bit)** firmware for t
 
 | Setting | Default Value | Notes |
 | :--- | :--- | :--- |
-| **Router IP Address** | `10.0.0.1` | Subnet: `255.255.255.0` (`/24`), Alias: `10.0.0.254` |
-| **Web Interface (LuCI)** | **[http://10.0.0.1](http://10.0.0.1)** | Accessible from any connected LAN port or Wi-Fi |
+| **Router LAN IP** | `10.0.0.1` | Subnet: `255.255.255.0` (`/24`), Secondary Alias: `10.0.0.254` |
+| **Web Monitor (Port 80)** | **[http://10.0.0.1](http://10.0.0.1)** | Instant monochrome status monitor (No login required) |
 | **SSH Access** | `ssh root@10.0.0.1` | Port `22` (No password required by default) |
-| **Root Password** | *(None / Blank by default)* | Set your password via LuCI or `passwd` command |
-| **Default 2.4 GHz SSID** | **`max_2.4ghz`** | Channel 1 (HT20), WPA2-PSK |
-| **Default 5 GHz SSID** | **`max_5ghz`** | Channel 36 (HE80), WPA2-PSK |
-| **Default Wi-Fi Password** | **`MAXNET772`** | Pre-configured WPA2-PSK security |
-| **Serial Console Baudrate** | `115200 8N1` | Flow control: None |
+| **WAN Interface** | `wan_usb` (`usb0`) | Automatic DHCP client for USB 3.0 mobile tethering |
+| **ADB Service** | Port `5037` | Managed locally via `adb` CLI command on the router |
 
 ---
 
-## 📦 Release Files Explained
+## 🖥️ Port 80 Monochrome Web Monitor
 
-Every release provides three firmware binaries tailored for different stages:
+Access **`http://10.0.0.1/`** in any web browser connected to a LAN port:
 
-| File Name | Typical Size | Primary Purpose | How to Use |
-| :--- | :---: | :--- | :--- |
-| **`initramfs.itb`** | ~16.6 MB | **RAM Boot & Testing (No Risk)** | Loaded into memory via TFTP in U-Boot (`tftpboot 0x46000000 initramfs.itb` → `bootm 0x46000000`). Leaves NAND untouched. |
-| **`sysupgrade.bin`** | ~14.7 MB | **Permanent Production Flash & Web Upgrades** | Used to install or upgrade OpenWrt permanently with persistent storage via LuCI Web UI or `sysupgrade` command. |
-| **`factory.ubi`** | ~15.5 MB | **Raw UBI NAND Container** | Raw UBI image formatted for the NAND `ubi` partition containing separate `kernel` and `rootfs` squashfs volumes. |
+```text
++-----------------------------------------------------------------------------+
+| MAXNET // GATEWAY MONITOR                                                   |
+| USB 3.0 LAN + 5G SA MODEM • ZERO BACKGROUND OVERHEAD                        |
+|                                         [ ] AUTO-REFRESH (10s)  [ REFRESH ] |
++-----------------------------------------------------------------------------+
+| [01] 5G MODEM (ADB) [SM-G990B2]       | [02] ROUTER SYSTEM         [ONLINE] |
+| ------------------------------------- | ----------------------------------- |
+| NETWORK / RAT : Jio True5G [NR_SA]    | SOC / PLATFORM: IPQ9574 [LINUX 6.18]|
+| 5G BAND       : BAND N77 (3.5 GHZ)    | UPTIME        : 14H 22M             |
+| SIGNAL METRICS: |||| RSRP: -99 DBM    | LOAD AVG      : 0.00 / 0.02 / 0.00  |
+| BATTERY LEVEL : 99% [FULL / TRICKLE]  | SOC TEMP      : 49.3 C              |
+| BATTERY TEMP  : 34.2 C / 4248 MV      | SYSTEM MEMORY : 310 MB FREE (68%)   |
+| INTERNAL STOR : 218 GB FREE / 224 GB  | OVERLAY FLASH : 173 MB FREE / 178 MB|
++-----------------------------------------------------------------------------+
+| [03] USB 3.0 TETHER INTERFACE (usb0)                    [SUPERSPEED 5000 MBPS]|
+| --------------------------------------------------------------------------- |
+| RX VOLUME: 1,493.96 MB (1,219,337 PKTS)  | TX VOLUME: 80.81 MB (359,493 PKTS)|
+| ERROR COUNTERS: 0 ERR / 0 DROP           | LINK MTU : 1400 BYTES [FQ_CODEL]  |
++-----------------------------------------------------------------------------+
+```
+
+### Key Technical Properties:
+* **Zero Background Overhead:** Data is polled ONLY when a user opens the page or hits `[ REFRESH ]`. When the tab is closed, CPU utilization remains `0.00%`.
+* **Microfootprint Web Server:** Powered by OpenWrt's native `uhttpd` utilizing only ~1.1 MB RAM.
+* **Strict Monochrome:** Pure `#000000` dark background, `#ffffff` typography, and `#242424` borders without emojis.
 
 ---
 
-## 🛠️ Prerequisites & PC Setup
+## 🛠️ Kernel Fix: High-Speed Multi-Packet Aggregation
 
-### 1. Hardware Needed:
-* **Jio AirFiber IDU Router** (`JIDU6811` / `JIDU6J11-6811`)
-* **USB-to-UART 3.3V Serial Adapter** (CP2102, CH340, FT232, or PL2303)
-* **Ethernet Cable** (Cat5e / Cat6)
-* **Linux PC** (Ubuntu / Debian / Fedora / Arch)
+### The Root Cause:
+Stock Linux `rndis_host.c` assumes a 1:1 mapping between bulk IN USB transfers and network packets (`sk_buff`). Modern 5G smartphones (especially Samsung Galaxy devices on Android 14/15/16) aggregate dozens of Ethernet frames into single 32 KB transfers followed by zero padding.
 
-### 2. Install Required Tools on Linux PC:
+On unpatched kernels:
+1. Downlink traffic > 45 MB/s triggers multi-frame bulk transfers.
+2. The stock driver processes the first frame, ignores subsequent aggregated frames, and flags trailing zero padding as length errors.
+3. Linux `usbnet.c` records thousands of `rx_errors++`.
+4. After 20 consecutive errors, the driver triggers `EVENT_RX_KILL`, terminating the USB RX pipe and dropping internet connectivity.
 
-#### **Ubuntu / Debian:**
-```bash
-sudo apt update && sudo apt install -y minicom tftpd-hpa curl
-```
-
-#### **Arch Linux / Manjaro / EndeavourOS:**
-```bash
-sudo pacman -Syu --needed minicom tftp-hpa curl
-```
-
-### 3. Grant Permanent Serial Port Permissions (One-Time Setup):
-Run this command once on your Linux PC so you never need `sudo chmod 777 /dev/ttyUSB0` again:
-
-* **Ubuntu / Debian:**
-  ```bash
-  echo 'KERNEL=="ttyUSB*", MODE="0666", GROUP="dialout"' | sudo tee /etc/udev/rules.d/99-ttyusb.rules && sudo usermod -aG dialout,tty $USER && sudo udevadm control --reload-rules && sudo udevadm trigger
-  ```
-
-* **Arch Linux:**
-  ```bash
-  echo 'KERNEL=="ttyUSB*", MODE="0666", GROUP="uucp"' | sudo tee /etc/udev/rules.d/99-ttyusb.rules && sudo usermod -aG uucp,tty $USER && sudo udevadm control --reload-rules && sudo udevadm trigger
-  ```
+### The Solution in MaxNet `usb-lan-adb`:
+Patch `0800-net-usb-rndis_host-support-superspeed-aggregation.patch` introduces:
+* `FLAG_MULTI_PACKET` declaration on `rndis_info`.
+* Inner packet extraction loop in `rndis_rx_fixup()` that unpacks each concatenated frame into its own `sk_buff` and delivers it via `usbnet_skb_return()`.
+* Graceful termination on padding zeros without incrementing error counters.
+* Full line-rate stability tested beyond 1.3+ GB continuous transfers with **0 errors**.
 
 ---
 
-## 🔌 Hardware Serial UART Connection
+## 📦 Installation & Flashing Instructions
 
-Connect your USB-to-UART adapter to the router's internal UART header pins:
+### Method A: SSH Flash via Terminal (Fastest)
 
-| USB-to-UART Adapter | Router UART Pin |
-| :---: | :---: |
-| **GND** | **GND** |
-| **TX** | **RX** |
-| **RX** | **TX** |
+If your router is already running OpenWrt:
 
-> ⚠️ **CRITICAL**: Do **NOT** connect the VCC (3.3V / 5V) pin! Power the router only using its original 12V DC wall adapter.
-
-Open serial console on your PC:
-```bash
-minicom -D /dev/ttyUSB0 -b 115200
-```
-
----
-
-## 🔐 U-Boot Login & Password Retrieval
-
-During boot, if prompted for credentials:
-
-| Field | Value |
-| :--- | :--- |
-| **Username** | `________` |
-| **Password** | `________________` |
-
-> ℹ️ **Observed Pattern (JIDU6801 / JIDU6701):**
-> * **Username** → Last 8 digits of the RSN printed on the barcode sticker on the back of the router.
-> * **Password** → Reverse of the username digits + an 8-character suffix (e.g. `9rOL8bjr` or `pYunNk45`).
-> 
-> *Example*: If the RSN is `RTHHGAK00123456`, Username is `00123456` and Password is `654321009rOL8bjr`.
-
-### Direct Password Extraction (If SSH Access Exists on Stock Firmware):
-If you have SSH access to stock firmware, you can read the exact password directly:
-```bash
-gm_factory_init.sh get uboot_passwd
-```
-```bash
-/usr/bin/jioMfgData get ubootPasswd
-```
-```bash
-strings /dev/mtd7 | grep -i pass
-```
-
----
-
-## 🚀 Step 1: Safe RAM Boot via TFTP (Testing Mode)
-
-Testing in RAM is 100% risk-free — nothing is written to the flash memory until you are satisfied.
-
-### 1.1 Set Static IP on Linux PC:
-Connect your PC Ethernet cable to the router's **LAN4 (or WAN)** port:
-
-```bash
-sudo ip addr flush dev eth0
-sudo ip addr add 192.168.1.2/24 dev eth0
-sudo ip link set eth0 up
-```
-*(Replace `eth0` with your PC network interface name from `ip link`)*
-
----
-
-### 1.2 Prepare TFTP Server on PC:
-
-* **Ubuntu / Debian:**
-  ```bash
-  sudo mkdir -p /srv/tftp
-  sudo chmod -R 777 /srv/tftp
-  sudo curl -sL https://github.com/ohhmax/maxidu/releases/latest/download/initramfs.itb -o /srv/tftp/initramfs.itb
-  sudo systemctl restart tftpd-hpa
-  ```
-
-* **Arch Linux:**
-  ```bash
-  sudo mkdir -p /srv/tftp
-  sudo chmod -R 777 /srv/tftp
-  sudo curl -sL https://github.com/ohhmax/maxidu/releases/latest/download/initramfs.itb -o /srv/tftp/initramfs.itb
-  sudo systemctl restart tftpd.service
-  ```
-
----
-
-### 1.3 Boot in U-Boot (Run Each Command Separately):
-
-Power on the router and hit any key in serial console to stop autoboot. Enter your unit's U-Boot username and password.
-
-At the `IPQ9574#` prompt, enter these commands **one by one**:
-
-```bash
-setenv ipaddr 192.168.1.10
-```
-```bash
-setenv serverip 192.168.1.2
-```
-```bash
-dcache off; icache off
-```
-```bash
-setenv fdt_high
-```
-```bash
-setenv initrd_high
-```
-```bash
-setenv bootargs "console=ttyMSM0,115200n8 earlycon"
-```
-```bash
-tftpboot 0x46000000 initramfs.itb
-```
-```bash
-bootm 0x46000000
-```
-
----
-
-## 🌐 Step 2: Accessing OpenWrt
-
-Within ~10 seconds of booting:
-
-1. **Connect via Browser**: Open **[http://10.0.0.1](http://10.0.0.1)** (or `http://10.0.0.254`) in your web browser. Click **Login** (no password required).
-2. **Connect via SSH**:
+1. Download the latest `sysupgrade.bin` from [Releases](https://github.com/ohhmax/maxidu/releases):
    ```bash
-   ssh root@10.0.0.1
+   curl -sL https://github.com/ohhmax/maxidu/releases/latest/download/sysupgrade.bin -o sysupgrade.bin
    ```
-3. **Connect via Wi-Fi**: Connect to **`max_2.4ghz`** or **`max_5ghz`** on your smartphone or laptop (Password: **`MAXNET772`**).
 
----
-
-## 💾 Step 3: Permanent Production Installation (Persistent Flash)
-
-To make OpenWrt boot permanently in **1 second** and persist all Wi-Fi settings, passwords, and packages across reboots:
-
-### Method A: Flash via LuCI Web Dashboard (Recommended)
-
-1. Download **`sysupgrade.bin`** from the [Latest Release](https://github.com/ohhmax/maxidu/releases/latest).
-2. Open your browser and navigate to:
-   ```text
-   http://10.0.0.1/cgi-bin/luci/admin/system/flash
-   ```
-3. Scroll down to **Flash new firmware image** and click **Flash image...**.
-4. Select the downloaded `sysupgrade.bin` file and click **Upload**.
-5. You will see the **Flash image?** confirmation screen:
-   * **Size**: `~17.8 MiB`
-   * *Notice*: Because you are installing OpenWrt from the RAM/Stock environment, you will see a notice: `invalid sysupgrade file Image check failed.`
-6. **Check the checkbox**: ☑️ **Force upgrade** (Allow flashing even if format check warns).
-7. Uncheck *Keep settings* if you want a clean initial installation.
-8. Click **Continue**.
-9. The router will write the UBI partition and reboot permanently in ~30 seconds!
-
----
-
-### Method B: Flash via SSH Terminal
-
-1. Transfer `sysupgrade.bin` from your PC to the router:
+2. Transfer the image to the router's `/tmp` directory:
    ```bash
    cat sysupgrade.bin | ssh root@10.0.0.1 "cat > /tmp/sysupgrade.bin"
    ```
-2. Run sysupgrade on the router (`root@Maxnet:~#`):
+
+3. Flash the firmware permanently (wiping clean overlay):
    ```bash
-   sysupgrade -F -v -n /tmp/sysupgrade.bin
+   ssh root@10.0.0.1 "sysupgrade -v -n /tmp/sysupgrade.bin"
+   ```
+
+The router will write the flash memory, cleanly reboot within 30 seconds, and emerge with the new kernel and Web Monitor active.
+
+---
+
+### Method B: RAM Boot via TFTP in U-Boot
+
+If setting up for the first time or recovering:
+
+1. Connect PC via Ethernet cable to **LAN4 (or WAN)** and set static IP: `192.168.1.2/24`.
+2. Place `initramfs.itb` in your TFTP server directory (`/srv/tftp/initramfs.itb`).
+3. Connect UART serial adapter (115200 8N1) and stop autoboot in U-Boot.
+4. Execute in U-Boot:
+   ```text
+   setenv ipaddr 192.168.1.10
+   setenv serverip 192.168.1.2
+   dcache off; icache off
+   setenv fdt_high
+   setenv initrd_high
+   setenv bootargs "console=ttyMSM0,115200n8 earlycon"
+   tftpboot 0x46000000 initramfs.itb
+   bootm 0x46000000
    ```
 
 ---
 
-### Step 3.3: Configure Permanent U-Boot Autoboot
+## 💡 Connected ADB Device & 5G Management
 
-Once the router restarts, at the `IPQ9574#` prompt, enter these commands **one by one**:
+From the router SSH terminal, manage the connected smartphone directly:
 
-```bash
-setenv bootcmd "ubi part ubi; ubi read 0x44000000 kernel; bootm 0x44000000"
-```
-```bash
-setenv fdt_high
-```
-```bash
-setenv initrd_high
-```
-```bash
-saveenv
-```
-```bash
-reset
-```
-
----
-
-### 🎉 Congratulations!
-Your router is now permanently running full **OpenWrt Production Mode**:
-* ⚡ **1-Second Instant Boot**: Loads the optimized kernel directly from the UBI partition.
-* 💾 **Persistent Flash Storage**: All Wi-Fi passwords, SSIDs, network settings, and installed packages are permanently preserved across reboots.
-* 🚫 **No Recovery Warning**: LuCI runs in full production read-write mode.
+* **Verify Connection:**
+  ```bash
+  adb devices
+  ```
+* **Check 5G Cell Details & Signal:**
+  ```bash
+  adb shell "dumpsys telephony.registry | grep -m 1 mCellInfo="
+  ```
+* **Check Battery & Charging State:**
+  ```bash
+  adb shell "dumpsys battery | head -n 15"
+  ```
+* **Reboot Phone Remotely:**
+  ```bash
+  adb reboot
+  ```
 
 ---
 
-## 💡 Tips & Advanced Features
+## ❓ FAQ & Technical Notes
 
-### 1. USB 4G/5G Phone Tethering:
-Plug any Android smartphone or iPhone into the USB 3.0 port and enable **USB Tethering** in your phone's settings. The router automatically detects the connection (`wan_usb` interface) and shares mobile internet across all Ethernet ports and Wi-Fi networks with zero configuration!
-
-### 2. Dynamic 3-Stage LED Status Indicators:
-The router features an automated hardware daemon monitoring network connectivity:
-* **🔴 Red Solid**: Router is booting and initializing hardware peripherals.
-* **🔵 Blue Solid**: OpenWrt is ready (LAN & Wi-Fi active, waiting for WAN/Internet).
-* **🟢 Green Solid**: Connected to the Internet (Gateway and DNS reachable).
-
-### 3. Wi-Fi Management & Verification:
-Check active wireless status and signal strengths from the router terminal:
+#### Q: How can I change the router LAN IP?
+Edit `/etc/config/network`:
 ```bash
-iw dev
-```
-```bash
-iwinfo phy0-ap0 info
-iwinfo phy1-ap0 info
+uci set network.lan.ipaddr="192.168.1.1"
+uci commit network
+/etc/init.d/network restart
 ```
 
----
+#### Q: Is LuCI Web UI included?
+No. To maximize free memory, reduce attack surface, and prevent flash wear, LuCI is omitted. The lightweight Port 80 Web Monitor (`http://10.0.0.1/`) provides real-time system and modem diagnostics with zero overhead.
 
-## ❓ Comprehensive Troubleshooting & FAQ
-
-#### Q: Why did LuCI Web UI say `invalid sysupgrade file Image check failed` during upload?
-**A**: When migrating from stock firmware or initial RAM boot (`initramfs.itb`), OpenWrt's metadata validator does not find existing board profiles in flash. Simply check the ☑️ **Force upgrade** box and click **Continue**. The firmware will flash successfully.
-
-#### Q: Why did U-Boot show `Console buffer overflow occured!!` or clip my pasted command?
-**A**: U-Boot's serial console input buffer has a strict line length limit (~64 characters). Avoid pasting long multi-command chains in a single line. Run each command separately as shown in the step-by-step guide.
-
-#### Q: TFTP transfer times out (`T T T T T`)?
-**A**:
-1. Verify that your PC Ethernet static IP is set to `192.168.1.2/24`.
-2. Temporarily disable any active PC firewalls: `sudo ufw disable`.
-3. Verify TFTP service status on PC: `sudo systemctl status tftpd-hpa`.
-
-#### Q: How do I change the Wi-Fi password or SSID?
-**A**:
-Open **[http://10.0.0.1](http://10.0.0.1)** → **Network → Wireless**, click **Edit** on `radio0` (5G) or `radio1` (2.4G), configure your desired SSID and WPA2/WPA3 password, and click **Save & Apply**.
+#### Q: Can I re-enable Wi-Fi?
+If you require Wi-Fi, use the `main` branch of MaxNet. The `usb-lan-adb` branch intentionally disables Wi-Fi hardware to maximize RAM, lower thermal dissipation on roof deployments, and focus purely on wired Gigabit routing.
 
 ---
 
 <div align="center">
-Made with ❤️ for the OpenWrt & Networking Community.
+Built for high-performance tethering & zero-compromise stability.
 </div>
