@@ -3,184 +3,244 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MaxNet USB 3.0 & 5G Monitor</title>
+  <title>MAXNET // USB 3.0 & 5G MONITOR</title>
   <style>
     :root {
-      --bg: #0d1117;
-      --card-bg: #161b22;
-      --card-border: #30363d;
-      --text: #c9d1d9;
-      --text-muted: #8b949e;
-      --accent: #58a6ff;
-      --success: #3fb950;
-      --warning: #d29922;
-      --danger: #f85149;
-      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --bg: #000000;
+      --surface: #0c0c0c;
+      --surface-subtle: #141414;
+      --border: #242424;
+      --border-bright: #383838;
+      --text: #ffffff;
+      --text-muted: #888888;
+      --text-dim: #555555;
+      --mono: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", Menlo, Consolas, monospace;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: var(--font);
-      padding: 16px;
-      line-height: 1.5;
+      font-family: var(--mono);
+      font-size: 13px;
+      line-height: 1.6;
+      padding: 24px 16px;
+      letter-spacing: -0.01em;
     }
     .container {
-      max-width: 1100px;
+      max-width: 1040px;
       margin: 0 auto;
     }
     header {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: flex-start;
       padding-bottom: 16px;
-      margin-bottom: 20px;
-      border-bottom: 1px solid var(--card-border);
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border);
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 16px;
     }
     .header-title h1 {
-      font-size: 1.5rem;
-      font-weight: 600;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text);
     }
     .header-title p {
-      font-size: 0.85rem;
+      font-size: 11px;
       color: var(--text-muted);
+      letter-spacing: 0.04em;
+      margin-top: 2px;
+      text-transform: uppercase;
     }
     .actions {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 16px;
+    }
+    .auto-toggle {
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      user-select: none;
+    }
+    .auto-toggle input {
+      accent-color: #ffffff;
+      cursor: pointer;
     }
     button.btn {
-      background: #238636;
-      color: #fff;
-      border: 1px solid rgba(240,246,252,0.1);
-      padding: 8px 14px;
-      border-radius: 6px;
-      font-size: 0.9rem;
-      font-weight: 500;
+      background: #ffffff;
+      color: #000000;
+      border: 1px solid #ffffff;
+      padding: 6px 14px;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
       cursor: pointer;
       display: flex;
       align-items: center;
       gap: 6px;
-      transition: background 0.2s;
+      transition: background 0.15s, color 0.15s;
     }
-    button.btn:hover { background: #2ea043; }
-    button.btn:disabled { opacity: 0.6; cursor: not-allowed; }
-    .auto-toggle {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      gap: 6px;
+    button.btn:hover {
+      background: #cccccc;
+      border-color: #cccccc;
     }
-    .auto-toggle input { cursor: pointer; }
+    button.btn:disabled {
+      background: #333333;
+      border-color: #333333;
+      color: #777777;
+      cursor: not-allowed;
+    }
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
       gap: 16px;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
-    .card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 8px;
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
       padding: 16px;
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 12px;
     }
-    .card-header {
+    .panel-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid var(--card-border);
-      padding-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
     }
-    .card-title {
-      font-size: 1.05rem;
-      font-weight: 600;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+    .panel-tag {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #ffffff;
     }
     .badge {
-      font-size: 0.75rem;
-      font-weight: 600;
-      padding: 2px 8px;
-      border-radius: 12px;
-      background: #21262d;
-      border: 1px solid var(--card-border);
+      font-size: 10px;
+      letter-spacing: 0.04em;
+      padding: 2px 6px;
+      text-transform: uppercase;
+      background: var(--surface-subtle);
+      border: 1px solid var(--border-bright);
+      color: #ffffff;
     }
-    .badge.green { background: rgba(63, 185, 80, 0.15); color: var(--success); border-color: rgba(63, 185, 80, 0.4); }
-    .badge.blue { background: rgba(88, 166, 255, 0.15); color: var(--accent); border-color: rgba(88, 166, 255, 0.4); }
-    .stat-row {
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 3px 0;
+      font-size: 12px;
+      border-bottom: 1px dotted var(--border);
+    }
+    .row:last-child {
+      border-bottom: none;
+    }
+    .lbl {
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.02em;
+    }
+    .val {
+      font-weight: 600;
+      color: #ffffff;
+      text-align: right;
+    }
+    .val-dim {
+      color: var(--text-muted);
+      font-weight: normal;
+    }
+    .bar-wrap {
+      background: #1a1a1a;
+      height: 4px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      margin-top: 2px;
+    }
+    .bar-fill {
+      background: #ffffff;
+      height: 100%;
+      width: 0%;
+      transition: width 0.25s ease;
+    }
+    .signal-meter {
+      display: inline-flex;
+      align-items: flex-end;
+      gap: 2px;
+      height: 12px;
+    }
+    .signal-tick {
+      width: 3px;
+      background: #2a2a2a;
+    }
+    .signal-tick:nth-child(1) { height: 25%; }
+    .signal-tick:nth-child(2) { height: 50%; }
+    .signal-tick:nth-child(3) { height: 75%; }
+    .signal-tick:nth-child(4) { height: 100%; }
+    .signal-tick.on { background: #ffffff; }
+    .stats-matrix {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .stat-cell {
+      background: var(--surface-subtle);
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+    }
+    .stat-cell .stat-caption {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .stat-cell .stat-num {
+      font-size: 15px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-top: 3px;
+      letter-spacing: -0.02em;
+    }
+    .stat-cell .stat-sub {
+      font-size: 10px;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+    footer {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 0.9rem;
-      padding: 4px 0;
-      border-bottom: 1px dashed rgba(48, 54, 61, 0.5);
+      padding-top: 16px;
+      margin-top: 12px;
+      border-top: 1px solid var(--border);
+      font-size: 10px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      flex-wrap: wrap;
+      gap: 8px;
     }
-    .stat-row:last-child { border-bottom: none; }
-    .stat-label { color: var(--text-muted); }
-    .stat-val { font-weight: 500; color: #fff; }
-    .stat-val.highlight { color: var(--accent); }
-    .stat-val.good { color: var(--success); }
-    .stat-val.warn { color: var(--warning); }
-    .progress-bar-bg {
-      background: #21262d;
-      border-radius: 4px;
-      height: 8px;
-      overflow: hidden;
-      margin-top: 4px;
-    }
-    .progress-bar-fill {
-      background: var(--accent);
-      height: 100%;
-      border-radius: 4px;
-      transition: width 0.3s ease;
-    }
-    .progress-bar-fill.green { background: var(--success); }
-    .progress-bar-fill.orange { background: var(--warning); }
-    .signal-bars {
-      display: inline-flex;
-      align-items: flex-end;
-      gap: 3px;
-      height: 16px;
-    }
-    .signal-bar {
-      width: 4px;
-      background: #30363d;
-      border-radius: 1px;
-    }
-    .signal-bar:nth-child(1) { height: 25%; }
-    .signal-bar:nth-child(2) { height: 50%; }
-    .signal-bar:nth-child(3) { height: 75%; }
-    .signal-bar:nth-child(4) { height: 100%; }
-    .signal-bar.active { background: var(--success); }
-    footer {
-      text-align: center;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-top: 24px;
-      padding-top: 12px;
-      border-top: 1px solid var(--card-border);
-    }
-    .spinner {
+    .loader {
       display: inline-block;
-      width: 12px;
-      height: 12px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-radius: 50%;
-      border-top-color: #fff;
-      animation: spin 0.8s linear infinite;
+      width: 8px;
+      height: 8px;
+      border: 1px solid #777777;
+      border-top-color: #000000;
+      animation: spin 0.6s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
   </style>
@@ -189,135 +249,136 @@
   <div class="container">
     <header>
       <div class="header-title">
-        <h1><span>⚡</span> MaxNet Gateway & 5G Monitor</h1>
-        <p>Zero Background Overhead • Direct On-Demand Query</p>
+        <h1>MAXNET // GATEWAY MONITOR</h1>
+        <p>USB 3.0 LAN + 5G SA MODEM &bull; ZERO BACKGROUND OVERHEAD</p>
       </div>
       <div class="actions">
         <label class="auto-toggle">
-          <input type="checkbox" id="autoRefresh"> Auto-refresh (10s)
+          <input type="checkbox" id="autoRefresh"> AUTO-REFRESH (10s)
         </label>
         <button class="btn" id="refreshBtn" onclick="fetchData()">
-          <span id="btnIcon">🔄</span> Refresh
+          <span id="btnIcon"></span>REFRESH
         </button>
       </div>
     </header>
 
     <div class="grid">
-      <!-- 5G Mobile Modem Card -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">📱 5G Modem (ADB Device)</div>
-          <span class="badge blue" id="modemModel">Samsung 5G</span>
+      <!-- 01. 5G MODEM (ADB) -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-tag">[01] 5G MODEM (ADB)</span>
+          <span class="badge" id="modemModel">DEVICE</span>
         </div>
-        <div class="stat-row">
-          <span class="stat-label">Operator & RAT</span>
-          <span class="stat-val highlight" id="cellOp">Jio True5G (NR_SA)</span>
+        <div class="row">
+          <span class="lbl">NETWORK / RAT</span>
+          <span class="val" id="cellOp">--</span>
         </div>
-        <div class="stat-row">
-          <span class="stat-label">5G Band</span>
-          <span class="stat-val" id="cellBand">Band n77 (3.5 GHz)</span>
+        <div class="row">
+          <span class="lbl">5G BAND</span>
+          <span class="val" id="cellBand">--</span>
         </div>
-        <div class="stat-row">
-          <span class="stat-label">Signal Quality</span>
-          <div class="stat-val" style="display:flex; align-items:center; gap:8px;">
-            <div class="signal-bars" id="signalBars">
-              <div class="signal-bar active"></div>
-              <div class="signal-bar active"></div>
-              <div class="signal-bar active"></div>
-              <div class="signal-bar active"></div>
+        <div class="row">
+          <span class="lbl">SIGNAL METRICS</span>
+          <div class="val" style="display:flex; align-items:center; gap:6px;">
+            <div class="signal-meter" id="signalMeter">
+              <div class="signal-tick"></div>
+              <div class="signal-tick"></div>
+              <div class="signal-tick"></div>
+              <div class="signal-tick"></div>
             </div>
-            <span id="signalDetails">RSRP: -99 dBm | SINR: 10 dB</span>
+            <span id="signalDetails">--</span>
           </div>
         </div>
-        <div class="stat-row">
-          <span class="stat-label">Battery Level</span>
-          <span class="stat-val good" id="batteryLevel">99% (Charging)</span>
+        <div class="row">
+          <span class="lbl">BATTERY LEVEL</span>
+          <span class="val" id="batteryLevel">--</span>
         </div>
-        <div class="progress-bar-bg">
-          <div class="progress-bar-fill green" id="batteryFill" style="width: 99%;"></div>
+        <div class="bar-wrap">
+          <div class="bar-fill" id="batteryFill"></div>
         </div>
-        <div class="stat-row">
-          <span class="stat-label">Battery Temp & Health</span>
-          <span class="stat-val good" id="batteryTemp">34.2°C • Healthy</span>
+        <div class="row">
+          <span class="lbl">BATTERY TEMP / VOLT</span>
+          <span class="val" id="batteryTemp">--</span>
         </div>
-        <div class="stat-row">
-          <span class="stat-label">Mobile Storage</span>
-          <span class="stat-val" id="mobileStorage">218 GB Free / 224 GB</span>
+        <div class="row">
+          <span class="lbl">INTERNAL STORAGE</span>
+          <span class="val" id="mobileStorage">--</span>
         </div>
-        <div class="stat-row">
-          <span class="stat-label">Mobile RAM</span>
-          <span class="stat-val" id="mobileRam">8 GB Physical</span>
+        <div class="row">
+          <span class="lbl">PHYSICAL RAM</span>
+          <span class="val" id="mobileRam">--</span>
         </div>
       </div>
 
-      <!-- Router Health & Stats Card -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">🛡️ Router (IPQ9574)</div>
-          <span class="badge green" id="routerStatus">Active</span>
+      <!-- 02. ROUTER SYSTEM (IPQ9574) -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-tag">[02] ROUTER SYSTEM</span>
+          <span class="badge" id="routerStatus">STANDBY</span>
         </div>
-        <div class="stat-row">
-          <span class="stat-label">Model & Firmware</span>
-          <span class="stat-val" id="routerFirmware">Jio AX6000 (OpenWrt 6.18)</span>
+        <div class="row">
+          <span class="lbl">SOC / PLATFORM</span>
+          <span class="val" id="routerFirmware">--</span>
         </div>
-        <div class="stat-row">
-          <span class="stat-label">Router Uptime</span>
-          <span class="stat-val" id="routerUptime">--</span>
+        <div class="row">
+          <span class="lbl">UPTIME</span>
+          <span class="val" id="routerUptime">--</span>
         </div>
-        <div class="stat-row">
-          <span class="stat-label">CPU Load (1m, 5m, 15m)</span>
-          <span class="stat-val" id="cpuLoad">0.00, 0.00, 0.00</span>
+        <div class="row">
+          <span class="lbl">LOAD AVG (1/5/15m)</span>
+          <span class="val" id="cpuLoad">--</span>
         </div>
-        <div class="stat-row">
-          <span class="stat-label">SoC Temperature</span>
-          <span class="stat-val good" id="routerTemp">-- °C</span>
+        <div class="row">
+          <span class="lbl">SOC TEMPERATURE</span>
+          <span class="val" id="routerTemp">--</span>
         </div>
-        <div class="stat-row">
-          <span class="stat-label">Router RAM (Free / Total)</span>
-          <span class="stat-val" id="routerRam">--</span>
+        <div class="row">
+          <span class="lbl">SYSTEM MEMORY</span>
+          <span class="val" id="routerRam">--</span>
         </div>
-        <div class="progress-bar-bg">
-          <div class="progress-bar-fill" id="ramFill" style="width: 20%;"></div>
+        <div class="bar-wrap">
+          <div class="bar-fill" id="ramFill"></div>
         </div>
-        <div class="stat-row">
-          <span class="stat-label">Overlay Storage</span>
-          <span class="stat-val" id="routerStorage">--</span>
+        <div class="row">
+          <span class="lbl">OVERLAY FLASH</span>
+          <span class="val" id="routerStorage">--</span>
         </div>
       </div>
 
-      <!-- USB 3.0 High-Speed Tether Link Card -->
-      <div class="card" style="grid-column: 1 / -1;">
-        <div class="card-header">
-          <div class="card-title">🚀 USB 3.0 Tether Interface (usb0)</div>
-          <span class="badge blue" id="usbSpeedBadge">SuperSpeed 5000 Mbps</span>
+      <!-- 03. USB 3.0 TETHER (usb0) -->
+      <div class="panel" style="grid-column: 1 / -1;">
+        <div class="panel-header">
+          <span class="panel-tag">[03] USB 3.0 TETHER INTERFACE (usb0)</span>
+          <span class="badge" id="usbSpeedBadge">5000 MBPS</span>
         </div>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 4px;">
-          <div class="card" style="background: #0d1117; padding: 12px;">
-            <div class="stat-label">RX Transferred</div>
-            <div class="stat-val highlight" style="font-size: 1.3rem;" id="rxBytes">0 MB</div>
-            <div style="font-size: 0.75rem; color: var(--text-muted);" id="rxPackets">0 packets</div>
+        <div class="stats-matrix">
+          <div class="stat-cell">
+            <div class="stat-caption">RX VOLUME</div>
+            <div class="stat-num" id="rxBytes">0 MB</div>
+            <div class="stat-sub" id="rxPackets">0 packets</div>
           </div>
-          <div class="card" style="background: #0d1117; padding: 12px;">
-            <div class="stat-label">TX Transferred</div>
-            <div class="stat-val" style="font-size: 1.3rem;" id="txBytes">0 MB</div>
-            <div style="font-size: 0.75rem; color: var(--text-muted);" id="txPackets">0 packets</div>
+          <div class="stat-cell">
+            <div class="stat-caption">TX VOLUME</div>
+            <div class="stat-num" id="txBytes">0 MB</div>
+            <div class="stat-sub" id="txPackets">0 packets</div>
           </div>
-          <div class="card" style="background: #0d1117; padding: 12px;">
-            <div class="stat-label">Error Counters</div>
-            <div class="stat-val good" style="font-size: 1.3rem;" id="errCounter">0 Drops / 0 Errors</div>
-            <div style="font-size: 0.75rem; color: var(--success);">Aggregation Fix Active</div>
+          <div class="stat-cell">
+            <div class="stat-caption">ERROR COUNTERS</div>
+            <div class="stat-num" id="errCounter">0 ERR / 0 DROP</div>
+            <div class="stat-sub">AGGREGATION ACTIVE</div>
           </div>
-          <div class="card" style="background: #0d1117; padding: 12px;">
-            <div class="stat-label">Link MTU & Flow</div>
-            <div class="stat-val" style="font-size: 1.3rem;" id="usbMtu">1400 Bytes</div>
-            <div style="font-size: 0.75rem; color: var(--text-muted);">fq_codel active</div>
+          <div class="stat-cell">
+            <div class="stat-caption">LINK MTU / FLOW</div>
+            <div class="stat-num" id="usbMtu">1400 BYTES</div>
+            <div class="stat-sub">FQ_CODEL</div>
           </div>
         </div>
       </div>
     </div>
 
     <footer>
-      Last updated: <span id="lastUpdated">Just now</span> • MaxNet Firmware Engine (Zero-load on-demand fetch)
+      <div>STATUS: <span id="lastUpdated">STANDBY</span></div>
+      <div>ARCHITECTURE: MONOCHROME // ON-DEMAND</div>
     </footer>
   </div>
 
@@ -328,7 +389,7 @@
       const btn = document.getElementById('refreshBtn');
       const icon = document.getElementById('btnIcon');
       btn.disabled = true;
-      icon.innerHTML = '<span class="spinner"></span>';
+      icon.innerHTML = '<span class="loader"></span> ';
 
       try {
         const res = await fetch('/cgi-bin/status');
@@ -337,77 +398,76 @@
         render(data);
       } catch (err) {
         console.error('Fetch error:', err);
-        document.getElementById('lastUpdated').innerText = 'Fetch failed: ' + err.message;
+        document.getElementById('lastUpdated').innerText = 'ERROR: ' + err.message.toUpperCase();
       } finally {
         btn.disabled = false;
-        icon.innerHTML = '🔄';
+        icon.innerHTML = '';
       }
     }
 
     function render(data) {
       if (!data) return;
 
-      // 1. Mobile Data
+      // 1. Mobile (ADB)
       if (data.mobile) {
         const m = data.mobile;
-        document.getElementById('modemModel').innerText = m.model + ' (' + m.os + ')';
+        document.getElementById('modemModel').innerText = (m.model || 'ADB DEVICE') + ' / ' + (m.os || 'ANDROID');
         if (m.cellular) {
-          document.getElementById('cellOp').innerText = m.cellular.operator + ' • ' + m.cellular.network;
-          document.getElementById('cellBand').innerText = 'Band ' + m.cellular.band + ' (' + m.cellular.frequency + ')';
-          document.getElementById('signalDetails').innerText = 'RSRP: ' + m.cellular.rsrp_dbm + ' dBm | SINR: ' + m.cellular.sinr_db + ' dB';
+          document.getElementById('cellOp').innerText = (m.cellular.operator || 'UNKNOWN') + ' [' + (m.cellular.network || 'NR_SA') + ']';
+          document.getElementById('cellBand').innerText = 'BAND ' + (m.cellular.band || 'N77') + ' (' + (m.cellular.frequency || '3.5 GHZ') + ')';
+          document.getElementById('signalDetails').innerText = 'RSRP: ' + m.cellular.rsrp_dbm + ' DBM | SINR: ' + m.cellular.sinr_db + ' DB';
           
-          // Bars
-          const barsContainer = document.getElementById('signalBars');
-          const barsCount = Math.max(1, Math.min(4, m.cellular.bars || 4));
-          barsContainer.innerHTML = '';
+          const meter = document.getElementById('signalMeter');
+          const count = Math.max(1, Math.min(4, m.cellular.bars || 4));
+          meter.innerHTML = '';
           for (let i = 1; i <= 4; i++) {
-            const bar = document.createElement('div');
-            bar.className = 'signal-bar' + (i <= barsCount ? ' active' : '');
-            barsContainer.appendChild(bar);
+            const tick = document.createElement('div');
+            tick.className = 'signal-tick' + (i <= count ? ' on' : '');
+            meter.appendChild(tick);
           }
         }
         if (m.battery) {
-          document.getElementById('batteryLevel').innerText = m.battery.level + '% (' + m.battery.status + ')';
+          document.getElementById('batteryLevel').innerText = m.battery.level + '% [' + (m.battery.status || 'OK').toUpperCase() + ']';
           document.getElementById('batteryFill').style.width = m.battery.level + '%';
-          document.getElementById('batteryTemp').innerText = m.battery.temp_c + '°C • ' + m.battery.voltage_mv + ' mV';
+          document.getElementById('batteryTemp').innerText = m.battery.temp_c + ' C / ' + m.battery.voltage_mv + ' MV';
         }
         if (m.storage) {
-          document.getElementById('mobileStorage').innerText = m.storage.avail + ' Free / ' + m.storage.total + ' (' + m.storage.used_pct + ' used)';
+          document.getElementById('mobileStorage').innerText = m.storage.avail + ' FREE / ' + m.storage.total + ' (' + m.storage.used_pct + ')';
         }
         if (m.memory) {
-          document.getElementById('mobileRam').innerText = m.memory.total_mb + ' MB (' + m.memory.free_mb + ' MB free)';
+          document.getElementById('mobileRam').innerText = m.memory.total_mb + ' MB (' + m.memory.free_mb + ' MB FREE)';
         }
       }
 
-      // 2. Router Data
+      // 2. Router
       if (data.router) {
         const r = data.router;
-        document.getElementById('routerFirmware').innerText = r.model;
-        document.getElementById('routerUptime').innerText = r.uptime;
-        document.getElementById('cpuLoad').innerText = r.load_avg.join(', ');
-        document.getElementById('routerTemp').innerText = r.temp_c + ' °C';
+        document.getElementById('routerStatus').innerText = 'ONLINE';
+        document.getElementById('routerFirmware').innerText = (r.model || 'IPQ9574') + ' [' + (r.kernel || 'LINUX') + ']';
+        document.getElementById('routerUptime').innerText = (r.uptime || '--').toUpperCase();
+        document.getElementById('cpuLoad').innerText = r.load_avg.join(' / ');
+        document.getElementById('routerTemp').innerText = r.temp_c + ' C';
         if (r.memory) {
-          document.getElementById('routerRam').innerText = r.memory.available_mb + ' MB Available / ' + r.memory.total_mb + ' MB (' + r.memory.used_pct + '% used)';
+          document.getElementById('routerRam').innerText = r.memory.available_mb + ' MB AVAIL / ' + r.memory.total_mb + ' MB (' + r.memory.used_pct + '%)';
           document.getElementById('ramFill').style.width = r.memory.used_pct + '%';
         }
         if (r.storage) {
-          document.getElementById('routerStorage').innerText = r.storage.free_mb + ' MB Free / ' + r.storage.total_mb + ' MB';
+          document.getElementById('routerStorage').innerText = r.storage.free_mb + ' MB FREE / ' + r.storage.total_mb + ' MB';
         }
         if (r.usb) {
-          document.getElementById('usbSpeedBadge').innerText = r.usb.link_mode + ' (' + r.usb.speed_mbps + ' Mbps)';
+          document.getElementById('usbSpeedBadge').innerText = (r.usb.link_mode || 'SUPERSPEED').toUpperCase() + ' ' + r.usb.speed_mbps + ' MBPS';
           document.getElementById('rxBytes').innerText = r.usb.rx_mb + ' MB';
           document.getElementById('txBytes').innerText = r.usb.tx_mb + ' MB';
-          document.getElementById('rxPackets').innerText = Number(r.usb.rx_packets).toLocaleString() + ' packets';
-          document.getElementById('txPackets').innerText = Number(r.usb.tx_packets).toLocaleString() + ' packets';
-          document.getElementById('errCounter').innerText = r.usb.rx_errors + ' RX Err / ' + r.usb.tx_errors + ' TX Err';
-          document.getElementById('usbMtu').innerText = r.usb.mtu + ' Bytes';
+          document.getElementById('rxPackets').innerText = Number(r.usb.rx_packets).toLocaleString() + ' PKTS';
+          document.getElementById('txPackets').innerText = Number(r.usb.tx_packets).toLocaleString() + ' PKTS';
+          document.getElementById('errCounter').innerText = r.usb.rx_errors + ' ERR / ' + r.usb.tx_errors + ' DROP';
+          document.getElementById('usbMtu').innerText = r.usb.mtu + ' BYTES';
         }
       }
 
-      document.getElementById('lastUpdated').innerText = data.timestamp || new Date().toLocaleTimeString();
+      document.getElementById('lastUpdated').innerText = data.timestamp || new Date().toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
     }
 
-    // Auto-refresh control
     document.getElementById('autoRefresh').addEventListener('change', function(e) {
       if (e.target.checked) {
         timer = setInterval(fetchData, 10000);
@@ -417,7 +477,6 @@
       }
     });
 
-    // Run once on page load (zero background polling when page is closed!)
     fetchData();
   </script>
 </body>
