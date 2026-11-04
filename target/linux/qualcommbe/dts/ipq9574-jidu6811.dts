@@ -10,9 +10,13 @@
 };
 
 &wifi0 {
-	qcom,ath11k-calibration-variant = "JIDU6J11-6811";
+	status = "disabled";
 };
 
 &wifi1 {
-	qcom,ath11k-calibration-variant = "JIDU6J11-6811";
+	status = "disabled";
+};
+
+&q6v5_wcss {
+	status = "disabled";
 };

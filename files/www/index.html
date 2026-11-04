@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MaxNet USB 3.0 & 5G Monitor</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --card-bg: #161b22;
+      --card-border: #30363d;
+      --text: #c9d1d9;
+      --text-muted: #8b949e;
+      --accent: #58a6ff;
+      --success: #3fb950;
+      --warning: #d29922;
+      --danger: #f85149;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      padding: 16px;
+      line-height: 1.5;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 16px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--card-border);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .header-title h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .header-title p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    button.btn {
+      background: #238636;
+      color: #fff;
+      border: 1px solid rgba(240,246,252,0.1);
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.2s;
+    }
+    button.btn:hover { background: #2ea043; }
+    button.btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .auto-toggle {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .auto-toggle input { cursor: pointer; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 10px;
+    }
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .badge {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 12px;
+      background: #21262d;
+      border: 1px solid var(--card-border);
+    }
+    .badge.green { background: rgba(63, 185, 80, 0.15); color: var(--success); border-color: rgba(63, 185, 80, 0.4); }
+    .badge.blue { background: rgba(88, 166, 255, 0.15); color: var(--accent); border-color: rgba(88, 166, 255, 0.4); }
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.9rem;
+      padding: 4px 0;
+      border-bottom: 1px dashed rgba(48, 54, 61, 0.5);
+    }
+    .stat-row:last-child { border-bottom: none; }
+    .stat-label { color: var(--text-muted); }
+    .stat-val { font-weight: 500; color: #fff; }
+    .stat-val.highlight { color: var(--accent); }
+    .stat-val.good { color: var(--success); }
+    .stat-val.warn { color: var(--warning); }
+    .progress-bar-bg {
+      background: #21262d;
+      border-radius: 4px;
+      height: 8px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+    .progress-bar-fill {
+      background: var(--accent);
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+    .progress-bar-fill.green { background: var(--success); }
+    .progress-bar-fill.orange { background: var(--warning); }
+    .signal-bars {
+      display: inline-flex;
+      align-items: flex-end;
+      gap: 3px;
+      height: 16px;
+    }
+    .signal-bar {
+      width: 4px;
+      background: #30363d;
+      border-radius: 1px;
+    }
+    .signal-bar:nth-child(1) { height: 25%; }
+    .signal-bar:nth-child(2) { height: 50%; }
+    .signal-bar:nth-child(3) { height: 75%; }
+    .signal-bar:nth-child(4) { height: 100%; }
+    .signal-bar.active { background: var(--success); }
+    footer {
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 24px;
+      padding-top: 12px;
+      border-top: 1px solid var(--card-border);
+    }
+    .spinner {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="header-title">
+        <h1><span>⚡</span> MaxNet Gateway & 5G Monitor</h1>
+        <p>Zero Background Overhead • Direct On-Demand Query</p>
+      </div>
+      <div class="actions">
+        <label class="auto-toggle">
+          <input type="checkbox" id="autoRefresh"> Auto-refresh (10s)
+        </label>
+        <button class="btn" id="refreshBtn" onclick="fetchData()">
+          <span id="btnIcon">🔄</span> Refresh
+        </button>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- 5G Mobile Modem Card -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📱 5G Modem (ADB Device)</div>
+          <span class="badge blue" id="modemModel">Samsung 5G</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Operator & RAT</span>
+          <span class="stat-val highlight" id="cellOp">Jio True5G (NR_SA)</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">5G Band</span>
+          <span class="stat-val" id="cellBand">Band n77 (3.5 GHz)</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Signal Quality</span>
+          <div class="stat-val" style="display:flex; align-items:center; gap:8px;">
+            <div class="signal-bars" id="signalBars">
+              <div class="signal-bar active"></div>
+              <div class="signal-bar active"></div>
+              <div class="signal-bar active"></div>
+              <div class="signal-bar active"></div>
+            </div>
+            <span id="signalDetails">RSRP: -99 dBm | SINR: 10 dB</span>
+          </div>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Battery Level</span>
+          <span class="stat-val good" id="batteryLevel">99% (Charging)</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill green" id="batteryFill" style="width: 99%;"></div>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Battery Temp & Health</span>
+          <span class="stat-val good" id="batteryTemp">34.2°C • Healthy</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Mobile Storage</span>
+          <span class="stat-val" id="mobileStorage">218 GB Free / 224 GB</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Mobile RAM</span>
+          <span class="stat-val" id="mobileRam">8 GB Physical</span>
+        </div>
+      </div>
+
+      <!-- Router Health & Stats Card -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🛡️ Router (IPQ9574)</div>
+          <span class="badge green" id="routerStatus">Active</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Model & Firmware</span>
+          <span class="stat-val" id="routerFirmware">Jio AX6000 (OpenWrt 6.18)</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Router Uptime</span>
+          <span class="stat-val" id="routerUptime">--</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">CPU Load (1m, 5m, 15m)</span>
+          <span class="stat-val" id="cpuLoad">0.00, 0.00, 0.00</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">SoC Temperature</span>
+          <span class="stat-val good" id="routerTemp">-- °C</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Router RAM (Free / Total)</span>
+          <span class="stat-val" id="routerRam">--</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="ramFill" style="width: 20%;"></div>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Overlay Storage</span>
+          <span class="stat-val" id="routerStorage">--</span>
+        </div>
+      </div>
+
+      <!-- USB 3.0 High-Speed Tether Link Card -->
+      <div class="card" style="grid-column: 1 / -1;">
+        <div class="card-header">
+          <div class="card-title">🚀 USB 3.0 Tether Interface (usb0)</div>
+          <span class="badge blue" id="usbSpeedBadge">SuperSpeed 5000 Mbps</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 4px;">
+          <div class="card" style="background: #0d1117; padding: 12px;">
+            <div class="stat-label">RX Transferred</div>
+            <div class="stat-val highlight" style="font-size: 1.3rem;" id="rxBytes">0 MB</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);" id="rxPackets">0 packets</div>
+          </div>
+          <div class="card" style="background: #0d1117; padding: 12px;">
+            <div class="stat-label">TX Transferred</div>
+            <div class="stat-val" style="font-size: 1.3rem;" id="txBytes">0 MB</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);" id="txPackets">0 packets</div>
+          </div>
+          <div class="card" style="background: #0d1117; padding: 12px;">
+            <div class="stat-label">Error Counters</div>
+            <div class="stat-val good" style="font-size: 1.3rem;" id="errCounter">0 Drops / 0 Errors</div>
+            <div style="font-size: 0.75rem; color: var(--success);">Aggregation Fix Active</div>
+          </div>
+          <div class="card" style="background: #0d1117; padding: 12px;">
+            <div class="stat-label">Link MTU & Flow</div>
+            <div class="stat-val" style="font-size: 1.3rem;" id="usbMtu">1400 Bytes</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">fq_codel active</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      Last updated: <span id="lastUpdated">Just now</span> • MaxNet Firmware Engine (Zero-load on-demand fetch)
+    </footer>
+  </div>
+
+  <script>
+    let timer = null;
+
+    async function fetchData() {
+      const btn = document.getElementById('refreshBtn');
+      const icon = document.getElementById('btnIcon');
+      btn.disabled = true;
+      icon.innerHTML = '<span class="spinner"></span>';
+
+      try {
+        const res = await fetch('/cgi-bin/status');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        render(data);
+      } catch (err) {
+        console.error('Fetch error:', err);
+        document.getElementById('lastUpdated').innerText = 'Fetch failed: ' + err.message;
+      } finally {
+        btn.disabled = false;
+        icon.innerHTML = '🔄';
+      }
+    }
+
+    function render(data) {
+      if (!data) return;
+
+      // 1. Mobile Data
+      if (data.mobile) {
+        const m = data.mobile;
+        document.getElementById('modemModel').innerText = m.model + ' (' + m.os + ')';
+        if (m.cellular) {
+          document.getElementById('cellOp').innerText = m.cellular.operator + ' • ' + m.cellular.network;
+          document.getElementById('cellBand').innerText = 'Band ' + m.cellular.band + ' (' + m.cellular.frequency + ')';
+          document.getElementById('signalDetails').innerText = 'RSRP: ' + m.cellular.rsrp_dbm + ' dBm | SINR: ' + m.cellular.sinr_db + ' dB';
+          
+          // Bars
+          const barsContainer = document.getElementById('signalBars');
+          const barsCount = Math.max(1, Math.min(4, m.cellular.bars || 4));
+          barsContainer.innerHTML = '';
+          for (let i = 1; i <= 4; i++) {
+            const bar = document.createElement('div');
+            bar.className = 'signal-bar' + (i <= barsCount ? ' active' : '');
+            barsContainer.appendChild(bar);
+          }
+        }
+        if (m.battery) {
+          document.getElementById('batteryLevel').innerText = m.battery.level + '% (' + m.battery.status + ')';
+          document.getElementById('batteryFill').style.width = m.battery.level + '%';
+          document.getElementById('batteryTemp').innerText = m.battery.temp_c + '°C • ' + m.battery.voltage_mv + ' mV';
+        }
+        if (m.storage) {
+          document.getElementById('mobileStorage').innerText = m.storage.avail + ' Free / ' + m.storage.total + ' (' + m.storage.used_pct + ' used)';
+        }
+        if (m.memory) {
+          document.getElementById('mobileRam').innerText = m.memory.total_mb + ' MB (' + m.memory.free_mb + ' MB free)';
+        }
+      }
+
+      // 2. Router Data
+      if (data.router) {
+        const r = data.router;
+        document.getElementById('routerFirmware').innerText = r.model;
+        document.getElementById('routerUptime').innerText = r.uptime;
+        document.getElementById('cpuLoad').innerText = r.load_avg.join(', ');
+        document.getElementById('routerTemp').innerText = r.temp_c + ' °C';
+        if (r.memory) {
+          document.getElementById('routerRam').innerText = r.memory.available_mb + ' MB Available / ' + r.memory.total_mb + ' MB (' + r.memory.used_pct + '% used)';
+          document.getElementById('ramFill').style.width = r.memory.used_pct + '%';
+        }
+        if (r.storage) {
+          document.getElementById('routerStorage').innerText = r.storage.free_mb + ' MB Free / ' + r.storage.total_mb + ' MB';
+        }
+        if (r.usb) {
+          document.getElementById('usbSpeedBadge').innerText = r.usb.link_mode + ' (' + r.usb.speed_mbps + ' Mbps)';
+          document.getElementById('rxBytes').innerText = r.usb.rx_mb + ' MB';
+          document.getElementById('txBytes').innerText = r.usb.tx_mb + ' MB';
+          document.getElementById('rxPackets').innerText = Number(r.usb.rx_packets).toLocaleString() + ' packets';
+          document.getElementById('txPackets').innerText = Number(r.usb.tx_packets).toLocaleString() + ' packets';
+          document.getElementById('errCounter').innerText = r.usb.rx_errors + ' RX Err / ' + r.usb.tx_errors + ' TX Err';
+          document.getElementById('usbMtu').innerText = r.usb.mtu + ' Bytes';
+        }
+      }
+
+      document.getElementById('lastUpdated').innerText = data.timestamp || new Date().toLocaleTimeString();
+    }
+
+    // Auto-refresh control
+    document.getElementById('autoRefresh').addEventListener('change', function(e) {
+      if (e.target.checked) {
+        timer = setInterval(fetchData, 10000);
+      } else {
+        clearInterval(timer);
+        timer = null;
+      }
+    });
+
+    // Run once on page load (zero background polling when page is closed!)
+    fetchData();
+  </script>
+</body>
+</html>

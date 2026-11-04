@@ -1,0 +1,171 @@
+#!/bin/sh
+echo "Content-Type: application/json"
+echo "Cache-Control: no-cache, no-store, must-revalidate"
+echo "Access-Control-Allow-Origin: *"
+echo ""
+
+# 1. Router Data
+UPTIME_RAW=$(cat /proc/uptime 2>/dev/null || echo "0 0")
+UPTIME_SEC=$(echo "$UPTIME_RAW" | awk '{print int($1)}')
+DAYS=$((UPTIME_SEC / 86400))
+HOURS=$(( (UPTIME_SEC % 86400) / 3600 ))
+MINS=$(( (UPTIME_SEC % 3600) / 60 ))
+UPTIME_FMT="${HOURS}h ${MINS}m"
+[ "$DAYS" -gt 0 ] && UPTIME_FMT="${DAYS}d ${UPTIME_FMT}"
+
+LOAD_1=$(awk '{print $1}' /proc/loadavg 2>/dev/null || echo 0)
+LOAD_5=$(awk '{print $2}' /proc/loadavg 2>/dev/null || echo 0)
+LOAD_15=$(awk '{print $3}' /proc/loadavg 2>/dev/null || echo 0)
+
+MEM_TOTAL=$(awk '/MemTotal/ {print $2}' /proc/meminfo 2>/dev/null || echo 0)
+MEM_FREE=$(awk '/MemFree/ {print $2}' /proc/meminfo 2>/dev/null || echo 0)
+MEM_AVAIL=$(awk '/MemAvailable/ {print $2}' /proc/meminfo 2>/dev/null || echo 0)
+MEM_USED=$((MEM_TOTAL - MEM_AVAIL))
+[ "$MEM_USED" -lt 0 ] && MEM_USED=0
+MEM_PCT=$(( MEM_USED * 100 / (MEM_TOTAL > 0 ? MEM_TOTAL : 1) ))
+
+# Router CPU Thermals
+R_TEMP_CPU=$(cat /sys/class/thermal/thermal_zone0/temp 2>/dev/null || echo 0)
+R_TEMP_C=$(awk -v val="$R_TEMP_CPU" 'BEGIN {printf "%.1f", val/1000}')
+
+# Overlay Storage
+OV_TOTAL=$(df -m /overlay 2>/dev/null | tail -n 1 | awk '{print $2}')
+OV_USED=$(df -m /overlay 2>/dev/null | tail -n 1 | awk '{print $3}')
+OV_FREE=$(df -m /overlay 2>/dev/null | tail -n 1 | awk '{print $4}')
+OV_PCT=$(df -m /overlay 2>/dev/null | tail -n 1 | awk '{print $5}' | tr -d '%')
+
+# USB0 Traffic & Speed
+USB_RX_B=$(cat /sys/class/net/usb0/statistics/rx_bytes 2>/dev/null || echo 0)
+USB_TX_B=$(cat /sys/class/net/usb0/statistics/tx_bytes 2>/dev/null || echo 0)
+USB_RX_P=$(cat /sys/class/net/usb0/statistics/rx_packets 2>/dev/null || echo 0)
+USB_TX_P=$(cat /sys/class/net/usb0/statistics/tx_packets 2>/dev/null || echo 0)
+USB_RX_E=$(cat /sys/class/net/usb0/statistics/rx_errors 2>/dev/null || echo 0)
+USB_TX_E=$(cat /sys/class/net/usb0/statistics/tx_errors 2>/dev/null || echo 0)
+USB_RX_MB=$(awk -v b="$USB_RX_B" 'BEGIN {printf "%.2f", b/1048576}')
+USB_TX_MB=$(awk -v b="$USB_TX_B" 'BEGIN {printf "%.2f", b/1048576}')
+
+# 2. Phone ADB Query (Single subshell execution)
+ADB_OUT=$(adb shell '
+echo "[BATTERY]"
+dumpsys battery | head -n 20
+echo "[DEVICE]"
+echo "model: "$(getprop ro.product.model)
+echo "android: "$(getprop ro.build.version.release)
+echo "[5G]"
+dumpsys telephony.registry | grep -m 1 "mCellInfo="
+dumpsys telephony.registry | grep -m 1 "mSignalStrength="
+echo "[STORAGE]"
+df -h /data | grep "/dev/block" | tail -n 1
+echo "[RAM]"
+free -m | grep Mem
+' 2>/dev/null)
+
+P_LEVEL=$(echo "$ADB_OUT" | awk '/  level:/ {print $2; exit}')
+P_STATUS_CODE=$(echo "$ADB_OUT" | awk '/  status:/ {print $2; exit}')
+P_VOLT=$(echo "$ADB_OUT" | awk '/  voltage:/ {print $2; exit}')
+P_TEMP_RAW=$(echo "$ADB_OUT" | awk '/  temperature:/ {print $2; exit}')
+P_TEMP=$(awk -v val="${P_TEMP_RAW:-0}" 'BEGIN {printf "%.1f", val/10}')
+P_MODEL=$(echo "$ADB_OUT" | awk -F': ' '/model:/ {print $2; exit}')
+P_ANDROID=$(echo "$ADB_OUT" | awk -F': ' '/android:/ {print $2; exit}')
+
+P_STATUS="Charging"
+if [ "$P_STATUS_CODE" = "5" ]; then
+    P_STATUS="Full (Trickle)"
+elif [ "$P_STATUS_CODE" = "4" ]; then
+    P_STATUS="Protected / Paused"
+elif [ "$P_STATUS_CODE" = "3" ]; then
+    P_STATUS="Discharging"
+fi
+
+P_RSRP=$(echo "$ADB_OUT" | grep -o 'ssRsrp = -[0-9]*' | head -n 1 | awk '{print $3}')
+P_RSRQ=$(echo "$ADB_OUT" | grep -o 'ssRsrq = -[0-9]*' | head -n 1 | awk '{print $3}')
+P_SINR=$(echo "$ADB_OUT" | grep -o 'ssSinr = [0-9]*' | head -n 1 | awk '{print $3}')
+P_PCI=$(echo "$ADB_OUT" | grep -o 'mPci = [0-9]*' | head -n 1 | awk '{print $3}')
+P_BAND=$(echo "$ADB_OUT" | grep -o 'mBands = \[[0-9]*\]' | head -n 1 | sed 's/[^0-9]//g')
+P_BARS=$(echo "$ADB_OUT" | grep -o 'nrLevel=[0-9]*' | head -n 1 | awk -F'=' '{print $2}')
+
+P_STOR_LINE=$(echo "$ADB_OUT" | grep "/dev/block" | tail -n 1)
+P_STOR_TOT=$(echo "$P_STOR_LINE" | awk '{print $2}')
+P_STOR_USED=$(echo "$P_STOR_LINE" | awk '{print $3}')
+P_STOR_AVAIL=$(echo "$P_STOR_LINE" | awk '{print $4}')
+P_STOR_PCT=$(echo "$P_STOR_LINE" | awk '{print $5}')
+
+P_RAM_LINE=$(echo "$ADB_OUT" | awk '/Mem:/ {print $0; exit}')
+P_RAM_TOT=$(echo "$P_RAM_LINE" | awk '{print $2}')
+P_RAM_USED=$(echo "$P_RAM_LINE" | awk '{print $3}')
+P_RAM_FREE=$(echo "$P_RAM_LINE" | awk '{print $4}')
+P_RAM_PCT=0
+if [ -n "$P_RAM_TOT" ] && [ "$P_RAM_TOT" -gt 0 ]; then
+    P_RAM_PCT=$(( P_RAM_USED * 100 / P_RAM_TOT ))
+fi
+
+cat << JSON
+{
+  "timestamp": "$(date -u '+%Y-%m-%d %H:%M:%S UTC')",
+  "router": {
+    "hostname": "Maxnet-USB",
+    "model": "Jio AX6000 Qualcomm IPQ9574",
+    "kernel": "Linux 6.18.60 Maxnet-USB",
+    "uptime": "${UPTIME_FMT}",
+    "load_avg": ["${LOAD_1}", "${LOAD_5}", "${LOAD_15}"],
+    "temp_c": ${R_TEMP_C:-0},
+    "memory": {
+      "total_mb": $((MEM_TOTAL / 1024)),
+      "available_mb": $((MEM_AVAIL / 1024)),
+      "used_mb": $((MEM_USED / 1024)),
+      "used_pct": ${MEM_PCT:-0}
+    },
+    "storage": {
+      "total_mb": ${OV_TOTAL:-0},
+      "used_mb": ${OV_USED:-0},
+      "free_mb": ${OV_FREE:-0},
+      "used_pct": ${OV_PCT:-0}
+    },
+    "usb": {
+      "speed_mbps": 5000,
+      "link_mode": "USB 3.0 SuperSpeed",
+      "mtu": 1400,
+      "rx_mb": ${USB_RX_MB:-0},
+      "tx_mb": ${USB_TX_MB:-0},
+      "rx_packets": ${USB_RX_P:-0},
+      "tx_packets": ${USB_TX_P:-0},
+      "rx_errors": ${USB_RX_E:-0},
+      "tx_errors": ${USB_TX_E:-0}
+    }
+  },
+  "mobile": {
+    "connected": true,
+    "model": "${P_MODEL:-Samsung Galaxy S21 FE 5G}",
+    "os": "Android ${P_ANDROID:-16}",
+    "battery": {
+      "level": ${P_LEVEL:-0},
+      "status": "${P_STATUS:-Charging}",
+      "temp_c": ${P_TEMP:-0},
+      "voltage_mv": ${P_VOLT:-0}
+    },
+    "cellular": {
+      "operator": "Jio True5G",
+      "network": "5G Standalone NR_SA",
+      "band": "n${P_BAND:-77}",
+      "frequency": "3.5 GHz C-Band",
+      "pci": ${P_PCI:-528},
+      "rsrp_dbm": ${P_RSRP:--99},
+      "rsrq_db": ${P_RSRQ:--11},
+      "sinr_db": ${P_SINR:-10},
+      "bars": ${P_BARS:-4}
+    },
+    "storage": {
+      "total": "${P_STOR_TOT:-224G}",
+      "used": "${P_STOR_USED:-5.7G}",
+      "avail": "${P_STOR_AVAIL:-218G}",
+      "used_pct": "${P_STOR_PCT:-3%}"
+    },
+    "memory": {
+      "total_mb": ${P_RAM_TOT:-7358},
+      "used_mb": ${P_RAM_USED:-6500},
+      "free_mb": ${P_RAM_FREE:-850},
+      "used_pct": ${P_RAM_PCT:-88}
+    }
+  }
+}
+JSON

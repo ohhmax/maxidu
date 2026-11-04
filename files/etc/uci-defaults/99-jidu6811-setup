@@ -46,4 +46,7 @@ fi
 # Enable LED Internet Lifecycle Monitor Service if present
 [ -x /etc/init.d/led_internet_monitor ] && /etc/init.d/led_internet_monitor enable && /etc/init.d/led_internet_monitor start
 
+# Enable uhttpd web monitor on port 80
+[ -x /etc/init.d/uhttpd ] && /etc/init.d/uhttpd enable && /etc/init.d/uhttpd restart
+
 exit 0

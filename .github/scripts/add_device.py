@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Appends JIDU6811 device profiles to ipq95xx.mk"""
+"""Appends JIDU6811 device profiles to ipq95xx.mk
+Pure USB 3.0 LAN build: Wi-Fi completely removed at firmware level, uhttpd enabled
+"""
 import sys
 
 mk = sys.argv[1]
@@ -14,10 +16,9 @@ define Device/jiorouter_ax6000-jidu6j11
 \tBLOCKSIZE := 128k
 \tPAGESIZE := 2048
 \tSUPPORTED_DEVICES := jio,jidu6811 jiorouter,ax6000-jidu6j11-6811 jiorouter,ax6000-jidu6j11
-\tDEVICE_PACKAGES := kmod-ath11k-ahb kmod-ath11k kmod-ath11k-pci \\
-\t\tuboot-envtools kmod-leds-gpio kmod-gpio-button-hotplug \\
+\tDEVICE_PACKAGES := uboot-envtools kmod-leds-gpio kmod-gpio-button-hotplug \\
 \t\tkmod-qcom-ppe kmod-usb3 kmod-usb-dwc3 kmod-usb-dwc3-qcom \\
-\t\tkmod-ledtrig-netdev ath11k-firmware-ipq9574 ath11k-firmware-qcn9074
+\t\tkmod-ledtrig-netdev uhttpd
 endef
 
 define Device/jiorouter_ax6000-jidu6j11-6811

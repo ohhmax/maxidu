@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Writes minimal OpenWrt .config for JioRouter AX6000 (JIDU6J11-6811 / JIDU6811)
-Specialized build: USB 3.0 High-Speed Tethering + ADB + LAN + SSH (NO LuCI, NO Wi-Fi)
+Specialized build: USB 3.0 High-Speed Tethering + ADB + LAN + Port 80 Web Monitor (Zero Wi-Fi)
 """
 import sys
 
@@ -24,6 +24,19 @@ config = [
     "CONFIG_SLUB_DEBUG=n",
     "CONFIG_DEBUG_BUGVERBOSE=n",
     "CONFIG_LOCK_DEBUGGING_SUPPORT=n",
+
+    # Strip ALL Wi-Fi / mac80211 / wireless packages & kernel drivers permanently
+    "CONFIG_PACKAGE_kmod-ath11k=n",
+    "CONFIG_PACKAGE_kmod-ath11k-ahb=n",
+    "CONFIG_PACKAGE_kmod-ath11k-pci=n",
+    "CONFIG_PACKAGE_kmod-mac80211=n",
+    "CONFIG_PACKAGE_kmod-cfg80211=n",
+    "CONFIG_PACKAGE_ath11k-firmware-ipq9574=n",
+    "CONFIG_PACKAGE_ath11k-firmware-qcn9074=n",
+    "CONFIG_PACKAGE_wireless-regdb=n",
+    "CONFIG_PACKAGE_wpad-basic=n",
+    "CONFIG_PACKAGE_wpad=n",
+    "CONFIG_QCOM_Q6V5_WCSS=n",
 
     # Essential built-in SoC clock controllers, ethernet & PPE flow acceleration
     "CONFIG_PACKAGE_kmod-qcom-gcc-ipq9574=y",
@@ -54,6 +67,9 @@ config = [
     "CONFIG_PACKAGE_kmod-nft-offload=y",
     "CONFIG_PACKAGE_kmod-shortcut-fe=y",
     "CONFIG_PACKAGE_kmod-shortcut-fe-cm=y",
+
+    # Lightweight Web Monitor (Port 80 Dashboard)
+    "CONFIG_PACKAGE_uhttpd=y",
 
     # CLI Management & System tools (NO LuCI WebUI, NO Wi-Fi)
     "CONFIG_PACKAGE_busybox=y",

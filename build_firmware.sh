@@ -37,10 +37,6 @@ echo "[*] Updating and installing OpenWrt package feeds..."
 ./scripts/feeds update -a
 ./scripts/feeds install -a
 
-echo "[*] Unlocking target restrictions for ath11k and QRTR..."
-sed -i 's/@TARGET_qualcommax//g' package/kernel/linux/modules/netsupport.mk package/kernel/mac80211/ath.mk 2>/dev/null || true
-sed -i 's/default y if TARGET_qualcommax/default y/g' package/kernel/mac80211/ath.mk 2>/dev/null || true
-
 rm -rf tmp
 
 echo "[*] Configuring .config..."

@@ -87,11 +87,7 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
           
-          # Remove target restrictions on kmod-qrtr-smd and kmod-ath11k-ahb so they build on qualcommbe
-          sed -i 's/@TARGET_qualcommax//g' package/kernel/linux/modules/netsupport.mk package/kernel/mac80211/ath.mk
-          sed -i 's/default y if TARGET_qualcommax/default y/g' package/kernel/mac80211/ath.mk
-          
-          # Wipe OpenWrt metadata cache to force rescanning of modified package Makefiles
+          # Wipe OpenWrt metadata cache
           rm -rf tmp
           
           # Populate release version and build timestamp in all banner locations
@@ -104,8 +100,6 @@ jobs:
           make defconfig
           python3 ../custom/.github/scripts/write_config.py .config
           make defconfig
-          echo "=== ATH11K CONFIG CHECK ==="
-          grep -E "ATH11K|QRTR" .config || true
 
       - name: Download Sources
         run: |
