@@ -8760,22 +8760,7 @@
           </div>
           <div class="accordion-content">
             <div class="settings-card-body" style="padding:0; background:transparent !important; border:none !important;">
-              <!-- TOP ACTION LINE: MATCHING LOG UI -->
-              <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; padding:10px 14px; border-bottom:1px solid rgba(255,255,255,0.06);">
-                <div style="display:flex; align-items:center; gap:8px;">
-                  <span style="font-size:12px; font-weight:700; font-family:var(--font-mono); color:#10b981;">ROOT CONSOLE</span>
-                  <span style="font-size:11px; font-family:var(--font-mono); color:var(--text-dim);">&bull; PORT 7681</span>
-                </div>
-                <div style="display:flex; align-items:center; gap:8px;">
-                  <button type="button" class="round-action-btn" title="Reload Terminal" onclick="reloadTerminalIframe()" style="width:34px; height:34px; min-width:34px;">
-                    <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-                  </button>
-                  <button type="button" class="round-action-btn" title="Open in New Tab" onclick="openTerminalNewTab()" style="width:34px; height:34px; min-width:34px;">
-                    <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                  </button>
-                </div>
-              </div>
-              <iframe id="terminalEmbedFrame" src="about:blank" allow="clipboard-read; clipboard-write" allowtransparency="true" style="width:100% !important; height:calc(100vh - 200px) !important; min-height:550px !important; border:none !important; display:block; background:transparent !important; box-sizing:border-box;"></iframe>
+              <iframe id="terminalEmbedFrame" src="about:blank" allow="clipboard-read; clipboard-write" allowtransparency="true" style="width:100% !important; height:calc(100vh - 120px) !important; min-height:600px !important; border:none !important; display:block; background:transparent !important; background-color:transparent !important; box-sizing:border-box;"></iframe>
             </div>
           </div>
         </div>
@@ -17540,7 +17525,7 @@
     function initTerminalIframe() {
       const frame = document.getElementById('terminalEmbedFrame');
       if (!frame) return;
-      const targetSrc = window.location.protocol + '//' + window.location.hostname + ':7681/';
+      const targetSrc = window.location.protocol + '//' + window.location.hostname + ':7681/?allowTransparency=true&theme=' + encodeURIComponent(JSON.stringify({ background: 'transparent' }));
       if (!frame.src || frame.src === 'about:blank' || !frame.src.includes(':7681')) {
         frame.src = targetSrc;
       }
@@ -17549,7 +17534,7 @@
     function reloadTerminalIframe() {
       const frame = document.getElementById('terminalEmbedFrame');
       if (!frame) return;
-      frame.src = window.location.protocol + '//' + window.location.hostname + ':7681/?_t=' + Date.now();
+      frame.src = window.location.protocol + '//' + window.location.hostname + ':7681/?allowTransparency=true&theme=' + encodeURIComponent(JSON.stringify({ background: 'transparent' })) + '&_t=' + Date.now();
     }
 
     function openTerminalNewTab() {
