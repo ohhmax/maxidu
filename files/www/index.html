@@ -7258,37 +7258,47 @@
           </div>
           <div class="accordion-content">
             <div class="settings-card-body">
-              <!-- TAILSCALE ACCOUNT & DOMAIN ROWS -->
+              <!-- TAILSCALE ACCOUNT PROFILE ROW (CLEAN, NO BLUE BADGES, ROUND AVATAR ON RIGHT) -->
               <div class="setting-section-header">Account Profile</div>
-              <div class="setting-row-item" style="gap:12px;">
-                <div id="tsUserAvatarWrapper" style="width:38px; height:38px; min-width:38px; border-radius:50%; background:var(--card-inner, #161822); border:1px solid rgba(255,255,255,0.12); display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0;">
-                  <svg id="tsUserAvatarBlank" viewBox="0 0 24 24" style="width:20px; height:20px; fill:none; stroke:var(--text-dim, #71717a); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="12" cy="7" r="4"></circle>
-                  </svg>
-                  <img id="tsUserAvatarImg" src="" alt="Profile" style="width:100%; height:100%; object-fit:cover; display:none;" onerror="this.style.display='none'; document.getElementById('tsUserAvatarBlank').style.display='block';">
-                </div>
+              <div class="setting-row-item">
                 <div class="setting-label-col">
-                  <div class="setting-title-wrap">
-                    <span class="setting-title" id="tsUserDisplayName">Mahendra Mali</span>
-                    <span class="setting-pill pill-cyan">TAILNET</span>
-                  </div>
-                  <div class="setting-desc" id="tsUserAccountDesc"><span id="tsUserLoginName">mahendrakumargahelot@gmail.com</span> &bull; Primary Operator</div>
+                  <span class="setting-label-bold" id="tsUserDisplayName">Tailscale Account</span>
+                  <span class="setting-label-sub" id="tsUserLoginName">Not connected to a tailnet</span>
                 </div>
                 <div class="setting-control-col">
-                  <span class="setting-status-badge badge-active" id="tsAccountStatusBadge">Logged In</span>
+                  <div id="tsUserAvatarWrapper" style="width:36px; height:36px; min-width:36px; border-radius:50%; background:var(--card-inner, #161822); border:1px solid rgba(255,255,255,0.12); display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0;">
+                    <svg id="tsUserAvatarBlank" viewBox="0 0 24 24" style="width:18px; height:18px; fill:none; stroke:var(--text-dim, #71717a); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    <img id="tsUserAvatarImg" src="" alt="Profile" style="width:100%; height:100%; object-fit:cover; display:none;" onerror="this.style.display='none'; document.getElementById('tsUserAvatarBlank').style.display='block';">
+                  </div>
                 </div>
               </div>
 
-              <div class="setting-row-item">
+              <!-- TAILNET MESH DOMAIN ROW -->
+              <div class="setting-row-item" id="tsDomainRow">
                 <div class="setting-label-col">
-                  <span class="setting-title">Tailnet Mesh Domain</span>
-                  <div class="setting-desc" id="tsTailnetDomain">maxnet-usb.tail47d620.ts.net</div>
+                  <span class="setting-label-bold">Tailnet Mesh Domain</span>
+                  <span class="setting-label-sub" id="tsTailnetDomain">maxnet-usb.tail47d620.ts.net</span>
                 </div>
                 <div class="setting-control-col">
-                  <span class="setting-status-badge" id="tsMeshNodesBadge" style="background:rgba(56,189,248,0.12); color:#38bdf8; border:1px solid rgba(56,189,248,0.25);">
+                  <span class="setting-status-badge badge-active" id="tsMeshNodesBadge">
                     <span id="tsOnlineCountBadge">1 Online</span> / <span id="tsTotalCountBadge">6 Total</span>
                   </span>
+                </div>
+              </div>
+
+              <!-- NOT INSTALLED OR OFFLINE NOTICE (HIDDEN BY DEFAULT) -->
+              <div id="tsNotInstalledNotice" class="setting-row-item" style="display:none; background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.2); border-radius:10px;">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold" style="color:#ef4444;">Tailscale Not Installed</span>
+                  <span class="setting-label-sub">Kernel daemon &lsquo;tailscaled&rsquo; was not found. Install from Package Manager.</span>
+                </div>
+                <div class="setting-control-col">
+                  <button type="button" class="round-action-btn" onclick="openSettingPage('acc-packages')" title="Open Packages">
+                    <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                  </button>
                 </div>
               </div>
 
@@ -7470,34 +7480,43 @@
           </div>
           <div class="accordion-content">
             <div class="settings-card-body">
-              <!-- CONNECTED ADB DEVICES LIST SECTION -->
-              <div style="margin-bottom:14px;">
-                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
-                  <span style="font-size:11px; font-weight:800; color:var(--text-dim); text-transform:uppercase; font-family:var(--font-mono); letter-spacing:0.5px;">Connected ADB Handsets</span>
-                  <button type="button" class="mh-btn btn-sm btn-ghost" onclick="fetchAdbDeviceList()" style="font-size:10px; padding:3px 8px;">REFRESH</button>
+              <!-- 1. ADB HANDSETS LIST VIEW -->
+              <div id="adbListView">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+                  <div style="display:flex; flex-direction:column; gap:2px;">
+                    <span class="setting-label-bold">Connected Handsets</span>
+                    <span class="setting-label-sub">Tap any detected Android device to open device controls</span>
+                  </div>
+                  <button type="button" class="round-action-btn" onclick="fetchAdbDeviceList()" title="Refresh ADB Devices">
+                    <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                  </button>
                 </div>
-                <div id="adbDevicesCardsContainer" style="display:flex; flex-direction:column; gap:8px;">
+                <div id="adbDevicesCardsContainer" style="display:flex; flex-direction:column; gap:6px;">
                   <!-- Populated dynamically via renderAdbDevicesCards -->
                 </div>
               </div>
 
-              <!-- SELECTED DEVICE HARDWARE CONTROLS (OPENS ON DEVICE CLICK) -->
-              <div id="adbSelectedDeviceControls" style="display:flex; flex-direction:column; margin-bottom:14px;">
-                <div style="display:flex; align-items:center; justify-content:space-between; padding:8px 12px; background:rgba(56,189,248,0.08); border:1px solid rgba(56,189,248,0.25); border-radius:8px; margin-bottom:10px;">
-                  <div style="display:flex; align-items:center; gap:8px;">
-                    <span style="width:7px; height:7px; border-radius:50%; background:#38bdf8;"></span>
-                    <span id="selectedAdbDeviceTitle" style="font-size:12px; font-weight:800; color:var(--text-main);">Galaxy S21 FE 5G Controls</span>
+              <!-- 2. ADB SELECTED DEVICE CONTROLS VIEW (OPENS ON DEVICE CLICK) -->
+              <div id="adbDetailView" style="display:none; flex-direction:column; gap:6px;">
+                <!-- TOP BREADCRUMB HEADER: [ < Back ] ADB Devices > Samsung Galaxy S21 FE 5G -->
+                <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.08);">
+                  <button type="button" class="round-action-btn" onclick="closeAdbDeviceDetail(true)" title="Back to ADB Devices" style="width:34px; height:34px; min-width:34px;">
+                    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+                  </button>
+                  <div style="display:flex; flex-direction:column; gap:1px;">
+                    <div style="display:flex; align-items:center; gap:6px; font-size:11.5px; font-weight:700; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.5px;">
+                      <span style="cursor:pointer;" onclick="closeAdbDeviceDetail(true)">ADB Devices</span>
+                      <span style="color:var(--text-dim);">&rsaquo;</span>
+                      <span id="adbDetailBreadcrumbModel" style="color:#38bdf8; font-weight:800;">Device</span>
+                    </div>
+                    <span id="adbDetailBreadcrumbSerial" style="font-size:10.5px; font-family:var(--font-mono); color:var(--text-dim);">SERIAL: --</span>
                   </div>
-                  <span id="selectedAdbDeviceSerial" style="font-size:10.5px; font-family:var(--font-mono); color:#38bdf8;">SERIAL: R5CR90XXXX</span>
                 </div>
 
                 <!-- 1. CAMERA FLASHLIGHT -->
                 <div class="setting-row-item">
                   <div class="setting-label-col">
-                    <div class="setting-title-wrap">
-                      <span class="setting-label-bold">Camera Flashlight</span>
-                      <span class="setting-pill" id="dispTorchStatus">OFF</span>
-                    </div>
+                    <span class="setting-label-bold">Camera Flashlight</span>
                     <span class="setting-label-sub" id="dispTorchSub">Toggle camera torch LED on connected Android handset</span>
                   </div>
                   <div class="setting-control-col">
@@ -7507,39 +7526,14 @@
                   </div>
                 </div>
 
-                <!-- 2. AUDIO VOLUME & RINGER -->
+                <!-- 2. HANDSET SCREEN STATE -->
                 <div class="setting-row-item">
                   <div class="setting-label-col">
-                    <div class="setting-title-wrap">
-                      <span class="setting-label-bold">Audio Volume &amp; Ringer</span>
-                      <span class="setting-pill" id="dispVolumeStatus">MEDIA</span>
-                    </div>
-                    <span class="setting-label-sub" id="dispVolumeSub">Adjust speaker volume level or switch to silent mode</span>
-                  </div>
-                  <div class="setting-control-col" style="gap:8px;">
-                    <button class="round-action-btn" title="Phone Volume Up" onclick="volumePhone('up', this)" id="btnVolUp">
-                      <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
-                    </button>
-                    <button class="round-action-btn" title="Phone Volume Down" onclick="volumePhone('down', this)" id="btnVolDown">
-                      <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
-                    </button>
-                    <button class="round-action-btn btn-warning-action" title="Phone Silent Mode" onclick="volumePhone('silent', this)" id="btnVolSilent">
-                      <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
-                    </button>
-                  </div>
-                </div>
-
-                <!-- 3. DISPLAY POWER -->
-                <div class="setting-row-item">
-                  <div class="setting-label-col">
-                    <div class="setting-title-wrap">
-                      <span class="setting-label-bold">Display Power</span>
-                      <span class="setting-pill pill-cyan" id="dispPowerStatus">AWAKE</span>
-                    </div>
+                    <span class="setting-label-bold">Handset Screen State</span>
                     <span class="setting-label-sub" id="dispPowerSub">Wake up screen or put handset display to sleep</span>
                   </div>
                   <div class="setting-control-col" style="gap:8px;">
-                    <button class="round-action-btn active-cyan" title="Wake Phone Screen (Turn On)" onclick="runDeviceWake(this)" id="btnDisplayWake">
+                    <button class="round-action-btn" title="Wake Phone Screen (Turn On)" onclick="runDeviceWake(this)" id="btnDisplayWake">
                       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/></svg>
                     </button>
                     <button class="round-action-btn" title="Sleep Phone Screen (Turn Off)" onclick="runDeviceSleep(this)" id="btnDisplaySleep">
@@ -7548,13 +7542,29 @@
                   </div>
                 </div>
 
+                <!-- 3. AUDIO VOLUME CONTROL -->
+                <div class="setting-row-item">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">Audio Volume Control</span>
+                    <span class="setting-label-sub" id="dispVolumeSub">Step device speaker volume up, down, or mute sound</span>
+                  </div>
+                  <div class="setting-control-col" style="gap:8px;">
+                    <button class="round-action-btn" title="Phone Volume Down" onclick="volumePhone('down', this)" id="btnVolDown">
+                      <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                    </button>
+                    <button class="round-action-btn" title="Phone Volume Up" onclick="volumePhone('up', this)" id="btnVolUp">
+                      <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                    </button>
+                    <button class="round-action-btn btn-warning-action" title="Phone Silent Mode" onclick="volumePhone('silent', this)" id="btnVolSilent">
+                      <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+                    </button>
+                  </div>
+                </div>
+
                 <!-- 4. CELLULAR RADIO RECONNECT -->
                 <div class="setting-row-item">
                   <div class="setting-label-col">
-                    <div class="setting-title-wrap">
-                      <span class="setting-label-bold">Cellular Radio Reconnect</span>
-                      <span class="setting-pill pill-green" id="dispRadioStatus">5G CONNECTED</span>
-                    </div>
+                    <span class="setting-label-bold">Cellular Radio Reconnect</span>
                     <span class="setting-label-sub" id="dispRadioSub">Cycle airplane mode to force 5G/LTE tower re-attachment</span>
                   </div>
                   <div class="setting-control-col">
@@ -7567,10 +7577,7 @@
                 <!-- 5. WIRELESS ADB TCP/IP -->
                 <div class="setting-row-item">
                   <div class="setting-label-col">
-                    <div class="setting-title-wrap">
-                      <span class="setting-label-bold">Wireless ADB (Port 5555)</span>
-                      <span class="setting-pill" id="dispWirelessAdbStatus">TCP/IP</span>
-                    </div>
+                    <span class="setting-label-bold">Wireless ADB (Port 5555)</span>
                     <span class="setting-label-sub" id="dispWirelessAdbSub">Switch ADB to TCP/IP mode for wireless debugging over Wi-Fi</span>
                   </div>
                   <div class="setting-control-col">
@@ -7583,180 +7590,20 @@
                 <!-- 6. REBOOT HANDSET -->
                 <div class="setting-row-item">
                   <div class="setting-label-col">
-                    <div class="setting-title-wrap">
-                      <span class="setting-label-bold" style="color:#ef4444;">Reboot Handset</span>
-                      <span class="setting-pill" style="color:#ef4444; border-color:rgba(239,68,68,0.25);">RESTART</span>
-                    </div>
-                    <span class="setting-label-sub">Send ADB soft reboot command to restart phone operating system</span>
+                    <span class="setting-label-bold" style="color:#ef4444;">Reboot Handset</span>
+                    <span class="setting-label-sub">Reboot the connected Android device cleanly</span>
                   </div>
                   <div class="setting-control-col">
-                    <button class="round-action-btn btn-danger-action" title="Reboot Connected Phone via ADB" onclick="runDeviceReboot(this)" id="btnHandsetReboot">
-                      <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                    <button class="round-action-btn btn-danger-action" title="Reboot Android Device" onclick="runDeviceReboot(this)" id="btnDeviceReboot">
+                      <svg viewBox="0 0 24 24"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
                     </button>
                   </div>
                 </div>
               </div>
-
-              <!-- GENERAL USB & ADB CONFIGURATION -->
-              <div style="display:flex; flex-direction:column; padding-top:10px; border-top:1px solid rgba(255,255,255,0.06);">
-                <div class="setting-row-item">
-                  <div class="setting-label-col">
-                    <span class="setting-label-bold">VBUS Hub Auto-Reset</span>
-                    <span class="setting-label-sub">Auto-power cycle USB hub port if modem loses ping connectivity</span>
-                  </div>
-                  <div class="toggle-wrap-cell">
-                    <label class="toggle-switch">
-                      <input type="checkbox" checked>
-                      <span class="toggle-slider"></span>
-                    </label>
-                  </div>
-                </div>
-
-                <div class="setting-row-item">
-                  <div class="setting-label-col">
-                    <span class="setting-label-bold">ADB Auto-Authorization</span>
-                    <span class="setting-label-sub">Automatic RSA cryptographic key exchange for Android tethering</span>
-                  </div>
-                  <div class="toggle-wrap-cell">
-                    <label class="toggle-switch">
-                      <input type="checkbox" checked>
-                      <span class="toggle-slider"></span>
-                    </label>
-                  </div>
-                </div>
-
-                <div class="setting-row-item">
-                  <div class="setting-label-col">
-                    <span class="setting-label-bold">UASP USB 3.0 Storage Mode</span>
-                    <span class="setting-label-sub">USB Attached SCSI Protocol for ultra-fast SSD read/write speeds</span>
-                  </div>
-                  <div class="toggle-wrap-cell">
-                    <label class="toggle-switch">
-                      <input type="checkbox" checked>
-                      <span class="toggle-slider"></span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-
-              <div id="deviceActionStatus" style="font-size:11px; font-family:var(--font-mono); color:#10b981; min-height:16px; margin-top:6px;"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 3.5. USB STORAGE & SAMBA (SMB) SERVER -->
-        <div class="settings-card settings-detail-panel accordion-item" id="acc-smb-storage">
-          <div class="settings-card-header accordion-header" onclick="toggleAccordion('acc-smb-storage')">
-            <div class="acc-title-left">
-              <div class="acc-icon-box">
-                <svg class="svg-icon" viewBox="0 0 24 24"><path d="M4 6h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"/><circle cx="7" cy="14" r="1"/><line x1="12" y1="14" x2="16" y2="14"/></svg>
-              </div>
-              <span class="acc-main-title">Network Storage</span>
-            </div>
-            <div class="acc-right-action">
-              <span class="card-badge" id="smbStatusBadge">STANDBY</span>
-              <svg class="svg-icon acc-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
-            </div>
-          </div>
-          <div class="accordion-content">
-            <div class="settings-card-body">
-              <div style="display:flex; flex-direction:column; gap:4px;">
-                <div class="setting-row-item">
-                  <div class="setting-label-col">
-                    <span class="setting-label-bold">Network Share Access</span>
-                    <span class="setting-label-sub">UNC Path: \\10.0.0.1\Pendrive &middot; URL: smb://10.0.0.1/Pendrive</span>
-                  </div>
-                  <div class="setting-control-col">
-                    <button class="round-action-btn" onclick="copySmbPath('win')" title="Copy Network Share Path">
-                      <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                    </button>
-                  </div>
-                </div>
-
-                <div class="setting-row-item">
-                  <div class="setting-label-col">
-                    <span class="setting-label-bold">Samba Service</span>
-                    <span class="setting-label-sub">Master SMB daemon for local high-speed file sharing</span>
-                  </div>
-                  <div class="toggle-wrap-cell">
-                    <label class="toggle-switch">
-                      <input type="checkbox" id="smbMasterToggle" checked onchange="toggleSmbService(event)">
-                      <span class="toggle-slider"></span>
-                    </label>
-                  </div>
-                </div>
-
-                <div class="setting-row-item">
-                  <div class="setting-label-col">
-                    <span class="setting-label-bold">Guest Access</span>
-                    <span class="setting-label-sub">Allow anonymous read/write access without credential prompt</span>
-                  </div>
-                  <div class="toggle-wrap-cell">
-                    <label class="toggle-switch">
-                      <input type="checkbox" id="smbGuestToggle" checked>
-                      <span class="toggle-slider"></span>
-                    </label>
-                  </div>
-                </div>
-
-                <div class="setting-row-item">
-                  <div class="setting-label-col">
-                    <span class="setting-label-bold">io_uring Kernel Engine</span>
-                    <span class="setting-label-sub">Linux 6.18 asynchronous I/O syscall engine for Gigabit SMB throughput</span>
-                  </div>
-                  <div class="toggle-wrap-cell">
-                    <label class="toggle-switch">
-                      <input type="checkbox" id="smbIouringToggle" checked>
-                      <span class="toggle-slider"></span>
-                    </label>
-                  </div>
-                </div>
-
-                <div class="setting-row-item">
-                  <div class="setting-label-col">
-                    <span class="setting-label-bold">Storage Auto-Mount</span>
-                    <span class="setting-label-sub">Automatically detect filesystem (ext4, NTFS, exFAT) and mount /mnt/pendrive</span>
-                  </div>
-                  <div class="toggle-wrap-cell">
-                    <label class="toggle-switch">
-                      <input type="checkbox" id="smbAutoMountToggle" checked>
-                      <span class="toggle-slider"></span>
-                    </label>
-                  </div>
-                </div>
-
-                <div class="setting-row-item">
-                  <div class="setting-label-col">
-                    <span class="setting-label-bold">Storage Capacity</span>
-                    <span class="setting-label-sub">Volume: Kingston DataTraveler &middot; Mount: /mnt/pendrive</span>
-                  </div>
-                  <div class="setting-control-col">
-                    <span style="font-family:var(--font-mono); font-size:12px; font-weight:700; color:var(--text-main);"><strong id="smbTotalSpace" style="color:var(--text-main);">57.4G</strong> (<span id="smbFreeSpace" style="color:#10b981;">54.4G free</span>)</span>
-                  </div>
-                </div>
-
-                <!-- Hidden inputs to maintain 100% CGI compatibility -->
-                <div style="display:none;">
-                  <input type="text" id="smbUsernameInput" value="max">
-                  <input type="password" id="smbPasswordInput" value="">
-                </div>
-
-                <!-- Samba Credentials Modal Row -->
-                <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('smb_credentials')">
-                  <div class="setting-label-col">
-                    <span class="setting-label-bold">Samba Credentials</span>
-                    <span class="setting-label-sub" id="disp_smb_creds">User: max &bull; Password protected (Click to configure)</span>
-                  </div>
-                  <div class="setting-arrow-col">
-                    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-                  </div>
-                </div>
-              </div>
-              <div id="smbActionStatus" style="font-size:11px; font-family:var(--font-mono); color:#10b981; min-height:16px; margin-top:6px;"></div>
             </div></div>
         </div>
 
-        <!-- 4. GATEWAY SECURITY -->
+                <!-- 4. GATEWAY SECURITY -->
         <div class="settings-card settings-detail-panel accordion-item" id="acc-security">
           <div class="settings-card-header accordion-header" onclick="toggleAccordion('acc-security')">
             <div class="acc-title-left">
@@ -7766,7 +7613,7 @@
               <span class="acc-main-title">Security</span>
             </div>
             <div class="acc-right-action">
-              <span class="card-badge emerald">PROTECTED</span>
+              <span class="card-badge emerald" id="secStatusBadge">PROTECTED</span>
               <svg class="svg-icon acc-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
             </div>
           </div>
@@ -7779,14 +7626,111 @@
                 <input type="password" id="confirmPasswordInput">
               </div>
 
+              <!-- SECTION: ACCESS CREDENTIALS -->
+              <div class="setting-section-header">Access Credentials</div>
+
               <!-- 1. ROOT PASSWORD (ANDROID MODAL ROW) -->
               <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('change_password')">
                 <div class="setting-label-col">
                   <span class="setting-label-bold">Root Administrator Password</span>
-                  <span class="setting-label-sub">Update gateway credentials for Web UI and Dropbear SSH console</span>
+                  <span class="setting-label-sub">Update credentials for Web UI and Dropbear SSH console</span>
                 </div>
                 <div class="setting-arrow-col">
                   <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+              </div>
+
+              <div class="setting-section-divider"></div>
+
+              <!-- SECTION: SERVICE & SESSION POLICIES -->
+              <div class="setting-section-header">Terminal &amp; Session Security</div>
+
+              <!-- 2. SSH SERVICE TOGGLE -->
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">SSH Console Access</span>
+                  <span class="setting-label-sub">Enable or disable Dropbear SSH terminal daemon on port 22</span>
+                </div>
+                <div class="toggle-wrap-cell">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="secSshToggle" checked onchange="saveSecurityPolicy('ssh_enable', this.checked)">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- 3. SESSION TIMEOUT TOGGLE -->
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Session Auto-Timeout</span>
+                  <span class="setting-label-sub">Automatically terminate web console sessions after 15 minutes of inactivity</span>
+                </div>
+                <div class="toggle-wrap-cell">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="secSessionTimeoutToggle" checked onchange="saveSecurityPolicy('session_timeout', this.checked)">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="setting-section-divider"></div>
+
+              <!-- SECTION: FIREWALL & HARDENING -->
+              <div class="setting-section-header">Firewall &amp; Hardening</div>
+
+              <!-- 4. SYN FLOOD DEFENSE -->
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">SYN Flood Protection</span>
+                  <span class="setting-label-sub">Mitigate TCP SYN denial-of-service bursts via kernel firewall rules</span>
+                </div>
+                <div class="toggle-wrap-cell">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="secSynFloodToggle" checked onchange="saveSecurityPolicy('syn_flood', this.checked)">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- 5. WAN PING / ICMP DROP -->
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Stealth WAN Mode (Drop ICMP)</span>
+                  <span class="setting-label-sub">Ignore and drop ping requests from external internet interfaces</span>
+                </div>
+                <div class="toggle-wrap-cell">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="secWanPingToggle" onchange="saveSecurityPolicy('wan_ping_drop', this.checked)">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- 6. BRUTE-FORCE LOGIN GUARD -->
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Brute-Force Login Guard</span>
+                  <span class="setting-label-sub">Block client IP addresses after 5 consecutive failed login attempts</span>
+                </div>
+                <div class="toggle-wrap-cell">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="secBruteForceToggle" checked onchange="saveSecurityPolicy('brute_force', this.checked)">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- 7. FORCE HTTPS ENCRYPTION -->
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Force HTTPS Encryption</span>
+                  <span class="setting-label-sub">Automatically redirect insecure HTTP traffic to secure HTTPS</span>
+                </div>
+                <div class="toggle-wrap-cell">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="secHttpsToggle" onchange="saveSecurityPolicy('force_https', this.checked)">
+                    <span class="toggle-slider"></span>
+                  </label>
                 </div>
               </div>
             </div>
@@ -9005,8 +8949,17 @@
         if (typeof fetchLogs === 'function') fetchLogs();
       } else if (id === 'acc-sessions') {
         if (typeof fetchActiveSessions === 'function') fetchActiveSessions();
+      } else if (id === 'acc-security') {
+        if (typeof fetchSecuritySettings === 'function') fetchSecuritySettings();
       } else if (id === 'acc-adb-device') {
         if (typeof fetchAdbDeviceList === 'function') fetchAdbDeviceList();
+        const curHash = window.location.hash || '';
+        if (curHash.includes('&dev=')) {
+          const devSer = decodeURIComponent(curHash.split('&dev=')[1].split('&')[0]);
+          if (devSer) openAdbDeviceDetail(devSer, false);
+        } else {
+          closeAdbDeviceDetail(false);
+        }
       }
 
       if (pushHistory) {
@@ -9023,6 +8976,9 @@
     }
 
     function closeSettingPage(triggerHistoryBack = true) {
+      if (window._currentAdbDeviceDetail) {
+        closeAdbDeviceDetail(false);
+      }
       if (typeof stopLogAutoRefresh === 'function') {
         stopLogAutoRefresh();
       }
@@ -9074,7 +9030,13 @@
         return;
       }
 
-      // 2. If logout confirm modal is open, close it!
+      // 2. If ADB Device Detail View is open, close it and return to ADB list!
+      if (window._currentAdbDeviceDetail) {
+        closeAdbDeviceDetail(false);
+        return;
+      }
+
+      // 3. If logout confirm modal is open, close it!
       const logoutModal = document.getElementById('logoutConfirmModal');
       if (logoutModal && logoutModal.style.display !== 'none') {
         hideLogoutConfirm();
@@ -14996,6 +14958,64 @@
       closeSettingModal();
     }
 
+    
+    // ==================== GATEWAY SECURITY POLICIES ====================
+    let cachedSecurityPolicy = {
+      ssh_enable: true,
+      session_timeout: true,
+      syn_flood: true,
+      wan_ping_drop: false,
+      brute_force: true,
+      force_https: false
+    };
+
+    async function fetchSecuritySettings() {
+      try {
+        const res = await apiFetch("/cgi-bin/device?action=security_get");
+        const data = await res.json();
+        if (data && data.status === 'ok') {
+          cachedSecurityPolicy = Object.assign(cachedSecurityPolicy, data);
+        }
+      } catch (e) {
+        console.warn("fetchSecuritySettings error, using defaults:", e);
+      }
+
+      // Sync checkbox controls
+      const sshToggle = document.getElementById('secSshToggle');
+      const sessToggle = document.getElementById('secSessionTimeoutToggle');
+      const synToggle = document.getElementById('secSynFloodToggle');
+      const pingToggle = document.getElementById('secWanPingToggle');
+      const bruteToggle = document.getElementById('secBruteForceToggle');
+      const httpsToggle = document.getElementById('secHttpsToggle');
+
+      if (sshToggle) sshToggle.checked = !!cachedSecurityPolicy.ssh_enable;
+      if (sessToggle) sessToggle.checked = !!cachedSecurityPolicy.session_timeout;
+      if (synToggle) synToggle.checked = !!cachedSecurityPolicy.syn_flood;
+      if (pingToggle) pingToggle.checked = !!cachedSecurityPolicy.wan_ping_drop;
+      if (bruteToggle) bruteToggle.checked = !!cachedSecurityPolicy.brute_force;
+      if (httpsToggle) httpsToggle.checked = !!cachedSecurityPolicy.force_https;
+    }
+
+    async function saveSecurityPolicy(key, value) {
+      cachedSecurityPolicy[key] = value;
+      try {
+        const res = await fetch("/cgi-bin/device?action=security_set", {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(cachedSecurityPolicy)
+        });
+        const data = await res.json();
+        if (data && data.status === 'ok') {
+          showToast(`Security policy updated: ${key.replace('_', ' ').toUpperCase()}`, 'success');
+        } else {
+          showToast(`Error saving security policy`, 'warning');
+        }
+      } catch (e) {
+        console.error("saveSecurityPolicy error", e);
+        showToast(`Policy updated locally: ${key}`, 'info');
+      }
+    }
+
     // ==================== ADB DEVICES MANAGER CONTROLLER ====================
     let activeAdbDevices = [];
 
@@ -15038,76 +15058,92 @@
             No Android ADB devices detected. Connect a 5G phone via USB with USB Debugging enabled.
           </div>
         `;
-        const ctrlSec = document.getElementById('adbSelectedDeviceControls');
-        if (ctrlSec) ctrlSec.style.display = 'none';
         return;
-      }
-
-      if (!selectedAdbSerial && devs.length > 0) {
-        selectedAdbSerial = devs[0].serial || devs[0].bus || 'default_adb';
       }
 
       container.innerHTML = devs.map(d => {
         const ser = d.serial || d.bus || 'dev_adb';
-        const isSel = (ser === selectedAdbSerial);
         const name = escapeHtml(d.model || d.brand || 'Android Handset');
-        const net = d.network || '5G SA / LTE';
-        const oper = d.operator || 'Jio / Vi';
-        const batt = (d.battery_pct !== null && d.battery_pct !== undefined) ? `${d.battery_pct}%` : '85%';
-        const ip = d.virtual_ip || d.ip || '10.228.157.164';
+        const net = d.network || (d.is_wan ? '5G SA Tethering' : 'Connected');
+        const oper = d.operator || d.manufacturer || '';
+        const batt = (d.battery_pct !== null && d.battery_pct !== undefined) ? `${d.battery_pct}%` : '';
+        const ip = d.virtual_ip || d.ip || '';
+
+        const metaParts = [];
+        if (ser) metaParts.push(ser);
+        if (net) metaParts.push(net);
+        if (oper) metaParts.push(oper);
+        if (ip) metaParts.push(`IP: ${ip}`);
+        if (batt) metaParts.push(`Batt: ${batt}`);
+        const metaStr = metaParts.join(' &bull; ');
 
         return `
-          <div class="setting-clickable-row" onclick="selectAdbDevice('${escapeHtml(ser)}')" style="background:${isSel ? 'rgba(56,189,248,0.1)' : 'var(--card-inner, #161822)'}; border:1px solid ${isSel ? 'rgba(56,189,248,0.4)' : 'rgba(255,255,255,0.06)'}; border-radius:10px; padding:12px 14px; margin-bottom:4px;">
-            <div style="display:flex; align-items:center; gap:12px;">
-              <div style="width:36px; height:36px; border-radius:50%; background:${isSel ? 'rgba(56,189,248,0.2)' : 'rgba(255,255,255,0.05)'}; color:#38bdf8; display:flex; align-items:center; justify-content:center;">
-                <svg viewBox="0 0 24 24" style="width:18px; height:18px; stroke:currentColor; stroke-width:2; fill:none;"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-              </div>
-              <div style="display:flex; flex-direction:column; gap:2px;">
-                <div style="display:flex; align-items:center; gap:6px;">
-                  <span style="font-size:13px; font-weight:800; color:var(--text-main);">${name}</span>
-                  <span class="card-badge emerald" style="font-size:9px; padding:1px 5px;">ACTIVE</span>
-                </div>
-                <div style="font-size:11px; font-family:var(--font-mono); color:var(--text-dim); display:flex; align-items:center; gap:6px;">
-                  <span>${net} &bull; ${oper}</span>
-                  <span>&bull;</span>
-                  <span>IP: <strong style="color:var(--text-main);">${ip}</strong></span>
-                  <span>&bull;</span>
-                  <span>Batt: <strong style="color:#10b981;">${batt}</strong></span>
-                </div>
-              </div>
+          <div class="setting-row-item setting-clickable-row" onclick="openAdbDeviceDetail('${escapeHtml(ser)}')">
+            <div class="setting-label-col">
+              <span class="setting-label-bold">${name}</span>
+              <span class="setting-label-sub">${metaStr}</span>
             </div>
             <div class="setting-arrow-col">
-              <span class="card-badge" style="background:${isSel ? '#38bdf8' : 'rgba(255,255,255,0.08)'}; color:${isSel ? '#0f172a' : 'var(--text-dim)'}; font-weight:800; font-size:10px; padding:2px 8px;">${isSel ? 'SELECTED' : 'SELECT'}</span>
+              <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
             </div>
           </div>
         `;
       }).join('');
+    }
+
+    function openAdbDeviceDetail(serial, pushHistory = true) {
+      window._currentAdbDeviceDetail = serial;
+      selectedAdbSerial = serial;
+
+      const listView = document.getElementById('adbListView');
+      const detailView = document.getElementById('adbDetailView');
+      if (listView) listView.style.display = 'none';
+      if (detailView) detailView.style.display = 'flex';
+
+      const selDev = activeAdbDevices.find(d => (d.serial === serial || d.bus === serial)) || { serial: serial, model: 'Android Handset' };
+      const devName = selDev.model || selDev.brand || 'Android Handset';
+      const ser = selDev.serial || selDev.bus || serial || '--';
+
+      const bcModel = document.getElementById('adbDetailBreadcrumbModel');
+      const bcSerial = document.getElementById('adbDetailBreadcrumbSerial');
+      if (bcModel) bcModel.textContent = devName;
+      if (bcSerial) bcSerial.textContent = `SERIAL: ${ser}${selDev.ip ? ` • IP: ${selDev.ip}` : ''}`;
 
       updateSelectedAdbDeviceControls();
+
+      if (pushHistory) {
+        try {
+          history.pushState({ tab: 'settings', page: 'adb-device-detail', serial: serial }, '', '#setting=acc-adb-device&dev=' + encodeURIComponent(serial));
+        } catch (e) {}
+      }
+    }
+
+    function closeAdbDeviceDetail(triggerHistoryBack = true) {
+      if (!window._currentAdbDeviceDetail) return;
+      window._currentAdbDeviceDetail = null;
+
+      const listView = document.getElementById('adbListView');
+      const detailView = document.getElementById('adbDetailView');
+      if (detailView) detailView.style.display = 'none';
+      if (listView) listView.style.display = 'block';
+
+      if (triggerHistoryBack && window.location.hash.includes('&dev=')) {
+        try {
+          history.back();
+        } catch (e) {}
+      }
     }
 
     function selectAdbDevice(serial) {
-      selectedAdbSerial = serial;
-      renderAdbDevicesCards(activeAdbDevices);
+      openAdbDeviceDetail(serial);
     }
 
     function updateSelectedAdbDeviceControls() {
-      const ctrlSec = document.getElementById('adbSelectedDeviceControls');
-      const titleEl = document.getElementById('selectedAdbDeviceTitle');
-      const serEl = document.getElementById('selectedAdbDeviceSerial');
-      if (!ctrlSec) return;
+      const detailView = document.getElementById('adbDetailView');
+      if (!detailView || detailView.style.display === 'none') return;
 
       const selDev = activeAdbDevices.find(d => (d.serial === selectedAdbSerial || d.bus === selectedAdbSerial)) || activeAdbDevices[0];
-      if (!selDev) {
-        ctrlSec.style.display = 'none';
-        return;
-      }
-
-      ctrlSec.style.display = 'flex';
-      const devName = selDev.model || selDev.brand || 'Android Handset';
-      const ser = selDev.serial || selDev.bus || 'USB-001';
-      if (titleEl) titleEl.textContent = `${devName} Controls`;
-      if (serEl) serEl.textContent = `SERIAL: ${ser}`;
+      const ser = selDev ? (selDev.serial || selDev.bus || selectedAdbSerial) : selectedAdbSerial;
 
       // Synchronize active toggle states for this device
       updateAdbTorchUI(!!adbDeviceStates.torch[ser]);
@@ -15117,15 +15153,9 @@
         if (isSilent) silentBtn.classList.add('active-warning');
         else silentBtn.classList.remove('active-warning');
       }
-      const volPill = document.getElementById('dispVolumeStatus');
-      if (volPill) {
-        volPill.className = isSilent ? 'setting-pill pill-amber' : 'setting-pill';
-        volPill.textContent = isSilent ? 'SILENT ON' : 'MEDIA';
-      }
       const isSleep = adbDeviceStates.screen[ser] === 'off';
       const wakeBtn = document.getElementById('btnDisplayWake');
       const sleepBtn = document.getElementById('btnDisplaySleep');
-      const pwrPill = document.getElementById('dispPowerStatus');
       if (wakeBtn) {
         if (!isSleep) wakeBtn.classList.add('active-cyan');
         else wakeBtn.classList.remove('active-cyan');
@@ -15133,10 +15163,6 @@
       if (sleepBtn) {
         if (isSleep) sleepBtn.classList.add('active-cyan');
         else sleepBtn.classList.remove('active-cyan');
-      }
-      if (pwrPill) {
-        pwrPill.className = isSleep ? 'setting-pill' : 'setting-pill pill-cyan';
-        pwrPill.textContent = isSleep ? 'SLEEPING' : 'AWAKE';
       }
     }
 
@@ -16452,38 +16478,38 @@
       const user = data.user || {};
       const nameEl = document.getElementById('tsUserDisplayName');
       const emailEl = document.getElementById('tsUserLoginName');
-      const descEl = document.getElementById('tsUserAccountDesc');
       const domainEl = document.getElementById('tsTailnetDomain');
-      const avatarEl = document.getElementById('tsUserAvatar');
-      const onlineEl = document.getElementById('tsOnlineCountBadge');
-      const totalEl = document.getElementById('tsTotalCountBadge');
       const meshNodesBadge = document.getElementById('tsMeshNodesBadge');
-      const statusBadge = document.getElementById('tsAccountStatusBadge');
-
-      const dispName = user.DisplayName || user.LoginName || 'Mahendra Mali';
-      const loginEmail = user.LoginName || 'mahendrakumargahelot@gmail.com';
-      const onlineCount = data.devices_online || 1;
-      const totalCount = data.devices_total || 6;
-
-      if (nameEl) nameEl.textContent = dispName;
-      if (emailEl) emailEl.textContent = loginEmail;
-      if (descEl) descEl.innerHTML = `<span id="tsUserLoginName">${escapeHtml(loginEmail)}</span> &bull; Primary Operator`;
-      if (domainEl) domainEl.textContent = data.tailnet || 'maxnet-usb.tail47d620.ts.net';
-      if (onlineEl) onlineEl.textContent = `${onlineCount} Online`;
-      if (totalEl) totalEl.textContent = `${totalCount} Total`;
-      if (meshNodesBadge) {
-        meshNodesBadge.innerHTML = `<span id="tsOnlineCountBadge">${onlineCount} Online</span> / <span id="tsTotalCountBadge">${totalCount} Total</span>`;
-      }
-      if (statusBadge) statusBadge.textContent = 'Logged In';
-
-      // Profile picture or blank avatar silhouette
-      const avatarWrap = document.getElementById('tsUserAvatarWrapper');
       const avatarImg = document.getElementById('tsUserAvatarImg');
       const avatarBlank = document.getElementById('tsUserAvatarBlank');
-      const picUrl = user.ProfilePicURL || data.profile_pic_url || '';
 
+      const isRunning = (data.backend_state === 'Running' || data.online);
+      const hasUser = user && (user.DisplayName || user.LoginName);
+
+      if (hasUser) {
+        if (nameEl) nameEl.textContent = user.DisplayName || user.LoginName;
+        if (emailEl) emailEl.textContent = user.LoginName || 'Tailscale Operator';
+      } else {
+        if (nameEl) nameEl.textContent = 'Tailscale Account';
+        if (emailEl) emailEl.textContent = isRunning ? 'Authenticated Mesh Node' : 'Not connected to a tailnet';
+      }
+
+      if (domainEl) {
+        domainEl.textContent = data.tailnet || (isRunning ? 'Assigned upon connection' : 'Disconnected');
+      }
+
+      const onlineCount = data.devices_online !== undefined ? data.devices_online : (isRunning ? 1 : 0);
+      const totalCount = data.devices_total !== undefined ? data.devices_total : (isRunning ? 1 : 0);
+
+      if (meshNodesBadge) {
+        meshNodesBadge.innerHTML = `<span id="tsOnlineCountBadge">${onlineCount} Online</span> / <span id="tsTotalCountBadge">${totalCount} Total</span>`;
+        meshNodesBadge.className = isRunning ? 'setting-status-badge badge-active' : 'setting-status-badge badge-disabled';
+      }
+
+      // Profile picture or blank avatar silhouette
+      const picUrl = user.ProfilePicURL || data.profile_pic_url || '';
       if (avatarImg && avatarBlank) {
-        if (picUrl) {
+        if (picUrl && hasUser) {
           avatarImg.src = picUrl;
           avatarImg.style.display = 'block';
           avatarBlank.style.display = 'none';
@@ -16492,42 +16518,23 @@
           avatarBlank.style.display = 'block';
         }
       }
-
-      if (avatarEl) {
-        if (user.ProfilePicURL) {
-          avatarEl.innerHTML = `<img src="${escapeHtml(user.ProfilePicURL)}" alt="Avatar" style="width:100%; height:100%; object-fit:cover;" onerror="this.parentElement.textContent='M'">`;
-        } else {
-          const init = (dispName || 'M').charAt(0).toUpperCase();
-          avatarEl.textContent = init;
-        }
-      }
     }
 
     function renderTailscaleDevices(data) {
       const container = document.getElementById('tsDevicesContainer');
       if (!container) return;
 
-      const selfHost = data.hostname || 'Maxnet-Gateway';
-      const selfIp = data.tailscale_ip || '100.107.94.6';
-      const selfOnline = data.backend_state === 'Running' || data.online;
-
-      let html = `
-        <div class="setting-row-item">
-          <div class="setting-label-col">
-            <div class="setting-title-wrap">
-              <span class="setting-title">${escapeHtml(selfHost)}</span>
-              <span class="setting-pill pill-cyan">THIS ROUTER</span>
-              <span class="setting-pill">LINUX</span>
-            </div>
-            <div class="setting-desc">${escapeHtml(selfIp)}</div>
-          </div>
-          <div class="setting-control-col">
-            <span class="setting-status-badge badge-active">Connected</span>
-          </div>
-        </div>
-      `;
-
       const peers = data.peers || [];
+      if (peers.length === 0) {
+        container.innerHTML = `
+          <div class="setting-row-item" style="color:var(--text-dim); font-size:11.5px; font-family:var(--font-mono); padding:10px 14px;">
+            No remote mesh peers connected.
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
       peers.forEach(p => {
         const pName = p.name || p.hostname || 'Mesh Peer';
         const pIp = p.ip || '--';
@@ -16539,11 +16546,8 @@
         html += `
           <div class="setting-row-item">
             <div class="setting-label-col">
-              <div class="setting-title-wrap">
-                <span class="setting-title">${escapeHtml(pName)}</span>
-                <span class="setting-pill">${escapeHtml(pOs)}</span>
-              </div>
-              <div class="setting-desc">${descText}</div>
+              <span class="setting-label-bold">${escapeHtml(pName)}</span>
+              <span class="setting-label-sub">${descText}</span>
             </div>
             <div class="setting-control-col">
               <span class="setting-status-badge ${isOnline ? 'badge-active' : 'badge-disabled'}">${isOnline ? 'Online' : 'Offline'}</span>
@@ -16566,12 +16570,18 @@
         const state = data.backend_state || data.BackendState || (data.online ? 'Running' : 'Stopped');
         const tsIp = data.tailscale_ip || (data.TailscaleIPs && data.TailscaleIPs[0]) || (data.Self && data.Self.TailscaleIPs ? data.Self.TailscaleIPs[0] : '100.107.94.6');
 
+        const notInstalledEl = document.getElementById('tsNotInstalledNotice');
+        if (notInstalledEl) notInstalledEl.style.display = 'none';
+
+        const dispIp = document.getElementById('disp_ts_ip');
         if (state === 'Running') {
           if (badge) { badge.className = 'card-badge emerald'; badge.innerText = 'RUNNING'; }
           if (ipEl) ipEl.value = tsIp;
+          if (dispIp) dispIp.textContent = tsIp;
         } else {
           if (badge) { badge.className = 'card-badge'; badge.innerText = state.toUpperCase(); }
           if (ipEl) ipEl.value = 'Offline';
+          if (dispIp) dispIp.textContent = tsIp || 'Offline';
         }
 
         if (document.getElementById('tsMasterToggle')) {
@@ -16608,6 +16618,10 @@
         }
       } catch (e) {
         console.error("fetchTailscale error", e);
+        const notInstalledEl = document.getElementById('tsNotInstalledNotice');
+        if (notInstalledEl) notInstalledEl.style.display = 'flex';
+        const badge = document.getElementById('tsStatusBadge');
+        if (badge) { badge.className = 'card-badge'; badge.innerText = 'OFFLINE'; }
       }
     }
 
