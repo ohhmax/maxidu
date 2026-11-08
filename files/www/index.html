@@ -5942,6 +5942,9 @@
       background: transparent !important;
       background-color: transparent !important;
     }
+    #terminalContainer .xterm-rows {
+      color: var(--text-main, #f4f4f5);
+    }
     #terminalContainer .xterm .xterm-viewport::-webkit-scrollbar {
       width: 4px;
     }
@@ -8953,6 +8956,9 @@
       currentTheme = resolvedTheme;
       document.documentElement.setAttribute('data-theme', resolvedTheme);
       updateThemeTriButtons();
+      if (typeof updateTerminalTheme === 'function') {
+        try { updateTerminalTheme(); } catch (e) {}
+      }
       if (typeof buildUsbBwSvg === 'function') {
         try { buildUsbBwSvg(); } catch (e) {}
       }
@@ -17536,6 +17542,68 @@
       return 12.5;
     }
 
+    function getTerminalTheme(isDark) {
+      if (isDark) {
+        return {
+          background: 'rgba(0, 0, 0, 0)',
+          foreground: '#f4f4f5',
+          cursor: '#10b981',
+          cursorAccent: '#000000',
+          selectionBackground: 'rgba(56, 189, 248, 0.4)',
+          black: '#27272a',
+          red: '#ef4444',
+          green: '#10b981',
+          yellow: '#f59e0b',
+          blue: '#60a5fa',
+          magenta: '#c084fc',
+          cyan: '#38bdf8',
+          white: '#f4f4f5',
+          brightBlack: '#a1a1aa',
+          brightRed: '#f87171',
+          brightGreen: '#34d399',
+          brightYellow: '#fbbf24',
+          brightBlue: '#93c5fd',
+          brightMagenta: '#d8b4fe',
+          brightCyan: '#67e8f9',
+          brightWhite: '#ffffff'
+        };
+      } else {
+        return {
+          background: 'rgba(0, 0, 0, 0)',
+          foreground: '#0f172a',
+          cursor: '#0f172a',
+          cursorAccent: '#ffffff',
+          selectionBackground: 'rgba(56, 189, 248, 0.25)',
+          black: '#0f172a',
+          red: '#dc2626',
+          green: '#059669',
+          yellow: '#d97706',
+          blue: '#2563eb',
+          magenta: '#9333ea',
+          cyan: '#0891b2',
+          white: '#ffffff',
+          brightBlack: '#64748b',
+          brightRed: '#ef4444',
+          brightGreen: '#10b981',
+          brightYellow: '#f59e0b',
+          brightBlue: '#3b82f6',
+          brightMagenta: '#a855f7',
+          brightCyan: '#06b6d4',
+          brightWhite: '#f8fafc'
+        };
+      }
+    }
+
+    function updateTerminalTheme() {
+      if (!_nativeTerminal) return;
+      const isDark = (typeof currentTheme !== 'undefined' && currentTheme === 'dark') ||
+                     (document.documentElement.getAttribute('data-theme') !== 'light');
+      _nativeTerminal.options.theme = getTerminalTheme(isDark);
+      try {
+        _nativeTerminal.refresh(0, _nativeTerminal.rows - 1);
+      } catch (e) {}
+    }
+
     function initNativeTerminal() {
       const container = document.getElementById('terminalContainer');
       if (!container) return;
@@ -17544,6 +17612,7 @@
         if (!_userZoomedTerm) {
           _nativeTerminal.options.fontSize = getTerminalResponsiveFontSize();
         }
+        updateTerminalTheme();
         if (_nativeFitAddon) {
           try { _nativeFitAddon.fit(); } catch (e) {}
         }
@@ -17556,9 +17625,8 @@
         return;
       }
 
-      const isLight = document.documentElement.getAttribute('data-theme') === 'light';
-      const termFg = isLight ? '#0f172a' : '#d4d4d8';
-      const termCursor = isLight ? '#0f172a' : '#10b981';
+      const isDark = (typeof currentTheme !== 'undefined' && currentTheme === 'dark') ||
+                     (document.documentElement.getAttribute('data-theme') !== 'light');
       const termFs = getTerminalResponsiveFontSize();
 
       _nativeTerminal = new Terminal({
@@ -17567,28 +17635,7 @@
         fontSize: termFs,
         lineHeight: 1.18,
         fontFamily: 'Consolas, "Liberation Mono", Menlo, Courier, monospace',
-        theme: {
-          background: 'rgba(0, 0, 0, 0)',
-          foreground: termFg,
-          cursor: termCursor,
-          selectionBackground: 'rgba(56, 189, 248, 0.35)',
-          black: '#000000',
-          red: '#ef4444',
-          green: '#10b981',
-          yellow: '#f59e0b',
-          blue: '#3b82f6',
-          magenta: '#a855f7',
-          cyan: '#06b6d4',
-          white: '#f4f4f5',
-          brightBlack: '#71717a',
-          brightRed: '#f87171',
-          brightGreen: '#34d399',
-          brightYellow: '#fbbf24',
-          brightBlue: '#60a5fa',
-          brightMagenta: '#c084fc',
-          brightCyan: '#22d3ee',
-          brightWhite: '#ffffff'
-        }
+        theme: getTerminalTheme(isDark)
       });
 
       if (typeof FitAddon !== 'undefined' && FitAddon.FitAddon) {
@@ -18503,14 +18550,7 @@
         }
       }
       if (typeof buildUsbBwSvg === 'function') buildUsbBwSvg();
-      if (_nativeTerminal) {
-        _nativeTerminal.options.theme = {
-          background: 'rgba(0, 0, 0, 0)',
-          foreground: isDark ? '#d4d4d8' : '#0f172a',
-          cursor: isDark ? '#10b981' : '#0f172a',
-          selectionBackground: 'rgba(56, 189, 248, 0.35)'
-        };
-      }
+      if (typeof updateTerminalTheme === 'function') updateTerminalTheme();
     }
 
     function toggleTheme() {
