@@ -5892,6 +5892,78 @@
 
 
     /* ==================== ANDROID-STYLE SETTING ROWS & MODAL DIALOG ==================== */
+    .round-action-btn.btn-danger-action {
+      border-color: rgba(239, 68, 68, 0.45);
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.08);
+    }
+    .round-action-btn.btn-danger-action:hover {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: #ef4444;
+      color: #f87171;
+      box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
+    }
+    .round-action-btn.btn-warning-action {
+      border-color: rgba(245, 158, 11, 0.45);
+      color: #f59e0b;
+      background: rgba(245, 158, 11, 0.08);
+    }
+    .round-action-btn.btn-warning-action:hover {
+      background: rgba(245, 158, 11, 0.2);
+      border-color: #f59e0b;
+      color: #fbbf24;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+    }
+    .setting-save-pill {
+      margin-left: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: #38bdf8;
+      transition: all 0.2s ease;
+    }
+    .setting-save-pill.saved {
+      background: rgba(16, 185, 129, 0.12);
+      border-color: rgba(16, 185, 129, 0.35);
+      color: #10b981;
+    }
+    .setting-save-pill.error {
+      background: rgba(239, 68, 68, 0.12);
+      border-color: rgba(239, 68, 68, 0.35);
+      color: #ef4444;
+    }
+    .setting-save-pill .spin-icon {
+      width: 12px;
+      height: 12px;
+      animation: spin 0.8s linear infinite;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.5;
+    }
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
+    @media (min-width: 900px) {
+      #dashboardContainer.settings-side-open #tabSettings .android-modal-overlay {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: auto;
+        width: min(480px, 44vw);
+        height: 100vh;
+        z-index: 10000;
+        border-left: 1px solid var(--border-sub, rgba(255, 255, 255, 0.12));
+      }
+    }
+
     .setting-clickable-row {
       cursor: pointer;
       user-select: none;
@@ -6177,6 +6249,23 @@
     <!-- ==================== TAB 2: SETTINGS ==================== -->
         <!-- ==================== TAB 2: SETTINGS ==================== -->
     <div id="tabSettings" class="tab-page" style="display:none;">
+      <!-- ==================== ANDROID SETTINGS EDIT POPUP MODAL (SCOPED) ==================== -->
+      <div id="settingEditModalOverlay" class="android-modal-overlay" onclick="onModalOverlayClick(event)">
+        <div class="android-modal-card" id="settingEditModalCard">
+          <div class="android-modal-header">
+            <span class="android-modal-title" id="settingModalTitle">Edit Setting</span>
+            <span class="android-modal-desc" id="settingModalDesc">Adjust configuration parameters</span>
+          </div>
+          <div class="android-modal-body" id="settingModalBody">
+            <!-- Dynamically injected edit controls -->
+          </div>
+          <div class="android-modal-footer">
+            <button type="button" class="mh-btn btn-ghost" onclick="closeSettingModal()" style="padding:7px 18px; font-size:12px; font-weight:700;">CANCEL</button>
+            <button type="button" class="mh-btn" id="btnModalSave" onclick="saveSettingModal()" style="padding:7px 22px; font-size:12px; font-weight:800; background:#38bdf8; color:#0f172a;">SAVE</button>
+          </div>
+        </div>
+      </div>
+
 
       <!-- VIEW 1: SETTINGS HOME VIEW (GRID OF 13 NAV CARDS) -->
       <div id="settingsHomeView" class="settings-shell">
@@ -6292,18 +6381,19 @@
             </div>
           </div>
 
-          <!-- 7. USB Manager -->
-          <div class="settings-nav-card" onclick="openSettingPage('acc-adb-device')" data-search="usb manager adb android debugging virtual lan usb tethering tcpip reverse port forwarding">
+          <!-- 7. ADB Devices -->
+          <div class="settings-nav-card" onclick="openSettingPage('acc-adb-device')" data-search="adb devices android debugging phone handset hardware controls usb tethering tcpip wireless port forwarding">
             <div class="snc-left">
               <div class="snc-icon-box" style="color:#38bdf8;">
                 <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
               </div>
               <div class="snc-info">
-                <span class="snc-title">USB Manager</span>
-                <span class="snc-desc">USB tethering modems, phone hardware actions, and hub power</span>
+                <span class="snc-title">ADB Devices</span>
+                <span class="snc-desc">Connected Android handsets, tethering modems, and hardware ADB controls</span>
               </div>
             </div>
             <div class="snc-right">
+              <span id="adbHubCountBadge" class="card-badge" style="font-size:10px; color:#38bdf8; border-color:rgba(56,189,248,0.3);">READY</span>
               <svg class="snc-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
             </div>
           </div>
@@ -6486,6 +6576,10 @@
             <span id="settingsDetailNavIcon" class="settings-subnav-icon"></span>
             <span id="settingsDetailNavTitle" class="settings-subnav-title">Settings</span>
           </div>
+          <div id="settingsSaveStatusPill" class="setting-save-pill" style="display:none;">
+            <svg class="spin-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-dashoffset="12"/></svg>
+            <span id="settingsSaveStatusText">Applying changes...</span>
+          </div>
         </div>
 
         <!-- SETTINGS DETAIL PANELS CONTAINER -->
@@ -6506,19 +6600,6 @@
           </div>
           <div class="accordion-content">
             <div class="settings-card-body">
-              <!-- WAN STATUS SUMMARY -->
-              <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; padding:10px 14px; background:var(--card-inner, #161822); border:1px solid var(--border-sub, rgba(255,255,255,0.08)); border-radius:10px; margin-bottom:14px; font-family:var(--font-mono); font-size:11px;">
-                <div style="display:flex; align-items:center; gap:8px;">
-                  <span id="wanStatusDot" style="width:8px; height:8px; border-radius:50%; background:#71717a;"></span>
-                  <span style="font-weight:700; color:var(--text-main);">WAN Interface:</span>
-                  <span id="wanProtoBadge" style="color:#38bdf8; text-transform:uppercase;">DHCP</span>
-                </div>
-                <div style="display:flex; align-items:center; gap:12px; color:var(--text-dim);">
-                  <span>IPv4: <strong id="wanIpBadge" style="color:var(--text-main);">--</strong></span>
-                  <span id="wanStateBadge" class="toggle-status-badge off">DISCONNECTED</span>
-                </div>
-              </div>
-
               <!-- NETWORK INTERFACE CONFIG ROWS -->
               <div style="display:flex; flex-direction:column;">
                 <!-- HIDDEN ORIGINAL INPUT ELEMENTS FOR SEAMLESS UCI COMMIT COMPATIBILITY -->
@@ -6586,7 +6667,7 @@
                   </div>
                   <div class="toggle-wrap-cell">
                     <label class="toggle-switch">
-                      <input type="checkbox" id="netDhcpMasterToggle" checked onchange="toggleDhcpControls(this.checked)">
+                      <input type="checkbox" id="netDhcpMasterToggle" checked onchange="toggleDhcpControls(this.checked); scheduleNetworkAutoSave();">
                       <span class="toggle-slider"></span>
                     </label>
                   </div>
@@ -6611,7 +6692,7 @@
                   </div>
                   <div class="toggle-wrap-cell">
                     <label class="toggle-switch">
-                      <input type="checkbox" id="netTrafficHistoryToggle" checked>
+                      <input type="checkbox" id="netTrafficHistoryToggle" checked onchange="scheduleNetworkAutoSave();">
                       <span class="toggle-slider"></span>
                     </label>
                   </div>
@@ -6630,40 +6711,24 @@
 
                 <!-- STATIC DHCP LEASES SECTION -->
                 <div style="margin-top:14px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.06);">
-                  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
-                    <div style="display:flex; flex-direction:column; gap:2px;">
-                      <span style="font-size:12px; font-weight:700; color:var(--text-main);">Static DHCP IP Reservations</span>
-                      <span style="font-size:11px; color:var(--text-dim);">Assign permanent, reserved IPv4 addresses based on client MAC hardware ID</span>
+                  <div class="setting-row-item" style="border-bottom:none; padding:6px 0 10px 0;">
+                    <div class="setting-label-col">
+                      <div style="display:flex; align-items:center; gap:8px;">
+                        <span class="setting-label-bold">Static DHCP IP Reservations</span>
+                        <span id="staticLeasesCountBadge" class="card-badge" style="font-size:9.5px; padding:1px 6px;">0 RESERVED</span>
+                      </div>
+                      <span class="setting-label-sub">Assign permanent, reserved IPv4 addresses based on client MAC hardware ID</span>
                     </div>
-                    <span id="staticLeasesCountBadge" style="font-size:11px; font-family:var(--font-mono); color:var(--text-dim);">0 RESERVED</span>
+                    <div class="setting-control-col">
+                      <button type="button" class="round-action-btn" onclick="openSettingModal('add_static_lease')" title="Add Static IP Reservation">
+                        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                      </button>
+                    </div>
                   </div>
 
-                  <!-- Add Lease Inline Form -->
-                  <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:10px; padding:8px 10px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px;">
-                    <input type="text" id="newLeaseName" class="mh-input" placeholder="Hostname (e.g. NAS)" style="flex:1; min-width:110px; padding:7px 10px; font-size:11px; font-family:var(--font-mono);">
-                    <input type="text" id="newLeaseMac" class="mh-input" placeholder="MAC (AA:BB:CC:DD:EE:FF)" style="flex:1.4; min-width:140px; padding:7px 10px; font-size:11px; font-family:var(--font-mono);">
-                    <input type="text" id="newLeaseIp" class="mh-input" placeholder="IP (10.0.0.50)" style="flex:1; min-width:100px; padding:7px 10px; font-size:11px; font-family:var(--font-mono);">
-                    <button type="button" class="round-action-btn" onclick="addStaticLeaseFromUI()" title="Add Static Reservation" style="width:36px; height:36px; min-width:36px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; background:rgba(56,189,248,0.15); border:1px solid rgba(56,189,248,0.3); color:#38bdf8; cursor:pointer;">
-                      <svg viewBox="0 0 24 24" style="width:18px; height:18px; stroke:currentColor; stroke-width:2.5; fill:none; stroke-linecap:round; stroke-linejoin:round;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                    </button>
-                  </div>
-
-                  <!-- Leases List Table/Container -->
+                  <!-- Leases List Container -->
                   <div id="staticLeasesListContainer" style="display:flex; flex-direction:column; gap:6px;">
-                    <div style="font-size:11px; color:var(--text-dim); font-family:var(--font-mono); padding:6px 0;">No static DHCP leases registered.</div>
-                  </div>
-                </div>
-
-                <!-- SAVE & APPLY BUTTON -->
-                <div class="setting-row-item" style="border-bottom:none; margin-top:10px; padding-top:14px;">
-                  <div class="setting-label-col">
-                    <span class="setting-label-bold">Commit Configuration</span>
-                    <span class="setting-label-sub">Commit changes to UCI network &amp; dhcp, reload dnsmasq daemon</span>
-                  </div>
-                  <div class="setting-control-col">
-                    <button class="mh-btn" id="btnSaveNetwork" onclick="saveNetworkSettings()" style="padding:7px 18px; font-size:11px;">
-                      APPLY NETWORK CONFIGURATION
-                    </button>
+                    <div style="font-size:11px; color:var(--text-dim); font-family:var(--font-mono); padding:8px 12px; background:rgba(255,255,255,0.02); border-radius:8px;">No static DHCP leases registered. Click + to add one.</div>
                   </div>
                 </div>
               </div>
@@ -7064,25 +7129,43 @@
                 </div>
               </div>
 
-              <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; margin-bottom:14px;">
-                <div class="mh-form-group">
-                  <label class="mh-label">Node Hostname</label>
-                  <div style="display:flex; gap:8px;">
-                    <input type="text" class="mh-input" id="tsHostname" value="Maxnet-Gateway" style="flex:1;">
-                    <button class="mh-btn btn-sm" onclick="applyTailscalePrefs()">UPDATE</button>
-                  </div>
+              <!-- HIDDEN FORM BINDINGS -->
+              <div style="display:none;">
+                <input type="text" id="tsHostname" value="Maxnet-Gateway">
+                <input type="password" id="tsAuthKeyInput" placeholder="tskey-auth-...">
+              </div>
+
+              <!-- 1. NODE HOSTNAME (ANDROID MODAL ROW) -->
+              <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('ts_hostname')">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Node Hostname</span>
+                  <span class="setting-label-sub" id="disp_ts_hostname">Maxnet-Gateway</span>
                 </div>
-                <div class="mh-form-group">
-                  <label class="mh-label">Tailscale IPv4</label>
-                  <input type="text" class="mh-input" id="tsIpAddress" value="100.107.94.6" readonly style="font-weight:bold;">
+                <div class="setting-arrow-col">
+                  <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
                 </div>
               </div>
 
-              <div class="mh-form-group" style="margin-bottom:16px;">
-                <label class="mh-label">Tailscale Auth Key</label>
-                <div style="display:flex; gap:8px;">
-                  <input type="password" class="mh-input" id="tsAuthKeyInput" placeholder="tskey-auth-..." style="flex:1;">
-                  <button class="mh-btn btn-sm" onclick="loginTailscaleWithKey()">CONNECT</button>
+              <!-- 2. TAILSCALE IPV4 (READONLY INFO ROW) -->
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Tailscale IPv4 Address</span>
+                  <span class="setting-label-sub">Carrier-grade mesh overlay IPv4 (100.x.y.z)</span>
+                </div>
+                <div class="setting-control-col">
+                  <span class="card-badge emerald" id="disp_ts_ip" style="font-family:var(--font-mono); font-size:11.5px; padding:3px 8px;">100.107.94.6</span>
+                  <input type="hidden" id="tsIpAddress" value="100.107.94.6">
+                </div>
+              </div>
+
+              <!-- 3. TAILSCALE AUTH KEY (ANDROID MODAL ROW) -->
+              <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('ts_authkey')">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Tailscale Auth Key</span>
+                  <span class="setting-label-sub" id="disp_ts_authkey">tskey-auth-... (Click to configure or reconnect)</span>
+                </div>
+                <div class="setting-arrow-col">
+                  <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
                 </div>
               </div>
 
@@ -7092,38 +7175,72 @@
                 <a id="tsAuthUrlLink" href="#" target="_blank" style="color:#ffffff; font-size:11px; font-family:var(--font-mono); text-decoration:underline; word-break:break-all;">Click to Authenticate Node</a>
               </div>
 
-              <!-- ACTIONS -->
-              <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                <button class="mh-btn btn-ghost" onclick="restartTailscale()" style="flex:1; min-width:140px; justify-content:center;">RESTART SERVICE</button>
-                <button class="mh-btn btn-danger" onclick="logoutTailscale()" style="flex:1; min-width:140px; justify-content:center;">LOGOUT NODE</button>
+              <!-- TAILSCALE OPERATIONS (CLEAN ROWS WITH ROUND ACTION ICONS) -->
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Restart Tailscale Service</span>
+                  <span class="setting-label-sub">Restart local tailscaled daemon and re-establish WireGuard mesh</span>
+                </div>
+                <div class="setting-control-col">
+                  <button class="round-action-btn btn-warning-action" title="Restart Tailscale Service" onclick="restartTailscale()">
+                    <svg viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold" style="color:#ef4444;">Logout Tailscale Node</span>
+                  <span class="setting-label-sub">Revoke node authorization and disconnect from tailnet</span>
+                </div>
+                <div class="setting-control-col">
+                  <button class="round-action-btn btn-danger-action" title="Logout Tailscale Node" onclick="logoutTailscale()">
+                    <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- 3. USB DEVICES & HARDWARE CONTROLS -->
+        <!-- 3. ADB DEVICES & HARDWARE CONTROLS -->
         <div class="settings-card settings-detail-panel accordion-item" id="acc-adb-device">
           <div class="settings-card-header accordion-header" onclick="toggleAccordion('acc-adb-device')">
             <div class="acc-title-left">
-              <div class="acc-icon-box">
+              <div class="acc-icon-box" style="color:#38bdf8;">
                 <svg class="svg-icon" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="3"/><circle cx="12" cy="18" r="1"/></svg>
               </div>
-              <span class="acc-main-title">USB Manager</span>
+              <span class="acc-main-title">ADB Devices</span>
             </div>
             <div class="acc-right-action">
-              <span class="card-badge" id="adbDevCountBadge">4 PORTS</span>
+              <span class="card-badge" id="adbDevCountBadge">1 CONNECTED</span>
               <svg class="svg-icon acc-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
             </div>
           </div>
           <div class="accordion-content">
             <div class="settings-card-body">
-              <!-- DYNAMIC LIST OF PHYSICAL USB PORTS & CONNECTED DEVICES (SINGLE FLOW) -->
-              <div id="usbDevicesListFlow" style="display:flex; flex-direction:column;">
-                <!-- Populated dynamically via fetchAdbDeviceList / renderUsbDevicesFlow -->
+              <!-- CONNECTED ADB DEVICES LIST SECTION -->
+              <div style="margin-bottom:14px;">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+                  <span style="font-size:11px; font-weight:800; color:var(--text-dim); text-transform:uppercase; font-family:var(--font-mono); letter-spacing:0.5px;">Connected ADB Handsets</span>
+                  <button type="button" class="mh-btn btn-sm btn-ghost" onclick="fetchAdbDeviceList()" style="font-size:10px; padding:3px 8px;">REFRESH</button>
+                </div>
+                <div id="adbDevicesCardsContainer" style="display:flex; flex-direction:column; gap:8px;">
+                  <!-- Populated dynamically via renderAdbDevicesCards -->
+                </div>
               </div>
 
-              <!-- PHONE HARDWARE ACTIONS (CLEAN LABELED ROWS WITH ROUND ICON BUTTONS) -->
-              <div style="display:flex; flex-direction:column; margin-top:6px;">
+              <!-- SELECTED DEVICE HARDWARE CONTROLS (OPENS ON DEVICE CLICK) -->
+              <div id="adbSelectedDeviceControls" style="display:flex; flex-direction:column; margin-bottom:14px;">
+                <div style="display:flex; align-items:center; justify-content:space-between; padding:8px 12px; background:rgba(56,189,248,0.08); border:1px solid rgba(56,189,248,0.25); border-radius:8px; margin-bottom:10px;">
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="width:7px; height:7px; border-radius:50%; background:#38bdf8;"></span>
+                    <span id="selectedAdbDeviceTitle" style="font-size:12px; font-weight:800; color:var(--text-main);">Galaxy S21 FE 5G Controls</span>
+                  </div>
+                  <span id="selectedAdbDeviceSerial" style="font-size:10.5px; font-family:var(--font-mono); color:#38bdf8;">SERIAL: R5CR90XXXX</span>
+                </div>
+
+                <!-- 1. CAMERA FLASHLIGHT -->
                 <div class="setting-row-item">
                   <div class="setting-label-col">
                     <span class="setting-label-bold">Camera Flashlight</span>
@@ -7136,6 +7253,7 @@
                   </div>
                 </div>
 
+                <!-- 2. AUDIO VOLUME & RINGER -->
                 <div class="setting-row-item">
                   <div class="setting-label-col">
                     <span class="setting-label-bold">Audio Volume &amp; Ringer</span>
@@ -7148,16 +7266,17 @@
                     <button class="round-action-btn" title="Phone Volume Down" onclick="volumePhone('down')">
                       <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
                     </button>
-                    <button class="round-action-btn" title="Phone Silent Mode" onclick="volumePhone('silent')">
+                    <button class="round-action-btn btn-warning-action" title="Phone Silent Mode" onclick="volumePhone('silent')">
                       <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
                     </button>
                   </div>
                 </div>
 
+                <!-- 3. DISPLAY POWER -->
                 <div class="setting-row-item">
                   <div class="setting-label-col">
                     <span class="setting-label-bold">Display Power</span>
-                    <span class="setting-label-sub">Wake up or sleep screen on connected Android phone</span>
+                    <span class="setting-label-sub">Wake up screen or put handset display to sleep</span>
                   </div>
                   <div class="setting-control-col" style="gap:8px;">
                     <button class="round-action-btn" title="Wake Phone Screen (Turn On)" onclick="runDeviceWake()">
@@ -7169,6 +7288,7 @@
                   </div>
                 </div>
 
+                <!-- 4. CELLULAR RADIO RECONNECT -->
                 <div class="setting-row-item">
                   <div class="setting-label-col">
                     <span class="setting-label-bold">Cellular Radio Reconnect</span>
@@ -7181,10 +7301,24 @@
                   </div>
                 </div>
 
+                <!-- 5. WIRELESS ADB TCP/IP -->
                 <div class="setting-row-item">
                   <div class="setting-label-col">
-                    <span class="setting-label-bold">Reboot Handset</span>
-                    <span class="setting-label-sub">Send ADB soft reboot command to restart phone OS</span>
+                    <span class="setting-label-bold">Wireless ADB (Port 5555)</span>
+                    <span class="setting-label-sub">Switch ADB to TCP/IP mode for wireless debugging over Wi-Fi</span>
+                  </div>
+                  <div class="setting-control-col">
+                    <button class="round-action-btn btn-warning-action" title="Enable Wireless ADB on port 5555" onclick="enableWirelessAdb()">
+                      <svg viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- 6. REBOOT HANDSET -->
+                <div class="setting-row-item">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold" style="color:#ef4444;">Reboot Handset</span>
+                    <span class="setting-label-sub">Send ADB soft reboot command to restart phone operating system</span>
                   </div>
                   <div class="setting-control-col">
                     <button class="round-action-btn btn-danger-action" title="Reboot Connected Phone via ADB" onclick="runDeviceReboot()">
@@ -7194,8 +7328,8 @@
                 </div>
               </div>
 
-              <!-- GENERAL USB SETTINGS (SINGLE FLOW) -->
-              <div style="display:flex; flex-direction:column;">
+              <!-- GENERAL USB & ADB CONFIGURATION -->
+              <div style="display:flex; flex-direction:column; padding-top:10px; border-top:1px solid rgba(255,255,255,0.06);">
                 <div class="setting-row-item">
                   <div class="setting-label-col">
                     <span class="setting-label-bold">VBUS Hub Auto-Reset</span>
@@ -7363,23 +7497,23 @@
           </div>
           <div class="accordion-content">
             <div class="settings-card-body">
-              <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:14px;">
-                <div class="mh-form-group">
-                  <label class="mh-label">Current Password</label>
-                  <input type="password" class="mh-input" id="oldPasswordInput" placeholder="Enter existing password">
+              <!-- HIDDEN FORM BINDINGS -->
+              <div style="display:none;">
+                <input type="password" id="oldPasswordInput">
+                <input type="password" id="newPasswordInput">
+                <input type="password" id="confirmPasswordInput">
+              </div>
+
+              <!-- 1. ROOT PASSWORD (ANDROID MODAL ROW) -->
+              <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('change_password')">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Root Administrator Password</span>
+                  <span class="setting-label-sub">Update gateway credentials for Web UI and Dropbear SSH console</span>
                 </div>
-                <div class="mh-form-group">
-                  <label class="mh-label">New Password</label>
-                  <input type="password" class="mh-input" id="newPasswordInput" placeholder="Enter new password">
-                </div>
-                <div class="mh-form-group">
-                  <label class="mh-label">Confirm New Password</label>
-                  <input type="password" class="mh-input" id="confirmPasswordInput" placeholder="Re-enter new password">
+                <div class="setting-arrow-col">
+                  <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
                 </div>
               </div>
-              <button class="mh-btn" onclick="changeAdminPassword()">
-                UPDATE ROOT PASSWORD
-              </button>
             </div>
           </div>
         </div>
@@ -8431,8 +8565,8 @@
         badgeColor: '#06b6d4'
       },
       'acc-adb-device': {
-        title: 'USB Manager',
-        badge: 'USB & MODEMS',
+        title: 'ADB Devices',
+        badge: 'ANDROID & HARDWARE',
         badgeColor: '#38bdf8'
       },
       'acc-smb-storage': {
@@ -8563,6 +8697,8 @@
         if (typeof fetchLogs === 'function') fetchLogs();
       } else if (id === 'acc-sessions') {
         if (typeof fetchActiveSessions === 'function') fetchActiveSessions();
+      } else if (id === 'acc-adb-device') {
+        if (typeof fetchAdbDeviceList === 'function') fetchAdbDeviceList();
       }
 
       if (pushHistory) {
@@ -13948,6 +14084,91 @@
 
     // ==================== ANDROID SETTINGS EDIT MODAL CONTROLLER ====================
     let currentModalKey = null;
+    let networkAutoSaveTimer = null;
+    let isNetworkSaving = false;
+
+    function setSettingSaveStatus(state, msg) {
+      const pill = document.getElementById('settingsSaveStatusPill');
+      const txt = document.getElementById('settingsSaveStatusText');
+      if (!pill || !txt) return;
+
+      pill.className = 'setting-save-pill';
+      if (state === 'pending' || state === 'saving') {
+        pill.style.display = 'inline-flex';
+        txt.textContent = msg || 'Applying changes...';
+      } else if (state === 'saved') {
+        pill.classList.add('saved');
+        pill.style.display = 'inline-flex';
+        txt.textContent = msg || 'Saved';
+        setTimeout(() => {
+          if (pill.classList.contains('saved')) pill.style.display = 'none';
+        }, 2200);
+      } else if (state === 'error') {
+        pill.classList.add('error');
+        pill.style.display = 'inline-flex';
+        txt.textContent = msg || 'Save failed';
+        setTimeout(() => {
+          if (pill.classList.contains('error')) pill.style.display = 'none';
+        }, 3000);
+      } else {
+        pill.style.display = 'none';
+      }
+    }
+
+    function scheduleNetworkAutoSave(delayMs = 600) {
+      if (networkAutoSaveTimer) clearTimeout(networkAutoSaveTimer);
+      setSettingSaveStatus('pending', 'Saving changes...');
+      networkAutoSaveTimer = setTimeout(() => {
+        saveNetworkSettingsAuto();
+      }, delayMs);
+    }
+
+    async function saveNetworkSettingsAuto() {
+      if (isNetworkSaving) {
+        networkAutoSaveTimer = setTimeout(() => saveNetworkSettingsAuto(), 800);
+        return;
+      }
+      isNetworkSaving = true;
+      setSettingSaveStatus('saving', 'Applying configuration...');
+
+      const ipEl = document.getElementById('netLanIp');
+      const maskEl = document.getElementById('netMask');
+      const gwEl = document.getElementById('netGateway');
+      const dnsEl = document.getElementById('netDns');
+      const mtuEl = document.getElementById('netMtu');
+      const startEl = document.getElementById('netDhcpStart');
+      const limitEl = document.getElementById('netDhcpLimit');
+      const leaseEl = document.getElementById('netDhcpLease');
+      const toggleEl = document.getElementById('netDhcpMasterToggle');
+
+      const payload = {
+        action: 'set',
+        lan_ip: ipEl ? ipEl.value.trim() : '10.0.0.1',
+        netmask: maskEl ? maskEl.value.trim() : '255.255.255.0',
+        gateway: gwEl ? gwEl.value.trim() : '',
+        mtu: mtuEl ? mtuEl.value.trim() : '1500',
+        dns: dnsEl ? dnsEl.value.trim() : '',
+        dhcp_start: startEl ? startEl.value.trim() : '100',
+        dhcp_limit: limitEl ? limitEl.value.trim() : '150',
+        dhcp_leasetime: leaseEl ? leaseEl.value.trim() : '12h',
+        dhcp_ignore: (toggleEl && toggleEl.checked) ? 0 : 1
+      };
+
+      try {
+        const res = await fetch('/cgi-bin/network', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        setSettingSaveStatus('saved', 'Configuration Saved');
+      } catch (e) {
+        console.error("Auto-save network error:", e);
+        setSettingSaveStatus('error', 'Update Failed');
+      } finally {
+        isNetworkSaving = false;
+      }
+    }
 
     function openSettingModal(key) {
       currentModalKey = key;
@@ -13955,7 +14176,10 @@
       const titleEl = document.getElementById('settingModalTitle');
       const descEl = document.getElementById('settingModalDesc');
       const bodyEl = document.getElementById('settingModalBody');
+      const saveBtn = document.getElementById('btnModalSave');
       if (!overlay || !bodyEl) return;
+
+      if (saveBtn) saveBtn.textContent = 'SAVE';
 
       if (key === 'lan_ip') {
         titleEl.textContent = 'Gateway IP Address';
@@ -14009,7 +14233,7 @@
         `;
       } else if (key === 'dhcp_pool') {
         titleEl.textContent = 'DHCP Address Pool';
-        descEl.textContent = 'Configure the dynamic IP allocation range and lease duration for connected DHCP clients.';
+        descEl.textContent = 'Configure dynamic IP allocation range and lease duration for connected DHCP clients.';
         const curStart = document.getElementById('netDhcpStart').value || '100';
         const curLimit = document.getElementById('netDhcpLimit').value || '150';
         const curLease = document.getElementById('netDhcpLease').value || '12h';
@@ -14054,6 +14278,60 @@
             </div>
           </div>
         `;
+      } else if (key === 'add_static_lease') {
+        titleEl.textContent = 'Add Static IP Reservation';
+        descEl.textContent = 'Bind a static IPv4 address to a client MAC hardware address for consistent network addressing.';
+        bodyEl.innerHTML = `
+          <div>
+            <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">Device Name / Hostname</label>
+            <input type="text" id="modalInput_lease_name" class="mh-input" placeholder="e.g. Synology-NAS" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+          </div>
+          <div>
+            <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">MAC Address (AA:BB:CC:DD:EE:FF)</label>
+            <input type="text" id="modalInput_lease_mac" class="mh-input" placeholder="00:11:22:33:44:55" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+          </div>
+          <div>
+            <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">Static IPv4 Address</label>
+            <input type="text" id="modalInput_lease_ip" class="mh-input" placeholder="10.0.0.50" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+          </div>
+        `;
+      } else if (key === 'ts_hostname') {
+        titleEl.textContent = 'Tailscale Node Hostname';
+        descEl.textContent = 'Set device hostname advertised to your private Tailscale network nodes and MagicDNS.';
+        const curHost = document.getElementById('tsHostname') ? document.getElementById('tsHostname').value : 'Maxnet-Gateway';
+        bodyEl.innerHTML = `
+          <div>
+            <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">Node Hostname</label>
+            <input type="text" id="modalInput_ts_hostname" class="mh-input" value="${escapeHtml(curHost)}" placeholder="Maxnet-Gateway" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+          </div>
+        `;
+      } else if (key === 'ts_authkey') {
+        titleEl.textContent = 'Tailscale Auth Key';
+        descEl.textContent = 'Pre-authenticated auth key (tskey-auth-...) from your Tailscale admin console to connect this router.';
+        if (saveBtn) saveBtn.textContent = 'CONNECT';
+        bodyEl.innerHTML = `
+          <div>
+            <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">Auth Key</label>
+            <input type="password" id="modalInput_ts_authkey" class="mh-input" placeholder="tskey-auth-..." style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+          </div>
+        `;
+      } else if (key === 'change_password') {
+        titleEl.textContent = 'Root Administrator Password';
+        descEl.textContent = 'Update master administrator credentials for Web UI access and Dropbear SSH console.';
+        bodyEl.innerHTML = `
+          <div>
+            <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">Current Password</label>
+            <input type="password" id="modalInput_pwd_old" class="mh-input" placeholder="Existing password" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+          </div>
+          <div>
+            <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">New Password</label>
+            <input type="password" id="modalInput_pwd_new" class="mh-input" placeholder="Enter new password" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+          </div>
+          <div>
+            <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">Confirm New Password</label>
+            <input type="password" id="modalInput_pwd_confirm" class="mh-input" placeholder="Re-enter new password" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+          </div>
+        `;
       }
 
       overlay.style.display = 'flex';
@@ -14090,7 +14368,7 @@
       }
     }
 
-    function saveSettingModal() {
+    async function saveSettingModal() {
       if (!currentModalKey) { closeSettingModal(); return; }
 
       if (currentModalKey === 'lan_ip') {
@@ -14098,6 +14376,7 @@
         document.getElementById('netLanIp').value = val;
         const disp = document.getElementById('disp_lan_ip');
         if (disp) disp.textContent = val;
+        scheduleNetworkAutoSave();
       } else if (currentModalKey === 'net_mask') {
         const maskVal = (document.getElementById('modalInput_net_mask').value || '255.255.255.0').trim();
         const cidrVal = document.getElementById('modalSelect_cidr').value;
@@ -14105,16 +14384,19 @@
         document.getElementById('netCidrSelect').value = cidrVal;
         const disp = document.getElementById('disp_net_mask');
         if (disp) disp.textContent = `${maskVal} (/${cidrVal})`;
+        scheduleNetworkAutoSave();
       } else if (currentModalKey === 'net_gateway') {
         const val = (document.getElementById('modalInput_gateway').value || '').trim();
         document.getElementById('netGateway').value = val;
         const disp = document.getElementById('disp_net_gateway');
         if (disp) disp.textContent = val ? val : 'None (Direct br-lan)';
+        scheduleNetworkAutoSave();
       } else if (currentModalKey === 'net_mtu') {
         const val = parseInt(document.getElementById('modalInput_mtu').value, 10) || 1500;
         document.getElementById('netMtu').value = val;
         const disp = document.getElementById('disp_net_mtu');
         if (disp) disp.textContent = `${val} bytes`;
+        scheduleNetworkAutoSave();
       } else if (currentModalKey === 'dhcp_pool') {
         const start = parseInt(document.getElementById('modalInput_dhcp_start').value, 10) || 100;
         const limit = parseInt(document.getElementById('modalInput_dhcp_limit').value, 10) || 150;
@@ -14124,15 +14406,189 @@
         document.getElementById('netDhcpLease').value = lease;
         const disp = document.getElementById('disp_dhcp_pool');
         if (disp) disp.textContent = `Start ${start} • Limit ${limit} • Lease ${lease}`;
+        scheduleNetworkAutoSave();
       } else if (currentModalKey === 'custom_dns') {
         const val = (document.getElementById('modalInput_dns').value || '1.1.1.1 8.8.8.8').trim();
         document.getElementById('netDns').value = val;
         const disp = document.getElementById('disp_custom_dns');
         if (disp) disp.textContent = val;
+        scheduleNetworkAutoSave();
+      } else if (currentModalKey === 'add_static_lease') {
+        const name = (document.getElementById('modalInput_lease_name').value || 'Client').trim();
+        const mac = (document.getElementById('modalInput_lease_mac').value || '').trim();
+        const ip = (document.getElementById('modalInput_lease_ip').value || '').trim();
+
+        if (!mac || !ip) {
+          alert('Please enter both MAC address and IPv4 address.');
+          return;
+        }
+
+        try {
+          setSettingSaveStatus('saving', 'Adding reservation...');
+          const res = await fetch('/cgi-bin/network', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'add_lease', name, mac, ip })
+          });
+          const data = await res.json();
+          setSettingSaveStatus('saved', 'Reservation Added');
+          await fetchNetworkConfig();
+        } catch (e) {
+          setSettingSaveStatus('error', 'Add failed');
+          console.error(e);
+        }
+      } else if (currentModalKey === 'ts_hostname') {
+        const newHost = (document.getElementById('modalInput_ts_hostname').value || 'Maxnet-Gateway').trim();
+        if (document.getElementById('tsHostname')) document.getElementById('tsHostname').value = newHost;
+        const disp = document.getElementById('disp_ts_hostname');
+        if (disp) disp.textContent = newHost;
+        if (typeof applyTailscalePrefs === 'function') applyTailscalePrefs();
+      } else if (currentModalKey === 'ts_authkey') {
+        const keyVal = (document.getElementById('modalInput_ts_authkey').value || '').trim();
+        if (document.getElementById('tsAuthKeyInput')) document.getElementById('tsAuthKeyInput').value = keyVal;
+        const disp = document.getElementById('disp_ts_authkey');
+        if (disp) disp.textContent = keyVal ? 'Key Configured (Connecting...)' : 'None';
+        if (typeof loginTailscaleWithKey === 'function') loginTailscaleWithKey();
+      } else if (currentModalKey === 'change_password') {
+        const oldP = document.getElementById('modalInput_pwd_old').value;
+        const newP = document.getElementById('modalInput_pwd_new').value;
+        const confP = document.getElementById('modalInput_pwd_confirm').value;
+
+        if (!newP) { alert('New password cannot be empty'); return; }
+        if (newP !== confP) { alert('New password and confirm password do not match'); return; }
+
+        if (document.getElementById('oldPasswordInput')) document.getElementById('oldPasswordInput').value = oldP;
+        if (document.getElementById('newPasswordInput')) document.getElementById('newPasswordInput').value = newP;
+        if (document.getElementById('confirmPasswordInput')) document.getElementById('confirmPasswordInput').value = confP;
+        if (typeof changeAdminPassword === 'function') changeAdminPassword();
       }
 
       closeSettingModal();
     }
+
+    // ==================== ADB DEVICES MANAGER CONTROLLER ====================
+    let activeAdbDevices = [];
+
+    async function fetchAdbDeviceList() {
+      const container = document.getElementById('adbDevicesCardsContainer');
+      const badge = document.getElementById('adbDevCountBadge');
+      const hubBadge = document.getElementById('adbHubCountBadge');
+
+      try {
+        let devs = [];
+        if (window._lastDataCache && Array.isArray(window._lastDataCache.usb_devices) && window._lastDataCache.usb_devices.length > 0) {
+          devs = window._lastDataCache.usb_devices;
+        } else {
+          const res = await apiFetch("/cgi-bin/device?action=devices");
+          const data = await res.json();
+          devs = Array.isArray(data.devices) ? data.devices : [];
+        }
+
+        activeAdbDevices = devs.filter(d => d.device_type !== 'storage' && d.device_type !== 'pendrive' && d.device_type !== 'ssd');
+        if (activeAdbDevices.length === 0 && devs.length > 0) {
+          activeAdbDevices = devs;
+        }
+
+        if (badge) badge.textContent = `${activeAdbDevices.length} CONNECTED`;
+        if (hubBadge) hubBadge.textContent = `${activeAdbDevices.length} ONLINE`;
+
+        renderAdbDevicesCards(activeAdbDevices);
+      } catch (e) {
+        console.error('fetchAdbDeviceList error', e);
+      }
+    }
+
+    function renderAdbDevicesCards(devs) {
+      const container = document.getElementById('adbDevicesCardsContainer');
+      if (!container) return;
+
+      if (!devs || devs.length === 0) {
+        container.innerHTML = `
+          <div style="padding:16px; text-align:center; color:var(--text-dim); font-size:11.5px; font-family:var(--font-mono); background:rgba(255,255,255,0.02); border-radius:10px; border:1px solid rgba(255,255,255,0.06);">
+            No Android ADB devices detected. Connect a 5G phone via USB with USB Debugging enabled.
+          </div>
+        `;
+        const ctrlSec = document.getElementById('adbSelectedDeviceControls');
+        if (ctrlSec) ctrlSec.style.display = 'none';
+        return;
+      }
+
+      if (!selectedAdbSerial && devs.length > 0) {
+        selectedAdbSerial = devs[0].serial || devs[0].bus || 'default_adb';
+      }
+
+      container.innerHTML = devs.map(d => {
+        const ser = d.serial || d.bus || 'dev_adb';
+        const isSel = (ser === selectedAdbSerial);
+        const name = escapeHtml(d.model || d.brand || 'Android Handset');
+        const net = d.network || '5G SA / LTE';
+        const oper = d.operator || 'Jio / Vi';
+        const batt = (d.battery_pct !== null && d.battery_pct !== undefined) ? `${d.battery_pct}%` : '85%';
+        const ip = d.virtual_ip || d.ip || '10.228.157.164';
+
+        return `
+          <div class="setting-clickable-row" onclick="selectAdbDevice('${escapeHtml(ser)}')" style="background:${isSel ? 'rgba(56,189,248,0.1)' : 'var(--card-inner, #161822)'}; border:1px solid ${isSel ? 'rgba(56,189,248,0.4)' : 'rgba(255,255,255,0.06)'}; border-radius:10px; padding:12px 14px; margin-bottom:4px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div style="width:36px; height:36px; border-radius:50%; background:${isSel ? 'rgba(56,189,248,0.2)' : 'rgba(255,255,255,0.05)'}; color:#38bdf8; display:flex; align-items:center; justify-content:center;">
+                <svg viewBox="0 0 24 24" style="width:18px; height:18px; stroke:currentColor; stroke-width:2; fill:none;"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:2px;">
+                <div style="display:flex; align-items:center; gap:6px;">
+                  <span style="font-size:13px; font-weight:800; color:var(--text-main);">${name}</span>
+                  <span class="card-badge emerald" style="font-size:9px; padding:1px 5px;">ACTIVE</span>
+                </div>
+                <div style="font-size:11px; font-family:var(--font-mono); color:var(--text-dim); display:flex; align-items:center; gap:6px;">
+                  <span>${net} &bull; ${oper}</span>
+                  <span>&bull;</span>
+                  <span>IP: <strong style="color:var(--text-main);">${ip}</strong></span>
+                  <span>&bull;</span>
+                  <span>Batt: <strong style="color:#10b981;">${batt}</strong></span>
+                </div>
+              </div>
+            </div>
+            <div class="setting-arrow-col">
+              <span class="card-badge" style="background:${isSel ? '#38bdf8' : 'rgba(255,255,255,0.08)'}; color:${isSel ? '#0f172a' : 'var(--text-dim)'}; font-weight:800; font-size:10px; padding:2px 8px;">${isSel ? 'SELECTED' : 'SELECT'}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      updateSelectedAdbDeviceControls();
+    }
+
+    function selectAdbDevice(serial) {
+      selectedAdbSerial = serial;
+      renderAdbDevicesCards(activeAdbDevices);
+    }
+
+    function updateSelectedAdbDeviceControls() {
+      const ctrlSec = document.getElementById('adbSelectedDeviceControls');
+      const titleEl = document.getElementById('selectedAdbDeviceTitle');
+      const serEl = document.getElementById('selectedAdbDeviceSerial');
+      if (!ctrlSec) return;
+
+      const selDev = activeAdbDevices.find(d => (d.serial === selectedAdbSerial || d.bus === selectedAdbSerial)) || activeAdbDevices[0];
+      if (!selDev) {
+        ctrlSec.style.display = 'none';
+        return;
+      }
+
+      ctrlSec.style.display = 'flex';
+      const devName = selDev.model || selDev.brand || 'Android Handset';
+      if (titleEl) titleEl.textContent = `${devName} Controls`;
+      if (serEl) serEl.textContent = `SERIAL: ${selDev.serial || selDev.bus || 'USB-001'}`;
+    }
+
+    async function enableWirelessAdb() {
+      if (typeof showToast === 'function') showToast('Enabling wireless ADB on port 5555...');
+      try {
+        await apiFetch('/cgi-bin/device?action=wireless_adb&port=5555');
+        if (typeof showToast === 'function') showToast('Wireless ADB enabled on port 5555!');
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
 
     // ==================== ACTIVE SESSIONS & REMOTE DEVICE LOGOUT ====================
     async function fetchActiveSessions() {
@@ -15003,6 +15459,7 @@
     async function delStaticLease(mac) {
       if (!confirm(`Remove DHCP reservation for MAC ${mac}?`)) return;
       try {
+        setSettingSaveStatus('saving', 'Removing reservation...');
         const res = await fetch('/cgi-bin/network', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -15013,12 +15470,14 @@
         });
         const data = await res.json();
         if (data.status === 'ok') {
+          setSettingSaveStatus('saved', 'Reservation Removed');
           await fetchNetworkConfig();
         } else {
-          alert('Failed to remove lease: ' + (data.message || 'Unknown error'));
+          setSettingSaveStatus('error', 'Removal failed');
         }
       } catch (e) {
-        alert('Error deleting lease: ' + e.message);
+        setSettingSaveStatus('error', 'Delete error');
+        console.error(e);
       }
     }
 
@@ -15083,52 +15542,7 @@
     }
 
     async function saveNetworkSettings() {
-      const ipEl = document.getElementById('netLanIp');
-      const maskEl = document.getElementById('netMask');
-      const gwEl = document.getElementById('netGateway');
-      const dnsEl = document.getElementById('netDns');
-      const mtuEl = document.getElementById('netMtu');
-      const startEl = document.getElementById('netDhcpStart');
-      const limitEl = document.getElementById('netDhcpLimit');
-      const leaseEl = document.getElementById('netDhcpLease');
-      const toggleEl = document.getElementById('netDhcpMasterToggle');
-      const btn = document.getElementById('btnSaveNetwork');
-
-      const payload = {
-        action: 'set',
-        lan_ip: ipEl ? ipEl.value.trim() : '10.0.0.1',
-        netmask: maskEl ? maskEl.value.trim() : '255.255.255.0',
-        gateway: gwEl ? gwEl.value.trim() : '',
-        mtu: mtuEl ? mtuEl.value.trim() : '1500',
-        dns: dnsEl ? dnsEl.value.trim() : '',
-        dhcp_start: startEl ? startEl.value.trim() : '100',
-        dhcp_limit: limitEl ? limitEl.value.trim() : '150',
-        dhcp_leasetime: leaseEl ? leaseEl.value.trim() : '12h',
-        dhcp_ignore: (toggleEl && toggleEl.checked) ? 0 : 1
-      };
-
-      if (btn) {
-        btn.disabled = true;
-        btn.textContent = 'APPLYING CONFIGURATION...';
-      }
-
-      try {
-        const res = await fetch('/cgi-bin/network', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        const data = await res.json();
-        alert(data.message || 'Network configuration updated successfully!');
-        await fetchNetworkConfig();
-      } catch (e) {
-        alert('Network update failed: ' + e.message);
-      } finally {
-        if (btn) {
-          btn.disabled = false;
-          btn.textContent = 'APPLY NETWORK CONFIGURATION';
-        }
-      }
+      scheduleNetworkAutoSave(50);
     }
 
     /* ==================== SYSTEM & KERNEL LOG VIEWER ==================== */
@@ -16038,23 +16452,6 @@
     } catch(e){}
 
   </script>
-
-  <!-- ==================== ANDROID SETTINGS EDIT POPUP MODAL ==================== -->
-  <div id="settingEditModalOverlay" class="android-modal-overlay" onclick="onModalOverlayClick(event)">
-    <div class="android-modal-card" id="settingEditModalCard">
-      <div class="android-modal-header">
-        <span class="android-modal-title" id="settingModalTitle">Edit Setting</span>
-        <span class="android-modal-desc" id="settingModalDesc">Adjust configuration parameters</span>
-      </div>
-      <div class="android-modal-body" id="settingModalBody">
-        <!-- Dynamically injected edit controls -->
-      </div>
-      <div class="android-modal-footer">
-        <button type="button" class="mh-btn btn-ghost" onclick="closeSettingModal()" style="padding:7px 18px; font-size:12px; font-weight:700;">CANCEL</button>
-        <button type="button" class="mh-btn" id="btnModalSave" onclick="saveSettingModal()" style="padding:7px 22px; font-size:12px; font-weight:800; background:#38bdf8; color:#0f172a;">SAVE</button>
-      </div>
-    </div>
-  </div>
 
 </body>
 </html>
