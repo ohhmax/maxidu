@@ -7,6 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>MAXNET // ENTERPRISE GATEWAY</title>
+  <link rel="stylesheet" href="/js/xterm/xterm.css">
   <style>
     /* ==========================================================================
        MAXNET CYBERNETIC DESIGN SYSTEM (MAXHIVE LUXURY PORTFOLIO INSP)
@@ -5917,39 +5918,30 @@
       box-shadow: 0 4px 14px rgba(239, 68, 68, 0.5);
     }
 
-    /* ==================== TERMINAL EMBEDDED CONSOLE ==================== */
-    .terminal-embed-shell {
+    /* ==================== DIRECT ROOT TERMINAL (100% TRANSPARENT, NO IFRAME) ==================== */
+    #terminalContainer {
       width: 100%;
-      background: #000000;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.55);
-      display: flex;
-      flex-direction: column;
+      height: calc(100vh - 120px);
+      min-height: 580px;
+      background: transparent !important;
+      padding: 8px 12px;
+      box-sizing: border-box;
     }
-    .terminal-embed-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 9px 14px;
-      background: #111319;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      font-family: var(--font-mono);
-      font-size: 11px;
-      color: var(--text-dim);
+    #terminalContainer .terminal,
+    #terminalContainer .xterm,
+    #terminalContainer .xterm-viewport,
+    #terminalContainer .xterm-screen,
+    #terminalContainer .xterm-screen canvas,
+    #terminalContainer .xterm-rows {
+      background: transparent !important;
+      background-color: transparent !important;
     }
-    [data-theme="light"] .terminal-embed-header {
-      background: #f1f5f9;
-      border-bottom: 1px solid #e2e8f0;
-      color: #475569;
+    #terminalContainer .xterm .xterm-viewport::-webkit-scrollbar {
+      width: 4px;
     }
-    .terminal-embed-iframe {
-      width: 100%;
-      height: 520px;
-      border: none;
-      display: block;
-      background: #000000;
+    #terminalContainer .xterm .xterm-viewport::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
     }
 
     /* ==================== SYSTEM & KERNEL LOG VIEWER ==================== */
@@ -8760,7 +8752,7 @@
           </div>
           <div class="accordion-content">
             <div class="settings-card-body" style="padding:0; background:transparent !important; border:none !important;">
-              <iframe id="terminalEmbedFrame" src="about:blank" allow="clipboard-read; clipboard-write" allowtransparency="true" style="width:100% !important; height:calc(100vh - 120px) !important; min-height:600px !important; border:none !important; display:block; background:transparent !important; background-color:transparent !important; box-sizing:border-box;"></iframe>
+              <div id="terminalContainer"></div>
             </div>
           </div>
         </div>
@@ -8928,6 +8920,8 @@
     </div>
   </div>
 
+  <script src="/js/xterm/xterm.js"></script>
+  <script src="/js/xterm/xterm-addon-fit.js"></script>
   <script>
     let timer = null;
     let blockedIps = new Set();
@@ -9288,7 +9282,7 @@
       } else if (id === 'acc-sys-info') {
         if (typeof fetchDeviceInfo === 'function') fetchDeviceInfo();
       } else if (id === 'acc-terminal-cli') {
-        if (typeof initTerminalIframe === 'function') initTerminalIframe();
+        if (typeof initNativeTerminal === 'function') initNativeTerminal();
       } else if (id === 'acc-maintenance') {
         if (typeof fetchLogs === 'function') fetchLogs();
       } else if (id === 'acc-network' || id === 'acc-static-leases') {
@@ -17521,35 +17515,145 @@
       }
     }
 
-    /* ==================== ROOT TERMINAL CONSOLE ==================== */
-    function initTerminalIframe() {
-      const frame = document.getElementById('terminalEmbedFrame');
-      if (!frame) return;
-      const targetSrc = window.location.protocol + '//' + window.location.hostname + ':7681/?allowTransparency=true&theme=' + encodeURIComponent(JSON.stringify({ background: 'transparent' }));
-      if (!frame.src || frame.src === 'about:blank' || !frame.src.includes(':7681')) {
-        frame.src = targetSrc;
+    /* ==================== DIRECT ROOT TERMINAL (NO IFRAME, 100% TRANSPARENT) ==================== */
+    let _nativeTerminal = null;
+    let _nativeFitAddon = null;
+    let _nativeTermWs = null;
+
+    function initNativeTerminal() {
+      const container = document.getElementById('terminalContainer');
+      if (!container) return;
+
+      if (_nativeTerminal) {
+        if (_nativeFitAddon) {
+          try { _nativeFitAddon.fit(); } catch (e) {}
+        }
+        setTimeout(() => { try { _nativeTerminal.focus(); } catch (e) {} }, 100);
+        return;
       }
+
+      if (typeof Terminal === 'undefined') {
+        container.innerHTML = '<div style="padding:14px; color:#ef4444; font-family:var(--font-mono); font-size:12px;">Terminal engine loading failed. Please refresh the page.</div>';
+        return;
+      }
+
+      const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+      const termFg = isLight ? '#0f172a' : '#d4d4d8';
+      const termCursor = isLight ? '#0f172a' : '#10b981';
+
+      _nativeTerminal = new Terminal({
+        allowTransparency: true,
+        cursorBlink: true,
+        fontSize: 13,
+        lineHeight: 1.25,
+        fontFamily: 'Consolas, "Liberation Mono", Menlo, Courier, monospace',
+        theme: {
+          background: 'rgba(0, 0, 0, 0)',
+          foreground: termFg,
+          cursor: termCursor,
+          selectionBackground: 'rgba(56, 189, 248, 0.35)',
+          black: '#000000',
+          red: '#ef4444',
+          green: '#10b981',
+          yellow: '#f59e0b',
+          blue: '#3b82f6',
+          magenta: '#a855f7',
+          cyan: '#06b6d4',
+          white: '#f4f4f5',
+          brightBlack: '#71717a',
+          brightRed: '#f87171',
+          brightGreen: '#34d399',
+          brightYellow: '#fbbf24',
+          brightBlue: '#60a5fa',
+          brightMagenta: '#c084fc',
+          brightCyan: '#22d3ee',
+          brightWhite: '#ffffff'
+        }
+      });
+
+      if (typeof FitAddon !== 'undefined' && FitAddon.FitAddon) {
+        _nativeFitAddon = new FitAddon.FitAddon();
+        _nativeTerminal.loadAddon(_nativeFitAddon);
+      }
+
+      container.innerHTML = '';
+      _nativeTerminal.open(container);
+
+      setTimeout(() => {
+        if (_nativeFitAddon) {
+          try { _nativeFitAddon.fit(); } catch (e) {}
+        }
+        try { _nativeTerminal.focus(); } catch (e) {}
+      }, 50);
+
+      connectTerminalWebSocket();
+
+      window.addEventListener('resize', () => {
+        if (_nativeFitAddon && _nativeTerminal) {
+          try {
+            _nativeFitAddon.fit();
+            if (_nativeTermWs && _nativeTermWs.readyState === WebSocket.OPEN) {
+              const resMsg = new TextEncoder().encode('1' + JSON.stringify({ columns: _nativeTerminal.cols, rows: _nativeTerminal.rows }));
+              _nativeTermWs.send(resMsg);
+            }
+          } catch (e) {}
+        }
+      });
     }
 
-    function reloadTerminalIframe() {
-      const frame = document.getElementById('terminalEmbedFrame');
-      if (!frame) return;
-      frame.src = window.location.protocol + '//' + window.location.hostname + ':7681/?allowTransparency=true&theme=' + encodeURIComponent(JSON.stringify({ background: 'transparent' })) + '&_t=' + Date.now();
-    }
+    function connectTerminalWebSocket() {
+      if (_nativeTermWs && _nativeTermWs.readyState === WebSocket.OPEN) return;
 
-    function openTerminalNewTab() {
-      window.open(window.location.protocol + '//' + window.location.hostname + ':7681/', '_blank');
-    }
+      const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsUrl = `${wsProtocol}//${window.location.hostname}:7681/ws`;
 
-    function toggleTerminalFullscreen() {
-      const shell = document.getElementById('terminalEmbedShell');
-      if (!shell) return;
-      if (!document.fullscreenElement) {
-        shell.requestFullscreen().catch(err => {
-          alert('Fullscreen error: ' + err.message);
+      try {
+        _nativeTermWs = new WebSocket(wsUrl, ['tty']);
+        _nativeTermWs.binaryType = 'arraybuffer';
+
+        _nativeTermWs.onopen = () => {
+          _nativeTermWs.send(new TextEncoder().encode(JSON.stringify({ AuthToken: '' })));
+          if (_nativeTerminal) {
+            const cols = _nativeTerminal.cols || 80;
+            const rows = _nativeTerminal.rows || 24;
+            const resMsg = new TextEncoder().encode('1' + JSON.stringify({ columns: cols, rows: rows }));
+            _nativeTermWs.send(resMsg);
+          }
+        };
+
+        _nativeTermWs.onmessage = (e) => {
+          const u8 = new Uint8Array(e.data);
+          const cmd = String.fromCharCode(u8[0]);
+          if (cmd === '0' && _nativeTerminal) {
+            _nativeTerminal.write(u8.slice(1));
+          }
+        };
+
+        _nativeTermWs.onclose = () => {
+          if (_nativeTerminal) {
+            _nativeTerminal.writeln('\r\n\x1b[33m[Session disconnected. Press back or re-open Terminal to reconnect]\x1b[0m');
+          }
+        };
+
+        _nativeTermWs.onerror = () => {
+          if (_nativeTerminal) {
+            _nativeTerminal.writeln('\r\n\x1b[31m[WebSocket connection to port 7681 failed]\x1b[0m');
+          }
+        };
+
+        _nativeTerminal.onData((data) => {
+          if (_nativeTermWs && _nativeTermWs.readyState === WebSocket.OPEN) {
+            const inputBytes = new TextEncoder().encode(data);
+            const msg = new Uint8Array(1 + inputBytes.length);
+            msg[0] = 48; // '0'
+            msg.set(inputBytes, 1);
+            _nativeTermWs.send(msg);
+          }
         });
-      } else {
-        document.exitFullscreen();
+      } catch (err) {
+        if (_nativeTerminal) {
+          _nativeTerminal.writeln('\r\n\x1b[31mFailed to establish terminal WebSocket: ' + err.message + '\x1b[0m');
+        }
       }
     }
 
@@ -18339,6 +18443,14 @@
         }
       }
       if (typeof buildUsbBwSvg === 'function') buildUsbBwSvg();
+      if (_nativeTerminal) {
+        _nativeTerminal.options.theme = {
+          background: 'rgba(0, 0, 0, 0)',
+          foreground: isDark ? '#d4d4d8' : '#0f172a',
+          cursor: isDark ? '#10b981' : '#0f172a',
+          selectionBackground: 'rgba(56, 189, 248, 0.35)'
+        };
+      }
     }
 
     function toggleTheme() {
