@@ -5926,6 +5926,12 @@
       background: transparent !important;
       padding: 8px 12px;
       box-sizing: border-box;
+      touch-action: pan-y pinch-zoom;
+    }
+    @media (max-width: 640px) {
+      #terminalContainer {
+        padding: 4px 2px !important;
+      }
     }
     #terminalContainer .terminal,
     #terminalContainer .xterm,
@@ -17519,12 +17525,25 @@
     let _nativeTerminal = null;
     let _nativeFitAddon = null;
     let _nativeTermWs = null;
+    let _userZoomedTerm = false;
+
+    function getTerminalResponsiveFontSize() {
+      const w = window.innerWidth;
+      if (w <= 400) return 8;
+      if (w <= 520) return 8.5;
+      if (w <= 768) return 9.5;
+      if (w <= 1024) return 11;
+      return 12.5;
+    }
 
     function initNativeTerminal() {
       const container = document.getElementById('terminalContainer');
       if (!container) return;
 
       if (_nativeTerminal) {
+        if (!_userZoomedTerm) {
+          _nativeTerminal.options.fontSize = getTerminalResponsiveFontSize();
+        }
         if (_nativeFitAddon) {
           try { _nativeFitAddon.fit(); } catch (e) {}
         }
@@ -17540,12 +17559,13 @@
       const isLight = document.documentElement.getAttribute('data-theme') === 'light';
       const termFg = isLight ? '#0f172a' : '#d4d4d8';
       const termCursor = isLight ? '#0f172a' : '#10b981';
+      const termFs = getTerminalResponsiveFontSize();
 
       _nativeTerminal = new Terminal({
         allowTransparency: true,
         cursorBlink: true,
-        fontSize: 13,
-        lineHeight: 1.25,
+        fontSize: termFs,
+        lineHeight: 1.18,
         fontFamily: 'Consolas, "Liberation Mono", Menlo, Courier, monospace',
         theme: {
           background: 'rgba(0, 0, 0, 0)',
@@ -17579,6 +17599,43 @@
       container.innerHTML = '';
       _nativeTerminal.open(container);
 
+      // Pinch to zoom gesture support for mobile
+      let _touchStartDist = 0;
+      let _baseFontSize = termFs;
+
+      container.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 2) {
+          _touchStartDist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+          );
+          _baseFontSize = _nativeTerminal.options.fontSize || getTerminalResponsiveFontSize();
+        }
+      }, { passive: true });
+
+      container.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 2 && _touchStartDist > 0) {
+          const dist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+          );
+          const scale = dist / _touchStartDist;
+          let newFs = Math.round((_baseFontSize * scale) * 2) / 2;
+          newFs = Math.max(7, Math.min(18, newFs));
+          if (_nativeTerminal.options.fontSize !== newFs) {
+            _userZoomedTerm = true;
+            _nativeTerminal.options.fontSize = newFs;
+            if (_nativeFitAddon) {
+              _nativeFitAddon.fit();
+              if (_nativeTermWs && _nativeTermWs.readyState === WebSocket.OPEN) {
+                const resMsg = new TextEncoder().encode('1' + JSON.stringify({ columns: _nativeTerminal.cols, rows: _nativeTerminal.rows }));
+                _nativeTermWs.send(resMsg);
+              }
+            }
+          }
+        }
+      }, { passive: true });
+
       setTimeout(() => {
         if (_nativeFitAddon) {
           try { _nativeFitAddon.fit(); } catch (e) {}
@@ -17591,6 +17648,9 @@
       window.addEventListener('resize', () => {
         if (_nativeFitAddon && _nativeTerminal) {
           try {
+            if (!_userZoomedTerm) {
+              _nativeTerminal.options.fontSize = getTerminalResponsiveFontSize();
+            }
             _nativeFitAddon.fit();
             if (_nativeTermWs && _nativeTermWs.readyState === WebSocket.OPEN) {
               const resMsg = new TextEncoder().encode('1' + JSON.stringify({ columns: _nativeTerminal.cols, rows: _nativeTerminal.rows }));
