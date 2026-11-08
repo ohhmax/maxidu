@@ -80,6 +80,8 @@ fi
 
 if [ "$ACTION" = "logout" ]; then
     tailscale logout >/dev/null 2>&1
+    tailscale down >/dev/null 2>&1
+    rm -f /tmp/ts_up.log 2>/dev/null
     echo '{"status": "ok", "message": "Tailscale logged out"}'
     exit 0
 fi
@@ -97,29 +99,33 @@ HAS_EXIT=$(echo "$DEBUG_PREFS" | jq -r '.AdvertiseExitNode // false' 2>/dev/null
 ACCEPT_R=$(echo "$DEBUG_PREFS" | jq -r '.RouteAll // true' 2>/dev/null)
 
 TS_STATUS=$(tailscale status --json 2>/dev/null)
+AUTH_URL=""
+if [ -f "/tmp/ts_up.log" ]; then
+    AUTH_URL=$(grep -o 'https://login\.tailscale\.com/a/[^ "]*' /tmp/ts_up.log | head -n1)
+fi
 
 if [ -n "$TS_STATUS" ]; then
-  echo "$TS_STATUS" | jq --arg has_lan "$HAS_LAN" --arg has_exit "$HAS_EXIT" --arg accept_r "$ACCEPT_R" '{
+  echo "$TS_STATUS" | jq --arg has_lan "$HAS_LAN" --arg has_exit "$HAS_EXIT" --arg accept_r "$ACCEPT_R" --arg file_auth "$AUTH_URL" '{
     status: "ok",
     backend_state: (.BackendState // "Stopped"),
-    online: (.Self.Online // false),
-    tailscale_ip: (.Self.TailscaleIPs[0] // ""),
+    online: (if .BackendState == "Running" then (.Self.Online // false) else false end),
+    tailscale_ip: (if .BackendState == "Running" then (.Self.TailscaleIPs[0] // "") else "" end),
     hostname: (.Self.HostName // "Maxnet-USB"),
-    auth_url: (.AuthURL // ""),
+    auth_url: (if .AuthURL and .AuthURL != "" then .AuthURL else $file_auth end),
     share_lan: ($has_lan == "true"),
     exit_node: ($has_exit == "true"),
     accept_routes: ($accept_r == "true"),
-    user: (.Self.UserID as $uid | .User[$uid | tostring] // {}),
-    tailnet: .Self.DNSName,
-    devices_total: ((.Peer // {}) | length + 1),
-    devices_online: (((.Peer // {}) | to_entries | map(select(.value.Online == true)) | length) + (if .Self.Online then 1 else 0 end)),
-    peers: ((.Peer // {}) | to_entries | map({
+    user: (if .BackendState == "Running" then (.Self.UserID as $uid | .User[$uid | tostring] // {}) else {} end),
+    tailnet: (if .BackendState == "Running" then (.Self.DNSName // "") else "" end),
+    devices_total: (if .BackendState == "Running" then (((.Peer // {}) | length) + 1) else 0 end),
+    devices_online: (if .BackendState == "Running" then ((((.Peer // {}) | to_entries | map(select(.value.Online == true)) | length)) + (if .Self.Online then 1 else 0 end)) else 0 end),
+    peers: (if .BackendState == "Running" then ((.Peer // {}) | to_entries | map({
       name: .value.HostName,
       os: .value.OS,
       ip: .value.TailscaleIPs[0],
       online: .value.Online,
       last_seen: .value.LastSeen
-    }))
+    })) else [] end)
   }'
 else
   cat << JSON

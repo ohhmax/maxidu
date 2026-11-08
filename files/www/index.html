@@ -4229,7 +4229,7 @@
       align-items: center;
       justify-content: space-between;
       min-height: 48px;
-      padding: 8px 12px;
+      padding: 10px 14px !important;
       background: transparent !important;
       border: none !important;
       border-radius: 8px !important;
@@ -4634,7 +4634,11 @@
     .toggle-wrap-cell {
       display: flex;
       align-items: center;
+      justify-content: flex-end;
       gap: 10px;
+      margin-left: auto;
+      flex-shrink: 0;
+      min-width: 44px;
     }
     .toggle-wrap-cell .toggle-status-badge,
     .setting-control-col .toggle-status-badge,
@@ -6172,7 +6176,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 12px 14px;
+      padding: 10px 14px !important;
       border-bottom: 1px solid var(--border-sub, rgba(255, 255, 255, 0.06));
       border-radius: 8px;
       margin-bottom: 2px;
@@ -6577,21 +6581,7 @@
             </div>
           </div>
 
-          <!-- 5. About Developer -->
-          <div class="settings-nav-card" onclick="openSettingPage('acc-device-info')" data-search="about developer max mahendra mali firmware architecture openwrt kernel jidu6911 github">
-            <div class="snc-left">
-              <div class="snc-icon-box" style="color:#8b5cf6;">
-                <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-              </div>
-              <div class="snc-info">
-                <span class="snc-title">About Developer</span>
-                <span class="snc-desc">Lead engineer, system architecture, and firmware engineering credits</span>
-              </div>
-            </div>
-            <div class="snc-right">
-              <svg class="snc-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-            </div>
-          </div>
+
 
           <!-- 6. Tailscale VPN -->
           <div class="settings-nav-card" onclick="openSettingPage('acc-tailscale')" data-search="tailscale vpn wireguard remote access mesh exit node subnet router auth key">
@@ -6757,15 +6747,15 @@
             </div>
           </div>
 
-          <!-- 13. Specifications -->
-          <div class="settings-nav-card" onclick="openSettingPage('acc-about')" data-search="about specs specifications hardware openwrt ipq9574 qualcomm arm version build uptime">
+          <!-- About Developer -->
+          <div class="settings-nav-card" onclick="openSettingPage('acc-device-info')" data-search="about developer max mahendra mali firmware architecture openwrt kernel ohhmax github">
             <div class="snc-left">
-              <div class="snc-icon-box" style="color:#71717a;">
-                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              <div class="snc-icon-box" style="color:#8b5cf6;">
+                <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
               </div>
               <div class="snc-info">
-                <span class="snc-title">Specifications</span>
-                <span class="snc-desc">Qualcomm IPQ9574 specs, OpenWrt build, and uptime</span>
+                <span class="snc-title">About Developer</span>
+                <span class="snc-desc">Lead engineer, system architecture, and firmware engineering credits</span>
               </div>
             </div>
             <div class="snc-right">
@@ -6978,27 +6968,52 @@
                   </div>
                 </div>
 
-                <!-- STATIC DHCP LEASES SECTION -->
-                <div style="margin-top:14px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.06);">
-                  <div class="setting-row-item" style="border-bottom:none; padding:6px 0 10px 0;">
-                    <div class="setting-label-col">
-                      <div style="display:flex; align-items:center; gap:8px;">
-                        <span class="setting-label-bold">Static DHCP IP Reservations</span>
-                        <span id="staticLeasesCountBadge" class="card-badge" style="font-size:9.5px; padding:1px 6px;">0 RESERVED</span>
-                      </div>
-                      <span class="setting-label-sub">Assign permanent, reserved IPv4 addresses based on client MAC hardware ID</span>
-                    </div>
-                    <div class="setting-control-col">
-                      <button type="button" class="round-action-btn" onclick="openSettingModal('add_static_lease')" title="Add Static IP Reservation">
-                        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                      </button>
-                    </div>
+                <!-- STATIC IP RESERVATIONS (ANDROID POPUP / DEDICATED SUBPAGE ROW) -->
+                <div class="setting-row-item setting-clickable-row" onclick="openSettingPage('acc-static-leases')">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">Static IP Reservations</span>
+                    <span class="setting-label-sub" id="disp_static_leases_count">0 Devices Configured &bull; Permanent DHCP IPv4 reservation</span>
                   </div>
+                  <div class="setting-arrow-col">
+                    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-                  <!-- Leases List Container -->
-                  <div id="staticLeasesListContainer" style="display:flex; flex-direction:column; gap:6px;">
-                    <div style="font-size:11px; color:var(--text-dim); font-family:var(--font-mono); padding:8px 12px; background:rgba(255,255,255,0.02); border-radius:8px;">No static DHCP leases registered. Click + to add one.</div>
-                  </div>
+        <!-- DEDICATED STATIC IP RESERVATIONS VIEW -->
+        <div class="settings-card settings-detail-panel accordion-item" id="acc-static-leases">
+          <div class="settings-card-header accordion-header" onclick="toggleAccordion('acc-static-leases')">
+            <div class="acc-title-left">
+              <div class="acc-icon-box" style="color:#06b6d4;">
+                <svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              </div>
+              <span class="acc-main-title">Static IP Reservations</span>
+            </div>
+            <div class="acc-right-action">
+              <span style="font-size:11px; font-weight:700; color:var(--text-dim); font-family:var(--font-mono);" id="staticLeasesCountBadge">0 RESERVED</span>
+              <svg class="svg-icon acc-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+          </div>
+          <div class="accordion-content">
+            <div class="settings-card-body">
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
+                <div>
+                  <span class="setting-label-bold">Fixed IPv4 DHCP Leases</span>
+                  <span class="setting-label-sub" style="display:block;">Assign persistent IP addresses to devices based on physical MAC hardware address</span>
+                </div>
+                <button type="button" class="mh-btn" onclick="openSettingModal('add_static_lease')" style="display:inline-flex; align-items:center; gap:6px; font-size:11.5px; padding:7px 14px;">
+                  <svg viewBox="0 0 24 24" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:2;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  <span>ADD RESERVATION</span>
+                </button>
+              </div>
+
+              <!-- Static Leases Container -->
+              <div id="staticLeasesListContainer" style="display:flex; flex-direction:column; gap:8px;">
+                <div style="font-size:11.5px; color:var(--text-dim); font-family:var(--font-mono); padding:16px; background:rgba(255,255,255,0.02); border-radius:8px; text-align:center;">
+                  No static DHCP leases registered. Click Add Reservation to create one.
                 </div>
               </div>
             </div>
@@ -7061,16 +7076,10 @@
           </div>
           <div class="accordion-content">
             <div class="settings-card-body">
-              <!-- SEARCH & STATS ROW -->
-              <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
-                <div style="display:flex; align-items:center; gap:8px; flex:1; min-width:200px;">
-                  <input type="text" class="mh-input" id="dhcpClientsSearchInput" placeholder="Filter by hostname, IP, or MAC..." oninput="onSearchClients(this.value)" style="width:100%; padding:7px 12px; font-size:12px;">
-                </div>
-                <div style="display:flex; align-items:center; gap:8px;">
-                  <span class="card-badge emerald" id="clientActiveCount">-- ACTIVE</span>
-                  <span class="card-badge" id="clientOfflineCount">-- OFFLINE</span>
-                  <span class="card-badge" id="clientBlockedCount" style="display:none;">0 BLOCKED</span>
-                </div>
+              <!-- SEARCH BAR DIRECTLY UNDER TOP BAR (NO RIGHT CAPSULES, LEFT MAGNIFIER) -->
+              <div style="position:relative; width:100%; margin-bottom:14px;">
+                <svg viewBox="0 0 24 24" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); width:15px; height:15px; fill:none; stroke:var(--text-dim); stroke-width:2; pointer-events:none;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" class="mh-input" id="dhcpClientsSearchInput" placeholder="Search from connected devices..." oninput="onSearchClients(this.value)" style="width:100%; box-sizing:border-box; padding:8px 12px 8px 36px; font-size:12px; font-family:var(--font-mono); border-radius:8px;">
               </div>
 
               <!-- Simple Clean Clients Cards Container -->
@@ -7247,10 +7256,10 @@
                 <div class="setting-row-item">
                   <div class="setting-label-col">
                     <span class="setting-label-bold">Project Repository &amp; Contact</span>
-                    <span class="setting-label-sub">github.com/maxidu (JIDU6911) &bull; mahendrakumargahelot@gmail.com</span>
+                    <span class="setting-label-sub">github.com/ohhmax &bull; mahendrakumargahelot@gmail.com</span>
                   </div>
                   <div class="setting-control-col">
-                    <a href="https://github.com/maxidu" target="_blank" class="round-action-btn" title="Open GitHub Repository" style="text-decoration:none;">
+                    <a href="https://github.com/ohhmax" target="_blank" class="round-action-btn" title="Open GitHub Repository" style="text-decoration:none;">
                       <svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
                     </a>
                   </div>
@@ -7276,6 +7285,38 @@
           </div>
           <div class="accordion-content">
             <div class="settings-card-body">
+              <!-- DEDICATED WEB BROWSER LOGIN LINK BOX (SHOWN WHEN NOT CONNECTED OR REQUESTED) -->
+              <div id="tsWebLoginCard" style="display:none; background:rgba(56,189,248,0.05); border:1px solid rgba(56,189,248,0.22); border-radius:10px; padding:14px; margin-bottom:12px;">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <div style="width:24px; height:24px; border-radius:50%; background:rgba(56,189,248,0.15); color:#38bdf8; display:flex; align-items:center; justify-content:center;">
+                      <svg viewBox="0 0 24 24" style="width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:2;"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                    </div>
+                    <span style="font-size:12px; font-weight:800; color:#38bdf8; font-family:var(--font-mono);">TAILSCALE BROWSER LOGIN</span>
+                  </div>
+                  <button type="button" class="round-action-btn" onclick="startTailscaleWebLogin()" title="Generate/Refresh Login URL">
+                    <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                  </button>
+                </div>
+                <div style="font-size:11.5px; color:var(--text-dim); margin-bottom:10px; line-height:1.5;">
+                  Authorize this router gateway to your Tailscale mesh by visiting the authentication link:
+                </div>
+                <div id="tsAuthLinkContainer" style="padding:10px 12px; background:rgba(0,0,0,0.3); border-radius:8px; border:1px solid rgba(255,255,255,0.06); font-family:var(--font-mono); font-size:11px; word-break:break-all; color:#38bdf8; margin-bottom:10px;">
+                  Click Generate Login Link below to generate an authentication URL.
+                </div>
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                  <button type="button" class="mh-btn" onclick="startTailscaleWebLogin()" style="font-size:11px; padding:6px 14px;">
+                    GENERATE LOGIN LINK
+                  </button>
+                  <a id="btnOpenTsAuthUrl" href="#" target="_blank" class="mh-btn btn-ghost" style="display:none; font-size:11px; padding:6px 14px; text-decoration:none; color:#38bdf8; border-color:rgba(56,189,248,0.4);">
+                    OPEN IN NEW TAB &nearr;
+                  </a>
+                  <button type="button" class="mh-btn btn-ghost" id="btnCopyTsAuthUrl" style="display:none; font-size:11px; padding:6px 14px;" onclick="copyTsAuthUrl()">
+                    COPY LINK
+                  </button>
+                </div>
+              </div>
+
               <!-- TAILSCALE ACCOUNT PROFILE ROW (CLEAN, NO BLUE BADGES, ROUND AVATAR ON RIGHT) -->
               <div class="setting-section-header">Account Profile</div>
               <div class="setting-row-item">
@@ -8785,15 +8826,15 @@
         badge: 'ROOT SHELL',
         badgeColor: '#10b981'
       },
+      'acc-static-leases': {
+        title: 'Static IP Reservations',
+        badge: 'DHCP LEASES',
+        badgeColor: '#06b6d4'
+      },
       'acc-webui': {
         title: 'Web UI',
         badge: 'INTERFACE',
         badgeColor: '#c084fc'
-      },
-      'acc-about': {
-        title: 'Specifications',
-        badge: 'SYSTEM SPECS',
-        badgeColor: '#71717a'
       }
     };
 
@@ -8863,7 +8904,7 @@
         if (typeof initTerminalIframe === 'function') initTerminalIframe();
       } else if (id === 'acc-maintenance') {
         if (typeof fetchLogs === 'function') fetchLogs();
-      } else if (id === 'acc-network') {
+      } else if (id === 'acc-network' || id === 'acc-static-leases') {
         if (typeof fetchNetworkConfig === 'function') fetchNetworkConfig();
       } else if (id === 'acc-tailscale') {
         if (typeof fetchTailscale === 'function') fetchTailscale();
@@ -13140,6 +13181,12 @@
       const container = document.getElementById('fullClientsCards');
       if (!container) return;
 
+      const totalCount = (clients || []).length;
+      const searchInp = document.getElementById('dhcpClientsSearchInput');
+      if (searchInp) {
+        searchInp.placeholder = `Search from ${totalCount} connected devices...`;
+      }
+
       if (!clients || clients.length === 0) {
         container.innerHTML = '<div style="text-align:center; color:var(--text-dim); padding:30px; font-size:12px;">No clients currently online or cached.</div>';
         return;
@@ -13183,6 +13230,19 @@
             if ((pa[i] || 0) !== (pb[i] || 0)) return (pa[i] || 0) - (pb[i] || 0);
           }
           return 0;
+        });
+      } else {
+        // Default: Latest connected device first (active first, newest lease/seen first)
+        sorted.sort((a, b) => {
+          const aConn = a.connected !== false ? 1 : 0;
+          const bConn = b.connected !== false ? 1 : 0;
+          if (aConn !== bConn) return bConn - aConn;
+          const aT = a.timestamp || a.last_seen || a.time || a.expires || 0;
+          const bT = b.timestamp || b.last_seen || b.time || b.expires || 0;
+          if (aT && bT && aT !== bT) return bT - aT;
+          const pa = parseInt(((a.ip || '').split('.')[3]) || '0', 10);
+          const pb = parseInt(((b.ip || '').split('.')[3]) || '0', 10);
+          return pb - pa;
         });
       }
 
@@ -14861,6 +14921,38 @@
       }
     }
 
+    
+    // ==================== NETWORK CONFIGURATION VALIDATORS ====================
+    function isValidIpv4(ip) {
+      if (typeof ip !== 'string') return false;
+      const parts = ip.trim().split('.');
+      if (parts.length !== 4) return false;
+      return parts.every(p => {
+        if (!/^\d+$/.test(p)) return false;
+        const n = parseInt(p, 10);
+        return n >= 0 && n <= 255 && (p === '0' || !p.startsWith('0'));
+      });
+    }
+
+    function isValidSubnetMask(mask) {
+      if (!isValidIpv4(mask)) return false;
+      const validMasks = [
+        '255.255.255.255', '255.255.255.254', '255.255.255.252', '255.255.255.248',
+        '255.255.255.240', '255.255.255.224', '255.255.255.192', '255.255.255.128',
+        '255.255.255.0', '255.255.254.0', '255.255.252.0', '255.255.248.0',
+        '255.255.240.0', '255.255.224.0', '255.255.192.0', '255.255.128.0',
+        '255.255.0.0', '255.254.0.0', '255.252.0.0', '255.248.0.0',
+        '255.240.0.0', '255.224.0.0', '255.192.0.0', '255.128.0.0',
+        '255.0.0.0', '254.0.0.0', '252.0.0.0', '248.0.0.0',
+        '240.0.0.0', '224.0.0.0', '192.0.0.0', '128.0.0.0', '0.0.0.0'
+      ];
+      return validMasks.includes(mask.trim());
+    }
+
+    function isValidMac(mac) {
+      return /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/.test((mac || '').trim());
+    }
+
     async function saveSettingModal() {
       if (!currentModalKey) { closeSettingModal(); return; }
 
@@ -14871,13 +14963,29 @@
         showToast(`Client history retention set to ${selVal} days`, 'success');
         scheduleNetworkAutoSave();
       } else if (currentModalKey === 'lan_ip') {
-        const val = (document.getElementById('modalInput_lan_ip').value || '10.0.0.1').trim();
+        const val = (document.getElementById('modalInput_lan_ip').value || '').trim();
+        if (!isValidIpv4(val)) {
+          showToast('Invalid IPv4 address format (e.g. 10.0.0.1)', 'error');
+          const el = document.getElementById('modalInput_lan_ip');
+          if (el) el.focus();
+          return;
+        }
+        if (val === '0.0.0.0' || val === '255.255.255.255') {
+          showToast('Gateway IP cannot be 0.0.0.0 or broadcast', 'error');
+          return;
+        }
         document.getElementById('netLanIp').value = val;
         const disp = document.getElementById('disp_lan_ip');
         if (disp) disp.textContent = val;
         scheduleNetworkAutoSave();
       } else if (currentModalKey === 'net_mask') {
-        const maskVal = (document.getElementById('modalInput_net_mask').value || '255.255.255.0').trim();
+        const maskVal = (document.getElementById('modalInput_net_mask').value || '').trim();
+        if (!isValidSubnetMask(maskVal)) {
+          showToast('Invalid subnet mask (e.g. 255.255.255.0)', 'error');
+          const el = document.getElementById('modalInput_net_mask');
+          if (el) el.focus();
+          return;
+        }
         const cidrVal = document.getElementById('modalSelect_cidr').value;
         document.getElementById('netMask').value = maskVal;
         document.getElementById('netCidrSelect').value = cidrVal;
@@ -14886,19 +14994,43 @@
         scheduleNetworkAutoSave();
       } else if (currentModalKey === 'net_gateway') {
         const val = (document.getElementById('modalInput_gateway').value || '').trim();
+        if (val && !isValidIpv4(val)) {
+          showToast('Invalid gateway IPv4 address (leave empty for direct br-lan)', 'error');
+          const el = document.getElementById('modalInput_gateway');
+          if (el) el.focus();
+          return;
+        }
         document.getElementById('netGateway').value = val;
         const disp = document.getElementById('disp_net_gateway');
         if (disp) disp.textContent = val ? val : 'None (Direct br-lan)';
         scheduleNetworkAutoSave();
       } else if (currentModalKey === 'net_mtu') {
-        const val = parseInt(document.getElementById('modalInput_mtu').value, 10) || 1500;
+        const val = parseInt(document.getElementById('modalInput_mtu').value, 10);
+        if (isNaN(val) || val < 576 || val > 9000) {
+          showToast('MTU must be between 576 and 9000 bytes', 'error');
+          const el = document.getElementById('modalInput_mtu');
+          if (el) el.focus();
+          return;
+        }
         document.getElementById('netMtu').value = val;
         const disp = document.getElementById('disp_net_mtu');
         if (disp) disp.textContent = `${val} bytes`;
         scheduleNetworkAutoSave();
       } else if (currentModalKey === 'dhcp_pool') {
-        const start = parseInt(document.getElementById('modalInput_dhcp_start').value, 10) || 100;
-        const limit = parseInt(document.getElementById('modalInput_dhcp_limit').value, 10) || 150;
+        const start = parseInt(document.getElementById('modalInput_dhcp_start').value, 10);
+        const limit = parseInt(document.getElementById('modalInput_dhcp_limit').value, 10);
+        if (isNaN(start) || start < 2 || start > 254) {
+          showToast('DHCP Pool start must be between 2 and 254', 'error');
+          const el = document.getElementById('modalInput_dhcp_start');
+          if (el) el.focus();
+          return;
+        }
+        if (isNaN(limit) || limit < 1 || start + limit > 255) {
+          showToast('Invalid pool limit (start + limit must be <= 254)', 'error');
+          const el = document.getElementById('modalInput_dhcp_limit');
+          if (el) el.focus();
+          return;
+        }
         const lease = document.getElementById('modalSelect_dhcp_lease').value || '12h';
         document.getElementById('netDhcpStart').value = start;
         document.getElementById('netDhcpLimit').value = limit;
@@ -14907,18 +15039,37 @@
         if (disp) disp.textContent = `Start ${start} • Limit ${limit} • Lease ${lease}`;
         scheduleNetworkAutoSave();
       } else if (currentModalKey === 'custom_dns') {
-        const val = (document.getElementById('modalInput_dns').value || '1.1.1.1 8.8.8.8').trim();
-        document.getElementById('netDns').value = val;
+        const val = (document.getElementById('modalInput_dns').value || '').trim();
+        if (val) {
+          const servers = val.split(/\s+/);
+          for (const s of servers) {
+            if (!isValidIpv4(s) && !s.includes(':')) {
+              showToast(`Invalid DNS server IP: ${s}`, 'error');
+              const el = document.getElementById('modalInput_dns');
+              if (el) el.focus();
+              return;
+            }
+          }
+        }
+        document.getElementById('netDns').value = val || '1.1.1.1 8.8.8.8';
         const disp = document.getElementById('disp_custom_dns');
-        if (disp) disp.textContent = val;
+        if (disp) disp.textContent = val || '1.1.1.1 8.8.8.8';
         scheduleNetworkAutoSave();
       } else if (currentModalKey === 'add_static_lease') {
         const name = (document.getElementById('modalInput_lease_name').value || 'Client').trim();
         const mac = (document.getElementById('modalInput_lease_mac').value || '').trim();
         const ip = (document.getElementById('modalInput_lease_ip').value || '').trim();
 
-        if (!mac || !ip) {
-          alert('Please enter both MAC address and IPv4 address.');
+        if (!isValidMac(mac)) {
+          showToast('Invalid MAC address (format XX:XX:XX:XX:XX:XX)', 'error');
+          const el = document.getElementById('modalInput_lease_mac');
+          if (el) el.focus();
+          return;
+        }
+        if (!isValidIpv4(ip)) {
+          showToast('Invalid IPv4 address format (e.g. 10.0.0.50)', 'error');
+          const el = document.getElementById('modalInput_lease_ip');
+          if (el) el.focus();
           return;
         }
 
@@ -16052,23 +16203,30 @@
       const container = document.getElementById('staticLeasesListContainer');
       const badge = document.getElementById('staticLeasesCountBadge');
       if (badge) badge.textContent = `${leases.length} RESERVED`;
+      const dispCount = document.getElementById('disp_static_leases_count');
+      if (dispCount) dispCount.textContent = `${leases.length} Devices Configured • Permanent DHCP IPv4 reservation`;
+
       if (!container) return;
 
       if (!leases || leases.length === 0) {
-        container.innerHTML = `<div style="font-size:11px; color:var(--text-dim); font-family:var(--font-mono); padding:6px 0;">No static DHCP leases registered.</div>`;
+        container.innerHTML = `<div style="padding:20px; text-align:center; color:var(--text-dim); font-size:12px; font-family:var(--font-mono); background:rgba(255,255,255,0.02); border-radius:8px;">No static DHCP leases registered. Click Add Reservation to create one.</div>`;
         return;
       }
 
       container.innerHTML = leases.map(l => `
-        <div style="display:flex; align-items:center; justify-content:space-between; padding:8px 12px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; font-family:var(--font-mono); font-size:11px;">
-          <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-            <strong style="color:var(--text-main); font-size:11.5px;">${escapeHtml(l.name || 'Client')}</strong>
-            <span style="color:var(--text-dim);">${escapeHtml(l.mac || '')}</span>
-            <span style="color:#38bdf8; font-weight:700;">${escapeHtml(l.ip || '')}</span>
+        <div class="setting-row-item" style="background:rgba(255,255,255,0.02) !important; border:1px solid rgba(255,255,255,0.05) !important; border-radius:10px !important; margin-bottom:6px !important; display:flex; align-items:center; justify-content:space-between;">
+          <div class="setting-label-col">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span class="setting-label-bold" style="color:var(--text-main); font-size:12px;">${escapeHtml(l.name || 'Client')}</span>
+              <span style="font-size:11px; color:#38bdf8; font-weight:700; font-family:var(--font-mono);">${escapeHtml(l.ip || '')}</span>
+            </div>
+            <span class="setting-label-sub" style="font-family:var(--font-mono); font-size:11px; color:var(--text-dim);">MAC: ${escapeHtml(l.mac || '')}</span>
           </div>
-          <button type="button" class="round-action-btn btn-danger-action" title="Delete Reservation" onclick="delStaticLease('${escapeHtml(l.mac)}')" style="width:28px; height:28px; min-width:28px;">
-            <svg viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-          </button>
+          <div class="setting-control-col">
+            <button type="button" class="round-action-btn btn-danger-action" title="Delete Reservation" onclick="delStaticLease('${escapeHtml(l.mac)}')">
+              <svg viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
+          </div>
         </div>
       `).join('');
     }
@@ -16578,23 +16736,23 @@
       const avatarImg = document.getElementById('tsUserAvatarImg');
       const avatarBlank = document.getElementById('tsUserAvatarBlank');
 
-      const isRunning = (data.backend_state === 'Running' || data.online);
-      const hasUser = user && (user.DisplayName || user.LoginName);
+      const isRunning = (data.backend_state === 'Running' && data.online !== false);
+      const hasUser = isRunning && user && (user.DisplayName || user.LoginName);
 
       if (hasUser) {
         if (nameEl) nameEl.textContent = user.DisplayName || user.LoginName;
         if (emailEl) emailEl.textContent = user.LoginName || 'Tailscale Operator';
       } else {
-        if (nameEl) nameEl.textContent = 'Tailscale Account';
-        if (emailEl) emailEl.textContent = isRunning ? 'Authenticated Mesh Node' : 'Not connected to a tailnet';
+        if (nameEl) nameEl.textContent = 'Not Signed In';
+        if (emailEl) emailEl.textContent = 'Disconnected from tailnet';
       }
 
       if (domainEl) {
-        domainEl.textContent = data.tailnet || (isRunning ? 'Assigned upon connection' : 'Disconnected');
+        domainEl.textContent = (isRunning && data.tailnet) ? data.tailnet : 'Disconnected';
       }
 
-      const onlineCount = data.devices_online !== undefined ? data.devices_online : (isRunning ? 1 : 0);
-      const totalCount = data.devices_total !== undefined ? data.devices_total : (isRunning ? 1 : 0);
+      const onlineCount = isRunning ? (data.devices_online || 0) : 0;
+      const totalCount = isRunning ? (data.devices_total || 0) : 0;
 
       if (meshNodesBadge) {
         meshNodesBadge.innerHTML = `<span id="tsOnlineCountBadge">${onlineCount} Online</span> / <span id="tsTotalCountBadge">${totalCount} Total</span>`;
@@ -16618,6 +16776,12 @@
     function renderTailscaleDevices(data) {
       const container = document.getElementById('tsDevicesContainer');
       if (!container) return;
+
+      const isRunning = (data && data.backend_state === 'Running');
+      if (!isRunning) {
+        container.innerHTML = '<div style="padding:14px; text-align:center; color:var(--text-dim); font-size:11px; font-family:var(--font-mono); background:rgba(255,255,255,0.02); border-radius:8px;">No active mesh devices. Router is not signed in to a tailnet.</div>';
+        return;
+      }
 
       const peers = data.peers || [];
       if (peers.length === 0) {
@@ -16663,20 +16827,21 @@
         const ipEl = document.getElementById('tsIpAddress');
 
         const state = data.backend_state || data.BackendState || (data.online ? 'Running' : 'Stopped');
-        const tsIp = data.tailscale_ip || (data.TailscaleIPs && data.TailscaleIPs[0]) || (data.Self && data.Self.TailscaleIPs ? data.Self.TailscaleIPs[0] : '100.107.94.6');
+        const isRunning = (state === 'Running');
+        const tsIp = isRunning ? (data.tailscale_ip || (data.TailscaleIPs && data.TailscaleIPs[0]) || (data.Self && data.Self.TailscaleIPs ? data.Self.TailscaleIPs[0] : '')) : '';
 
         const notInstalledEl = document.getElementById('tsNotInstalledNotice');
         if (notInstalledEl) notInstalledEl.style.display = 'none';
 
         const dispIp = document.getElementById('disp_ts_ip');
-        if (state === 'Running') {
+        if (isRunning && tsIp) {
           if (badge) { badge.className = 'card-badge emerald'; badge.innerText = 'RUNNING'; }
           if (ipEl) ipEl.value = tsIp;
           if (dispIp) dispIp.textContent = tsIp;
         } else {
-          if (badge) { badge.className = 'card-badge'; badge.innerText = state.toUpperCase(); }
-          if (ipEl) ipEl.value = 'Offline';
-          if (dispIp) dispIp.textContent = tsIp || 'Offline';
+          if (badge) { badge.className = 'card-badge'; badge.innerText = (state === 'NeedsLogin' ? 'NEEDS LOGIN' : (state === 'Stopped' ? 'STOPPED' : 'NOT CONNECTED')); }
+          if (ipEl) ipEl.value = '';
+          if (dispIp) dispIp.textContent = 'Not Connected';
         }
 
         if (document.getElementById('tsMasterToggle')) {
@@ -16700,6 +16865,23 @@
 
         renderTailscaleAccount(data);
         renderTailscaleDevices(data);
+        const webLoginCard = document.getElementById('tsWebLoginCard');
+        if (webLoginCard) {
+          if (state !== 'Running') {
+            webLoginCard.style.display = 'block';
+            if (data.auth_url) {
+              _currentTsAuthUrl = data.auth_url;
+              const linkCont = document.getElementById('tsAuthLinkContainer');
+              if (linkCont) linkCont.innerHTML = `<a href="${escapeHtml(data.auth_url)}" target="_blank" style="color:#38bdf8; text-decoration:underline;">${escapeHtml(data.auth_url)}</a>`;
+              const openBtn = document.getElementById('btnOpenTsAuthUrl');
+              const copyBtn = document.getElementById('btnCopyTsAuthUrl');
+              if (openBtn) { openBtn.href = data.auth_url; openBtn.style.display = 'inline-flex'; }
+              if (copyBtn) copyBtn.style.display = 'inline-flex';
+            }
+          } else {
+            webLoginCard.style.display = 'none';
+          }
+        }
         const authBox = document.getElementById('tsAuthUrlBox');
         const authLink = document.getElementById('tsAuthUrlLink');
         if (authBox && authLink) {
@@ -16734,15 +16916,83 @@
       }
     }
 
+    
+    // ==================== TAILSCALE WEB LINK AUTHENTICATION ====================
+    let _currentTsAuthUrl = '';
+
+    async function startTailscaleWebLogin() {
+      showToast('Generating Tailscale login link...', 'info');
+      try {
+        const res = await fetch('/cgi-bin/tailscale', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'up' })
+        });
+        const data = await res.json();
+        setTimeout(checkTailscaleAuthUrl, 1200);
+      } catch (e) {
+        console.error('startTailscaleWebLogin error', e);
+      }
+    }
+
+    async function checkTailscaleAuthUrl() {
+      try {
+        const res = await fetch('/cgi-bin/tailscale');
+        const data = await res.json();
+        const url = data.auth_url || '';
+        const card = document.getElementById('tsWebLoginCard');
+        const linkCont = document.getElementById('tsAuthLinkContainer');
+        const openBtn = document.getElementById('btnOpenTsAuthUrl');
+        const copyBtn = document.getElementById('btnCopyTsAuthUrl');
+
+        if (card) card.style.display = 'block';
+
+        if (url) {
+          _currentTsAuthUrl = url;
+          if (linkCont) linkCont.innerHTML = `<a href="${escapeHtml(url)}" target="_blank" style="color:#38bdf8; text-decoration:underline;">${escapeHtml(url)}</a>`;
+          if (openBtn) { openBtn.href = url; openBtn.style.display = 'inline-flex'; }
+          if (copyBtn) copyBtn.style.display = 'inline-flex';
+          showToast('Login URL generated! Click to authenticate.', 'success');
+        } else if (data.backend_state === 'Running') {
+          if (card) card.style.display = 'none';
+          showToast('Tailscale connected & running!', 'success');
+          fetchTailscale();
+        } else {
+          if (linkCont) linkCont.textContent = 'Initializing daemon login... Please wait 2 seconds.';
+          setTimeout(checkTailscaleAuthUrl, 2000);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function copyTsAuthUrl() {
+      if (!_currentTsAuthUrl) return;
+      navigator.clipboard.writeText(_currentTsAuthUrl)
+        .then(() => showToast('Login URL copied to clipboard!', 'success'))
+        .catch(() => showToast('Failed to copy URL', 'error'));
+    }
+
     async function logoutTailscale() {
       if (!confirm("Are you sure you want to log out this router from Tailscale?")) return;
       try {
+        // Clear UI immediately
+        const dispIp = document.getElementById('disp_ts_ip');
+        if (dispIp) dispIp.textContent = 'Not Connected';
+        const badge = document.getElementById('tsStatusBadge');
+        if (badge) { badge.className = 'card-badge'; badge.innerText = 'NOT CONNECTED'; }
+        renderTailscaleAccount({ backend_state: 'Stopped', online: false, tailscale_ip: '', user: {}, devices_total: 0, devices_online: 0 });
+        renderTailscaleDevices({ backend_state: 'Stopped', peers: [] });
+        const card = document.getElementById('tsWebLoginCard');
+        if (card) card.style.display = 'block';
+
         await fetch('/cgi-bin/tailscale', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ action: 'logout' })
         });
-        fetchTailscale();
+        showToast('Tailscale logged out', 'info');
+        setTimeout(fetchTailscale, 1000);
       } catch (e) {
         console.error("logoutTailscale error", e);
       }
