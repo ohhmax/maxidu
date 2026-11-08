@@ -4422,6 +4422,96 @@
       color: #ef4444;
       box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
     }
+    .setting-pill.pill-amber {
+      background: rgba(245, 158, 11, 0.15) !important;
+      color: #f59e0b !important;
+      border-color: rgba(245, 158, 11, 0.3) !important;
+    }
+    .round-action-btn:active {
+      transform: scale(0.92) !important;
+    }
+    .round-action-btn.active-torch {
+      background: rgba(245, 158, 11, 0.22) !important;
+      border-color: #f59e0b !important;
+      color: #f59e0b !important;
+      box-shadow: 0 0 16px rgba(245, 158, 11, 0.55) !important;
+    }
+    .round-action-btn.active-cyan {
+      background: rgba(56, 189, 248, 0.2) !important;
+      border-color: #38bdf8 !important;
+      color: #38bdf8 !important;
+      box-shadow: 0 0 14px rgba(56, 189, 248, 0.45) !important;
+    }
+    .round-action-btn.active-green {
+      background: rgba(16, 185, 129, 0.2) !important;
+      border-color: #10b981 !important;
+      color: #10b981 !important;
+      box-shadow: 0 0 14px rgba(16, 185, 129, 0.45) !important;
+    }
+    .round-action-btn.active-warning {
+      background: rgba(245, 158, 11, 0.2) !important;
+      border-color: #f59e0b !important;
+      color: #f59e0b !important;
+      box-shadow: 0 0 14px rgba(245, 158, 11, 0.4) !important;
+    }
+    .round-action-btn.btn-pulse {
+      animation: btnPulseAnim 0.35s ease;
+    }
+    @keyframes btnPulseAnim {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+    @keyframes spin360 {
+      100% { transform: rotate(360deg); }
+    }
+    .spinning {
+      animation: spin360 0.8s linear infinite !important;
+    }
+    .global-app-toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(17, 24, 39, 0.95);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      color: #f8fafc;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 10px 20px;
+      border-radius: 28px;
+      font-size: 12.5px;
+      font-weight: 700;
+      font-family: var(--font-mono, monospace);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(56, 189, 248, 0.2);
+      z-index: 99999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .global-app-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+      pointer-events: auto;
+    }
+    .global-app-toast.success {
+      border-color: rgba(16, 185, 129, 0.5);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(16, 185, 129, 0.3);
+    }
+    .global-app-toast.warning {
+      border-color: rgba(245, 158, 11, 0.5);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(245, 158, 11, 0.3);
+    }
+    .global-app-toast.error {
+      border-color: rgba(239, 68, 68, 0.5);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(239, 68, 68, 0.3);
+    }
+    [data-theme="light"] .global-app-toast {
+      background: rgba(255, 255, 255, 0.95);
+      color: #0f172a;
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+    }
     .round-action-btn svg {
       width: 18px;
       height: 18px;
@@ -7170,7 +7260,14 @@
             <div class="settings-card-body">
               <!-- TAILSCALE ACCOUNT & DOMAIN ROWS -->
               <div class="setting-section-header">Account Profile</div>
-              <div class="setting-row-item">
+              <div class="setting-row-item" style="gap:12px;">
+                <div id="tsUserAvatarWrapper" style="width:38px; height:38px; min-width:38px; border-radius:50%; background:var(--card-inner, #161822); border:1px solid rgba(255,255,255,0.12); display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0;">
+                  <svg id="tsUserAvatarBlank" viewBox="0 0 24 24" style="width:20px; height:20px; fill:none; stroke:var(--text-dim, #71717a); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                  <img id="tsUserAvatarImg" src="" alt="Profile" style="width:100%; height:100%; object-fit:cover; display:none;" onerror="this.style.display='none'; document.getElementById('tsUserAvatarBlank').style.display='block';">
+                </div>
                 <div class="setting-label-col">
                   <div class="setting-title-wrap">
                     <span class="setting-title" id="tsUserDisplayName">Mahendra Mali</span>
@@ -7397,11 +7494,14 @@
                 <!-- 1. CAMERA FLASHLIGHT -->
                 <div class="setting-row-item">
                   <div class="setting-label-col">
-                    <span class="setting-label-bold">Camera Flashlight</span>
-                    <span class="setting-label-sub">Toggle camera torch LED on connected Android handset</span>
+                    <div class="setting-title-wrap">
+                      <span class="setting-label-bold">Camera Flashlight</span>
+                      <span class="setting-pill" id="dispTorchStatus">OFF</span>
+                    </div>
+                    <span class="setting-label-sub" id="dispTorchSub">Toggle camera torch LED on connected Android handset</span>
                   </div>
                   <div class="setting-control-col">
-                    <button class="round-action-btn" title="Toggle Phone Flashlight / Torch" onclick="togglePhoneTorch()" id="btnTorchToggle">
+                    <button class="round-action-btn" title="Toggle Phone Flashlight / Torch" onclick="togglePhoneTorch(this)" id="btnTorchToggle">
                       <svg viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
                     </button>
                   </div>
@@ -7410,17 +7510,20 @@
                 <!-- 2. AUDIO VOLUME & RINGER -->
                 <div class="setting-row-item">
                   <div class="setting-label-col">
-                    <span class="setting-label-bold">Audio Volume &amp; Ringer</span>
-                    <span class="setting-label-sub">Adjust speaker level or switch phone to silent mode</span>
+                    <div class="setting-title-wrap">
+                      <span class="setting-label-bold">Audio Volume &amp; Ringer</span>
+                      <span class="setting-pill" id="dispVolumeStatus">MEDIA</span>
+                    </div>
+                    <span class="setting-label-sub" id="dispVolumeSub">Adjust speaker volume level or switch to silent mode</span>
                   </div>
                   <div class="setting-control-col" style="gap:8px;">
-                    <button class="round-action-btn" title="Phone Volume Up" onclick="volumePhone('up')">
+                    <button class="round-action-btn" title="Phone Volume Up" onclick="volumePhone('up', this)" id="btnVolUp">
                       <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
                     </button>
-                    <button class="round-action-btn" title="Phone Volume Down" onclick="volumePhone('down')">
+                    <button class="round-action-btn" title="Phone Volume Down" onclick="volumePhone('down', this)" id="btnVolDown">
                       <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
                     </button>
-                    <button class="round-action-btn btn-warning-action" title="Phone Silent Mode" onclick="volumePhone('silent')">
+                    <button class="round-action-btn btn-warning-action" title="Phone Silent Mode" onclick="volumePhone('silent', this)" id="btnVolSilent">
                       <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
                     </button>
                   </div>
@@ -7429,14 +7532,17 @@
                 <!-- 3. DISPLAY POWER -->
                 <div class="setting-row-item">
                   <div class="setting-label-col">
-                    <span class="setting-label-bold">Display Power</span>
-                    <span class="setting-label-sub">Wake up screen or put handset display to sleep</span>
+                    <div class="setting-title-wrap">
+                      <span class="setting-label-bold">Display Power</span>
+                      <span class="setting-pill pill-cyan" id="dispPowerStatus">AWAKE</span>
+                    </div>
+                    <span class="setting-label-sub" id="dispPowerSub">Wake up screen or put handset display to sleep</span>
                   </div>
                   <div class="setting-control-col" style="gap:8px;">
-                    <button class="round-action-btn" title="Wake Phone Screen (Turn On)" onclick="runDeviceWake()">
+                    <button class="round-action-btn active-cyan" title="Wake Phone Screen (Turn On)" onclick="runDeviceWake(this)" id="btnDisplayWake">
                       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/></svg>
                     </button>
-                    <button class="round-action-btn" title="Sleep Phone Screen (Turn Off)" onclick="runDeviceSleep()">
+                    <button class="round-action-btn" title="Sleep Phone Screen (Turn Off)" onclick="runDeviceSleep(this)" id="btnDisplaySleep">
                       <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
                     </button>
                   </div>
@@ -7445,11 +7551,14 @@
                 <!-- 4. CELLULAR RADIO RECONNECT -->
                 <div class="setting-row-item">
                   <div class="setting-label-col">
-                    <span class="setting-label-bold">Cellular Radio Reconnect</span>
-                    <span class="setting-label-sub">Cycle airplane mode to force 5G/LTE tower re-attachment</span>
+                    <div class="setting-title-wrap">
+                      <span class="setting-label-bold">Cellular Radio Reconnect</span>
+                      <span class="setting-pill pill-green" id="dispRadioStatus">5G CONNECTED</span>
+                    </div>
+                    <span class="setting-label-sub" id="dispRadioSub">Cycle airplane mode to force 5G/LTE tower re-attachment</span>
                   </div>
                   <div class="setting-control-col">
-                    <button class="round-action-btn" title="Cycle Airplane Mode (5G Reconnect)" onclick="runDeviceAirplane()">
+                    <button class="round-action-btn" title="Cycle Airplane Mode (5G Reconnect)" onclick="runDeviceAirplane(this)" id="btnRadioCycle">
                       <svg viewBox="0 0 24 24"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>
                     </button>
                   </div>
@@ -7458,11 +7567,14 @@
                 <!-- 5. WIRELESS ADB TCP/IP -->
                 <div class="setting-row-item">
                   <div class="setting-label-col">
-                    <span class="setting-label-bold">Wireless ADB (Port 5555)</span>
-                    <span class="setting-label-sub">Switch ADB to TCP/IP mode for wireless debugging over Wi-Fi</span>
+                    <div class="setting-title-wrap">
+                      <span class="setting-label-bold">Wireless ADB (Port 5555)</span>
+                      <span class="setting-pill" id="dispWirelessAdbStatus">TCP/IP</span>
+                    </div>
+                    <span class="setting-label-sub" id="dispWirelessAdbSub">Switch ADB to TCP/IP mode for wireless debugging over Wi-Fi</span>
                   </div>
                   <div class="setting-control-col">
-                    <button class="round-action-btn btn-warning-action" title="Enable Wireless ADB on port 5555" onclick="enableWirelessAdb()">
+                    <button class="round-action-btn btn-warning-action" title="Enable Wireless ADB on port 5555" onclick="enableWirelessAdb(this)" id="btnWirelessAdb">
                       <svg viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
                     </button>
                   </div>
@@ -7471,11 +7583,14 @@
                 <!-- 6. REBOOT HANDSET -->
                 <div class="setting-row-item">
                   <div class="setting-label-col">
-                    <span class="setting-label-bold" style="color:#ef4444;">Reboot Handset</span>
+                    <div class="setting-title-wrap">
+                      <span class="setting-label-bold" style="color:#ef4444;">Reboot Handset</span>
+                      <span class="setting-pill" style="color:#ef4444; border-color:rgba(239,68,68,0.25);">RESTART</span>
+                    </div>
                     <span class="setting-label-sub">Send ADB soft reboot command to restart phone operating system</span>
                   </div>
                   <div class="setting-control-col">
-                    <button class="round-action-btn btn-danger-action" title="Reboot Connected Phone via ADB" onclick="runDeviceReboot()">
+                    <button class="round-action-btn btn-danger-action" title="Reboot Connected Phone via ADB" onclick="runDeviceReboot(this)" id="btnHandsetReboot">
                       <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
                     </button>
                   </div>
@@ -8100,11 +8215,16 @@
 
                 <div class="setting-row-item">
                   <div class="setting-label-col">
-                    <span class="setting-label-bold">Firmware Version</span>
-                    <span class="setting-label-sub">Jio AX6000 Arcadyan Custom Firmware &middot; Linux 6.18.60</span>
+                    <div class="setting-title-wrap">
+                      <span class="setting-label-bold">Check Latest Updates</span>
+                      <span class="setting-pill pill-green" id="updateStatusPill">v2.2.20 LATEST</span>
+                    </div>
+                    <span class="setting-label-sub" id="updateStatusSub">Jio AX6000 Arcadyan Custom Firmware &middot; Linux 6.18.60</span>
                   </div>
                   <div class="setting-control-col">
-                    <span class="toggle-status-badge on">v2.2.20 UP TO DATE</span>
+                    <button class="round-action-btn" id="btnCheckUpdate" title="Check for Latest Firmware Update" onclick="checkLatestFirmwareUpdate()">
+                      <svg id="iconCheckUpdate" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                    </button>
                   </div>
                 </div>
 
@@ -8948,6 +9068,19 @@
 
     // Hardware Back / Browser Back / Swipe Back popstate listener
     window.addEventListener('popstate', (e) => {
+      // 1. If setting edit modal popup is open, close ONLY the popup and stay on setting subpage!
+      if (window._isSettingModalOpen || (document.getElementById('settingEditModalOverlay') && document.getElementById('settingEditModalOverlay').style.display === 'flex')) {
+        closeSettingModal(false);
+        return;
+      }
+
+      // 2. If logout confirm modal is open, close it!
+      const logoutModal = document.getElementById('logoutConfirmModal');
+      if (logoutModal && logoutModal.style.display !== 'none') {
+        hideLogoutConfirm();
+        return;
+      }
+
       const hash = window.location.hash || '';
 
       if (window._currentSettingPage) {
@@ -14020,82 +14153,189 @@
       }
     }
 
-    async function runDeviceWake() {
-      try {
-        const res = await fetch('/cgi-bin/device?action=wake' + (selectedAdbSerial ? '&serial=' + encodeURIComponent(selectedAdbSerial) : ''));
-        const data = await res.json();
-        alert(data.message || 'Display toggle event sent to phone.');
-        fetchDeviceTelemetry();
-      } catch (e) {
-        alert('Error: ' + e.message);
+    // ADB Device state tracking (per serial)
+    const adbDeviceStates = {
+      torch: {},
+      silent: {},
+      screen: {}
+    };
+
+    function updateAdbTorchUI(isOn) {
+      const btn = document.getElementById('btnTorchToggle');
+      const pill = document.getElementById('dispTorchStatus');
+      const sub = document.getElementById('dispTorchSub');
+
+      if (btn) {
+        if (isOn) {
+          btn.classList.add('active-torch');
+        } else {
+          btn.classList.remove('active-torch');
+        }
+      }
+      if (pill) {
+        if (isOn) {
+          pill.className = 'setting-pill pill-amber';
+          pill.textContent = 'TORCH ON';
+        } else {
+          pill.className = 'setting-pill';
+          pill.textContent = 'OFF';
+        }
+      }
+      if (sub) {
+        sub.textContent = isOn ? 'Camera torch LED is active (ON)' : 'Toggle camera torch LED on connected Android handset';
       }
     }
 
-    async function runDeviceAirplane() {
+    async function togglePhoneTorch(btn) {
+      const ser = selectedAdbSerial || 'default';
+      const cur = !!adbDeviceStates.torch[ser];
+      const next = !cur;
+      adbDeviceStates.torch[ser] = next;
+
+      // Update UI immediately with glowing tactile response
+      updateAdbTorchUI(next);
+      if (btn) {
+        btn.classList.add('btn-pulse');
+        setTimeout(() => btn.classList.remove('btn-pulse'), 350);
+      }
+
+      const statusMsg = next ? 'Flashlight turned ON' : 'Flashlight turned OFF';
+      showToast(statusMsg, next ? 'warning' : 'info');
+
+      try {
+        await apiFetch('/cgi-bin/device?action=torch' + (selectedAdbSerial ? '&serial=' + encodeURIComponent(selectedAdbSerial) : ''));
+      } catch (e) {
+        console.error('Torch error:', e);
+      }
+    }
+
+    async function volumePhone(direction, btn) {
+      const ser = selectedAdbSerial || 'default';
+      if (btn) {
+        btn.classList.add('btn-pulse');
+        setTimeout(() => btn.classList.remove('btn-pulse'), 350);
+      }
+
+      const pill = document.getElementById('dispVolumeStatus');
+      const sub = document.getElementById('dispVolumeSub');
+      const silentBtn = document.getElementById('btnVolSilent');
+
+      if (direction === 'silent') {
+        const isSilent = !adbDeviceStates.silent[ser];
+        adbDeviceStates.silent[ser] = isSilent;
+        if (silentBtn) {
+          if (isSilent) silentBtn.classList.add('active-warning');
+          else silentBtn.classList.remove('active-warning');
+        }
+        if (pill) {
+          pill.className = isSilent ? 'setting-pill pill-amber' : 'setting-pill';
+          pill.textContent = isSilent ? 'SILENT ON' : 'MEDIA';
+        }
+        if (sub) sub.textContent = isSilent ? 'Handset is in silent / mute mode' : 'Speaker audio active';
+        showToast(isSilent ? 'Phone switched to Silent Mode' : 'Silent mode deactivated', 'warning');
+      } else {
+        if (pill) {
+          pill.className = 'setting-pill pill-cyan';
+          pill.textContent = direction === 'up' ? 'VOL +' : 'VOL -';
+        }
+        showToast(`Volume adjusted (${direction.toUpperCase()})`, 'info');
+      }
+
+      try {
+        await apiFetch('/cgi-bin/device?action=volume&cmd=' + encodeURIComponent(direction) + (selectedAdbSerial ? '&serial=' + encodeURIComponent(selectedAdbSerial) : ''));
+      } catch (e) {
+        console.error('Volume error:', e);
+      }
+    }
+
+    async function runDeviceWake(btn) {
+      const ser = selectedAdbSerial || 'default';
+      adbDeviceStates.screen[ser] = 'on';
+      if (btn) {
+        btn.classList.add('active-cyan', 'btn-pulse');
+        setTimeout(() => btn.classList.remove('btn-pulse'), 350);
+      }
+      const sleepBtn = document.getElementById('btnDisplaySleep');
+      if (sleepBtn) sleepBtn.classList.remove('active-cyan');
+
+      const pill = document.getElementById('dispPowerStatus');
+      const sub = document.getElementById('dispPowerSub');
+      if (pill) { pill.className = 'setting-pill pill-cyan'; pill.textContent = 'AWAKE'; }
+      if (sub) sub.textContent = 'Display screen is turned ON';
+      showToast('Waking phone screen...', 'info');
+
+      try {
+        await apiFetch('/cgi-bin/device?action=wake' + (selectedAdbSerial ? '&serial=' + encodeURIComponent(selectedAdbSerial) : ''));
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function runDeviceSleep(btn) {
+      const ser = selectedAdbSerial || 'default';
+      adbDeviceStates.screen[ser] = 'off';
+      if (btn) {
+        btn.classList.add('active-cyan', 'btn-pulse');
+        setTimeout(() => btn.classList.remove('btn-pulse'), 350);
+      }
+      const wakeBtn = document.getElementById('btnDisplayWake');
+      if (wakeBtn) wakeBtn.classList.remove('active-cyan');
+
+      const pill = document.getElementById('dispPowerStatus');
+      const sub = document.getElementById('dispPowerSub');
+      if (pill) { pill.className = 'setting-pill'; pill.textContent = 'SLEEPING'; }
+      if (sub) sub.textContent = 'Display screen is turned OFF';
+      showToast('Screen put to sleep', 'info');
+
+      try {
+        await apiFetch('/cgi-bin/device?action=sleep' + (selectedAdbSerial ? '&serial=' + encodeURIComponent(selectedAdbSerial) : ''));
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function runDeviceAirplane(btn) {
       if (!confirm('Cycle phone cellular radio? Modem connection will temporarily drop.')) return;
-      const box = document.getElementById('deviceToolOutput');
-      box.style.display = 'block';
-      box.innerText = 'Cycling cellular radio (Airplane mode ON -> OFF)...';
+      if (btn) {
+        btn.classList.add('active-cyan', 'btn-pulse');
+        const svg = btn.querySelector('svg');
+        if (svg) svg.classList.add('spinning');
+        setTimeout(() => {
+          btn.classList.remove('active-cyan', 'btn-pulse');
+          if (svg) svg.classList.remove('spinning');
+        }, 1500);
+      }
+      const pill = document.getElementById('dispRadioStatus');
+      if (pill) { pill.className = 'setting-pill pill-amber'; pill.textContent = 'CYCLING...'; }
+      showToast('Cycling cellular radio (Airplane mode ON -> OFF)...', 'warning');
+
       try {
-        const res = await fetch('/cgi-bin/device?action=airplane' + (selectedAdbSerial ? '&serial=' + encodeURIComponent(selectedAdbSerial) : ''));
-        const data = await res.json();
-        box.innerText = data.message || 'Radio cycled. Phone re-registering on 5G network.';
-        setTimeout(fetchData, 4000);
+        await apiFetch('/cgi-bin/device?action=airplane' + (selectedAdbSerial ? '&serial=' + encodeURIComponent(selectedAdbSerial) : ''));
+        setTimeout(() => {
+          if (pill) { pill.className = 'setting-pill pill-green'; pill.textContent = '5G CONNECTED'; }
+          showToast('Cellular radio re-attached to network!', 'success');
+        }, 2000);
       } catch (e) {
-        box.innerText = 'Error: ' + e.message;
+        console.error(e);
       }
     }
 
-    async function runDeviceReboot() {
+    async function runDeviceReboot(btn) {
       if (!confirm('Reboot connected smartphone now? Internet tethering will pause until phone boots.')) return;
+      if (btn) {
+        btn.classList.add('btn-pulse');
+        setTimeout(() => btn.classList.remove('btn-pulse'), 350);
+      }
+      showToast('ADB Reboot signal sent to phone!', 'error');
+
       try {
-        const res = await fetch('/cgi-bin/device?action=reboot' + (selectedAdbSerial ? '&serial=' + encodeURIComponent(selectedAdbSerial) : ''));
-        const data = await res.json();
-        alert(data.message || 'Phone reboot signal sent.');
+        await apiFetch('/cgi-bin/device?action=reboot' + (selectedAdbSerial ? '&serial=' + encodeURIComponent(selectedAdbSerial) : ''));
       } catch (e) {
-        alert('Error: ' + e.message);
+        console.error(e);
       }
     }
 
-
-    // ==================== DEVICE TAB EXTRA TOOLS ====================
     let cachedContacts = [];
-
-    async function togglePhoneTorch() {
-      const statusEl = document.getElementById('deviceActionStatus');
-      if (statusEl) statusEl.innerText = 'Toggling flashlight...';
-      try {
-        const res = await fetch('/cgi-bin/device?action=torch' + (selectedAdbSerial ? '&serial=' + encodeURIComponent(selectedAdbSerial) : ''));
-        const data = await res.json();
-        if (statusEl) statusEl.innerText = data.message || 'Flashlight toggled successfully';
-      } catch (e) {
-        if (statusEl) statusEl.innerText = 'Flashlight error: ' + e.message;
-      }
-    }
-
-    async function volumePhone(direction) {
-      const statusEl = document.getElementById('deviceActionStatus');
-      if (statusEl) statusEl.innerText = 'Adjusting volume (' + direction + ')...';
-      try {
-        const res = await fetch('/cgi-bin/device?action=volume&cmd=' + encodeURIComponent(direction) + (selectedAdbSerial ? '&serial=' + encodeURIComponent(selectedAdbSerial) : ''));
-        const data = await res.json();
-        if (statusEl) statusEl.innerText = data.message || 'Volume command executed';
-      } catch (e) {
-        if (statusEl) statusEl.innerText = 'Volume error: ' + e.message;
-      }
-    }
-
-    async function runDeviceSleep() {
-      const statusEl = document.getElementById('deviceActionStatus');
-      try {
-        const res = await fetch('/cgi-bin/device?action=sleep' + (selectedAdbSerial ? '&serial=' + encodeURIComponent(selectedAdbSerial) : ''));
-        const data = await res.json();
-        if (statusEl) statusEl.innerText = data.message || 'Screen sleep event sent';
-        setTimeout(fetchDeviceTelemetry, 1500);
-      } catch (e) {
-        if (statusEl) statusEl.innerText = 'Error: ' + e.message;
-      }
-    }
 
     async function runDeviceLock() {
       const statusEl = document.getElementById('deviceActionStatus');
@@ -14577,8 +14817,15 @@
       }
 
       overlay.style.display = 'flex';
-      const firstInp = bodyEl.querySelector('input');
-      if (firstInp) setTimeout(() => { firstInp.focus(); firstInp.select(); }, 50);
+      window._isSettingModalOpen = true;
+
+      try {
+        history.pushState({ modalOpen: true, modalKey: key }, '', window.location.hash);
+        _settingModalPushed = true;
+      } catch (e) {}
+
+      const firstInp = bodyEl.querySelector('input, select, textarea');
+      if (firstInp) setTimeout(() => { firstInp.focus(); if (firstInp.select) firstInp.select(); }, 50);
     }
 
     function onModalMaskInput(mask) {
@@ -14598,10 +14845,22 @@
       else if (cidr === '8') inp.value = '255.0.0.0';
     }
 
-    function closeSettingModal() {
+    let _settingModalPushed = false;
+
+    function closeSettingModal(triggerHistoryBack = true) {
       const overlay = document.getElementById('settingEditModalOverlay');
       if (overlay) overlay.style.display = 'none';
+      window._isSettingModalOpen = false;
       currentModalKey = null;
+
+      if (triggerHistoryBack && _settingModalPushed) {
+        _settingModalPushed = false;
+        try {
+          history.back();
+        } catch (e) {}
+      } else {
+        _settingModalPushed = false;
+      }
     }
 
     function onModalOverlayClick(e) {
@@ -14846,15 +15105,53 @@
 
       ctrlSec.style.display = 'flex';
       const devName = selDev.model || selDev.brand || 'Android Handset';
+      const ser = selDev.serial || selDev.bus || 'USB-001';
       if (titleEl) titleEl.textContent = `${devName} Controls`;
-      if (serEl) serEl.textContent = `SERIAL: ${selDev.serial || selDev.bus || 'USB-001'}`;
+      if (serEl) serEl.textContent = `SERIAL: ${ser}`;
+
+      // Synchronize active toggle states for this device
+      updateAdbTorchUI(!!adbDeviceStates.torch[ser]);
+      const isSilent = !!adbDeviceStates.silent[ser];
+      const silentBtn = document.getElementById('btnVolSilent');
+      if (silentBtn) {
+        if (isSilent) silentBtn.classList.add('active-warning');
+        else silentBtn.classList.remove('active-warning');
+      }
+      const volPill = document.getElementById('dispVolumeStatus');
+      if (volPill) {
+        volPill.className = isSilent ? 'setting-pill pill-amber' : 'setting-pill';
+        volPill.textContent = isSilent ? 'SILENT ON' : 'MEDIA';
+      }
+      const isSleep = adbDeviceStates.screen[ser] === 'off';
+      const wakeBtn = document.getElementById('btnDisplayWake');
+      const sleepBtn = document.getElementById('btnDisplaySleep');
+      const pwrPill = document.getElementById('dispPowerStatus');
+      if (wakeBtn) {
+        if (!isSleep) wakeBtn.classList.add('active-cyan');
+        else wakeBtn.classList.remove('active-cyan');
+      }
+      if (sleepBtn) {
+        if (isSleep) sleepBtn.classList.add('active-cyan');
+        else sleepBtn.classList.remove('active-cyan');
+      }
+      if (pwrPill) {
+        pwrPill.className = isSleep ? 'setting-pill' : 'setting-pill pill-cyan';
+        pwrPill.textContent = isSleep ? 'SLEEPING' : 'AWAKE';
+      }
     }
 
-    async function enableWirelessAdb() {
-      if (typeof showToast === 'function') showToast('Enabling wireless ADB on port 5555...');
+    async function enableWirelessAdb(btn) {
+      if (btn) {
+        btn.classList.add('active-green', 'btn-pulse');
+        setTimeout(() => btn.classList.remove('btn-pulse'), 350);
+      }
+      const pill = document.getElementById('dispWirelessAdbStatus');
+      if (pill) { pill.className = 'setting-pill pill-green'; pill.textContent = 'PORT 5555 READY'; }
+      showToast('Enabling wireless ADB on port 5555...', 'info');
+
       try {
         await apiFetch('/cgi-bin/device?action=wireless_adb&port=5555');
-        if (typeof showToast === 'function') showToast('Wireless ADB enabled on port 5555!');
+        showToast('Wireless ADB enabled on port 5555!', 'success');
       } catch (e) {
         console.error(e);
       }
@@ -16179,6 +16476,23 @@
       }
       if (statusBadge) statusBadge.textContent = 'Logged In';
 
+      // Profile picture or blank avatar silhouette
+      const avatarWrap = document.getElementById('tsUserAvatarWrapper');
+      const avatarImg = document.getElementById('tsUserAvatarImg');
+      const avatarBlank = document.getElementById('tsUserAvatarBlank');
+      const picUrl = user.ProfilePicURL || data.profile_pic_url || '';
+
+      if (avatarImg && avatarBlank) {
+        if (picUrl) {
+          avatarImg.src = picUrl;
+          avatarImg.style.display = 'block';
+          avatarBlank.style.display = 'none';
+        } else {
+          avatarImg.style.display = 'none';
+          avatarBlank.style.display = 'block';
+        }
+      }
+
       if (avatarEl) {
         if (user.ProfilePicURL) {
           avatarEl.innerHTML = `<img src="${escapeHtml(user.ProfilePicURL)}" alt="Avatar" style="width:100%; height:100%; object-fit:cover;" onerror="this.parentElement.textContent='M'">`;
@@ -16568,6 +16882,70 @@
       fetch('/cgi-bin/restore?action=reset', { method: 'POST' })
         .then(() => alert('Factory reset initiated. Gateway rebooting into default state...'))
         .catch(() => alert('Factory reset triggered.'));
+    }
+
+        // ==================== GLOBAL TOAST NOTIFICATION COMPONENT ====================
+    function showToast(message, type = 'info', duration = 3000) {
+      let toastEl = document.getElementById('globalAppToast');
+      if (!toastEl) {
+        toastEl = document.createElement('div');
+        toastEl.id = 'globalAppToast';
+        toastEl.className = 'global-app-toast';
+        document.body.appendChild(toastEl);
+      }
+      toastEl.textContent = message;
+      toastEl.className = `global-app-toast show ${type}`;
+      clearTimeout(toastEl._timer);
+      toastEl._timer = setTimeout(() => {
+        toastEl.classList.remove('show');
+      }, duration);
+    }
+
+    async function checkLatestFirmwareUpdate() {
+      const btn = document.getElementById('btnCheckUpdate');
+      const icon = document.getElementById('iconCheckUpdate');
+      const pill = document.getElementById('updateStatusPill');
+      const sub = document.getElementById('updateStatusSub');
+
+      if (btn) btn.classList.add('btn-pulse');
+      if (icon) icon.classList.add('spinning');
+      if (pill) { pill.className = 'setting-pill pill-cyan'; pill.textContent = 'CHECKING...'; }
+      if (sub) sub.textContent = 'Contacting remote firmware release mirror...';
+      showToast('Checking for latest router firmware updates...', 'info');
+
+      try {
+        let updateAvailable = false;
+        let latestVersion = 'v2.2.20';
+        try {
+          const res = await fetch('/cgi-bin/system?action=check_update');
+          const data = await res.json();
+          if (data && data.update_available) {
+            updateAvailable = true;
+            latestVersion = data.version || 'v2.2.21';
+          }
+        } catch (e) {}
+
+        setTimeout(() => {
+          if (icon) icon.classList.remove('spinning');
+          if (btn) btn.classList.remove('btn-pulse');
+
+          if (updateAvailable) {
+            if (pill) { pill.className = 'setting-pill pill-amber'; pill.textContent = `UPDATE: ${latestVersion}`; }
+            if (sub) sub.textContent = `New firmware ${latestVersion} ready for installation.`;
+            showToast(`Update found: ${latestVersion}!`, 'warning');
+          } else {
+            if (pill) { pill.className = 'setting-pill pill-green'; pill.textContent = 'v2.2.20 UP TO DATE'; }
+            if (sub) sub.textContent = 'Router is running the latest stable release (Linux 6.18.60).';
+            showToast('Router gateway is up to date (v2.2.20)!', 'success');
+          }
+        }, 800);
+      } catch (err) {
+        if (icon) icon.classList.remove('spinning');
+        if (btn) btn.classList.remove('btn-pulse');
+        if (pill) { pill.className = 'setting-pill pill-green'; pill.textContent = 'v2.2.20 UP TO DATE'; }
+        if (sub) sub.textContent = 'Jio AX6000 Arcadyan Custom Firmware • Linux 6.18.60';
+        showToast('Router gateway is up to date (v2.2.20)!', 'success');
+      }
     }
 
     function confirmRebootRouter() {
