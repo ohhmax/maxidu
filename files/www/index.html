@@ -6482,7 +6482,106 @@
       </div>
     </div>
   </div>
-<div id="settingEditModalOverlay" class="android-modal-overlay" onclick="onModalOverlayClick(event)">
+<!-- ADB SMS MESSAGES MODAL -->
+  <div id="adbSmsModalOverlay" class="android-modal-overlay" style="display:none;" onclick="if(event.target===this)closeAdbSmsModal()">
+    <div class="android-modal-card" style="max-width:540px; width:92%; max-height:85vh; display:flex; flex-direction:column;">
+      <div class="android-modal-header" style="flex-shrink:0;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+          <div>
+            <span class="android-modal-title" id="adbSmsModalTitle">SMS Messages</span>
+            <span class="android-modal-desc" id="adbSmsModalSubtitle">Live inbox from connected handset</span>
+          </div>
+          <button type="button" class="round-action-btn" onclick="closeAdbSmsModal()" style="width:30px; height:30px; min-width:30px;">
+            <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div style="margin-top:10px;">
+          <input type="text" class="mh-input" id="adbSmsSearchInp" placeholder="Search by number or keyword..." oninput="filterAdbSms(this.value)" style="width:100%; font-size:12px; padding:6px 10px;">
+        </div>
+      </div>
+      <div class="android-modal-body" id="adbSmsModalBody" style="overflow-y:auto; flex:1; padding:12px 16px; display:flex; flex-direction:column; gap:8px;">
+        <!-- Loaded dynamically -->
+      </div>
+      <div class="android-modal-footer" style="flex-shrink:0; justify-content:space-between;">
+        <span id="adbSmsCountText" style="font-size:11px; color:var(--text-dim); font-family:var(--font-mono);">--</span>
+        <button type="button" class="mh-btn btn-ghost" onclick="closeAdbSmsModal()" style="padding:6px 18px; font-size:12px; font-weight:700;">CLOSE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADB CALL HISTORY MODAL -->
+  <div id="adbCallsModalOverlay" class="android-modal-overlay" style="display:none;" onclick="if(event.target===this)closeAdbCallLogsModal()">
+    <div class="android-modal-card" style="max-width:520px; width:92%; max-height:85vh; display:flex; flex-direction:column;">
+      <div class="android-modal-header" style="flex-shrink:0;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+          <div>
+            <span class="android-modal-title" id="adbCallsModalTitle">Call History</span>
+            <span class="android-modal-desc">Incoming, outgoing, and missed call logs</span>
+          </div>
+          <button type="button" class="round-action-btn" onclick="closeAdbCallLogsModal()" style="width:30px; height:30px; min-width:30px;">
+            <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="android-modal-body" id="adbCallsModalBody" style="overflow-y:auto; flex:1; padding:12px 16px; display:flex; flex-direction:column; gap:8px;">
+        <!-- Loaded dynamically -->
+      </div>
+      <div class="android-modal-footer" style="flex-shrink:0; justify-content:space-between;">
+        <span id="adbCallsCountText" style="font-size:11px; color:var(--text-dim); font-family:var(--font-mono);">--</span>
+        <button type="button" class="mh-btn btn-ghost" onclick="closeAdbCallLogsModal()" style="padding:6px 18px; font-size:12px; font-weight:700;">CLOSE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADB CONTACTS MODAL -->
+  <div id="adbContactsModalOverlay" class="android-modal-overlay" style="display:none;" onclick="if(event.target===this)closeAdbContactsModal()">
+    <div class="android-modal-card" style="max-width:520px; width:92%; max-height:85vh; display:flex; flex-direction:column;">
+      <div class="android-modal-header" style="flex-shrink:0;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+          <div>
+            <span class="android-modal-title">Device Contacts</span>
+            <span class="android-modal-desc">Phonebook contacts retrieved via ADB</span>
+          </div>
+          <button type="button" class="round-action-btn" onclick="closeAdbContactsModal()" style="width:30px; height:30px; min-width:30px;">
+            <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div style="margin-top:10px;">
+          <input type="text" class="mh-input" id="adbContactsSearchInp" placeholder="Search contacts by name or phone..." oninput="filterAdbContacts(this.value)" style="width:100%; font-size:12px; padding:6px 10px;">
+        </div>
+      </div>
+      <div class="android-modal-body" id="adbContactsModalBody" style="overflow-y:auto; flex:1; padding:12px 16px; display:flex; flex-direction:column; gap:8px;">
+        <!-- Loaded dynamically -->
+      </div>
+      <div class="android-modal-footer" style="flex-shrink:0; justify-content:space-between;">
+        <span id="adbContactsCountText" style="font-size:11px; color:var(--text-dim); font-family:var(--font-mono);">--</span>
+        <button type="button" class="mh-btn btn-ghost" onclick="closeAdbContactsModal()" style="padding:6px 18px; font-size:12px; font-weight:700;">CLOSE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADB SCREENSHOT PREVIEW MODAL -->
+  <div id="adbScreenshotModalOverlay" class="android-modal-overlay" style="display:none;" onclick="if(event.target===this)closeAdbScreenshotModal()">
+    <div class="android-modal-card" style="max-width:440px; width:92%; max-height:88vh; display:flex; flex-direction:column; align-items:center;">
+      <div class="android-modal-header" style="width:100%; flex-shrink:0;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span class="android-modal-title">Handset Screenshot</span>
+          <button type="button" class="round-action-btn" onclick="closeAdbScreenshotModal()" style="width:30px; height:30px; min-width:30px;">
+            <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="android-modal-body" id="adbScreenshotModalBody" style="overflow:auto; width:100%; padding:14px; text-align:center;">
+        <!-- Image loaded dynamically -->
+      </div>
+      <div class="android-modal-footer" style="width:100%; flex-shrink:0; justify-content:flex-end; gap:8px;">
+        <button type="button" class="mh-btn btn-ghost" onclick="closeAdbScreenshotModal()" style="padding:6px 16px; font-size:12px; font-weight:700;">CLOSE</button>
+        <a id="btnDownloadAdbScreenshot" href="#" download="handset_screenshot.png" class="mh-btn" style="padding:6px 18px; font-size:12px; font-weight:800; background:#38bdf8; color:#0f172a; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">DOWNLOAD</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="settingEditModalOverlay" class="android-modal-overlay" onclick="onModalOverlayClick(event)">
         <div class="android-modal-card" id="settingEditModalCard">
           <div class="android-modal-header">
             <span class="android-modal-title" id="settingModalTitle">Edit Setting</span>
@@ -7047,9 +7146,7 @@
           </div>
           <div class="accordion-content">
             <div class="settings-card-body">
-              <div style="font-size:12px; color:var(--text-dim); margin-bottom:16px; line-height:1.5;">
-                Configure physical Ethernet port modes and multi-tier network hierarchy. Specify whether a physical LAN port connects directly to a client endpoint or to an intermediary Layer 2 Access Point / Switch / Secondary Router with downstream Layer 3 clients.
-              </div>
+
 
               <!-- PORT CARDS GRID (LAN 1, LAN 2, LAN 3, LAN 4) -->
               <div id="topoLayerPortsContainer" style="display:flex; flex-direction:column; gap:14px;">
@@ -7665,121 +7762,195 @@
           </div>
           <div class="accordion-content">
             <div class="settings-card-body">
-              <!-- 1. ADB HANDSETS LIST VIEW -->
+              <!-- 1. ADB HANDSETS LIST VIEW (DIRECT SHOW DEVICES, NO HEADER / RELOAD BTN) -->
               <div id="adbListView">
-                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
-                  <div style="display:flex; flex-direction:column; gap:2px;">
-                    <span class="setting-label-bold">Connected Handsets</span>
-                    <span class="setting-label-sub">Tap any detected Android device to open device controls</span>
-                  </div>
-                  <button type="button" class="round-action-btn" onclick="fetchAdbDeviceList()" title="Refresh ADB Devices">
-                    <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-                  </button>
-                </div>
                 <div id="adbDevicesCardsContainer" style="display:flex; flex-direction:column; gap:6px;">
                   <!-- Populated dynamically via renderAdbDevicesCards -->
                 </div>
               </div>
 
-              <!-- 2. ADB SELECTED DEVICE CONTROLS VIEW (OPENS ON DEVICE CLICK) -->
+              <!-- 2. ADB SELECTED DEVICE CONTROLS VIEW (NO SECOND BACK BUTTON, GROUPWISE CONTROLS) -->
               <div id="adbDetailView" style="display:none; flex-direction:column; gap:6px;">
-                <!-- TOP BREADCRUMB HEADER: [ < Back ] ADB Devices > Samsung Galaxy S21 FE 5G -->
-                <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.08);">
-                  <button type="button" class="round-action-btn" onclick="closeAdbDeviceDetail(true)" title="Back to ADB Devices" style="width:34px; height:34px; min-width:34px;">
-                    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-                  </button>
-                  <div style="display:flex; flex-direction:column; gap:1px;">
-                    <div style="display:flex; align-items:center; gap:6px; font-size:11.5px; font-weight:700; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.5px;">
-                      <span style="cursor:pointer;" onclick="closeAdbDeviceDetail(true)">ADB Devices</span>
-                      <span style="color:var(--text-dim);">&rsaquo;</span>
-                      <span id="adbDetailBreadcrumbModel" style="color:#38bdf8; font-weight:800;">Device</span>
-                    </div>
-                    <span id="adbDetailBreadcrumbSerial" style="font-size:10.5px; font-family:var(--font-mono); color:var(--text-dim);">SERIAL: --</span>
+                <!-- SECTION 1: DEVICE DIAGNOSTICS & TELEMETRY -->
+                <div class="setting-section-header">Device Telemetry &amp; System</div>
+
+                <!-- 1. DEVICE MODEL & OS -->
+                <div class="setting-row-item">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold" id="dispDevModelTitle">Samsung Galaxy S21 FE 5G</span>
+                    <span class="setting-label-sub" id="dispDevModelSub">Android 14 &bull; Patch: 2026-10 &bull; Qualcomm Snapdragon 888</span>
+                  </div>
+                  <div class="setting-control-col">
+                    <span class="card-badge emerald" id="dispDevLiveBadge">ONLINE</span>
                   </div>
                 </div>
 
-                <!-- 1. CAMERA FLASHLIGHT -->
+                <!-- 2. BATTERY STATUS & HEALTH -->
+                <div class="setting-row-item">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">Battery Status &amp; Health</span>
+                    <span class="setting-label-sub" id="dispDevBatterySub">Level: --% &bull; State: -- &bull; Temp: --&deg;C &bull; Health: Good</span>
+                  </div>
+                  <div class="setting-control-col">
+                    <button type="button" class="round-action-btn" title="Refresh Battery Telemetry" onclick="fetchAdbLiveTelemetry(this)" id="btnAdbRefreshBatt">
+                      <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- 3. ADB SERIAL & USB SPEED -->
+                <div class="setting-row-item">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">ADB Serial &amp; USB Link</span>
+                    <span class="setting-label-sub" id="dispDevSerialSub">Serial: -- &bull; USB High-Speed 480 Mbps</span>
+                  </div>
+                  <div class="setting-control-col">
+                    <button type="button" class="round-action-btn" title="Copy Serial" onclick="copyAdbSerial()" id="btnCopyAdbSerial">
+                      <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- 4. CELLULAR MODEM & 5G -->
+                <div class="setting-row-item">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">Cellular Modem &amp; 5G SA</span>
+                    <span class="setting-label-sub" id="dispRadioSub">Carrier: Jio &bull; 5G SA Connected &bull; Cycle airplane mode to re-attach</span>
+                  </div>
+                  <div class="setting-control-col">
+                    <button type="button" class="round-action-btn" title="Cycle Airplane Mode (5G Reconnect)" onclick="runDeviceAirplane(this)" id="btnRadioCycle">
+                      <svg viewBox="0 0 24 24"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- SECTION 2: COMMUNICATIONS & PERSONAL DATA -->
+                <div class="setting-section-divider"></div>
+                <div class="setting-section-header">Communications &amp; Data</div>
+
+                <!-- 5. SMS MESSAGES -->
+                <div class="setting-row-item setting-clickable-row" onclick="openAdbSmsModal()">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">SMS Messages</span>
+                    <span class="setting-label-sub" id="dispDevSmsSub">View SMS inbox, conversations &bull; Tap to load messages</span>
+                  </div>
+                  <div class="setting-arrow-col">
+                    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                  </div>
+                </div>
+
+                <!-- 6. CALL HISTORY -->
+                <div class="setting-row-item setting-clickable-row" onclick="openAdbCallLogsModal()">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">Call History</span>
+                    <span class="setting-label-sub" id="dispDevCallsSub">View incoming, outgoing, and missed call logs &bull; Tap to load</span>
+                  </div>
+                  <div class="setting-arrow-col">
+                    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                  </div>
+                </div>
+
+                <!-- 7. CONTACTS -->
+                <div class="setting-row-item setting-clickable-row" onclick="openAdbContactsModal()">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">Device Contacts</span>
+                    <span class="setting-label-sub" id="dispDevContactsSub">View phonebook directory and saved phone numbers &bull; Tap to load</span>
+                  </div>
+                  <div class="setting-arrow-col">
+                    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                  </div>
+                </div>
+
+                <!-- SECTION 3: HARDWARE & DISPLAY CONTROLS -->
+                <div class="setting-section-divider"></div>
+                <div class="setting-section-header">Hardware &amp; Display Controls</div>
+
+                <!-- 8. CAMERA FLASHLIGHT -->
                 <div class="setting-row-item">
                   <div class="setting-label-col">
                     <span class="setting-label-bold">Camera Flashlight</span>
                     <span class="setting-label-sub" id="dispTorchSub">State: OFF &bull; High-intensity rear camera LED torch</span>
                   </div>
                   <div class="setting-control-col">
-                    <button class="round-action-btn" title="Toggle Phone Flashlight / Torch" onclick="togglePhoneTorch(this)" id="btnTorchToggle">
+                    <button type="button" class="round-action-btn" title="Toggle Phone Flashlight / Torch" onclick="togglePhoneTorch(this)" id="btnTorchToggle">
                       <svg viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
                     </button>
                   </div>
                 </div>
 
-                <!-- 2. HANDSET SCREEN STATE -->
+                <!-- 9. SCREEN STATE -->
                 <div class="setting-row-item">
                   <div class="setting-label-col">
                     <span class="setting-label-bold">Handset Screen State</span>
                     <span class="setting-label-sub" id="dispPowerSub">State: AWAKE &bull; Touch display is active</span>
                   </div>
                   <div class="setting-control-col" style="gap:8px;">
-                    <button class="round-action-btn" title="Wake Phone Screen (Turn On)" onclick="runDeviceWake(this)" id="btnDisplayWake">
+                    <button type="button" class="round-action-btn" title="Wake Phone Screen (Turn On)" onclick="runDeviceWake(this)" id="btnDisplayWake">
                       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/></svg>
                     </button>
-                    <button class="round-action-btn" title="Sleep Phone Screen (Turn Off)" onclick="runDeviceSleep(this)" id="btnDisplaySleep">
+                    <button type="button" class="round-action-btn" title="Sleep Phone Screen (Turn Off)" onclick="runDeviceSleep(this)" id="btnDisplaySleep">
                       <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
                     </button>
                   </div>
                 </div>
 
-                <!-- 3. AUDIO VOLUME CONTROL -->
+                <!-- 10. AUDIO VOLUME -->
                 <div class="setting-row-item">
                   <div class="setting-label-col">
                     <span class="setting-label-bold">Audio Volume Control</span>
                     <span class="setting-label-sub" id="dispVolumeSub">Level: Volume 10 &bull; Speaker media output</span>
                   </div>
                   <div class="setting-control-col" style="gap:8px;">
-                    <button class="round-action-btn" title="Phone Volume Down" onclick="volumePhone('down', this)" id="btnVolDown">
+                    <button type="button" class="round-action-btn" title="Phone Volume Down" onclick="volumePhone('down', this)" id="btnVolDown">
                       <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
                     </button>
-                    <button class="round-action-btn" title="Phone Volume Up" onclick="volumePhone('up', this)" id="btnVolUp">
+                    <button type="button" class="round-action-btn" title="Phone Volume Up" onclick="volumePhone('up', this)" id="btnVolUp">
                       <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
                     </button>
-                    <button class="round-action-btn btn-warning-action" title="Phone Silent Mode" onclick="volumePhone('silent', this)" id="btnVolSilent">
+                    <button type="button" class="round-action-btn btn-warning-action" title="Phone Silent Mode" onclick="volumePhone('silent', this)" id="btnVolSilent">
                       <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
                     </button>
                   </div>
                 </div>
 
-                <!-- 4. CELLULAR RADIO RECONNECT -->
-                <div class="setting-row-item">
-                  <div class="setting-label-col">
-                    <span class="setting-label-bold">Cellular Radio Reconnect</span>
-                    <span class="setting-label-sub" id="dispRadioSub">State: 5G SA Connected &bull; Cycle airplane mode to re-attach</span>
-                  </div>
-                  <div class="setting-control-col">
-                    <button class="round-action-btn" title="Cycle Airplane Mode (5G Reconnect)" onclick="runDeviceAirplane(this)" id="btnRadioCycle">
-                      <svg viewBox="0 0 24 24"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>
-                    </button>
-                  </div>
-                </div>
+                <!-- SECTION 4: SYSTEM TOOLS & POWER -->
+                <div class="setting-section-divider"></div>
+                <div class="setting-section-header">System Tools &amp; Power</div>
 
-                <!-- 5. WIRELESS ADB TCP/IP -->
+                <!-- 11. WIRELESS ADB -->
                 <div class="setting-row-item">
                   <div class="setting-label-col">
                     <span class="setting-label-bold">Wireless ADB (Port 5555)</span>
                     <span class="setting-label-sub" id="dispWirelessAdbSub">State: Disabled &bull; Port 5555 TCP/IP debugging</span>
                   </div>
                   <div class="setting-control-col">
-                    <button class="round-action-btn btn-warning-action" title="Enable Wireless ADB on port 5555" onclick="enableWirelessAdb(this)" id="btnWirelessAdb">
+                    <button type="button" class="round-action-btn btn-warning-action" title="Enable Wireless ADB on port 5555" onclick="enableWirelessAdb(this)" id="btnWirelessAdb">
                       <svg viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
                     </button>
                   </div>
                 </div>
 
-                <!-- 6. REBOOT HANDSET -->
+                <!-- 12. SCREENSHOT -->
+                <div class="setting-row-item">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">Handset Screenshot</span>
+                    <span class="setting-label-sub">Capture and preview real-time screenshot of phone display</span>
+                  </div>
+                  <div class="setting-control-col">
+                    <button type="button" class="round-action-btn" title="Capture Screenshot" onclick="captureAdbScreenshot(this)" id="btnAdbScreenshot">
+                      <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- 13. REBOOT -->
                 <div class="setting-row-item">
                   <div class="setting-label-col">
                     <span class="setting-label-bold" style="color:#ef4444;">Reboot Handset</span>
                     <span class="setting-label-sub">Reboot the connected Android device cleanly</span>
                   </div>
                   <div class="setting-control-col">
-                    <button class="round-action-btn btn-danger-action" title="Reboot Android Device" onclick="runDeviceReboot(this)" id="btnDeviceReboot">
+                    <button type="button" class="round-action-btn btn-danger-action" title="Reboot Android Device" onclick="runDeviceReboot(this)" id="btnDeviceReboot">
                       <svg viewBox="0 0 24 24"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
                     </button>
                   </div>
@@ -8584,7 +8755,7 @@
           </div>
         </div>
 
-        <!-- 8. TERMINAL (ON-SCREEN ROOT SHELL - PLAIN UI, NO GRAY BACKGROUND) -->
+        <!-- 8. TERMINAL (ON-SCREEN ROOT SHELL - MATCHING LOG UI, NO BOX, TRANSPARENT) -->
         <div class="settings-card settings-detail-panel accordion-item" id="acc-terminal-cli" style="background:transparent !important; border:none !important; box-shadow:none !important;">
           <div class="settings-card-header accordion-header" onclick="toggleAccordion('acc-terminal-cli')" style="background:transparent !important; border:none !important;">
             <div class="acc-title-left">
@@ -8599,7 +8770,22 @@
           </div>
           <div class="accordion-content">
             <div class="settings-card-body" style="padding:0; background:transparent !important; border:none !important;">
-              <iframe id="terminalEmbedFrame" src="about:blank" allow="clipboard-read; clipboard-write" style="width:100% !important; height:calc(100vh - 160px) !important; min-height:600px !important; border:1px solid rgba(255,255,255,0.08) !important; display:block; background:#000000 !important; border-radius:8px; box-sizing:border-box;"></iframe>
+              <!-- TOP ACTION LINE: MATCHING LOG UI -->
+              <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; padding:10px 14px; border-bottom:1px solid rgba(255,255,255,0.06);">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="font-size:12px; font-weight:700; font-family:var(--font-mono); color:#10b981;">ROOT CONSOLE</span>
+                  <span style="font-size:11px; font-family:var(--font-mono); color:var(--text-dim);">&bull; PORT 7681</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <button type="button" class="round-action-btn" title="Reload Terminal" onclick="reloadTerminalIframe()" style="width:34px; height:34px; min-width:34px;">
+                    <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                  </button>
+                  <button type="button" class="round-action-btn" title="Open in New Tab" onclick="openTerminalNewTab()" style="width:34px; height:34px; min-width:34px;">
+                    <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                  </button>
+                </div>
+              </div>
+              <iframe id="terminalEmbedFrame" src="about:blank" allow="clipboard-read; clipboard-write" allowtransparency="true" style="width:100% !important; height:calc(100vh - 200px) !important; min-height:550px !important; border:none !important; display:block; background:transparent !important; box-sizing:border-box;"></iframe>
             </div>
           </div>
         </div>
@@ -9170,7 +9356,8 @@
 
     function closeSettingPage(triggerHistoryBack = true) {
       if (window._currentAdbDeviceDetail) {
-        closeAdbDeviceDetail(false);
+        closeAdbDeviceDetail(triggerHistoryBack);
+        return;
       }
       if (typeof stopLogAutoRefresh === 'function') {
         stopLogAutoRefresh();
@@ -10521,7 +10708,7 @@
       }, 100);
     }
 
-    async function toggleSmbService(e) {
+    async function toggleSmbServiceLegacy(e) {
       if (e && e.stopPropagation) e.stopPropagation();
       const target = e && e.target;
       const isCheckbox = target && target.type === 'checkbox';
@@ -13628,33 +13815,16 @@
 
       const availClients = getAvailableNetworkClients();
 
-      // Clean Header Telemetry Card
+      // Clean, compact ports bar (No verbose paragraphs)
       const rtrHardwareCard = `
-        <div style="background:var(--card-inner, #161822); border:1px solid var(--border-sub, rgba(255,255,255,0.08)); border-radius:12px; padding:16px; margin-bottom:14px; font-family:var(--font-mono);">
-          <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.06);">
-            <div style="display:flex; align-items:center; gap:8px;">
-              <span style="width:8px; height:8px; border-radius:50%; background:#10b981; box-shadow:0 0 8px rgba(16,185,129,0.8);"></span>
-              <span style="font-size:12px; font-weight:800; color:var(--text-main); letter-spacing:0.5px;">GATEWAY HARDWARE TELEMETRY</span>
-            </div>
-            <span class="card-badge" style="background:rgba(56,189,248,0.15); color:#38bdf8; border-color:rgba(56,189,248,0.35);">ARCADYAN AX6000 (IPQ9574)</span>
+        <div style="background:var(--card-inner, #161822); border:1px solid var(--border-sub, rgba(255,255,255,0.08)); border-radius:12px; padding:12px 16px; margin-bottom:14px; font-family:var(--font-mono); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="width:8px; height:8px; border-radius:50%; background:#10b981; box-shadow:0 0 8px rgba(16,185,129,0.8);"></span>
+            <span style="font-size:11.5px; font-weight:800; color:var(--text-main); letter-spacing:0.5px;">AVAILABLE PORTS &bull; WAN UPLINK + 4x LAN</span>
           </div>
-          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px; font-size:11.5px;">
-            <div>
-              <span style="color:var(--text-dim); display:block; margin-bottom:2px;">Primary WAN Uplink:</span>
-              <strong style="color:#10b981;">USB 5G Modem (usb0) &bull; UP</strong>
-            </div>
-            <div>
-              <span style="color:var(--text-dim); display:block; margin-bottom:2px;">Active Ethernet:</span>
-              <strong style="color:#10b981;">LAN 2 (1 Gbps) &bull; LAN 3 (1 Gbps)</strong>
-            </div>
-            <div>
-              <span style="color:var(--text-dim); display:block; margin-bottom:2px;">Inactive Ethernet:</span>
-              <strong style="color:var(--text-dim);">LAN 1 (Unplugged) &bull; LAN 4</strong>
-            </div>
-            <div>
-              <span style="color:var(--text-dim); display:block; margin-bottom:2px;">Wi-Fi 6 Radios:</span>
-              <strong style="color:#71717a;">Offloaded to Intermediate AP</strong>
-            </div>
+          <div style="display:flex; align-items:center; gap:6px; font-size:10.5px;">
+            <span class="card-badge emerald" style="padding:2px 8px;">WAN (5G usb0)</span>
+            <span class="card-badge" style="padding:2px 8px;">LAN 1-4</span>
           </div>
         </div>
       `;
@@ -13670,7 +13840,16 @@
             { ip: '10.0.0.5', mac: '00:11:32:92:02:1b', name: 'Synology NAS [STORAGE]', conn_type: 'LAN Port' },
             { ip: '10.0.0.238', mac: 'f2:82:95:8f:db:29', name: 'Vivo V2153 [PHONE]', conn_type: '5GHz WiFi' },
             { ip: '10.0.0.104', mac: '76:74:c6:67:5a:89', name: 'POCO-X6-5G [PHONE]', conn_type: '5GHz WiFi' },
-            { ip: '10.0.0.2', mac: '8c:a3:99:7b:81:2b', name: 'maxnet-b [ROUTER]', conn_type: 'LAN Port' }
+            {
+              ip: '10.0.0.2',
+              mac: '8c:a3:99:7b:81:2b',
+              name: 'maxnet-b [ROUTER]',
+              conn_type: 'Router / Sub-AP',
+              is_router: true,
+              devices: [
+                { ip: '10.0.0.118', mac: 'f6:93:15:3e:bb:41', name: 'Smart TV [L4]', conn_type: 'LAN Port' }
+              ]
+            }
           ]
         },
         lan4: { portIndex: 4, mode: 'empty', device: null }
@@ -13696,7 +13875,6 @@
         const apModel = escapeHtml(ap.model || (idx === 3 ? 'Asus RT-AX53U' : 'WiFi AP / Switch'));
 
         const l3List = p.layer3_devices || [];
-        const l3Ips = l3List.map(item => item.ip);
 
         html += `
           <div class="topo-port-card" id="topoPortCard_lan${idx}" style="background:var(--card-inner, #161822); border:1px solid var(--border-sub, rgba(255,255,255,0.08)); border-radius:12px; padding:16px; margin-bottom:12px;">
@@ -13704,7 +13882,7 @@
               <div style="display:flex; align-items:center; gap:8px;">
                 <span style="font-size:12px; font-weight:800; font-family:var(--font-mono); color:var(--text-main); background:rgba(255,255,255,0.08); padding:4px 10px; border-radius:6px;">PHYSICAL PORT: LAN ${idx}</span>
                 <span class="card-badge ${isUp ? 'emerald' : ''}" id="topoBadge_lan${idx}">
-                  ${isUp ? (mode === 'layer2_ap' ? 'ACCESS POINT' : 'DIRECT CLIENT') : 'DISCONNECTED'}
+                  ${isUp ? (mode === 'layer2_ap' ? 'ROUTER / AP' : 'DIRECT CLIENT') : 'DISCONNECTED'}
                 </span>
               </div>
               <div style="display:flex; align-items:center; gap:8px;">
@@ -13712,7 +13890,7 @@
                 <select class="mh-input" id="topoMode_lan${idx}" onchange="onTopoModeChange(${idx})" style="padding:5px 10px; font-size:11.5px; font-family:var(--font-mono); width:210px;">
                   <option value="empty" ${mode === 'empty' ? 'selected' : ''}>Empty / Unconnected</option>
                   <option value="direct" ${mode === 'direct' ? 'selected' : ''}>Direct End-Device (1 Client)</option>
-                  <option value="layer2_ap" ${mode === 'layer2_ap' ? 'selected' : ''}>Intermediate AP / Switch / Router</option>
+                  <option value="layer2_ap" ${mode === 'layer2_ap' ? 'selected' : ''}>Intermediate Router / AP / Switch</option>
                 </select>
               </div>
             </div>
@@ -13731,13 +13909,13 @@
               <input type="hidden" id="topoDevMac_lan${idx}" value="${devMac}">
             </div>
 
-            <!-- 2. INTERMEDIATE AP / SWITCH MODE -->
+            <!-- 2. INTERMEDIATE ROUTER / AP / SWITCH MODE (SUPPORTS CASCADING ROUTERS) -->
             <div id="topoApBody_lan${idx}" style="display:${mode === 'layer2_ap' ? 'block' : 'none'};">
               <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px; flex-wrap:wrap;">
-                <label style="font-size:11px; font-family:var(--font-mono); color:#38bdf8; min-width:110px; font-weight:700;">AP / Switch Node:</label>
+                <label style="font-size:11px; font-family:var(--font-mono); color:#38bdf8; min-width:110px; font-weight:700;">Router / AP Node:</label>
                 <select class="mh-input" id="topoApSelect_lan${idx}" onchange="onSelectApClient(${idx}, this.value)" style="flex:1; min-width:240px; padding:7px 12px; font-size:12px; font-family:var(--font-mono); border-color:rgba(56,189,248,0.4);">
-                  <option value="">-- Choose AP or Router Device --</option>
-                  ${availClients.map(c => `<option value="${escapeHtml(c.ip)}" ${apIp === c.ip ? 'selected' : ''}>${escapeHtml(c.name || 'AP')} &bull; ${escapeHtml(c.ip)} [${escapeHtml(c.mac || '--')}]</option>`).join('')}
+                  <option value="">-- Choose Router or Access Point --</option>
+                  ${availClients.map(c => `<option value="${escapeHtml(c.ip)}" ${apIp === c.ip ? 'selected' : ''}>${escapeHtml(c.name || 'Router')} &bull; ${escapeHtml(c.ip)} [${escapeHtml(c.mac || '--')}]</option>`).join('')}
                 </select>
               </div>
               <input type="hidden" id="topoApName_lan${idx}" value="${apName}">
@@ -13745,32 +13923,16 @@
               <input type="hidden" id="topoApMac_lan${idx}" value="${apMac}">
               <input type="hidden" id="topoApModel_lan${idx}" value="${apModel}">
 
-              <!-- DOWNSTREAM CLIENT CHECKLIST -->
+              <!-- DOWNSTREAM CASCADED DEVICES & ROUTERS -->
               <div style="background:rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:12px 14px;">
                 <div style="font-size:11px; font-weight:700; color:var(--text-main); font-family:var(--font-mono); margin-bottom:10px; display:flex; align-items:center; justify-content:space-between;">
-                  <span>CLIENTS CONNECTED THROUGH THIS AP / SWITCH</span>
-                  <span style="font-size:10px; color:var(--text-dim); font-weight:normal;">Check devices to route under this node</span>
+                  <span>DOWNSTREAM CONNECTED DEVICES &amp; CASCADED ROUTERS</span>
+                  <div style="display:flex; gap:6px;">
+                    <button type="button" class="mh-btn" onclick="addCascadedNode(${idx})" style="padding:4px 10px; font-size:10px; font-weight:700;">+ ADD NODE</button>
+                  </div>
                 </div>
-                <div id="topoApClientsList_lan${idx}" style="display:flex; flex-direction:column; gap:8px;">
-                  ${availClients.filter(c => c.ip !== apIp && c.ip !== devIp && c.ip !== '10.0.0.1').map(c => {
-                    const isChecked = l3Ips.includes(c.ip) || (idx === 3 && (c.name.includes('NAS') || c.name.includes('Vivo') || c.name.includes('POCO') || c.name.includes('maxnet-b')));
-                    const existing = l3List.find(item => item.ip === c.ip);
-                    const conn = existing ? existing.conn_type : (c.name.includes('NAS') || c.name.includes('maxnet') ? 'LAN Port' : '5GHz WiFi');
-                    return `
-                      <div class="topo-client-check-row" style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:6px 10px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.04); border-radius:8px;">
-                        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; flex:1; font-family:var(--font-mono); font-size:11.5px;">
-                          <input type="checkbox" class="topo-l3-check" data-port="${idx}" data-ip="${escapeHtml(c.ip)}" data-name="${escapeHtml(c.name || 'Device')}" data-mac="${escapeHtml(c.mac || '')}" ${isChecked ? 'checked' : ''} style="width:16px; height:16px; accent-color:#38bdf8;">
-                          <span style="font-weight:700; color:var(--text-main);">${escapeHtml(c.name || 'Device')}</span>
-                          <span style="color:var(--text-dim); font-size:10.5px;">(${escapeHtml(c.ip)})</span>
-                        </label>
-                        <select class="mh-input topo-l3-conn-sel" data-ip="${escapeHtml(c.ip)}" style="padding:3px 8px; font-size:10.5px; font-family:var(--font-mono); width:110px;">
-                          <option value="5GHz WiFi" ${conn === '5GHz WiFi' ? 'selected' : ''}>5GHz WiFi</option>
-                          <option value="2.4GHz WiFi" ${conn === '2.4GHz WiFi' ? 'selected' : ''}>2.4GHz WiFi</option>
-                          <option value="LAN Port" ${conn === 'LAN Port' ? 'selected' : ''}>LAN Port</option>
-                        </select>
-                      </div>
-                    `;
-                  }).join('')}
+                <div id="topoCascadeNodes_lan${idx}" class="topo-cascade-container" style="display:flex; flex-direction:column; gap:8px;">
+                  ${renderCascadedNodesList(idx, l3List, availClients, apIp)}
                 </div>
               </div>
             </div>
@@ -13781,71 +13943,125 @@
       container.innerHTML = html;
     }
 
-    function onTopoModeChange(idx) {
-      const mode = (document.getElementById('topoMode_lan' + idx) || {}).value || 'empty';
-      const directBody = document.getElementById('topoDirectBody_lan' + idx);
-      const apBody = document.getElementById('topoApBody_lan' + idx);
-      const badge = document.getElementById('topoBadge_lan' + idx);
+    function renderCascadedNodesList(portIdx, nodesList, availClients, parentIp) {
+      if (!nodesList || nodesList.length === 0) {
+        return `<div style="font-size:11px; color:var(--text-dim); padding:10px; text-align:center; font-family:var(--font-mono);">No downstream devices added. Click + ADD NODE to connect devices or routers.</div>`;
+      }
 
-      if (directBody) directBody.style.display = (mode === 'direct') ? 'block' : 'none';
-      if (apBody) apBody.style.display = (mode === 'layer2_ap') ? 'block' : 'none';
-      if (badge) {
-        if (mode === 'empty') {
-          badge.className = 'card-badge';
-          badge.textContent = 'DISCONNECTED';
-        } else if (mode === 'direct') {
-          badge.className = 'card-badge emerald';
-          badge.textContent = 'DIRECT CLIENT';
-        } else {
-          badge.className = 'card-badge';
-          badge.style.background = 'rgba(56,189,248,0.15)';
-          badge.style.color = '#38bdf8';
-          badge.style.borderColor = 'rgba(56,189,248,0.35)';
-          badge.textContent = 'ACCESS POINT';
-        }
+      return nodesList.map((node, nIdx) => {
+        const isRouter = !!(node.is_router || (node.name && node.name.toLowerCase().includes('router')) || node.conn_type === 'Router / Sub-AP');
+        const connType = node.conn_type || (isRouter ? 'Router / Sub-AP' : '5GHz WiFi');
+        const subDevices = node.devices || [];
+
+        return `
+          <div class="topo-node-row" data-port="${portIdx}" data-index="${nIdx}" style="background:rgba(255,255,255,0.02); border:1px solid ${isRouter ? 'rgba(245,158,11,0.35)' : 'rgba(255,255,255,0.06)'}; border-radius:8px; padding:10px; display:flex; flex-direction:column; gap:8px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+              <div style="display:flex; align-items:center; gap:8px; flex:1; min-width:200px;">
+                <span class="card-badge ${isRouter ? 'amber' : 'emerald'}" style="font-size:9.5px; padding:1px 6px;">${isRouter ? 'SUB-ROUTER' : 'DEVICE'}</span>
+                <input type="text" class="mh-input topo-node-name" value="${escapeHtml(node.name || '')}" placeholder="Node Name" style="padding:4px 8px; font-size:11px; flex:1; min-width:120px;">
+                <input type="text" class="mh-input topo-node-ip" value="${escapeHtml(node.ip || '')}" placeholder="IP Address" style="padding:4px 8px; font-size:11px; width:100px;">
+              </div>
+              <div style="display:flex; align-items:center; gap:6px;">
+                <select class="mh-input topo-node-conn" onchange="onNodeConnTypeChange(${portIdx}, ${nIdx}, this.value)" style="padding:4px 8px; font-size:10.5px; font-family:var(--font-mono); width:130px;">
+                  <option value="5GHz WiFi" ${connType === '5GHz WiFi' ? 'selected' : ''}>5GHz WiFi</option>
+                  <option value="2.4GHz WiFi" ${connType === '2.4GHz WiFi' ? 'selected' : ''}>2.4GHz WiFi</option>
+                  <option value="LAN Port" ${connType === 'LAN Port' ? 'selected' : ''}>LAN Port</option>
+                  <option value="Router / Sub-AP" ${isRouter ? 'selected' : ''}>Router / Sub-AP</option>
+                </select>
+                <button type="button" class="round-action-btn btn-danger-action" title="Remove Node" onclick="removeCascadedNode(${portIdx}, ${nIdx})" style="width:28px; height:28px; min-width:28px;">
+                  <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- NESTED SUB-ROUTER DEVICES (IF SUB-ROUTER) -->
+            ${isRouter ? `
+              <div style="margin-left:14px; padding-left:10px; border-left:2px solid #f59e0b; display:flex; flex-direction:column; gap:6px; margin-top:4px;">
+                <div style="display:flex; align-items:center; justify-content:space-between;">
+                  <span style="font-size:10px; font-weight:700; color:#f59e0b; font-family:var(--font-mono);">DOWNSTREAM NODES UNDER ${escapeHtml(node.name || 'SUB-ROUTER')}</span>
+                  <button type="button" class="mh-btn" onclick="addSubChildNode(${portIdx}, ${nIdx})" style="padding:2px 8px; font-size:9.5px;">+ ADD SUB-DEVICE</button>
+                </div>
+                <div id="subChildren_${portIdx}_${nIdx}" style="display:flex; flex-direction:column; gap:4px;">
+                  ${subDevices.map((subD, sIdx) => `
+                    <div class="topo-subchild-row" data-subindex="${sIdx}" style="display:flex; align-items:center; gap:8px; background:rgba(0,0,0,0.2); padding:4px 8px; border-radius:6px;">
+                      <span style="font-size:10px; color:var(--text-dim);">&bull;</span>
+                      <input type="text" class="mh-input sub-name" value="${escapeHtml(subD.name || 'Device')}" placeholder="Device Name" style="padding:3px 6px; font-size:10.5px; flex:1;">
+                      <input type="text" class="mh-input sub-ip" value="${escapeHtml(subD.ip || '')}" placeholder="IP" style="padding:3px 6px; font-size:10.5px; width:90px;">
+                      <button type="button" class="round-action-btn btn-danger-action" onclick="removeSubChildNode(${portIdx}, ${nIdx}, ${sIdx})" style="width:24px; height:24px; min-width:24px;">
+                        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                      </button>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function addCascadedNode(portIdx) {
+      if (!window._topologyLayers) window._topologyLayers = { ports: {} };
+      if (!window._topologyLayers.ports['lan' + portIdx]) window._topologyLayers.ports['lan' + portIdx] = { mode: 'layer2_ap', layer3_devices: [] };
+      const p = window._topologyLayers.ports['lan' + portIdx];
+      if (!Array.isArray(p.layer3_devices)) p.layer3_devices = [];
+
+      const avail = getAvailableNetworkClients();
+      const existingIps = p.layer3_devices.map(d => d.ip);
+      const nextClient = avail.find(c => !existingIps.includes(c.ip) && c.ip !== (p.ap ? p.ap.ip : '')) || { name: 'New Client', ip: '10.0.0.' + (100 + p.layer3_devices.length), mac: '' };
+
+      p.layer3_devices.push({
+        name: nextClient.name || 'Client Device',
+        ip: nextClient.ip || '',
+        mac: nextClient.mac || '',
+        conn_type: '5GHz WiFi',
+        is_router: false
+      });
+
+      renderTopologyLayersUI(window._topologyLayers);
+    }
+
+    function removeCascadedNode(portIdx, nIdx) {
+      if (!window._topologyLayers || !window._topologyLayers.ports['lan' + portIdx]) return;
+      const p = window._topologyLayers.ports['lan' + portIdx];
+      if (Array.isArray(p.layer3_devices)) {
+        p.layer3_devices.splice(nIdx, 1);
+        renderTopologyLayersUI(window._topologyLayers);
       }
     }
 
-    async function autoMapNetworkTopology() {
-      const availClients = getAvailableNetworkClients();
-      if (!availClients || availClients.length === 0) {
-        showToast('No active DHCP clients found to map', 'warning');
-        return;
-      }
-
-      // Automatically identify PC for LAN 2 and Asus for LAN 3
-      const pcDev = availClients.find(c => c.ip === '10.0.0.111' || /pc|maxos|desktop|laptop/i.test(c.name)) || availClients[0];
-      const apDev = availClients.find(c => c.ip === '10.0.0.166' || /asus|router|ap|switch/i.test(c.name)) || availClients.find(c => c.ip !== (pcDev ? pcDev.ip : ''));
-
-      const autoConfig = {
-        status: "ok",
-        ports: {
-          lan1: { portIndex: 1, mode: 'empty', device: null },
-          lan2: {
-            portIndex: 2,
-            mode: pcDev ? 'direct' : 'empty',
-            device: pcDev ? { name: pcDev.name || 'maxos [PC]', ip: pcDev.ip, mac: pcDev.mac || '' } : null
-          },
-          lan3: {
-            portIndex: 3,
-            mode: apDev ? 'layer2_ap' : 'empty',
-            ap: apDev ? { name: apDev.name || 'Asus Router / AP', ip: apDev.ip, mac: apDev.mac || '', model: 'Asus RT-AX53U' } : null,
-            layer3_devices: availClients.filter(c => (!pcDev || c.ip !== pcDev.ip) && (!apDev || c.ip !== apDev.ip) && c.ip !== '10.0.0.1').map(c => ({
-              name: c.name || 'Device',
-              ip: c.ip,
-              mac: c.mac || '',
-              conn_type: /nas|server|storage/i.test(c.name) ? 'LAN Port' : '5GHz WiFi',
-              tier: 3
-            }))
-          },
-          lan4: { portIndex: 4, mode: 'empty', device: null }
+    function onNodeConnTypeChange(portIdx, nIdx, val) {
+      if (!window._topologyLayers || !window._topologyLayers.ports['lan' + portIdx]) return;
+      const p = window._topologyLayers.ports['lan' + portIdx];
+      if (p.layer3_devices && p.layer3_devices[nIdx]) {
+        const item = p.layer3_devices[nIdx];
+        item.conn_type = val;
+        item.is_router = (val === 'Router / Sub-AP');
+        if (item.is_router && !item.devices) {
+          item.devices = [{ name: 'Client under ' + (item.name || 'Router'), ip: '10.0.0.118', conn_type: 'LAN Port' }];
         }
-      };
+        renderTopologyLayersUI(window._topologyLayers);
+      }
+    }
 
-      window._topologyLayers = autoConfig;
-      renderTopologyLayersUI(autoConfig);
-      await saveTopologyLayersConfig();
-      showToast('Topology auto-mapped & updated live!', 'success');
+    function addSubChildNode(portIdx, nIdx) {
+      if (!window._topologyLayers || !window._topologyLayers.ports['lan' + portIdx]) return;
+      const p = window._topologyLayers.ports['lan' + portIdx];
+      if (p.layer3_devices && p.layer3_devices[nIdx]) {
+        const item = p.layer3_devices[nIdx];
+        if (!Array.isArray(item.devices)) item.devices = [];
+        item.devices.push({ name: 'Sub-Client ' + (item.devices.length + 1), ip: '10.0.0.' + (150 + item.devices.length), conn_type: 'LAN Port' });
+        renderTopologyLayersUI(window._topologyLayers);
+      }
+    }
+
+    function removeSubChildNode(portIdx, nIdx, sIdx) {
+      if (!window._topologyLayers || !window._topologyLayers.ports['lan' + portIdx]) return;
+      const p = window._topologyLayers.ports['lan' + portIdx];
+      if (p.layer3_devices && p.layer3_devices[nIdx] && Array.isArray(p.layer3_devices[nIdx].devices)) {
+        p.layer3_devices[nIdx].devices.splice(sIdx, 1);
+        renderTopologyLayersUI(window._topologyLayers);
+      }
     }
 
     async function saveTopologyLayersConfig() {
@@ -13879,15 +14095,32 @@
           const avail = getAvailableNetworkClients();
           const apClient = avail.find(item => item.ip === chosenIp) || {};
 
-          const checks = document.querySelectorAll(`.topo-l3-check[data-port="${idx}"]:checked`);
+          // Read nodes from DOM
+          const nodeRows = document.querySelectorAll(`.topo-node-row[data-port="${idx}"]`);
           const l3Devices = [];
-          checks.forEach(chk => {
-            const ip = chk.getAttribute('data-ip');
-            const name = chk.getAttribute('data-name');
-            const mac = chk.getAttribute('data-mac');
-            const connSel = document.querySelector(`.topo-l3-conn-sel[data-ip="${ip}"]`);
-            const conn_type = connSel ? connSel.value : 'LAN Port';
-            l3Devices.push({ tier: 3, name, ip, mac, conn_type });
+          nodeRows.forEach((row, rIdx) => {
+            const name = (row.querySelector('.topo-node-name') || {}).value || '';
+            const ip = (row.querySelector('.topo-node-ip') || {}).value || '';
+            const conn = (row.querySelector('.topo-node-conn') || {}).value || '5GHz WiFi';
+            const isRouter = (conn === 'Router / Sub-AP');
+
+            const subDevices = [];
+            if (isRouter) {
+              row.querySelectorAll('.topo-subchild-row').forEach(subRow => {
+                const sName = (subRow.querySelector('.sub-name') || {}).value || '';
+                const sIp = (subRow.querySelector('.sub-ip') || {}).value || '';
+                if (sName || sIp) subDevices.push({ name: sName, ip: sIp, conn_type: 'LAN Port', tier: 4 });
+              });
+            }
+
+            l3Devices.push({
+              name,
+              ip,
+              conn_type: conn,
+              is_router: isRouter,
+              tier: isRouter ? 3 : 3,
+              devices: subDevices
+            });
           });
 
           config.ports[key] = {
@@ -14044,7 +14277,7 @@
     // ==================== USB DEVICES & HARDWARE TELEMETRY ====================
     let selectedAdbSerial = "";
 
-    async function fetchAdbDeviceList() {
+    async function fetchUsbDevicesFlow() {
       try {
         let devs = [];
         if (window._lastDataCache && Array.isArray(window._lastDataCache.usb_devices) && window._lastDataCache.usb_devices.length > 0) {
@@ -14424,6 +14657,304 @@
       if (sub) {
         sub.innerHTML = `<strong style="color:${isOn ? '#f59e0b' : 'var(--text-dim)'};">State: ${isOn ? 'ON' : 'OFF'}</strong> &bull; High-intensity rear camera LED torch`;
       }
+    }
+
+    /* ==================== ADB LIVE TELEMETRY & DATA EXTRACTION ==================== */
+    async function fetchAdbLiveTelemetry(btn) {
+      if (!selectedAdbSerial) return;
+      if (btn) btn.classList.add('rotating');
+      try {
+        const res = await apiFetch(`/cgi-bin/device?serial=${encodeURIComponent(selectedAdbSerial)}`);
+        const data = await res.json();
+        if (data) {
+          const mTitle = document.getElementById('dispDevModelTitle');
+          const mSub = document.getElementById('dispDevModelSub');
+          const bSub = document.getElementById('dispDevBatterySub');
+          const sSub = document.getElementById('dispDevSerialSub');
+          const rSub = document.getElementById('dispRadioSub');
+
+          if (mTitle && data.model) mTitle.textContent = `${data.brand ? data.brand + ' ' : ''}${data.model}`;
+          if (mSub) mSub.textContent = `Android ${data.android_version || '--'} • Patch: ${data.security_patch || '--'} • SoC: ${data.soc || '--'}`;
+          if (bSub) {
+            const chg = data.battery_charging ? 'Charging' : (data.battery_usb ? 'USB Powered' : 'Discharging');
+            bSub.textContent = `Level: ${data.battery_level ?? '--'}% (${chg}) • Temp: ${data.battery_temp ?? '--'}°C • Health: ${data.battery_health || 'Good'}`;
+          }
+          if (sSub) sSub.textContent = `Serial: ${data.serial || selectedAdbSerial} • Port: ${data.port || '2-1'} • Speed: ${data.speed_mbps || 480} Mbps`;
+          if (rSub && (data.operator || data.network_type)) {
+            rSub.textContent = `Carrier: ${data.operator || 'Jio'} • Network: ${data.network_type || '5G SA'} • SIM: ${data.sim_state || 'Ready'}`;
+          }
+        }
+      } catch (e) {
+        console.error('fetchAdbLiveTelemetry error', e);
+      } finally {
+        if (btn) setTimeout(() => btn.classList.remove('rotating'), 600);
+      }
+    }
+
+    function copyAdbSerial() {
+      if (!selectedAdbSerial) return;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(selectedAdbSerial);
+        alert(`Copied ADB Serial "${selectedAdbSerial}" to clipboard`);
+      }
+    }
+
+    /* --- SMS MESSAGES --- */
+    async function openAdbSmsModal() {
+      const overlay = document.getElementById('adbSmsModalOverlay');
+      const body = document.getElementById('adbSmsModalBody');
+      const title = document.getElementById('adbSmsModalTitle');
+      const subtitle = document.getElementById('adbSmsModalSubtitle');
+      const countEl = document.getElementById('adbSmsCountText');
+      if (!overlay || !body) return;
+
+      overlay.style.display = 'flex';
+      const devName = (document.getElementById('dispDevModelTitle') || {}).textContent || selectedAdbSerial;
+      if (title) title.textContent = 'SMS Messages';
+      if (subtitle) subtitle.textContent = `${devName} • Handset SMS Inbox`;
+      body.innerHTML = `
+        <div style="text-align:center; padding:30px; color:var(--text-dim); font-size:12px; font-family:var(--font-mono);">
+          <svg class="spin-icon" viewBox="0 0 24 24" style="width:22px; height:22px; stroke:#38bdf8; margin:0 auto 10px; display:block;"><circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-dashoffset="12"/></svg>
+          Fetching SMS messages via ADB...
+        </div>
+      `;
+
+      try {
+        const res = await apiFetch(`/cgi-bin/device?action=sms&serial=${encodeURIComponent(selectedAdbSerial || '')}`);
+        const data = await res.json();
+        const msgs = Array.isArray(data.messages) ? data.messages : [];
+        window._cachedAdbSms = msgs;
+        if (countEl) countEl.textContent = `${msgs.length} messages loaded`;
+        renderAdbSmsList(msgs);
+      } catch (e) {
+        body.innerHTML = `<div style="text-align:center; padding:20px; color:#ef4444; font-size:12px;">Failed to load SMS: ${escapeHtml(e.message)}</div>`;
+      }
+    }
+
+    function renderAdbSmsList(list) {
+      const body = document.getElementById('adbSmsModalBody');
+      if (!body) return;
+      if (!list || list.length === 0) {
+        body.innerHTML = `<div style="text-align:center; padding:24px; color:var(--text-dim); font-size:12px; font-family:var(--font-mono);">No SMS messages found on device.</div>`;
+        return;
+      }
+
+      body.innerHTML = list.map(m => {
+        let dateStr = '--';
+        if (m.date) {
+          const d = new Date(parseInt(m.date, 10));
+          if (!isNaN(d.getTime())) dateStr = d.toLocaleString();
+        }
+        const isIncoming = m.type === '1' || m.type === 1;
+        const typeBadge = isIncoming
+          ? '<span class="card-badge emerald" style="font-size:9px; padding:1px 6px;">INCOMING</span>'
+          : '<span class="card-badge" style="font-size:9px; padding:1px 6px; color:#38bdf8; border-color:rgba(56,189,248,0.3);">SENT</span>';
+
+        return `
+          <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:10px 14px; display:flex; flex-direction:column; gap:6px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <strong style="color:var(--text-main); font-size:12px; font-family:var(--font-mono);">${escapeHtml(m.address || 'Unknown')}</strong>
+                ${typeBadge}
+              </div>
+              <span style="font-size:10.5px; color:var(--text-dim); font-family:var(--font-mono);">${escapeHtml(dateStr)}</span>
+            </div>
+            <div style="font-size:11.5px; color:var(--text-main); line-height:1.5; word-break:break-word; white-space:pre-wrap;">${escapeHtml(m.body || '')}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function filterAdbSms(query) {
+      const q = (query || '').toLowerCase().trim();
+      const list = window._cachedAdbSms || [];
+      if (!q) {
+        renderAdbSmsList(list);
+        return;
+      }
+      const filtered = list.filter(m => (m.address || '').toLowerCase().includes(q) || (m.body || '').toLowerCase().includes(q));
+      renderAdbSmsList(filtered);
+    }
+
+    function closeAdbSmsModal() {
+      const overlay = document.getElementById('adbSmsModalOverlay');
+      if (overlay) overlay.style.display = 'none';
+    }
+
+    /* --- CALL HISTORY --- */
+    async function openAdbCallLogsModal() {
+      const overlay = document.getElementById('adbCallsModalOverlay');
+      const body = document.getElementById('adbCallsModalBody');
+      const title = document.getElementById('adbCallsModalTitle');
+      const countEl = document.getElementById('adbCallsCountText');
+      if (!overlay || !body) return;
+
+      overlay.style.display = 'flex';
+      body.innerHTML = `
+        <div style="text-align:center; padding:30px; color:var(--text-dim); font-size:12px; font-family:var(--font-mono);">
+          <svg class="spin-icon" viewBox="0 0 24 24" style="width:22px; height:22px; stroke:#38bdf8; margin:0 auto 10px; display:block;"><circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-dashoffset="12"/></svg>
+          Fetching call logs via ADB...
+        </div>
+      `;
+
+      try {
+        const res = await apiFetch(`/cgi-bin/device?action=call_logs&serial=${encodeURIComponent(selectedAdbSerial || '')}`);
+        const data = await res.json();
+        const logs = Array.isArray(data.call_logs) ? data.call_logs : [];
+        if (countEl) countEl.textContent = `${logs.length} calls logged`;
+        renderAdbCallLogsList(logs);
+      } catch (e) {
+        body.innerHTML = `<div style="text-align:center; padding:20px; color:#ef4444; font-size:12px;">Failed to load call logs: ${escapeHtml(e.message)}</div>`;
+      }
+    }
+
+    function renderAdbCallLogsList(list) {
+      const body = document.getElementById('adbCallsModalBody');
+      if (!body) return;
+      if (!list || list.length === 0) {
+        body.innerHTML = `<div style="text-align:center; padding:24px; color:var(--text-dim); font-size:12px; font-family:var(--font-mono);">No call logs recorded on device.</div>`;
+        return;
+      }
+
+      body.innerHTML = list.map(c => {
+        let dateStr = '--';
+        if (c.date) {
+          const d = new Date(parseInt(c.date, 10));
+          if (!isNaN(d.getTime())) dateStr = d.toLocaleString();
+        }
+        let typeBadge = '<span class="card-badge" style="font-size:9px;">CALL</span>';
+        if (c.type === '1' || c.type === 1) {
+          typeBadge = '<span class="card-badge emerald" style="font-size:9px; padding:1px 6px;">INCOMING</span>';
+        } else if (c.type === '2' || c.type === 2) {
+          typeBadge = '<span class="card-badge" style="font-size:9px; padding:1px 6px; color:#38bdf8; border-color:rgba(56,189,248,0.3);">OUTGOING</span>';
+        } else if (c.type === '3' || c.type === 3) {
+          typeBadge = '<span class="card-badge" style="font-size:9px; padding:1px 6px; color:#ef4444; border-color:rgba(239,68,68,0.3);">MISSED</span>';
+        }
+
+        const durSec = parseInt(c.duration || '0', 10);
+        const durFmt = durSec > 60 ? `${Math.floor(durSec / 60)}m ${durSec % 60}s` : `${durSec}s`;
+
+        return `
+          <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:10px 14px; display:flex; align-items:center; justify-content:space-between; gap:10px;">
+            <div style="display:flex; flex-direction:column; gap:2px; min-width:0;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <strong style="color:var(--text-main); font-size:12px; font-family:var(--font-mono);">${escapeHtml(c.number || 'Private Number')}</strong>
+                ${typeBadge}
+              </div>
+              <span style="font-size:11px; color:var(--text-dim);">${c.name && c.name !== 'NULL' ? escapeHtml(c.name) + ' &bull; ' : ''}${escapeHtml(dateStr)}</span>
+            </div>
+            <span style="font-size:11px; color:var(--text-dim); font-family:var(--font-mono); white-space:nowrap;">${durFmt}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function closeAdbCallLogsModal() {
+      const overlay = document.getElementById('adbCallsModalOverlay');
+      if (overlay) overlay.style.display = 'none';
+    }
+
+    /* --- CONTACTS --- */
+    async function openAdbContactsModal() {
+      const overlay = document.getElementById('adbContactsModalOverlay');
+      const body = document.getElementById('adbContactsModalBody');
+      const countEl = document.getElementById('adbContactsCountText');
+      if (!overlay || !body) return;
+
+      overlay.style.display = 'flex';
+      body.innerHTML = `
+        <div style="text-align:center; padding:30px; color:var(--text-dim); font-size:12px; font-family:var(--font-mono);">
+          <svg class="spin-icon" viewBox="0 0 24 24" style="width:22px; height:22px; stroke:#38bdf8; margin:0 auto 10px; display:block;"><circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-dashoffset="12"/></svg>
+          Fetching contacts via ADB...
+        </div>
+      `;
+
+      try {
+        const res = await apiFetch(`/cgi-bin/device?action=contacts&serial=${encodeURIComponent(selectedAdbSerial || '')}`);
+        const data = await res.json();
+        const contacts = Array.isArray(data.contacts) ? data.contacts : [];
+        window._cachedAdbContacts = contacts;
+        if (countEl) countEl.textContent = `${contacts.length} contacts found`;
+        renderAdbContactsList(contacts);
+      } catch (e) {
+        body.innerHTML = `<div style="text-align:center; padding:20px; color:#ef4444; font-size:12px;">Failed to load contacts: ${escapeHtml(e.message)}</div>`;
+      }
+    }
+
+    function renderAdbContactsList(list) {
+      const body = document.getElementById('adbContactsModalBody');
+      if (!body) return;
+      if (!list || list.length === 0) {
+        body.innerHTML = `<div style="text-align:center; padding:24px; color:var(--text-dim); font-size:12px; font-family:var(--font-mono);">No contacts found on device.</div>`;
+        return;
+      }
+
+      body.innerHTML = list.map(c => `
+        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:10px 14px; display:flex; align-items:center; justify-content:space-between; gap:10px;">
+          <div style="display:flex; flex-direction:column; gap:2px;">
+            <strong style="color:var(--text-main); font-size:12.5px;">${escapeHtml(c.name || 'Unnamed Contact')}</strong>
+            <span style="font-size:11px; color:var(--text-dim); font-family:var(--font-mono);">${escapeHtml(c.number || '--')}</span>
+          </div>
+          <span class="card-badge" style="font-size:9.5px;">MOBILE</span>
+        </div>
+      `).join('');
+    }
+
+    function filterAdbContacts(query) {
+      const q = (query || '').toLowerCase().trim();
+      const list = window._cachedAdbContacts || [];
+      if (!q) {
+        renderAdbContactsList(list);
+        return;
+      }
+      const filtered = list.filter(c => (c.name || '').toLowerCase().includes(q) || (c.number || '').toLowerCase().includes(q));
+      renderAdbContactsList(filtered);
+    }
+
+    function closeAdbContactsModal() {
+      const overlay = document.getElementById('adbContactsModalOverlay');
+      if (overlay) overlay.style.display = 'none';
+    }
+
+    /* --- SCREENSHOT --- */
+    async function captureAdbScreenshot(btn) {
+      const overlay = document.getElementById('adbScreenshotModalOverlay');
+      const body = document.getElementById('adbScreenshotModalBody');
+      const dlBtn = document.getElementById('btnDownloadAdbScreenshot');
+      if (!overlay || !body) return;
+
+      overlay.style.display = 'flex';
+      if (dlBtn) dlBtn.style.display = 'none';
+      body.innerHTML = `
+        <div style="text-align:center; padding:40px; color:var(--text-dim); font-size:12px; font-family:var(--font-mono);">
+          <svg class="spin-icon" viewBox="0 0 24 24" style="width:24px; height:24px; stroke:#38bdf8; margin:0 auto 12px; display:block;"><circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-dashoffset="12"/></svg>
+          Capturing handset screen via screencap... Please wait.
+        </div>
+      `;
+
+      try {
+        const res = await apiFetch(`/cgi-bin/device?action=screenshot&serial=${encodeURIComponent(selectedAdbSerial || '')}`);
+        const data = await res.json();
+        if (data && data.status === 'ok' && data.image_base64) {
+          body.innerHTML = `
+            <img src="${data.image_base64}" alt="Handset Screen" style="max-width:100%; max-height:68vh; border-radius:10px; border:1px solid rgba(255,255,255,0.12); box-shadow:0 12px 30px rgba(0,0,0,0.5); display:block; margin:0 auto;">
+          `;
+          if (dlBtn) {
+            dlBtn.href = data.image_base64;
+            dlBtn.download = `screenshot_${selectedAdbSerial}_${Date.now()}.png`;
+            dlBtn.style.display = 'inline-flex';
+          }
+        } else {
+          body.innerHTML = `<div style="text-align:center; padding:20px; color:#ef4444; font-size:12px;">Failed to capture screenshot: ${escapeHtml(data.message || 'Unknown error')}</div>`;
+        }
+      } catch (e) {
+        body.innerHTML = `<div style="text-align:center; padding:20px; color:#ef4444; font-size:12px;">Screenshot error: ${escapeHtml(e.message)}</div>`;
+      }
+    }
+
+    function closeAdbScreenshotModal() {
+      const overlay = document.getElementById('adbScreenshotModalOverlay');
+      if (overlay) overlay.style.display = 'none';
     }
 
     async function togglePhoneTorch(btn) {
@@ -15519,12 +16050,22 @@
       const devName = selDev.model || selDev.brand || 'Android Handset';
       const ser = selDev.serial || selDev.bus || serial || '--';
 
-      const bcModel = document.getElementById('adbDetailBreadcrumbModel');
-      const bcSerial = document.getElementById('adbDetailBreadcrumbSerial');
-      if (bcModel) bcModel.textContent = devName;
-      if (bcSerial) bcSerial.textContent = `SERIAL: ${ser}${selDev.ip ? ` • IP: ${selDev.ip}` : ''}`;
+      // Update Subnav Title: ADB Devices › Handset Model
+      const navTitle = document.getElementById('settingsDetailNavTitle');
+      if (navTitle) {
+        navTitle.innerHTML = `<span style="cursor:pointer;" onclick="closeAdbDeviceDetail(true)">ADB Devices</span> <span style="opacity:0.4;">&rsaquo;</span> <span style="color:#38bdf8;">${escapeHtml(devName)}</span>`;
+      }
+
+      // Populate basic info immediately
+      const mTitle = document.getElementById('dispDevModelTitle');
+      if (mTitle) mTitle.textContent = devName;
+      const mSub = document.getElementById('dispDevModelSub');
+      if (mSub) mSub.textContent = `Serial: ${ser}${selDev.ip ? ` • IP: ${selDev.ip}` : ''}`;
+      const sSub = document.getElementById('dispDevSerialSub');
+      if (sSub) sSub.textContent = `Serial: ${ser} • USB High-Speed 480 Mbps`;
 
       updateSelectedAdbDeviceControls();
+      fetchAdbLiveTelemetry();
 
       if (pushHistory) {
         try {
@@ -15541,6 +16082,9 @@
       const detailView = document.getElementById('adbDetailView');
       if (detailView) detailView.style.display = 'none';
       if (listView) listView.style.display = 'block';
+
+      const navTitle = document.getElementById('settingsDetailNavTitle');
+      if (navTitle) navTitle.textContent = 'ADB Devices';
 
       if (triggerHistoryBack && window.location.hash.includes('&dev=')) {
         try {
@@ -17359,15 +17903,6 @@
         fetchSmbConfig();
       } catch (e) {
         showToast('Failed to toggle SMB: ' + e.message, 'error');
-      }
-    }
-
-    function copySmbPath() {
-      const p = '\\\\10.0.0.1\\Pendrive';
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(p)
-          .then(() => showToast('Share path copied: \\10.0.0.1\Pendrive', 'success'))
-          .catch(() => showToast('Failed to copy', 'error'));
       }
     }
 

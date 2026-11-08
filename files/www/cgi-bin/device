@@ -265,6 +265,119 @@ if [ "$ACTION" = "airplane" ]; then
     exit 0
 fi
 
+if [ "$ACTION" = "sms" ]; then
+    if [ "$TARGET_HAS_ADB" != "true" ]; then
+        echo '{"status": "error", "message": "ADB not available for this device"}'
+        exit 0
+    fi
+    SMS_JSON=$(adb -s "$TARGET_SERIAL" shell 'content query --uri content://sms --projection _id:address:date:type:body' 2>/dev/null | head -n 100 | awk '
+    BEGIN { print "["; first=1 }
+    /^Row:/ {
+      line = $0;
+      sub(/^Row: [0-9]* /, "", line);
+      id = ""; addr = ""; dt = ""; type = ""; body = "";
+      if (match(line, /_id=[^,]+/)) id = substr(line, RSTART+4, RLENGTH-4);
+      if (match(line, /address=[^,]+/)) addr = substr(line, RSTART+8, RLENGTH-8);
+      if (match(line, /date=[^,]+/)) dt = substr(line, RSTART+5, RLENGTH-5);
+      if (match(line, /type=[^,]+/)) type = substr(line, RSTART+5, RLENGTH-5);
+      pos = index(line, "body=");
+      if (pos > 0) body = substr(line, pos + 5);
+      gsub(/\\/, "\\\\", body);
+      gsub(/\"/, "\\\"", body);
+      gsub(/\r/, "", body);
+      gsub(/\n/, "\\n", body);
+      gsub(/\"/, "\\\"", addr);
+      if (!first) print ",";
+      first=0;
+      printf "{\"id\":\"%s\",\"address\":\"%s\",\"date\":\"%s\",\"type\":\"%s\",\"body\":\"%s\"}", id, addr, dt, type, body;
+    }
+    END { print "\n]" }
+    ')
+    [ -z "$SMS_JSON" ] && SMS_JSON="[]"
+    echo "{\"status\": \"ok\", \"serial\": \"$TARGET_SERIAL\", \"messages\": $SMS_JSON}"
+    exit 0
+fi
+
+if [ "$ACTION" = "call_logs" ]; then
+    if [ "$TARGET_HAS_ADB" != "true" ]; then
+        echo '{"status": "error", "message": "ADB not available for this device"}'
+        exit 0
+    fi
+    CALLS_JSON=$(adb -s "$TARGET_SERIAL" shell 'content query --uri content://call_log/calls --projection _id:number:name:date:duration:type' 2>/dev/null | head -n 100 | awk '
+    BEGIN { print "["; first=1 }
+    /^Row:/ {
+      line = $0;
+      sub(/^Row: [0-9]* /, "", line);
+      id = ""; num = ""; name = ""; dt = ""; dur = ""; type = "";
+      if (match(line, /_id=[^,]+/)) id = substr(line, RSTART+4, RLENGTH-4);
+      if (match(line, /number=[^,]+/)) num = substr(line, RSTART+7, RLENGTH-7);
+      if (match(line, /name=[^,]+/)) name = substr(line, RSTART+5, RLENGTH-5);
+      if (match(line, /date=[^,]+/)) dt = substr(line, RSTART+5, RLENGTH-5);
+      if (match(line, /duration=[^,]+/)) dur = substr(line, RSTART+9, RLENGTH-9);
+      if (match(line, /type=[^,]+/)) type = substr(line, RSTART+5, RLENGTH-5);
+      gsub(/\\/, "\\\\", name);
+      gsub(/\"/, "\\\"", name);
+      gsub(/\\/, "\\\\", num);
+      gsub(/\"/, "\\\"", num);
+      if (!first) print ",";
+      first=0;
+      printf "{\"id\":\"%s\",\"number\":\"%s\",\"name\":\"%s\",\"date\":\"%s\",\"duration\":\"%s\",\"type\":\"%s\"}", id, num, name, dt, dur, type;
+    }
+    END { print "\n]" }
+    ')
+    [ -z "$CALLS_JSON" ] && CALLS_JSON="[]"
+    echo "{\"status\": \"ok\", \"serial\": \"$TARGET_SERIAL\", \"call_logs\": $CALLS_JSON}"
+    exit 0
+fi
+
+if [ "$ACTION" = "contacts" ]; then
+    if [ "$TARGET_HAS_ADB" != "true" ]; then
+        echo '{"status": "error", "message": "ADB not available for this device"}'
+        exit 0
+    fi
+    CONTACTS_JSON=$(adb -s "$TARGET_SERIAL" shell 'content query --uri content://contacts/phones --projection _id:display_name:number:type' 2>/dev/null | head -n 150 | awk '
+    BEGIN { print "["; first=1 }
+    /^Row:/ {
+      line = $0;
+      sub(/^Row: [0-9]* /, "", line);
+      id = ""; name = ""; num = ""; type = "";
+      if (match(line, /_id=[^,]+/)) id = substr(line, RSTART+4, RLENGTH-4);
+      if (match(line, /display_name=[^,]+/)) name = substr(line, RSTART+13, RLENGTH-13);
+      if (match(line, /number=[^,]+/)) num = substr(line, RSTART+7, RLENGTH-7);
+      if (match(line, /type=[^,]+/)) type = substr(line, RSTART+5, RLENGTH-5);
+      gsub(/\\/, "\\\\", name);
+      gsub(/\"/, "\\\"", name);
+      gsub(/\\/, "\\\\", num);
+      gsub(/\"/, "\\\"", num);
+      if (!first) print ",";
+      first=0;
+      printf "{\"id\":\"%s\",\"name\":\"%s\",\"number\":\"%s\",\"type\":\"%s\"}", id, name, num, type;
+    }
+    END { print "\n]" }
+    ')
+    [ -z "$CONTACTS_JSON" ] && CONTACTS_JSON="[]"
+    echo "{\"status\": \"ok\", \"serial\": \"$TARGET_SERIAL\", \"contacts\": $CONTACTS_JSON}"
+    exit 0
+fi
+
+if [ "$ACTION" = "screenshot" ]; then
+    if [ "$TARGET_HAS_ADB" != "true" ]; then
+        echo '{"status": "error", "message": "ADB not available for this device"}'
+        exit 0
+    fi
+    adb -s "$TARGET_SERIAL" shell 'screencap -p /sdcard/screen_cap.png' >/dev/null 2>&1
+    adb -s "$TARGET_SERIAL" pull /sdcard/screen_cap.png /tmp/screen_cap.png >/dev/null 2>&1
+    adb -s "$TARGET_SERIAL" shell 'rm -f /sdcard/screen_cap.png' >/dev/null 2>&1
+    if [ -f /tmp/screen_cap.png ]; then
+        B64=$(base64 -w 0 /tmp/screen_cap.png 2>/dev/null || base64 /tmp/screen_cap.png | tr -d '\r\n')
+        rm -f /tmp/screen_cap.png
+        echo "{\"status\": \"ok\", \"serial\": \"$TARGET_SERIAL\", \"image_base64\": \"data:image/png;base64,$B64\"}"
+    else
+        echo '{"status": "error", "message": "Failed to capture screenshot"}'
+    fi
+    exit 0
+fi
+
 # ==================== TELEMETRY HANDLER ====================
 # Case 1: Device connected via USB, but ADB is DISABLED (or offline)
 if [ "$TARGET_HAS_ADB" != "true" ]; then
