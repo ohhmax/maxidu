@@ -5918,20 +5918,92 @@
       box-shadow: 0 4px 14px rgba(239, 68, 68, 0.5);
     }
 
-    /* ==================== DIRECT ROOT TERMINAL (100% TRANSPARENT, NO IFRAME) ==================== */
+    /* ==================== DIRECT ROOT TERMINAL (100% TRANSPARENT, NO IFRAME, SINGLE SCROLLBAR) ==================== */
+    body.terminal-active,
+    body:has(#acc-terminal-cli.page-active),
+    html.terminal-active,
+    html:has(#acc-terminal-cli.page-active) {
+      overflow: hidden !important;
+    }
+    #dashboardContainer.terminal-active,
+    #dashboardContainer:has(#acc-terminal-cli.page-active) {
+      height: 100vh !important;
+      overflow: hidden !important;
+    }
+    #dashboardContainer.settings-side-open #tabSettings:has(#acc-terminal-cli.page-active),
+    body.terminal-active #tabSettings,
+    #tabSettings:has(#acc-terminal-cli.page-active) {
+      overflow: hidden !important;
+      display: flex !important;
+      flex-direction: column !important;
+      height: 100vh !important;
+      max-height: 100vh !important;
+      padding-bottom: 8px !important;
+    }
+    #settingsDetailPageView:has(#acc-terminal-cli.page-active),
+    body.terminal-active #settingsDetailPageView {
+      display: flex !important;
+      flex-direction: column !important;
+      flex: 1 1 auto !important;
+      height: 100% !important;
+      min-height: 0 !important;
+      overflow: hidden !important;
+    }
+    #settingsDetailPageView:has(#acc-terminal-cli.page-active) .settings-subnav-bar,
+    body.terminal-active .settings-subnav-bar {
+      flex-shrink: 0 !important;
+      margin-bottom: 4px !important;
+    }
+    #settingsDetailContainer:has(#acc-terminal-cli.page-active),
+    body.terminal-active #settingsDetailContainer {
+      flex: 1 1 auto !important;
+      height: 100% !important;
+      min-height: 0 !important;
+      overflow: hidden !important;
+      display: flex !important;
+      flex-direction: column !important;
+    }
+    #acc-terminal-cli.page-active {
+      flex: 1 1 auto !important;
+      height: 100% !important;
+      min-height: 0 !important;
+      overflow: hidden !important;
+      display: flex !important;
+      flex-direction: column !important;
+    }
+    #acc-terminal-cli.page-active .accordion-content,
+    #acc-terminal-cli.page-active .settings-card-body {
+      flex: 1 1 auto !important;
+      height: 100% !important;
+      min-height: 0 !important;
+      overflow: hidden !important;
+      display: flex !important;
+      flex-direction: column !important;
+      padding: 0 !important;
+    }
     #terminalContainer {
+      flex: 1 1 auto !important;
       width: 100%;
-      height: calc(100vh - 120px);
-      min-height: 580px;
+      height: 100% !important;
+      min-height: 0 !important;
+      max-height: 100% !important;
       background: transparent !important;
-      padding: 8px 12px;
+      padding: 4px 6px !important;
       box-sizing: border-box;
       touch-action: pan-y pinch-zoom;
+      overflow: hidden !important;
     }
     @media (max-width: 640px) {
       #terminalContainer {
-        padding: 4px 2px !important;
+        padding: 2px 2px !important;
       }
+    }
+    #terminalContainer .terminal,
+    #terminalContainer .xterm {
+      width: 100% !important;
+      height: 100% !important;
+      max-height: 100% !important;
+      overflow: hidden !important;
     }
     #terminalContainer .terminal,
     #terminalContainer .xterm,
@@ -5954,12 +6026,28 @@
       font-weight: 600;
       color: #000000 !important;
     }
+    #terminalContainer .xterm-viewport {
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+    }
+    [data-theme="light"] #terminalContainer .xterm-viewport {
+      scrollbar-color: rgba(0, 0, 0, 0.25) transparent;
+    }
     #terminalContainer .xterm .xterm-viewport::-webkit-scrollbar {
-      width: 4px;
+      width: 5px;
+      height: 0px;
+    }
+    #terminalContainer .xterm .xterm-viewport::-webkit-scrollbar-track {
+      background: transparent;
     }
     #terminalContainer .xterm .xterm-viewport::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.2);
       border-radius: 4px;
+    }
+    [data-theme="light"] #terminalContainer .xterm .xterm-viewport::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.25);
     }
 
     /* ==================== SYSTEM & KERNEL LOG VIEWER ==================== */
@@ -9297,30 +9385,43 @@
       window._currentSettingPage = id;
 
       if (id === 'acc-packages') {
+        document.body.classList.remove('terminal-active');
         if (typeof fetchPackages === 'function') fetchPackages();
       } else if (id === 'acc-smb-storage') {
+        document.body.classList.remove('terminal-active');
         if (typeof fetchSmbConfig === 'function') fetchSmbConfig();
       } else if (id === 'acc-sys-info') {
+        document.body.classList.remove('terminal-active');
         if (typeof fetchDeviceInfo === 'function') fetchDeviceInfo();
       } else if (id === 'acc-terminal-cli') {
+        document.body.classList.add('terminal-active');
         if (typeof initNativeTerminal === 'function') initNativeTerminal();
       } else if (id === 'acc-maintenance') {
+        document.body.classList.remove('terminal-active');
         if (typeof fetchLogs === 'function') fetchLogs();
       } else if (id === 'acc-network' || id === 'acc-static-leases') {
+        document.body.classList.remove('terminal-active');
         if (typeof fetchNetworkConfig === 'function') fetchNetworkConfig();
       } else if (id === 'acc-tailscale') {
+        document.body.classList.remove('terminal-active');
         if (typeof fetchTailscale === 'function') fetchTailscale();
       } else if (id === 'acc-lan-clients') {
+        document.body.classList.remove('terminal-active');
         if (typeof renderClientsCards === 'function') renderClientsCards(cachedClients);
       } else if (id === 'acc-topo-layers') {
+        document.body.classList.remove('terminal-active');
         if (typeof fetchTopologyLayers === 'function') fetchTopologyLayers();
       } else if (id === 'acc-logs') {
+        document.body.classList.remove('terminal-active');
         if (typeof fetchLogs === 'function') fetchLogs();
       } else if (id === 'acc-sessions') {
+        document.body.classList.remove('terminal-active');
         if (typeof fetchActiveSessions === 'function') fetchActiveSessions();
       } else if (id === 'acc-security') {
+        document.body.classList.remove('terminal-active');
         if (typeof fetchSecuritySettings === 'function') fetchSecuritySettings();
       } else if (id === 'acc-adb-device') {
+        document.body.classList.remove('terminal-active');
         if (typeof fetchAdbDeviceList === 'function') fetchAdbDeviceList();
         const curHash = window.location.hash || '';
         if (curHash.includes('&dev=')) {
@@ -9363,6 +9464,7 @@
 
       if (pageView) pageView.style.display = 'none';
       if (homeView) homeView.style.display = 'flex';
+      document.body.classList.remove('terminal-active');
 
       document.querySelectorAll('.settings-detail-panel').forEach(p => {
         p.style.display = 'none';
@@ -17617,6 +17719,7 @@
     function initNativeTerminal() {
       const container = document.getElementById('terminalContainer');
       if (!container) return;
+      document.body.classList.add('terminal-active');
 
       if (_nativeTerminal) {
         if (!_userZoomedTerm) {
