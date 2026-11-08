@@ -16160,6 +16160,100 @@
 
 
     // ==================== ACTIVE SESSIONS & REMOTE DEVICE LOGOUT ====================
+    function parseUserAgentSecurityDetails(ua) {
+      if (!ua || typeof ua !== 'string') {
+        return { device: 'Unknown Device', browser: 'Web Browser' };
+      }
+
+      let device = 'Generic Device';
+      let browser = 'Web Browser';
+
+      // 1. Detect Device & Operating System
+      const isAndroid = /Android/i.test(ua);
+      const isIPhone = /iPhone/i.test(ua);
+      const isIPad = /iPad/i.test(ua);
+      const isMac = /Macintosh|Mac OS X/i.test(ua);
+      const isWindows = /Windows NT/i.test(ua);
+      const isLinux = /Linux/i.test(ua) && !isAndroid;
+
+      if (isAndroid) {
+        const verMatch = ua.match(/Android\s+([0-9\.]+)/i);
+        const ver = verMatch ? `Android ${verMatch[1]}` : 'Android';
+        const modelMatch = ua.match(/Android[^;]+;\s*([^;\)]+)/i);
+        let model = modelMatch ? modelMatch[1].trim() : '';
+        if (model && model !== 'K' && !model.startsWith('Build/')) {
+          model = model.replace(/\s*Build\/.*$/i, '').trim();
+          device = `${ver} (${model})`;
+        } else {
+          device = `${ver} Phone`;
+        }
+      } else if (isIPhone) {
+        const verMatch = ua.match(/OS\s+([0-9_]+)/i);
+        const ver = verMatch ? verMatch[1].replace(/_/g, '.') : '';
+        device = ver ? `Apple iPhone (iOS ${ver})` : 'Apple iPhone';
+      } else if (isIPad) {
+        const verMatch = ua.match(/OS\s+([0-9_]+)/i);
+        const ver = verMatch ? verMatch[1].replace(/_/g, '.') : '';
+        device = ver ? `Apple iPad (iPadOS ${ver})` : 'Apple iPad';
+      } else if (isMac) {
+        device = 'Apple Mac (macOS)';
+      } else if (isWindows) {
+        if (/Windows NT 10\.0/i.test(ua)) device = 'Windows 10/11 (PC)';
+        else if (/Windows NT 6\.3/i.test(ua)) device = 'Windows 8.1 (PC)';
+        else if (/Windows NT 6\.1/i.test(ua)) device = 'Windows 7 (PC)';
+        else device = 'Windows (PC)';
+      } else if (isLinux) {
+        if (/x86_64/i.test(ua)) device = 'Linux (x86_64)';
+        else if (/aarch64|arm64/i.test(ua)) device = 'Linux (ARM64)';
+        else if (/armv7|arm/i.test(ua)) device = 'Linux (ARM)';
+        else device = 'Linux Workstation';
+      }
+
+      // 2. Detect Browser & Version
+      if (/HeadlessChrome\/([0-9\.]+)/i.test(ua)) {
+        const m = ua.match(/HeadlessChrome\/([0-9\.]+)/i);
+        const parts = m ? m[1].split('.') : [];
+        browser = `HeadlessChrome ${parts[0] ? parts[0] + '.' + (parts[1] || '0') : ''}`.trim();
+      } else if (/Edg\/([0-9\.]+)/i.test(ua)) {
+        const m = ua.match(/Edg\/([0-9\.]+)/i);
+        const parts = m ? m[1].split('.') : [];
+        browser = `Edge ${parts[0] ? parts[0] + '.' + (parts[1] || '0') : ''}`.trim();
+      } else if (/OPR\/([0-9\.]+)/i.test(ua)) {
+        const m = ua.match(/OPR\/([0-9\.]+)/i);
+        const parts = m ? m[1].split('.') : [];
+        browser = `Opera ${parts[0] || ''}`.trim();
+      } else if (/Firefox\/([0-9\.]+)/i.test(ua)) {
+        const m = ua.match(/Firefox\/([0-9\.]+)/i);
+        const parts = m ? m[1].split('.') : [];
+        browser = `Firefox ${parts[0] ? parts[0] + '.' + (parts[1] || '0') : ''}`.trim();
+      } else if (/Chrome\/([0-9\.]+)/i.test(ua)) {
+        const m = ua.match(/Chrome\/([0-9\.]+)/i);
+        const parts = m ? m[1].split('.') : [];
+        const ver = parts[0] ? `${parts[0]}.${parts[1] || '0'}` : '';
+        const isMobile = /Mobile/i.test(ua);
+        browser = isMobile ? `Chrome Mobile ${ver}` : `Chrome ${ver}`;
+      } else if (/Safari\/([0-9\.]+)/i.test(ua) && !/Chrome/i.test(ua)) {
+        const vMatch = ua.match(/Version\/([0-9\.]+)/i);
+        const ver = vMatch ? vMatch[1].split('.')[0] : '';
+        browser = ver ? `Safari ${ver}` : 'Safari';
+      }
+
+      return { device, browser };
+    }
+
+    function formatSessionDateTime(epochSec) {
+      const d = (epochSec && !isNaN(epochSec) && epochSec > 0) ? new Date(epochSec * 1000) : new Date();
+      if (isNaN(d.getTime())) return '';
+      const day = String(d.getDate()).padStart(2, '0');
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const month = months[d.getMonth()] || '';
+      const year = d.getFullYear();
+      const hours = String(d.getHours()).padStart(2, '0');
+      const mins = String(d.getMinutes()).padStart(2, '0');
+      const secs = String(d.getSeconds()).padStart(2, '0');
+      return `${day} ${month} ${year}, ${hours}:${mins}:${secs}`;
+    }
+
     async function fetchActiveSessions() {
       const container = document.getElementById('activeSessionsFlatList');
       if (!container) return;
@@ -16172,26 +16266,22 @@
         const sessions = data.sessions || [];
         const clientIp = data.current_ip || '10.0.0.111';
 
-        // Parse user agent
-        const uaStr = navigator.userAgent;
-        const isAndroid = /Android/i.test(uaStr);
-        const isLinux = /Linux/i.test(uaStr) && !isAndroid;
-        const isWindows = /Windows/i.test(uaStr);
-        const isMac = /Macintosh/i.test(uaStr);
-        const plat = isAndroid ? 'Android Smartphone' : (isLinux ? 'Linux Workstation' : (isWindows ? 'Windows PC' : (isMac ? 'Apple macOS' : 'Web Browser')));
-
         // Separate active session from other sessions
         let curSession = sessions.find(s => s.is_current || s.token === curToken);
         const otherSessions = sessions.filter(s => !s.is_current && s.token !== curToken);
 
+        const activeUa = (curSession && curSession.ua) ? curSession.ua : navigator.userAgent;
+        const activeDev = parseUserAgentSecurityDetails(activeUa);
+        const activeTimeStr = formatSessionDateTime(curSession ? (curSession.created || curSession.last_active) : null);
+
         let html = '';
 
-        // 1. ACTIVE SESSION (ALWAYS ON TOP) - HAS LOGOUT ICON
+        // 1. ACTIVE SESSION (THIS DEVICE) - ALWAYS ON TOP, HAS LOGOUT ICON
         html += `
           <div class="setting-row-item">
             <div class="setting-label-col">
-              <span class="setting-label-bold">${plat} &bull; ${escapeHtml(curSession && curSession.user ? curSession.user : 'root')}</span>
-              <span class="setting-label-sub"><strong style="color:#10b981;">Active Device (This Device)</strong> &bull; IP: ${escapeHtml(clientIp)} &bull; Current Session</span>
+              <span class="setting-label-bold">${escapeHtml(activeDev.device)} &bull; ${escapeHtml(activeDev.browser)}</span>
+              <span class="setting-label-sub"><strong style="color:#10b981;">This Device</strong> &bull; ${escapeHtml(clientIp)} &bull; ${activeTimeStr}</span>
             </div>
             <div class="setting-control-col">
               <button type="button" class="round-action-btn btn-danger-action" title="Log Out (This Device)" onclick="logoutSession()">
@@ -16203,18 +16293,14 @@
 
         // 2. OTHER AUTHENTICATED SESSIONS - HAS REMOVE (TRASH) ICON
         otherSessions.forEach(s => {
-          const isAnd = /Android/i.test(s.ua || '');
-          const isLin = /Linux/i.test(s.ua || '') && !isAnd;
-          const isWin = /Windows/i.test(s.ua || '');
-          const isApple = /iPhone|iPad|Mac/i.test(s.ua || '');
-          const devTitle = isAnd ? 'Android Phone' : (isLin ? 'Linux Client' : (isWin ? 'Windows Host' : (isApple ? 'Apple Device' : 'Authenticated Session')));
-          const dateStr = s.created ? new Date(s.created * 1000).toLocaleTimeString() : 'Active';
+          const dev = parseUserAgentSecurityDetails(s.ua || '');
+          const timeStr = formatSessionDateTime(s.created || s.last_active);
 
           html += `
             <div class="setting-row-item">
               <div class="setting-label-col">
-                <span class="setting-label-bold">${devTitle} &bull; ${escapeHtml(s.user || 'root')}</span>
-                <span class="setting-label-sub">IP: ${escapeHtml(s.ip || '10.0.0.1')} &bull; Authenticated: ${dateStr}</span>
+                <span class="setting-label-bold">${escapeHtml(dev.device)} &bull; ${escapeHtml(dev.browser)}</span>
+                <span class="setting-label-sub">${escapeHtml(s.ip || '10.0.0.1')} &bull; ${timeStr}</span>
               </div>
               <div class="setting-control-col">
                 <button type="button" class="round-action-btn btn-danger-action" title="Remove Session" onclick="logoutSingleDevice('${escapeHtml(s.token)}')">

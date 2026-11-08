@@ -112,14 +112,14 @@ SESS
         [ "$bname" = "$TOKEN" ] && is_curr="true"
 
         # Sanitize UA for JSON
-        s_ua_clean=$(echo "$s_ua" | tr '"\\' '  ' | cut -c 1-80)
+        s_ua_clean=$(echo "$s_ua" | tr '"\\' '  ' | cut -c 1-255)
 
         SESSIONS_JSON="${SESSIONS_JSON}{\"token\": \"$bname\", \"user\": \"$s_user\", \"ip\": \"$s_ip\", \"ua\": \"$s_ua_clean\", \"created\": $s_created, \"last_active\": $s_last, \"is_current\": $is_curr},"
     done
 
     # If sessions list is empty, synthesize current session
     if [ -z "$SESSIONS_JSON" ]; then
-        s_ua_clean=$(echo "$UA" | tr '"\\' '  ' | cut -c 1-80)
+        s_ua_clean=$(echo "$UA" | tr '"\\' '  ' | cut -c 1-255)
         SESSIONS_JSON="{\"token\": \"$TOKEN\", \"user\": \"$USER\", \"ip\": \"$CLIENT_IP\", \"ua\": \"$s_ua_clean\", \"created\": $NOW, \"last_active\": $NOW, \"is_current\": true},"
     fi
 
