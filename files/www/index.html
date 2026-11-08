@@ -7285,40 +7285,41 @@
           </div>
           <div class="accordion-content">
             <div class="settings-card-body">
-              <!-- DEDICATED WEB BROWSER LOGIN LINK BOX (SHOWN WHEN NOT CONNECTED OR REQUESTED) -->
-              <div id="tsWebLoginCard" style="display:none; background:rgba(56,189,248,0.05); border:1px solid rgba(56,189,248,0.22); border-radius:10px; padding:14px; margin-bottom:12px;">
-                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
-                  <div style="display:flex; align-items:center; gap:8px;">
-                    <div style="width:24px; height:24px; border-radius:50%; background:rgba(56,189,248,0.15); color:#38bdf8; display:flex; align-items:center; justify-content:center;">
-                      <svg viewBox="0 0 24 24" style="width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:2;"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-                    </div>
-                    <span style="font-size:12px; font-weight:800; color:#38bdf8; font-family:var(--font-mono);">TAILSCALE BROWSER LOGIN</span>
-                  </div>
-                  <button type="button" class="round-action-btn" onclick="startTailscaleWebLogin()" title="Generate/Refresh Login URL">
-                    <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-                  </button>
+              <!-- HIDDEN FORM BINDINGS -->
+              <div style="display:none;">
+                <input type="text" id="tsHostname" value="Maxnet-Gateway">
+                <input type="password" id="tsAuthKeyInput" placeholder="tskey-auth-...">
+              </div>
+
+              <!-- NOT INSTALLED OR OFFLINE NOTICE (HIDDEN BY DEFAULT) -->
+              <div id="tsNotInstalledNotice" class="setting-row-item" style="display:none; background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.2); border-radius:10px;">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold" style="color:#ef4444;">Tailscale Not Installed</span>
+                  <span class="setting-label-sub">Kernel daemon &lsquo;tailscaled&rsquo; was not found. Install from Package Manager.</span>
                 </div>
-                <div style="font-size:11.5px; color:var(--text-dim); margin-bottom:10px; line-height:1.5;">
-                  Authorize this router gateway to your Tailscale mesh by visiting the authentication link:
-                </div>
-                <div id="tsAuthLinkContainer" style="padding:10px 12px; background:rgba(0,0,0,0.3); border-radius:8px; border:1px solid rgba(255,255,255,0.06); font-family:var(--font-mono); font-size:11px; word-break:break-all; color:#38bdf8; margin-bottom:10px;">
-                  Click Generate Login Link below to generate an authentication URL.
-                </div>
-                <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                  <button type="button" class="mh-btn" onclick="startTailscaleWebLogin()" style="font-size:11px; padding:6px 14px;">
-                    GENERATE LOGIN LINK
-                  </button>
-                  <a id="btnOpenTsAuthUrl" href="#" target="_blank" class="mh-btn btn-ghost" style="display:none; font-size:11px; padding:6px 14px; text-decoration:none; color:#38bdf8; border-color:rgba(56,189,248,0.4);">
-                    OPEN IN NEW TAB &nearr;
-                  </a>
-                  <button type="button" class="mh-btn btn-ghost" id="btnCopyTsAuthUrl" style="display:none; font-size:11px; padding:6px 14px;" onclick="copyTsAuthUrl()">
-                    COPY LINK
+                <div class="setting-control-col">
+                  <button type="button" class="round-action-btn" onclick="openSettingPage('acc-packages')" title="Open Packages">
+                    <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
                   </button>
                 </div>
               </div>
 
-              <!-- TAILSCALE ACCOUNT PROFILE ROW (CLEAN, NO BLUE BADGES, ROUND AVATAR ON RIGHT) -->
-              <div class="setting-section-header">Account Profile</div>
+              <!-- MASTER SERVICE SWITCH (ALWAYS VISIBLE) -->
+              <div class="setting-section-header">Mesh Service</div>
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Tailscale Service</span>
+                  <span class="setting-label-sub">Encrypted WireGuard zero-trust mesh network overlay</span>
+                </div>
+                <div class="toggle-wrap-cell">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="tsMasterToggle" checked onchange="toggleTailscaleService(this.checked)">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- ACCOUNT PROFILE ROW (ALWAYS VISIBLE) -->
               <div class="setting-row-item">
                 <div class="setting-label-col">
                   <span class="setting-label-bold" id="tsUserDisplayName">Tailscale Account</span>
@@ -7335,186 +7336,183 @@
                 </div>
               </div>
 
-              <!-- TAILNET MESH DOMAIN ROW -->
-              <div class="setting-row-item" id="tsDomainRow">
-                <div class="setting-label-col">
-                  <span class="setting-label-bold">Tailnet Mesh Domain</span>
-                  <span class="setting-label-sub" id="tsTailnetDomain">maxnet-usb.tail47d620.ts.net</span>
+              <!-- ==================== LOGGED-OUT ONLY SETTINGS ==================== -->
+              <!-- Shown only when Tailscale is NOT signed in or stopped -->
+              <div id="tsLoggedOutSettings">
+                <div class="setting-section-divider"></div>
+                <div class="setting-section-header">Sign In Methods</div>
+
+                <!-- 1. BROWSER LOGIN ROW (CLEAN STANDARD SETTING ROW) -->
+                <div class="setting-row-item">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">Web Browser Login</span>
+                    <span class="setting-label-sub" id="tsWebLoginSub">Generate authentication link to sign in via browser</span>
+                  </div>
+                  <div class="setting-control-col" style="display:flex; align-items:center; gap:6px;">
+                    <button type="button" class="round-action-btn" id="btnTsGenerateLink" onclick="startTailscaleWebLogin()" title="Generate Login Link">
+                      <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                    </button>
+                    <a id="btnTsOpenLink" href="#" target="_blank" class="round-action-btn" title="Open Authentication Link in New Tab" style="display:none; text-decoration:none;">
+                      <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    </a>
+                    <button type="button" class="round-action-btn" id="btnTsCopyLink" onclick="copyTsAuthUrl()" title="Copy Link to Clipboard" style="display:none;">
+                      <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    </button>
+                  </div>
                 </div>
-                <div class="setting-control-col">
-                  <span class="setting-status-badge badge-active" id="tsMeshNodesBadge">
-                    <span id="tsOnlineCountBadge">1 Online</span> / <span id="tsTotalCountBadge">6 Total</span>
-                  </span>
+
+                <!-- 2. AUTH KEY ROW (CLEAN STANDARD CLICKABLE ROW) -->
+                <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('ts_authkey')">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">Tailscale Auth Key</span>
+                    <span class="setting-label-sub" id="disp_ts_authkey_unlogged">Connect using pre-authenticated key (tskey-auth-...)</span>
+                  </div>
+                  <div class="setting-arrow-col">
+                    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                  </div>
                 </div>
               </div>
 
-              <!-- NOT INSTALLED OR OFFLINE NOTICE (HIDDEN BY DEFAULT) -->
-              <div id="tsNotInstalledNotice" class="setting-row-item" style="display:none; background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.2); border-radius:10px;">
-                <div class="setting-label-col">
-                  <span class="setting-label-bold" style="color:#ef4444;">Tailscale Not Installed</span>
-                  <span class="setting-label-sub">Kernel daemon &lsquo;tailscaled&rsquo; was not found. Install from Package Manager.</span>
+              <!-- ==================== CONNECTED-ONLY SETTINGS ==================== -->
+              <!-- Shown only when Tailscale IS logged in and running -->
+              <div id="tsConnectedSettings" style="display:none;">
+                <div class="setting-section-divider"></div>
+
+                <!-- TAILNET MESH DOMAIN ROW -->
+                <div class="setting-row-item" id="tsDomainRow">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">Tailnet Mesh Domain</span>
+                    <span class="setting-label-sub" id="tsTailnetDomain">--</span>
+                  </div>
+                  <div class="setting-control-col">
+                    <span class="setting-status-badge badge-active" id="tsMeshNodesBadge">
+                      <span id="tsOnlineCountBadge">1 Online</span> / <span id="tsTotalCountBadge">1 Total</span>
+                    </span>
+                  </div>
                 </div>
-                <div class="setting-control-col">
-                  <button type="button" class="round-action-btn" onclick="openSettingPage('acc-packages')" title="Open Packages">
-                    <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+
+                <!-- REGISTERED TAILSCALE DEVICES LIST -->
+                <div class="setting-section-header">
+                  <span>Tailnet Mesh Devices</span>
+                  <button type="button" class="round-action-btn" onclick="fetchTailscale()" title="Refresh Mesh Devices" style="width:28px; height:28px; min-width:28px;">
+                    <svg viewBox="0 0 24 24" style="width:14px; height:14px;"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
                   </button>
                 </div>
-              </div>
+                <div id="tsDevicesContainer" style="display:flex; flex-direction:column; gap:4px;">
+                  <!-- Populated dynamically via renderTailscaleDevices as .setting-row-item -->
+                </div>
 
-              <div class="setting-section-divider"></div>
+                <div class="setting-section-divider"></div>
 
-              <!-- REGISTERED TAILSCALE DEVICES LIST -->
-              <div class="setting-section-header">
-                <span>Tailnet Mesh Devices</span>
-                <button type="button" class="round-action-btn" onclick="fetchTailscale()" title="Refresh Mesh Devices" style="width:28px; height:28px; min-width:28px;">
-                  <svg viewBox="0 0 24 24" style="width:14px; height:14px;"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-                </button>
-              </div>
-              <div id="tsDevicesContainer" style="display:flex; flex-direction:column; gap:4px;">
-                <!-- Populated dynamically via renderTailscaleDevices as .setting-row-item -->
-              </div>
+                <!-- FEATURE TOGGLES -->
+                <div class="setting-section-header">Mesh Routing &amp; Security</div>
+                <div class="setting-row-item">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">Share LAN Subnet (10.0.0.0/24)</span>
+                    <span class="setting-label-sub">Advertise local subnet routes to other nodes in your mesh</span>
+                  </div>
+                  <div class="toggle-wrap-cell">
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="tsShareLan" checked onchange="applyTailscalePrefs()">
+                      <span class="toggle-slider"></span>
+                    </label>
+                  </div>
+                </div>
+                <div class="setting-row-item">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">Advertise Exit Node</span>
+                    <span class="setting-label-sub">Route all remote client internet traffic through this gateway</span>
+                  </div>
+                  <div class="toggle-wrap-cell">
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="tsExitNode" onchange="applyTailscalePrefs()">
+                      <span class="toggle-slider"></span>
+                    </label>
+                  </div>
+                </div>
+                <div class="setting-row-item">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">Accept Remote Routes</span>
+                    <span class="setting-label-sub">Accept advertised routes from other tailscale subnet routers</span>
+                  </div>
+                  <div class="toggle-wrap-cell">
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="tsAcceptRoutes" checked onchange="applyTailscalePrefs()">
+                      <span class="toggle-slider"></span>
+                    </label>
+                  </div>
+                </div>
+                <div class="setting-row-item">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">Tailscale SSH</span>
+                    <span class="setting-label-sub">Permit secure SSH console access managed via Tailscale ACLs</span>
+                  </div>
+                  <div class="toggle-wrap-cell">
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="tsSshMode" onchange="applyTailscalePrefs()">
+                      <span class="toggle-slider"></span>
+                    </label>
+                  </div>
+                </div>
 
-              <div class="setting-section-divider"></div>
+                <div class="setting-section-divider"></div>
 
-              <!-- MASTER SERVICE SWITCH -->
-              <div class="setting-section-header">Mesh Service &amp; Features</div>
-              <div class="setting-row-item">
-                <div class="setting-label-col">
-                  <span class="setting-label-bold">Tailscale Mesh Service</span>
-                  <span class="setting-label-sub">Encrypted WireGuard zero-trust mesh network overlay</span>
+                <!-- NODE CONFIGURATION -->
+                <div class="setting-section-header">Node Details</div>
+                <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('ts_hostname')">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">Node Hostname</span>
+                    <span class="setting-label-sub" id="disp_ts_hostname">Maxnet-Gateway</span>
+                  </div>
+                  <div class="setting-arrow-col">
+                    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                  </div>
                 </div>
-                <div class="toggle-wrap-cell">
-                  <label class="toggle-switch">
-                    <input type="checkbox" id="tsMasterToggle" checked onchange="toggleTailscaleService(this.checked)">
-                    <span class="toggle-slider"></span>
-                  </label>
-                </div>
-              </div>
 
-              <!-- FEATURE TOGGLES -->
-              <div class="setting-row-item">
-                <div class="setting-label-col">
-                  <span class="setting-label-bold">Share LAN Subnet (10.0.0.0/24)</span>
-                  <span class="setting-label-sub">Advertise local subnet routes to other nodes in your mesh</span>
+                <div class="setting-row-item">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">Tailscale IPv4 Address</span>
+                    <span class="setting-label-sub" id="disp_ts_ip" style="font-family:var(--font-mono); color:var(--text-main); font-weight:700;">--</span>
+                    <input type="hidden" id="tsIpAddress" value="">
+                  </div>
                 </div>
-                <div class="toggle-wrap-cell">
-                  <label class="toggle-switch">
-                    <input type="checkbox" id="tsShareLan" checked onchange="applyTailscalePrefs()">
-                    <span class="toggle-slider"></span>
-                  </label>
-                </div>
-              </div>
-              <div class="setting-row-item">
-                <div class="setting-label-col">
-                  <span class="setting-label-bold">Advertise Exit Node</span>
-                  <span class="setting-label-sub">Route all remote client internet traffic through this gateway</span>
-                </div>
-                <div class="toggle-wrap-cell">
-                  <label class="toggle-switch">
-                    <input type="checkbox" id="tsExitNode" onchange="applyTailscalePrefs()">
-                    <span class="toggle-slider"></span>
-                  </label>
-                </div>
-              </div>
-              <div class="setting-row-item">
-                <div class="setting-label-col">
-                  <span class="setting-label-bold">Accept Remote Routes</span>
-                  <span class="setting-label-sub">Accept advertised routes from other tailscale subnet routers</span>
-                </div>
-                <div class="toggle-wrap-cell">
-                  <label class="toggle-switch">
-                    <input type="checkbox" id="tsAcceptRoutes" checked onchange="applyTailscalePrefs()">
-                    <span class="toggle-slider"></span>
-                  </label>
-                </div>
-              </div>
-              <div class="setting-row-item">
-                <div class="setting-label-col">
-                  <span class="setting-label-bold">Tailscale SSH</span>
-                  <span class="setting-label-sub">Permit secure SSH console access managed via Tailscale ACLs</span>
-                </div>
-                <div class="toggle-wrap-cell">
-                  <label class="toggle-switch">
-                    <input type="checkbox" id="tsSshMode" onchange="applyTailscalePrefs()">
-                    <span class="toggle-slider"></span>
-                  </label>
-                </div>
-              </div>
 
-              <div class="setting-section-divider"></div>
-
-              <!-- NODE IDENTITY & CREDENTIALS -->
-              <div class="setting-section-header">Node Configuration</div>
-
-              <!-- HIDDEN FORM BINDINGS -->
-              <div style="display:none;">
-                <input type="text" id="tsHostname" value="Maxnet-Gateway">
-                <input type="password" id="tsAuthKeyInput" placeholder="tskey-auth-...">
-              </div>
-
-              <!-- 1. NODE HOSTNAME (ANDROID MODAL ROW) -->
-              <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('ts_hostname')">
-                <div class="setting-label-col">
-                  <span class="setting-label-bold">Node Hostname</span>
-                  <span class="setting-label-sub" id="disp_ts_hostname">Maxnet-Gateway</span>
+                <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('ts_authkey')">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">Change Auth Key</span>
+                    <span class="setting-label-sub" id="disp_ts_authkey">tskey-auth-... (Click to update key)</span>
+                  </div>
+                  <div class="setting-arrow-col">
+                    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                  </div>
                 </div>
-                <div class="setting-arrow-col">
-                  <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-                </div>
-              </div>
 
-              <!-- 2. TAILSCALE IPV4 (READONLY INFO ROW - UNDER LABEL) -->
-              <div class="setting-row-item">
-                <div class="setting-label-col">
-                  <span class="setting-label-bold">Tailscale IPv4 Address</span>
-                  <span class="setting-label-sub" id="disp_ts_ip" style="font-family:var(--font-mono); color:var(--text-main); font-weight:700;">100.107.94.6</span>
-                  <input type="hidden" id="tsIpAddress" value="100.107.94.6">
-                </div>
-              </div>
+                <div class="setting-section-divider"></div>
 
-              <!-- 3. TAILSCALE AUTH KEY (ANDROID MODAL ROW) -->
-              <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('ts_authkey')">
-                <div class="setting-label-col">
-                  <span class="setting-label-bold">Tailscale Auth Key</span>
-                  <span class="setting-label-sub" id="disp_ts_authkey">tskey-auth-... (Click to configure or reconnect)</span>
+                <!-- SERVICE CONTROLS -->
+                <div class="setting-section-header">Service Controls</div>
+                <div class="setting-row-item">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">Restart Tailscale Service</span>
+                    <span class="setting-label-sub">Restart local tailscaled daemon and re-establish WireGuard mesh</span>
+                  </div>
+                  <div class="setting-control-col">
+                    <button class="round-action-btn btn-warning-action" title="Restart Tailscale Service" onclick="restartTailscale()">
+                      <svg viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                    </button>
+                  </div>
                 </div>
-                <div class="setting-arrow-col">
-                  <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-                </div>
-              </div>
 
-              <!-- AUTH URL IF UNLOGGED -->
-              <div id="tsAuthUrlBox" style="display:none; margin:10px 12px; padding:10px 14px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.15); border-radius:10px;">
-                <label class="mh-label">Login Required</label>
-                <a id="tsAuthUrlLink" href="#" target="_blank" style="color:#ffffff; font-size:11px; font-family:var(--font-mono); text-decoration:underline; word-break:break-all;">Click to Authenticate Node</a>
-              </div>
-
-              <div class="setting-section-divider"></div>
-
-              <!-- TAILSCALE OPERATIONS (CLEAN ROWS WITH ROUND ACTION ICONS) -->
-              <div class="setting-section-header">Service Controls</div>
-
-              <div class="setting-row-item">
-                <div class="setting-label-col">
-                  <span class="setting-label-bold">Restart Tailscale Service</span>
-                  <span class="setting-label-sub">Restart local tailscaled daemon and re-establish WireGuard mesh</span>
-                </div>
-                <div class="setting-control-col">
-                  <button class="round-action-btn btn-warning-action" title="Restart Tailscale Service" onclick="restartTailscale()">
-                    <svg viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-                  </button>
-                </div>
-              </div>
-
-              <div class="setting-row-item">
-                <div class="setting-label-col">
-                  <span class="setting-label-bold" style="color:#ef4444;">Logout Tailscale Node</span>
-                  <span class="setting-label-sub">Revoke node authorization and disconnect from tailnet</span>
-                </div>
-                <div class="setting-control-col">
-                  <button class="round-action-btn btn-danger-action" title="Logout Tailscale Node" onclick="logoutTailscale()">
-                    <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                  </button>
+                <div class="setting-row-item">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold" style="color:#ef4444;">Logout Tailscale Node</span>
+                    <span class="setting-label-sub">Revoke node authorization and disconnect from tailnet</span>
+                  </div>
+                  <div class="setting-control-col">
+                    <button class="round-action-btn btn-danger-action" title="Logout Tailscale Node" onclick="logoutTailscale()">
+                      <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div></div>
@@ -15097,7 +15095,9 @@
         const keyVal = (document.getElementById('modalInput_ts_authkey').value || '').trim();
         if (document.getElementById('tsAuthKeyInput')) document.getElementById('tsAuthKeyInput').value = keyVal;
         const disp = document.getElementById('disp_ts_authkey');
-        if (disp) disp.textContent = keyVal ? 'Key Configured (Connecting...)' : 'None';
+        if (disp) disp.textContent = keyVal ? 'Key Configured (Connecting...)' : 'tskey-auth-... (Click to update key)';
+        const dispUnlogged = document.getElementById('disp_ts_authkey_unlogged');
+        if (dispUnlogged) dispUnlogged.textContent = keyVal ? 'Key Configured (Connecting...)' : 'Connect using pre-authenticated key (tskey-auth-...)';
         if (typeof loginTailscaleWithKey === 'function') loginTailscaleWithKey();
       } else if (currentModalKey === 'change_password') {
         const oldP = document.getElementById('modalInput_pwd_old').value;
@@ -16725,6 +16725,37 @@
       }
     }
 
+    // TAILSCALE STATE & UI HELPERS
+    let _currentTsAuthUrl = '';
+
+    function setTailscaleLoginState(isLoggedIn) {
+      const loggedOutSec = document.getElementById('tsLoggedOutSettings');
+      const connectedSec = document.getElementById('tsConnectedSettings');
+      if (loggedOutSec) loggedOutSec.style.display = isLoggedIn ? 'none' : 'block';
+      if (connectedSec) connectedSec.style.display = isLoggedIn ? 'block' : 'none';
+    }
+
+    function updateTailscaleWebLoginUrl(url) {
+      _currentTsAuthUrl = url || '';
+      const subEl = document.getElementById('tsWebLoginSub');
+      const openBtn = document.getElementById('btnTsOpenLink');
+      const copyBtn = document.getElementById('btnTsCopyLink');
+
+      if (url) {
+        if (subEl) {
+          subEl.innerHTML = `Link ready: <span style="color:#38bdf8; font-family:var(--font-mono); word-break:break-all;">${escapeHtml(url)}</span>`;
+        }
+        if (openBtn) { openBtn.href = url; openBtn.style.display = 'inline-flex'; }
+        if (copyBtn) copyBtn.style.display = 'inline-flex';
+      } else {
+        if (subEl) {
+          subEl.textContent = 'Generate authentication link to sign in via browser';
+        }
+        if (openBtn) openBtn.style.display = 'none';
+        if (copyBtn) copyBtn.style.display = 'none';
+      }
+    }
+
     // TAILSCALE ACCOUNT & DEVICES RENDERING
     function renderTailscaleAccount(data) {
       if (!data) return;
@@ -16738,6 +16769,9 @@
 
       const isRunning = (data.backend_state === 'Running' && data.online !== false);
       const hasUser = isRunning && user && (user.DisplayName || user.LoginName);
+      const isLoggedIn = isRunning && (hasUser || !!data.tailscale_ip);
+
+      setTailscaleLoginState(isLoggedIn);
 
       if (hasUser) {
         if (nameEl) nameEl.textContent = user.DisplayName || user.LoginName;
@@ -16829,23 +16863,26 @@
         const state = data.backend_state || data.BackendState || (data.online ? 'Running' : 'Stopped');
         const isRunning = (state === 'Running');
         const tsIp = isRunning ? (data.tailscale_ip || (data.TailscaleIPs && data.TailscaleIPs[0]) || (data.Self && data.Self.TailscaleIPs ? data.Self.TailscaleIPs[0] : '')) : '';
+        const isLoggedIn = isRunning && !!tsIp;
 
         const notInstalledEl = document.getElementById('tsNotInstalledNotice');
         if (notInstalledEl) notInstalledEl.style.display = 'none';
 
         const dispIp = document.getElementById('disp_ts_ip');
-        if (isRunning && tsIp) {
+        if (isLoggedIn) {
           if (badge) { badge.className = 'card-badge emerald'; badge.innerText = 'RUNNING'; }
           if (ipEl) ipEl.value = tsIp;
           if (dispIp) dispIp.textContent = tsIp;
+          setTailscaleLoginState(true);
         } else {
           if (badge) { badge.className = 'card-badge'; badge.innerText = (state === 'NeedsLogin' ? 'NEEDS LOGIN' : (state === 'Stopped' ? 'STOPPED' : 'NOT CONNECTED')); }
           if (ipEl) ipEl.value = '';
           if (dispIp) dispIp.textContent = 'Not Connected';
+          setTailscaleLoginState(false);
         }
 
         if (document.getElementById('tsMasterToggle')) {
-          document.getElementById('tsMasterToggle').checked = (state === 'running');
+          document.getElementById('tsMasterToggle').checked = (state.toLowerCase() === 'running');
         }
         if (document.getElementById('tsShareLan') && data.share_lan !== undefined) {
           document.getElementById('tsShareLan').checked = !!data.share_lan;
@@ -16865,33 +16902,13 @@
 
         renderTailscaleAccount(data);
         renderTailscaleDevices(data);
-        const webLoginCard = document.getElementById('tsWebLoginCard');
-        if (webLoginCard) {
-          if (state !== 'Running') {
-            webLoginCard.style.display = 'block';
-            if (data.auth_url) {
-              _currentTsAuthUrl = data.auth_url;
-              const linkCont = document.getElementById('tsAuthLinkContainer');
-              if (linkCont) linkCont.innerHTML = `<a href="${escapeHtml(data.auth_url)}" target="_blank" style="color:#38bdf8; text-decoration:underline;">${escapeHtml(data.auth_url)}</a>`;
-              const openBtn = document.getElementById('btnOpenTsAuthUrl');
-              const copyBtn = document.getElementById('btnCopyTsAuthUrl');
-              if (openBtn) { openBtn.href = data.auth_url; openBtn.style.display = 'inline-flex'; }
-              if (copyBtn) copyBtn.style.display = 'inline-flex';
-            }
-          } else {
-            webLoginCard.style.display = 'none';
-          }
-        }
-        const authBox = document.getElementById('tsAuthUrlBox');
-        const authLink = document.getElementById('tsAuthUrlLink');
-        if (authBox && authLink) {
+
+        if (!isLoggedIn) {
           if (data.auth_url) {
-            authBox.style.display = 'block';
-            authLink.href = data.auth_url;
-            authLink.innerText = data.auth_url;
-          } else {
-            authBox.style.display = 'none';
+            updateTailscaleWebLoginUrl(data.auth_url);
           }
+        } else {
+          updateTailscaleWebLoginUrl('');
         }
       } catch (e) {
         console.error("fetchTailscale error", e);
@@ -16916,12 +16933,10 @@
       }
     }
 
-    
-    // ==================== TAILSCALE WEB LINK AUTHENTICATION ====================
-    let _currentTsAuthUrl = '';
-
     async function startTailscaleWebLogin() {
       showToast('Generating Tailscale login link...', 'info');
+      const subEl = document.getElementById('tsWebLoginSub');
+      if (subEl) subEl.textContent = 'Initializing daemon login... Generating authentication link...';
       try {
         const res = await fetch('/cgi-bin/tailscale', {
           method: 'POST',
@@ -16932,6 +16947,7 @@
         setTimeout(checkTailscaleAuthUrl, 1200);
       } catch (e) {
         console.error('startTailscaleWebLogin error', e);
+        if (subEl) subEl.textContent = 'Failed to generate link. Click icon to retry.';
       }
     }
 
@@ -16940,25 +16956,18 @@
         const res = await fetch('/cgi-bin/tailscale');
         const data = await res.json();
         const url = data.auth_url || '';
-        const card = document.getElementById('tsWebLoginCard');
-        const linkCont = document.getElementById('tsAuthLinkContainer');
-        const openBtn = document.getElementById('btnOpenTsAuthUrl');
-        const copyBtn = document.getElementById('btnCopyTsAuthUrl');
-
-        if (card) card.style.display = 'block';
 
         if (url) {
-          _currentTsAuthUrl = url;
-          if (linkCont) linkCont.innerHTML = `<a href="${escapeHtml(url)}" target="_blank" style="color:#38bdf8; text-decoration:underline;">${escapeHtml(url)}</a>`;
-          if (openBtn) { openBtn.href = url; openBtn.style.display = 'inline-flex'; }
-          if (copyBtn) copyBtn.style.display = 'inline-flex';
-          showToast('Login URL generated! Click to authenticate.', 'success');
+          updateTailscaleWebLoginUrl(url);
+          showToast('Login URL generated! Click icon to open.', 'success');
         } else if (data.backend_state === 'Running') {
-          if (card) card.style.display = 'none';
+          updateTailscaleWebLoginUrl('');
+          setTailscaleLoginState(true);
           showToast('Tailscale connected & running!', 'success');
           fetchTailscale();
         } else {
-          if (linkCont) linkCont.textContent = 'Initializing daemon login... Please wait 2 seconds.';
+          const subEl = document.getElementById('tsWebLoginSub');
+          if (subEl) subEl.textContent = 'Initializing daemon login... Please wait 2 seconds.';
           setTimeout(checkTailscaleAuthUrl, 2000);
         }
       } catch (e) {
@@ -16983,8 +16992,8 @@
         if (badge) { badge.className = 'card-badge'; badge.innerText = 'NOT CONNECTED'; }
         renderTailscaleAccount({ backend_state: 'Stopped', online: false, tailscale_ip: '', user: {}, devices_total: 0, devices_online: 0 });
         renderTailscaleDevices({ backend_state: 'Stopped', peers: [] });
-        const card = document.getElementById('tsWebLoginCard');
-        if (card) card.style.display = 'block';
+        updateTailscaleWebLoginUrl('');
+        setTailscaleLoginState(false);
 
         await fetch('/cgi-bin/tailscale', {
           method: 'POST',
@@ -17001,7 +17010,7 @@
     async function loginTailscaleWithKey() {
       const key = (document.getElementById('tsAuthKeyInput').value || '').trim();
       if (!key) {
-        alert("Please enter a valid Tailscale Auth Key (e.g. tskey-auth-...)");
+        showToast("Please enter a valid Tailscale Auth Key (e.g. tskey-auth-...)", "error");
         return;
       }
       try {
@@ -17010,7 +17019,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ action: 'up', authkey: key })
         });
-        alert("Connecting to Tailnet with Auth Key...");
+        showToast("Connecting to Tailnet with Auth Key...", "info");
         setTimeout(fetchTailscale, 3000);
       } catch (e) {
         console.error("loginTailscaleWithKey error", e);
@@ -17024,7 +17033,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ action: 'restart' })
         });
-        alert("Tailscale service restarted.");
+        showToast("Tailscale service restarted.", "success");
         setTimeout(fetchTailscale, 2000);
       } catch (e) {
         console.error("restartTailscale error", e);
