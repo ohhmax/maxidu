@@ -5941,9 +5941,18 @@
     #terminalContainer .xterm-rows {
       background: transparent !important;
       background-color: transparent !important;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
     }
     #terminalContainer .xterm-rows {
       color: var(--text-main, #f4f4f5);
+    }
+    [data-theme="light"] #terminalContainer .terminal,
+    [data-theme="light"] #terminalContainer .xterm,
+    [data-theme="light"] #terminalContainer .xterm-rows {
+      font-weight: 600;
+      color: #000000 !important;
     }
     #terminalContainer .xterm .xterm-viewport::-webkit-scrollbar {
       width: 4px;
@@ -17535,11 +17544,11 @@
 
     function getTerminalResponsiveFontSize() {
       const w = window.innerWidth;
-      if (w <= 400) return 8;
-      if (w <= 520) return 8.5;
-      if (w <= 768) return 9.5;
-      if (w <= 1024) return 11;
-      return 12.5;
+      if (w <= 400) return 7;
+      if (w <= 520) return 7.5;
+      if (w <= 768) return 8.5;
+      if (w <= 1024) return 10;
+      return 11.5;
     }
 
     function getTerminalTheme(isDark) {
@@ -17570,26 +17579,26 @@
       } else {
         return {
           background: 'rgba(0, 0, 0, 0)',
-          foreground: '#0f172a',
-          cursor: '#0f172a',
+          foreground: '#000000',
+          cursor: '#000000',
           cursorAccent: '#ffffff',
-          selectionBackground: 'rgba(56, 189, 248, 0.25)',
-          black: '#0f172a',
-          red: '#dc2626',
-          green: '#059669',
-          yellow: '#d97706',
-          blue: '#2563eb',
-          magenta: '#9333ea',
-          cyan: '#0891b2',
-          white: '#ffffff',
-          brightBlack: '#64748b',
-          brightRed: '#ef4444',
-          brightGreen: '#10b981',
-          brightYellow: '#f59e0b',
-          brightBlue: '#3b82f6',
-          brightMagenta: '#a855f7',
-          brightCyan: '#06b6d4',
-          brightWhite: '#f8fafc'
+          selectionBackground: 'rgba(56, 189, 248, 0.35)',
+          black: '#000000',
+          red: '#b91c1c',
+          green: '#047857',
+          yellow: '#b45309',
+          blue: '#1d4ed8',
+          magenta: '#7e22ce',
+          cyan: '#0e7490',
+          white: '#18181b',
+          brightBlack: '#27272a',
+          brightRed: '#dc2626',
+          brightGreen: '#059669',
+          brightYellow: '#d97706',
+          brightBlue: '#2563eb',
+          brightMagenta: '#9333ea',
+          brightCyan: '#0891b2',
+          brightWhite: '#000000'
         };
       }
     }
@@ -17599,6 +17608,7 @@
       const isDark = (typeof currentTheme !== 'undefined' && currentTheme === 'dark') ||
                      (document.documentElement.getAttribute('data-theme') !== 'light');
       _nativeTerminal.options.theme = getTerminalTheme(isDark);
+      _nativeTerminal.options.fontWeight = isDark ? '500' : '600';
       try {
         _nativeTerminal.refresh(0, _nativeTerminal.rows - 1);
       } catch (e) {}
@@ -17634,6 +17644,8 @@
         cursorBlink: true,
         fontSize: termFs,
         lineHeight: 1.18,
+        fontWeight: isDark ? '500' : '600',
+        fontWeightBold: '700',
         fontFamily: 'Consolas, "Liberation Mono", Menlo, Courier, monospace',
         theme: getTerminalTheme(isDark)
       });
@@ -17668,7 +17680,7 @@
           );
           const scale = dist / _touchStartDist;
           let newFs = Math.round((_baseFontSize * scale) * 2) / 2;
-          newFs = Math.max(7, Math.min(18, newFs));
+          newFs = Math.max(6, Math.min(18, newFs));
           if (_nativeTerminal.options.fontSize !== newFs) {
             _userZoomedTerm = true;
             _nativeTerminal.options.fontSize = newFs;
