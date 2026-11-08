@@ -6451,7 +6451,34 @@
         <!-- ==================== TAB 2: SETTINGS ==================== -->
     <div id="tabSettings" class="tab-page" style="display:none;">
       <!-- ==================== ANDROID SETTINGS EDIT POPUP MODAL (SCOPED) ==================== -->
-      <div id="settingEditModalOverlay" class="android-modal-overlay" onclick="onModalOverlayClick(event)">
+      
+  <!-- ==================== CUSTOM FACTORY RESET CONFIRMATION MODAL WITH 10S COUNTDOWN ==================== -->
+  <div id="factoryResetModalOverlay" class="android-modal-overlay" style="display:none;" onclick="if(event.target===this)closeFactoryResetModal()">
+    <div class="android-modal-card" style="max-width:440px; border:1px solid rgba(239,68,68,0.3); box-shadow:0 10px 40px rgba(239,68,68,0.25);">
+      <div class="android-modal-header" style="border-bottom:1px solid rgba(239,68,68,0.15);">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div style="width:28px; height:28px; border-radius:50%; background:rgba(239,68,68,0.15); color:#ef4444; display:flex; align-items:center; justify-content:center;">
+            <svg viewBox="0 0 24 24" style="width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <span class="android-modal-title" style="color:#ef4444;">Factory Reset Gateway</span>
+        </div>
+        <span class="android-modal-desc">Permanent system wipe and configuration restore</span>
+      </div>
+      <div class="android-modal-body" style="padding:16px 20px; font-size:12px; line-height:1.6; color:var(--text-main);">
+        <p style="margin:0 0 12px 0;">All custom settings, administrator passwords, static IP leases, firewall rules, and installed packages will be permanently destroyed. The gateway will restore original factory defaults and reboot.</p>
+        <div style="padding:10px 12px; background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.25); border-radius:8px; color:#fca5a5; font-size:11.5px; font-family:var(--font-mono);">
+          This destructive operation cannot be cancelled once triggered.
+        </div>
+      </div>
+      <div class="android-modal-footer">
+        <button type="button" class="mh-btn btn-ghost" onclick="closeFactoryResetModal()" style="padding:7px 18px; font-size:12px; font-weight:700;">CANCEL</button>
+        <button type="button" class="mh-btn" id="btnConfirmFactoryReset" disabled onclick="executeFactoryReset()" style="padding:7px 22px; font-size:12px; font-weight:800; background:rgba(239,68,68,0.2); color:rgba(255,255,255,0.4); border:1px solid rgba(239,68,68,0.4); cursor:not-allowed; transition:all 0.2s ease;">
+          RESET GATEWAY (10s)
+        </button>
+      </div>
+    </div>
+  </div>
+<div id="settingEditModalOverlay" class="android-modal-overlay" onclick="onModalOverlayClick(event)">
         <div class="android-modal-card" id="settingEditModalCard">
           <div class="android-modal-header">
             <span class="android-modal-title" id="settingModalTitle">Edit Setting</span>
@@ -6550,15 +6577,15 @@
             </div>
           </div>
 
-          <!-- 5. Hardware Info -->
-          <div class="settings-nav-card" onclick="openSettingPage('acc-device-info')" data-search="hardware soc ipq9574 cpu ram flash thermal sensors usb bus controller architecture kernel">
+          <!-- 5. About Developer -->
+          <div class="settings-nav-card" onclick="openSettingPage('acc-device-info')" data-search="about developer max mahendra mali firmware architecture openwrt kernel jidu6911 github">
             <div class="snc-left">
               <div class="snc-icon-box" style="color:#8b5cf6;">
-                <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+                <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
               </div>
               <div class="snc-info">
-                <span class="snc-title">Hardware Info</span>
-                <span class="snc-desc">SoC processor, memory, storage, and bus status</span>
+                <span class="snc-title">About Developer</span>
+                <span class="snc-desc">Lead engineer, system architecture, and firmware engineering credits</span>
               </div>
             </div>
             <div class="snc-right">
@@ -6594,7 +6621,7 @@
               </div>
             </div>
             <div class="snc-right">
-              <span id="adbHubCountBadge" class="card-badge" style="font-size:10px; color:#38bdf8; border-color:rgba(56,189,248,0.3);">READY</span>
+              <span id="adbHubCountBadge" style="font-size:11px; font-weight:700; color:var(--text-dim); font-family:var(--font-mono);">READY</span>
               <svg class="snc-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
             </div>
           </div>
@@ -6709,7 +6736,7 @@
               </div>
             </div>
             <div class="snc-right">
-              <span style="display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:700; color:#10b981; font-family:var(--font-mono);"><span style="width:6px; height:6px; border-radius:50%; background:#10b981;"></span>CLI</span>
+              <span style="font-size:11px; font-weight:700; color:var(--text-dim); font-family:var(--font-mono);">CLI</span>
               <svg class="snc-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
             </div>
           </div>
@@ -6885,17 +6912,58 @@
                   </div>
                 </div>
 
-                <!-- 7. 15-DAY CLIENT HISTORY & TRAFFIC LOGGING (DIRECT TOGGLE SWITCH) -->
+                <!-- USB WAN TETHERING SECTION -->
+                <div class="setting-section-divider"></div>
+                <div class="setting-section-header">USB WAN Tethering</div>
+
                 <div class="setting-row-item">
                   <div class="setting-label-col">
-                    <span class="setting-label-bold">15-Day Client History &amp; Traffic Logging</span>
-                    <span class="setting-label-sub">Persist per-device bandwidth usage and active lease records across reboots</span>
+                    <span class="setting-label-bold">USB WAN Tethering</span>
+                    <span class="setting-label-sub" id="dispUsbTetherState">State: Active (usb0) &bull; Primary upstream internet gateway over USB</span>
                   </div>
                   <div class="toggle-wrap-cell">
                     <label class="toggle-switch">
-                      <input type="checkbox" id="netTrafficHistoryToggle" checked onchange="scheduleNetworkAutoSave();">
+                      <input type="checkbox" id="usbTetherToggle" checked onchange="toggleUsbTethering(this.checked)">
                       <span class="toggle-slider"></span>
                     </label>
+                  </div>
+                </div>
+
+                <div class="setting-row-item">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">Tethered Modem Details</span>
+                    <span class="setting-label-sub" id="dispUsbTetherDetails">Samsung Galaxy S21 FE 5G &bull; USB 3.0 (5000 Mbps) &bull; IP: 10.228.157.164</span>
+                  </div>
+                  <div class="setting-control-col">
+                    <span class="setting-status-badge badge-active" id="dispUsbTetherBadge">5G SA ONLINE</span>
+                  </div>
+                </div>
+
+                <div class="setting-row-item">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">Tethering DNS Forwarding</span>
+                    <span class="setting-label-sub">Forward upstream DNS queries to tethered phone gateway</span>
+                  </div>
+                  <div class="toggle-wrap-cell">
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="usbTetherDnsToggle" checked onchange="toggleUsbTetherDns(this.checked)">
+                      <span class="toggle-slider"></span>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- DHCP & LEASE RETENTION SECTION -->
+                <div class="setting-section-divider"></div>
+                <div class="setting-section-header">DHCP &amp; Lease Retention</div>
+
+                <!-- CLIENT LEASE HISTORY RETENTION (CONFIGURABLE POPUP ROW) -->
+                <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('client_history_days')">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">Client History Retention</span>
+                    <span class="setting-label-sub" id="disp_client_history_days">15 Days Retention &bull; Click to change duration</span>
+                  </div>
+                  <div class="setting-arrow-col">
+                    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
                   </div>
                 </div>
 
@@ -6966,8 +7034,11 @@
                 <button class="mh-btn" onclick="saveTopologyLayersConfig()">
                   SAVE TOPOLOGY CONFIGURATION
                 </button>
+                <button class="mh-btn btn-ghost" onclick="autoMapNetworkTopology()" style="color:#38bdf8; border-color:rgba(56,189,248,0.4);">
+                  AUTO-MAP FROM CLIENTS
+                </button>
                 <button class="mh-btn btn-ghost" onclick="resetTopologyLayersConfig()">
-                  AUTO-DETECT &amp; RESET
+                  RESET TO DEFAULTS
                 </button>
               </div>
             </div>
@@ -7112,137 +7183,84 @@
           </div>
         </div>
 
-        <!-- 3. HARDWARE & KERNEL DEVICE INFO -->
+        <!-- 3. ABOUT DEVELOPER & SYSTEM ARCHITECTURE -->
         <div class="settings-card settings-detail-panel accordion-item" id="acc-device-info">
           <div class="settings-card-header accordion-header" onclick="toggleAccordion('acc-device-info')">
             <div class="acc-title-left">
-              <div class="acc-icon-box" style="color:#a855f7;">
-                <svg class="svg-icon" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+              <div class="acc-icon-box" style="color:#8b5cf6;">
+                <svg class="svg-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
               </div>
-              <span class="acc-main-title">Hardware Info</span>
+              <span class="acc-main-title">About Developer</span>
             </div>
             <div class="acc-right-action">
-              <span class="card-badge" style="background:rgba(168,85,247,0.15); color:#c084fc; border-color:rgba(168,85,247,0.35);">HARDWARE</span>
+              <span class="card-badge" style="background:rgba(139,92,246,0.15); color:#a78bfa; border-color:rgba(139,92,246,0.35);">ENGINEER</span>
               <svg class="svg-icon acc-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
             </div>
           </div>
           <div class="accordion-content">
             <div class="settings-card-body">
               <div style="display:flex; flex-direction:column; gap:4px;">
-                <!-- 1. SoC Processor -->
+                <!-- 1. Lead Developer Profile -->
                 <div class="setting-row-item">
                   <div class="setting-label-col">
-                    <span class="setting-label-bold">Processor (SoC)</span>
-                    <span class="setting-label-sub">Qualcomm IPQ9574 4-Core @ 2.2GHz</span>
+                    <span class="setting-label-bold">Lead Developer &amp; Systems Architect</span>
+                    <span class="setting-label-sub">Mahendra Mali (Max) &bull; Primary Firmware Author</span>
                   </div>
                   <div class="setting-control-col">
-                    <span class="card-badge" style="font-family:var(--font-mono); font-size:11px; padding:2px 8px; background:rgba(255,255,255,0.06); color:var(--text-main);">4 Cores</span>
+                    <div style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, #8b5cf6, #3b82f6); display:flex; align-items:center; justify-content:center; color:#ffffff; font-weight:800; font-size:15px;">M</div>
                   </div>
                 </div>
 
-                <!-- 2. CPU Architecture -->
+                <!-- 2. System Platform -->
                 <div class="setting-row-item">
                   <div class="setting-label-col">
-                    <span class="setting-label-bold">Architecture</span>
-                    <span class="setting-label-sub">ARMv8-A 64-bit instruction set</span>
-                  </div>
-                  <div class="setting-control-col">
-                    <span class="card-badge" style="font-family:var(--font-mono); font-size:11px; padding:2px 8px; background:rgba(255,255,255,0.06); color:var(--text-main);">aarch64</span>
+                    <span class="setting-label-bold">Firmware Operating System</span>
+                    <span class="setting-label-sub">MAXNET Enterprise Gateway OS &bull; Release v2.2.20</span>
                   </div>
                 </div>
 
-                <!-- 3. Kernel Version -->
+                <!-- 3. Hardware Platform Target -->
                 <div class="setting-row-item">
                   <div class="setting-label-col">
-                    <span class="setting-label-bold">Kernel</span>
-                    <span class="setting-label-sub">Linux 6.18.60 (OpenWrt Linux)</span>
-                  </div>
-                  <div class="setting-control-col">
-                    <span class="card-badge emerald" style="font-family:var(--font-mono); font-size:11px; padding:2px 8px;">6.18.60</span>
+                    <span class="setting-label-bold">Hardware Architecture</span>
+                    <span class="setting-label-sub">Qualcomm IPQ8072A (4x ARM Cortex-A53 @ 2.2 GHz) 64-bit &bull; Jio AX6000 Arcadyan</span>
                   </div>
                 </div>
 
-                <!-- 4. Thermal Sensors -->
+                <!-- 4. Linux Kernel -->
                 <div class="setting-row-item">
                   <div class="setting-label-col">
-                    <span class="setting-label-bold">Thermals</span>
-                    <span class="setting-label-sub">13 Monitored Thermal Zones</span>
-                  </div>
-                  <div class="setting-control-col">
-                    <span class="card-badge emerald" style="font-family:var(--font-mono); font-size:11px; padding:2px 8px;">~50&deg;C</span>
+                    <span class="setting-label-bold">Custom Linux Kernel</span>
+                    <span class="setting-label-sub">Linux 6.18.60 Arcadyan Custom SMP &bull; GCC Optimized Network Engine</span>
                   </div>
                 </div>
 
-                <!-- 5. Physical RAM -->
+                <!-- 5. Core Systems Subsystems -->
                 <div class="setting-row-item">
                   <div class="setting-label-col">
-                    <span class="setting-label-bold">RAM Memory</span>
-                    <span class="setting-label-sub">512 MB DDR4 (253 MB Free)</span>
-                  </div>
-                  <div class="setting-control-col">
-                    <span class="card-badge" style="font-family:var(--font-mono); font-size:11px; padding:2px 8px; background:rgba(255,255,255,0.06); color:var(--text-main);">512 MB</span>
+                    <span class="setting-label-bold">Core Subsystems</span>
+                    <span class="setting-label-sub">5G SA High-Speed USB RNDIS/CDC Offload, Tailscale WireGuard Mesh, Low-Latency Gaming QoS</span>
                   </div>
                 </div>
 
-                <!-- 6. Flash Storage -->
+                <!-- 6. Repository & Contact -->
                 <div class="setting-row-item">
                   <div class="setting-label-col">
-                    <span class="setting-label-bold">Flash Storage</span>
-                    <span class="setting-label-sub">184 MB UBI/UBIFS Root Overlay</span>
+                    <span class="setting-label-bold">Project Repository &amp; Contact</span>
+                    <span class="setting-label-sub">github.com/maxidu (JIDU6911) &bull; mahendrakumargahelot@gmail.com</span>
                   </div>
                   <div class="setting-control-col">
-                    <span class="card-badge" style="font-family:var(--font-mono); font-size:11px; padding:2px 8px; background:rgba(255,255,255,0.06); color:var(--text-main);">184 MB</span>
-                  </div>
-                </div>
-
-                <!-- 7. Ethernet Switch -->
-                <div class="setting-row-item">
-                  <div class="setting-label-col">
-                    <span class="setting-label-bold">Switch PHY</span>
-                    <span class="setting-label-sub">4x GbE Hardware Packet Processor</span>
-                  </div>
-                  <div class="setting-control-col">
-                    <span class="card-badge" style="font-family:var(--font-mono); font-size:11px; padding:2px 8px; background:rgba(56,189,248,0.12); color:#38bdf8;">GbE PPE</span>
-                  </div>
-                </div>
-
-                <!-- 8. USB Controller -->
-                <div class="setting-row-item">
-                  <div class="setting-label-col">
-                    <span class="setting-label-bold">USB Host</span>
-                    <span class="setting-label-sub">xHCI USB 3.1 &amp; High-Speed USB 2.0</span>
-                  </div>
-                  <div class="setting-control-col">
-                    <span class="card-badge" style="font-family:var(--font-mono); font-size:11px; padding:2px 8px; background:rgba(255,255,255,0.06); color:var(--text-main);">xHCI</span>
-                  </div>
-                </div>
-
-                <!-- 9. Queue Discipline -->
-                <div class="setting-row-item">
-                  <div class="setting-label-col">
-                    <span class="setting-label-bold">Queue AQM</span>
-                    <span class="setting-label-sub">Fair Queueing Controlled Delay Active</span>
-                  </div>
-                  <div class="setting-control-col">
-                    <span class="card-badge emerald" style="font-family:var(--font-mono); font-size:11px; padding:2px 8px;">fq_codel</span>
-                  </div>
-                </div>
-
-                <!-- 10. Multipath Hash -->
-                <div class="setting-row-item">
-                  <div class="setting-label-col">
-                    <span class="setting-label-bold">Multipath FIB</span>
-                    <span class="setting-label-sub">Layer 4 Symmetric Flow Hashing</span>
-                  </div>
-                  <div class="setting-control-col">
-                    <span class="card-badge" style="font-family:var(--font-mono); font-size:11px; padding:2px 8px; background:rgba(255,255,255,0.06); color:var(--text-main);">L4 Flow</span>
+                    <a href="https://github.com/maxidu" target="_blank" class="round-action-btn" title="Open GitHub Repository" style="text-decoration:none;">
+                      <svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+                    </a>
                   </div>
                 </div>
               </div>
-            </div></div>
+            </div>
+          </div>
         </div>
 
-        <!-- 4. TAILSCALE MESH VPN -->
+                <!-- 4. TAILSCALE MESH VPN -->
         <div class="settings-card settings-detail-panel accordion-item" id="acc-tailscale">
           <div class="settings-card-header accordion-header" onclick="toggleAccordion('acc-tailscale')">
             <div class="acc-title-left">
@@ -7404,14 +7422,11 @@
                 </div>
               </div>
 
-              <!-- 2. TAILSCALE IPV4 (READONLY INFO ROW) -->
+              <!-- 2. TAILSCALE IPV4 (READONLY INFO ROW - UNDER LABEL) -->
               <div class="setting-row-item">
                 <div class="setting-label-col">
                   <span class="setting-label-bold">Tailscale IPv4 Address</span>
-                  <span class="setting-label-sub">Carrier-grade mesh overlay IPv4 (100.x.y.z)</span>
-                </div>
-                <div class="setting-control-col">
-                  <span class="setting-status-badge badge-active" id="disp_ts_ip" style="font-family:var(--font-mono); font-size:11.5px;">100.107.94.6</span>
+                  <span class="setting-label-sub" id="disp_ts_ip" style="font-family:var(--font-mono); color:var(--text-main); font-weight:700;">100.107.94.6</span>
                   <input type="hidden" id="tsIpAddress" value="100.107.94.6">
                 </div>
               </div>
@@ -7517,7 +7532,7 @@
                 <div class="setting-row-item">
                   <div class="setting-label-col">
                     <span class="setting-label-bold">Camera Flashlight</span>
-                    <span class="setting-label-sub" id="dispTorchSub">Toggle camera torch LED on connected Android handset</span>
+                    <span class="setting-label-sub" id="dispTorchSub">State: OFF &bull; High-intensity rear camera LED torch</span>
                   </div>
                   <div class="setting-control-col">
                     <button class="round-action-btn" title="Toggle Phone Flashlight / Torch" onclick="togglePhoneTorch(this)" id="btnTorchToggle">
@@ -7530,7 +7545,7 @@
                 <div class="setting-row-item">
                   <div class="setting-label-col">
                     <span class="setting-label-bold">Handset Screen State</span>
-                    <span class="setting-label-sub" id="dispPowerSub">Wake up screen or put handset display to sleep</span>
+                    <span class="setting-label-sub" id="dispPowerSub">State: AWAKE &bull; Touch display is active</span>
                   </div>
                   <div class="setting-control-col" style="gap:8px;">
                     <button class="round-action-btn" title="Wake Phone Screen (Turn On)" onclick="runDeviceWake(this)" id="btnDisplayWake">
@@ -7546,7 +7561,7 @@
                 <div class="setting-row-item">
                   <div class="setting-label-col">
                     <span class="setting-label-bold">Audio Volume Control</span>
-                    <span class="setting-label-sub" id="dispVolumeSub">Step device speaker volume up, down, or mute sound</span>
+                    <span class="setting-label-sub" id="dispVolumeSub">Level: Volume 10 &bull; Speaker media output</span>
                   </div>
                   <div class="setting-control-col" style="gap:8px;">
                     <button class="round-action-btn" title="Phone Volume Down" onclick="volumePhone('down', this)" id="btnVolDown">
@@ -7565,7 +7580,7 @@
                 <div class="setting-row-item">
                   <div class="setting-label-col">
                     <span class="setting-label-bold">Cellular Radio Reconnect</span>
-                    <span class="setting-label-sub" id="dispRadioSub">Cycle airplane mode to force 5G/LTE tower re-attachment</span>
+                    <span class="setting-label-sub" id="dispRadioSub">State: 5G SA Connected &bull; Cycle airplane mode to re-attach</span>
                   </div>
                   <div class="setting-control-col">
                     <button class="round-action-btn" title="Cycle Airplane Mode (5G Reconnect)" onclick="runDeviceAirplane(this)" id="btnRadioCycle">
@@ -7578,7 +7593,7 @@
                 <div class="setting-row-item">
                   <div class="setting-label-col">
                     <span class="setting-label-bold">Wireless ADB (Port 5555)</span>
-                    <span class="setting-label-sub" id="dispWirelessAdbSub">Switch ADB to TCP/IP mode for wireless debugging over Wi-Fi</span>
+                    <span class="setting-label-sub" id="dispWirelessAdbSub">State: Disabled &bull; Port 5555 TCP/IP debugging</span>
                   </div>
                   <div class="setting-control-col">
                     <button class="round-action-btn btn-warning-action" title="Enable Wireless ADB on port 5555" onclick="enableWirelessAdb(this)" id="btnWirelessAdb">
@@ -8159,11 +8174,8 @@
 
                 <div class="setting-row-item">
                   <div class="setting-label-col">
-                    <div class="setting-title-wrap">
-                      <span class="setting-label-bold">Check Latest Updates</span>
-                      <span class="setting-pill pill-green" id="updateStatusPill">v2.2.20 LATEST</span>
-                    </div>
-                    <span class="setting-label-sub" id="updateStatusSub">Jio AX6000 Arcadyan Custom Firmware &middot; Linux 6.18.60</span>
+                    <span class="setting-label-bold">Check Latest Updates</span>
+                    <span class="setting-label-sub" id="updateStatusSub"><strong id="updateStatusPill" style="color:#10b981;">v2.2.20 UP TO DATE</strong> &bull; Jio AX6000 Arcadyan Custom Firmware &bull; Linux 6.18.60</span>
                   </div>
                   <div class="setting-control-col">
                     <button class="round-action-btn" id="btnCheckUpdate" title="Check for Latest Firmware Update" onclick="checkLatestFirmwareUpdate()">
@@ -8178,7 +8190,7 @@
                     <span class="setting-label-sub">Erase all custom configurations, credentials, and restore defaults</span>
                   </div>
                   <div class="setting-control-col">
-                    <button class="round-action-btn btn-danger-action" title="Factory Reset Defaults" onclick="confirmFactoryReset()">
+                    <button class="round-action-btn btn-danger-action" title="Factory Reset Defaults" onclick="showFactoryResetModal()">
                       <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                     </button>
                   </div>
@@ -8203,37 +8215,35 @@
             </div>
           </div>
           <div class="accordion-content">
-            <div class="settings-card-body">
-              <!-- LIVE ON-SCREEN LOG VIEWER (SYSTEM & KERNEL DMESG) -->
-              <div class="log-viewer-shell" style="margin-top:0;">
-                <div class="log-viewer-header">
-                  <div style="display:flex; align-items:center; gap:8px;">
-                    <div class="log-tabs-group">
-                      <button class="log-tab-btn active" id="logTabSystem" onclick="switchLogType('system')">System Log</button>
-                      <button class="log-tab-btn" id="logTabKernel" onclick="switchLogType('kernel')">Kernel (dmesg)</button>
-                    </div>
-                    <span id="logViewerLinesBadge" style="font-size:11px; font-weight:700; color:var(--text-dim); font-family:var(--font-mono);">-- LINES</span>
-                  </div>
-
-                  <div style="display:flex; align-items:center; gap:8px;">
-                    <input type="text" id="logViewerFilterInput" class="mh-input" placeholder="Filter logs..." oninput="filterLogsRealtime(this.value)" style="width:140px; padding:4px 8px; font-size:11px; font-family:var(--font-mono);">
-                    
-                    <button class="round-action-btn" title="Refresh Logs" onclick="refreshLogViewer()" style="width:32px; height:32px; min-width:32px;">
-                      <svg viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-                    </button>
-
-                    <button class="round-action-btn" title="Download Current Log" onclick="downloadCurrentLog()" style="width:32px; height:32px; min-width:32px;">
-                      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                    </button>
-
-                    <label class="toggle-switch" title="Auto-Refresh Every 3s" style="margin-left:4px;">
-                      <input type="checkbox" id="logViewerAutoRefresh" onchange="toggleLogAutoRefresh(this.checked)">
-                      <span class="toggle-slider"></span>
-                    </label>
-                  </div>
+            <div class="settings-card-body" style="padding:0;">
+              <!-- TOP ACTION BAR: TABS & DOWNLOAD BUTTONS -->
+              <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; padding:12px 14px; border-bottom:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.02);">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <button type="button" class="log-tab-btn active" id="logTabSystem" onclick="switchLogType('system')" style="padding:6px 14px; border-radius:8px; font-size:12px; font-weight:700;">System Log</button>
+                  <button type="button" class="log-tab-btn" id="logTabKernel" onclick="switchLogType('kernel')" style="padding:6px 14px; border-radius:8px; font-size:12px; font-weight:700;">Kernel (dmesg)</button>
                 </div>
-                <div id="logConsoleOutput" class="log-console-box">Connecting to log stream...</div>
+
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <input type="text" id="logViewerFilterInput" class="mh-input" placeholder="Filter log entries..." oninput="filterLogsRealtime(this.value)" style="width:160px; padding:6px 10px; font-size:11px; font-family:var(--font-mono);">
+                  
+                  <button type="button" class="mh-btn btn-ghost" onclick="downloadSystemLog()" title="Download System Log" style="padding:6px 12px; font-size:11px; font-weight:700; display:flex; align-items:center; gap:6px;">
+                    <svg viewBox="0 0 24 24" style="width:13px; height:13px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Download Syslog
+                  </button>
+
+                  <button type="button" class="mh-btn btn-ghost" onclick="downloadKernelLog()" title="Download Kernel Log" style="padding:6px 12px; font-size:11px; font-weight:700; display:flex; align-items:center; gap:6px;">
+                    <svg viewBox="0 0 24 24" style="width:13px; height:13px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Download dmesg
+                  </button>
+
+                  <button type="button" class="round-action-btn" title="Refresh Logs" onclick="refreshLogViewer()" style="width:32px; height:32px; min-width:32px;">
+                    <svg viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                  </button>
+                </div>
               </div>
+
+              <!-- PLAIN LOG OUTPUT AREA (NO HEAVY BOX) -->
+              <div id="logConsoleOutput" style="height:620px; overflow-y:auto; padding:16px; background:#07080c; color:#d4d4d8; font-family:var(--font-mono, monospace); font-size:11.5px; line-height:1.55; white-space:pre-wrap; word-break:break-all; border-radius:0 0 12px 12px;">Connecting to log stream...</div>
             </div>
           </div>
         </div>
@@ -8254,89 +8264,25 @@
           </div>
           <div class="accordion-content">
             <div class="settings-card-body">
-              
-              <!-- ADMIN IDENTITY ROW -->
-              <div class="setting-row-item">
-                <div class="setting-label-col">
-                  <div class="setting-title-wrap">
-                    <span class="setting-title">Administrator (root)</span>
-                    <span class="setting-pill pill-green">ACTIVE</span>
-                  </div>
-                  <div class="setting-desc">Gateway Host: MAXNET-GATEWAY (10.0.0.1)</div>
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+                <div>
+                  <span class="setting-label-bold">Authenticated Sessions</span>
+                  <span class="setting-label-sub" style="display:block;">Active device listed on top &bull; Click logout to revoke any session</span>
                 </div>
-                <div class="setting-control-col">
-                  <button type="button" class="round-action-btn" onclick="fetchActiveSessions()" title="Refresh Active Sessions">
-                    <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-                  </button>
-                </div>
+                <button type="button" class="round-action-btn" onclick="fetchActiveSessions()" title="Refresh Sessions">
+                  <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                </button>
               </div>
 
-              <div class="setting-section-divider"></div>
-
-              <!-- CURRENT DEVICE (THIS SESSION) -->
-              <div class="setting-section-header">This Device (Current Session)</div>
-              <div class="setting-row-item">
-                <div class="setting-label-col">
-                  <div class="setting-title-wrap">
-                    <span class="setting-title" id="currentDeviceLabel">Browser Session</span>
-                    <span class="setting-pill pill-cyan">THIS DEVICE</span>
-                  </div>
-                  <div class="setting-desc">IP: <span id="currentDeviceIp">10.0.0.111</span> &bull; <span id="currentDeviceUa">Chrome on Linux</span></div>
-                </div>
-                <div class="setting-control-col">
-                  <button type="button" class="round-action-btn btn-danger-action" onclick="logoutCurrentSession()" title="Sign Out Current Session">
-                    <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                  </button>
-                </div>
+              <!-- SINGLE FLAT SESSIONS LIST -->
+              <div id="activeSessionsFlatList" style="display:flex; flex-direction:column; gap:4px;">
+                <!-- Populated dynamically via fetchActiveSessions with active device on top -->
               </div>
-
-              <div class="setting-section-divider"></div>
-
-              <!-- OTHER ACTIVE SESSIONS & RECENT DEVICES -->
-              <div class="setting-section-header">
-                <span>Other Logged-in Devices</span>
-                <span id="otherSessionsCount" style="font-size:10px; font-family:var(--font-mono); color:var(--text-dim);">0 OTHER SESSIONS</span>
-              </div>
-              <div id="otherSessionsContainer" style="display:flex; flex-direction:column; gap:4px;">
-                <div style="padding:14px; text-align:center; color:var(--text-dim); font-size:11px; font-family:var(--font-mono); background:rgba(255,255,255,0.02); border-radius:8px;">
-                  No other devices currently authenticated.
-                </div>
-              </div>
-
-              <div class="setting-section-divider"></div>
-
-              <!-- GLOBAL LOGOUT SECURITY ACTIONS -->
-              <div class="setting-section-header">Session Security Actions</div>
-
-              <div class="setting-row-item">
-                <div class="setting-label-col">
-                  <span class="setting-label-bold">Sign Out Other Devices</span>
-                  <span class="setting-label-sub">Revoke active authentication tokens on all other connected devices</span>
-                </div>
-                <div class="setting-control-col">
-                  <button type="button" class="round-action-btn btn-warning-action" onclick="logoutOtherDevices()" title="Log Out From All Other Devices">
-                    <svg viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-                  </button>
-                </div>
-              </div>
-
-              <div class="setting-row-item">
-                <div class="setting-label-col">
-                  <span class="setting-label-bold" style="color:#ef4444;">Sign Out All Devices &amp; Lock</span>
-                  <span class="setting-label-sub">Invalidate all active sessions across every device including this browser</span>
-                </div>
-                <div class="setting-control-col">
-                  <button type="button" class="round-action-btn btn-danger-action" onclick="logoutAllSessions()" title="Log Out All Sessions & Lock">
-                    <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                  </button>
-                </div>
-              </div>
-
-            </div></div>
+            </div>
+          </div>
         </div>
 
-
-        <!-- 7. PACKAGES & PLUGIN MANAGER -->
+                <!-- 7. PACKAGES & PLUGIN MANAGER -->
         <div class="settings-card settings-detail-panel accordion-item" id="acc-packages">
           <div class="settings-card-header accordion-header" onclick="toggleAccordion('acc-packages')">
             <div class="acc-title-left">
@@ -8407,30 +8353,8 @@
             </div>
           </div>
           <div class="accordion-content">
-            <div class="settings-card-body" style="padding:10px;">
-              <div class="terminal-embed-shell" id="terminalEmbedShell">
-                <div class="terminal-embed-header">
-                  <div style="display:flex; align-items:center; gap:8px;">
-                    <span style="display:inline-flex; align-items:center; gap:5px; color:#10b981; font-weight:700;">
-                      <span style="width:7px; height:7px; border-radius:50%; background:#10b981; box-shadow:0 0 8px #10b981;"></span>
-                      root@MaxnetGateway:~#
-                    </span>
-                    <span style="color:var(--text-dim);">&middot; ttyd 1.7.7 &middot; WebSocket VT100</span>
-                  </div>
-                  <div style="display:flex; align-items:center; gap:6px;">
-                    <button class="mh-btn btn-sm btn-ghost" onclick="reloadTerminalIframe()" style="padding:3px 8px; font-size:11px;">
-                      RELOAD
-                    </button>
-                    <button class="mh-btn btn-sm btn-ghost" onclick="openTerminalNewTab()" style="padding:3px 8px; font-size:11px;">
-                      NEW TAB
-                    </button>
-                    <button class="mh-btn btn-sm btn-ghost" onclick="toggleTerminalFullscreen()" style="padding:3px 8px; font-size:11px;">
-                      FULLSCREEN
-                    </button>
-                  </div>
-                </div>
-                <iframe id="terminalEmbedFrame" class="terminal-embed-iframe" src="about:blank" allow="clipboard-read; clipboard-write"></iframe>
-              </div>
+            <div class="settings-card-body" style="padding:0; overflow:hidden; border-radius:12px;">
+              <iframe id="terminalEmbedFrame" src="about:blank" allow="clipboard-read; clipboard-write" style="width:100%; height:680px; min-height:550px; border:none; display:block; background:#000000; border-radius:12px;"></iframe>
             </div>
           </div>
         </div>
@@ -8807,7 +8731,7 @@
         badgeColor: '#ec4899'
       },
       'acc-device-info': {
-        title: 'Hardware Info',
+        title: 'About Developer',
         badge: 'HARDWARE & USB',
         badgeColor: '#a78bfa'
       },
@@ -8876,6 +8800,8 @@
     window._currentSettingPage = null;
 
     function openSettingPage(id, pushHistory = true) {
+      if (!id) return;
+      if (id.includes('&')) id = id.split('&')[0];
       // Save current scroll position on settings hub before leaving
       const tabSettings = document.getElementById('tabSettings');
       if (window.innerWidth >= 900 && tabSettings) {
@@ -9024,6 +8950,13 @@
 
     // Hardware Back / Browser Back / Swipe Back popstate listener
     window.addEventListener('popstate', (e) => {
+      // 0. If factory reset modal is open, close it!
+      const frModal = document.getElementById('factoryResetModalOverlay');
+      if (frModal && frModal.style.display === 'flex') {
+        closeFactoryResetModal();
+        return;
+      }
+
       // 1. If setting edit modal popup is open, close ONLY the popup and stay on setting subpage!
       if (window._isSettingModalOpen || (document.getElementById('settingEditModalOverlay') && document.getElementById('settingEditModalOverlay').style.display === 'flex')) {
         closeSettingModal(false);
@@ -9047,9 +8980,17 @@
 
       if (window._currentSettingPage) {
         if (hash.startsWith('#setting=')) {
-          const newId = decodeURIComponent(hash.replace('#setting=', ''));
+          const rawId = decodeURIComponent(hash.replace('#setting=', ''));
+          const newId = rawId.split('&')[0];
           if (newId && newId !== window._currentSettingPage) {
             openSettingPage(newId, false);
+          } else if (newId === 'acc-adb-device') {
+            if (rawId.includes('&dev=')) {
+              const devSer = decodeURIComponent(rawId.split('&dev=')[1].split('&')[0]);
+              if (devSer) openAdbDeviceDetail(devSer, false);
+            } else {
+              closeAdbDeviceDetail(false);
+            }
           }
         } else if (hash === '#settings') {
           closeSettingPage(false);
@@ -9066,8 +9007,15 @@
       const isSettingsTabActive = tabSettings && tabSettings.style.display !== 'none';
       if (isSettingsTabActive) {
         if (hash.startsWith('#setting=')) {
-          const sId = decodeURIComponent(hash.replace('#setting=', ''));
-          if (sId) openSettingPage(sId, false);
+          const rawId = decodeURIComponent(hash.replace('#setting=', ''));
+          const sId = rawId.split('&')[0];
+          if (sId) {
+            openSettingPage(sId, false);
+            if (sId === 'acc-adb-device' && rawId.includes('&dev=')) {
+              const devSer = decodeURIComponent(rawId.split('&dev=')[1].split('&')[0]);
+              if (devSer) openAdbDeviceDetail(devSer, false);
+            }
+          }
         } else if (hash !== '#settings') {
           // Return to Topology!
           switchTab('overview', false, false);
@@ -9079,10 +9027,15 @@
       if (hash === '#settings') {
         switchTab('settings', false, false);
       } else if (hash.startsWith('#setting=')) {
-        const sId = decodeURIComponent(hash.replace('#setting=', ''));
+        const rawId = decodeURIComponent(hash.replace('#setting=', ''));
+        const sId = rawId.split('&')[0];
         if (sId) {
           switchTab('settings', true, false);
           openSettingPage(sId, false);
+          if (sId === 'acc-adb-device' && rawId.includes('&dev=')) {
+            const devSer = decodeURIComponent(rawId.split('&dev=')[1].split('&')[0]);
+            if (devSer) openAdbDeviceDetail(devSer, false);
+          }
         }
       } else {
         switchTab('overview', false, false);
@@ -9090,19 +9043,24 @@
     });
 
     window.addEventListener('load', () => {
-      // Ensure initial history state is set for Topology so Back never exits
+      // Ensure initial history state is set so Back never exits
       if (!history.state) {
         try {
-          history.replaceState({ tab: 'overview' }, '', window.location.pathname);
+          history.replaceState({ tab: 'overview' }, '', window.location.href);
         } catch (e) {}
       }
 
       if (window.location.hash.startsWith('#setting=')) {
-        const sId = decodeURIComponent(window.location.hash.replace('#setting=', ''));
+        const rawSetting = decodeURIComponent(window.location.hash.replace('#setting=', ''));
+        const sId = rawSetting.split('&')[0];
         if (sId) {
           setTimeout(() => {
             switchTab('settings', true, false);
             openSettingPage(sId, false);
+            if (sId === 'acc-adb-device' && rawSetting.includes('&dev=')) {
+              const devSer = decodeURIComponent(rawSetting.split('&dev=')[1].split('&')[0]);
+              if (devSer) openAdbDeviceDetail(devSer, false);
+            }
           }, 150);
         }
       } else if (window.location.hash === '#settings') {
@@ -13384,32 +13342,32 @@
 
       const availClients = getAvailableNetworkClients();
 
-      // Physical Router Hardware Header Banner
+      // Clean Header Telemetry Card
       const rtrHardwareCard = `
-        <div style="background:var(--card-inner, #161822); border:1px solid var(--border-sub, rgba(255,255,255,0.08)); border-radius:10px; padding:12px 16px; margin-bottom:12px; font-family:var(--font-mono);">
-          <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.06);">
+        <div style="background:var(--card-inner, #161822); border:1px solid var(--border-sub, rgba(255,255,255,0.08)); border-radius:12px; padding:16px; margin-bottom:14px; font-family:var(--font-mono);">
+          <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.06);">
             <div style="display:flex; align-items:center; gap:8px;">
-              <span style="width:8px; height:8px; border-radius:50%; background:#10b981; box-shadow:0 0 6px rgba(16,185,129,0.8);"></span>
-              <span style="font-size:12px; font-weight:800; color:var(--text-main);">ROUTER HARDWARE TELEMETRY</span>
+              <span style="width:8px; height:8px; border-radius:50%; background:#10b981; box-shadow:0 0 8px rgba(16,185,129,0.8);"></span>
+              <span style="font-size:12px; font-weight:800; color:var(--text-main); letter-spacing:0.5px;">GATEWAY HARDWARE TELEMETRY</span>
             </div>
             <span class="card-badge" style="background:rgba(56,189,248,0.15); color:#38bdf8; border-color:rgba(56,189,248,0.35);">ARCADYAN AX6000 (IPQ9574)</span>
           </div>
-          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:10px; font-size:11px;">
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px; font-size:11.5px;">
             <div>
-              <span style="color:var(--text-dim);">WAN Port (1x 2.5G):</span>
-              <strong style="color:#ef4444; display:block;">wan (DOWN / Unplugged)</strong>
+              <span style="color:var(--text-dim); display:block; margin-bottom:2px;">Primary WAN Uplink:</span>
+              <strong style="color:#10b981;">USB 5G Modem (usb0) &bull; UP</strong>
             </div>
             <div>
-              <span style="color:var(--text-dim);">Active LAN (1Gbps):</span>
-              <strong style="color:#10b981; display:block;">LAN 2 (UP) &bull; LAN 3 (UP)</strong>
+              <span style="color:var(--text-dim); display:block; margin-bottom:2px;">Active Ethernet:</span>
+              <strong style="color:#10b981;">LAN 2 (1 Gbps) &bull; LAN 3 (1 Gbps)</strong>
             </div>
             <div>
-              <span style="color:var(--text-dim);">Inactive LAN:</span>
-              <strong style="color:var(--text-dim); display:block;">LAN 1 (DOWN) &bull; LAN 4 (DOWN)</strong>
+              <span style="color:var(--text-dim); display:block; margin-bottom:2px;">Inactive Ethernet:</span>
+              <strong style="color:var(--text-dim);">LAN 1 (Unplugged) &bull; LAN 4</strong>
             </div>
             <div>
-              <span style="color:var(--text-dim);">Qualcomm Wi-Fi 6:</span>
-              <strong style="color:#71717a; display:block;">2.4G &amp; 5G Radios Disabled</strong>
+              <span style="color:var(--text-dim); display:block; margin-bottom:2px;">Wi-Fi 6 Radios:</span>
+              <strong style="color:#71717a;">Offloaded to Intermediate AP</strong>
             </div>
           </div>
         </div>
@@ -13423,16 +13381,17 @@
           mode: 'layer2_ap',
           ap: { ip: '10.0.0.166', mac: 'a8:1b:5a:c3:01:13', name: 'Asus Router / AP', model: 'Asus RT-AX53U AP' },
           layer3_devices: [
-            { ip: '10.0.0.5', mac: '00:11:32:92:02:1b', name: 'Synology NAS [STORAGE]', conn_type: 'LAN Port', tier: 3 },
-            { ip: '10.0.0.238', mac: 'f2:82:95:8f:db:29', name: 'Vivo V2153 [PHONE]', conn_type: '5GHz WiFi', tier: 3 },
-            { ip: '10.0.0.104', mac: '76:74:c6:67:5a:89', name: 'POCO-X6-5G [PHONE]', conn_type: '5GHz WiFi', tier: 3 },
-            { ip: '10.0.0.2', mac: '8c:a3:99:7b:81:2b', name: 'maxnet-b [ROUTER]', conn_type: 'LAN Port', tier: 3 }
+            { ip: '10.0.0.5', mac: '00:11:32:92:02:1b', name: 'Synology NAS [STORAGE]', conn_type: 'LAN Port' },
+            { ip: '10.0.0.238', mac: 'f2:82:95:8f:db:29', name: 'Vivo V2153 [PHONE]', conn_type: '5GHz WiFi' },
+            { ip: '10.0.0.104', mac: '76:74:c6:67:5a:89', name: 'POCO-X6-5G [PHONE]', conn_type: '5GHz WiFi' },
+            { ip: '10.0.0.2', mac: '8c:a3:99:7b:81:2b', name: 'maxnet-b [ROUTER]', conn_type: 'LAN Port' }
           ]
         },
         lan4: { portIndex: 4, mode: 'empty', device: null }
       };
 
       let html = rtrHardwareCard;
+
       [1, 2, 3, 4].forEach(idx => {
         const key = 'lan' + idx;
         const p = ports[key] || { portIndex: idx, mode: 'empty' };
@@ -13451,106 +13410,81 @@
         const apModel = escapeHtml(ap.model || (idx === 3 ? 'Asus RT-AX53U' : 'WiFi AP / Switch'));
 
         const l3List = p.layer3_devices || [];
+        const l3Ips = l3List.map(item => item.ip);
 
         html += `
-          <div class="topo-port-card" id="topoPortCard_lan${idx}" style="background:var(--card-inner, #161822); border:1px solid var(--border-sub, rgba(255,255,255,0.08)); border-radius:10px; padding:14px 16px;">
+          <div class="topo-port-card" id="topoPortCard_lan${idx}" style="background:var(--card-inner, #161822); border:1px solid var(--border-sub, rgba(255,255,255,0.08)); border-radius:12px; padding:16px; margin-bottom:12px;">
             <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.06);">
               <div style="display:flex; align-items:center; gap:8px;">
-                <span style="font-size:12px; font-weight:800; font-family:var(--font-mono); color:var(--text-main); background:rgba(255,255,255,0.08); padding:3px 8px; border-radius:6px;">PHYSICAL PORT: LAN ${idx}</span>
-                <span class="card-badge" style="${isUp ? 'background:rgba(16,185,129,0.15); color:#10b981; border-color:rgba(16,185,129,0.3);' : 'background:rgba(113,113,122,0.15); color:#71717a; border-color:rgba(113,113,122,0.25);'}">
-                  ${isUp ? 'CONFIGURED' : 'UNASSIGNED'}
+                <span style="font-size:12px; font-weight:800; font-family:var(--font-mono); color:var(--text-main); background:rgba(255,255,255,0.08); padding:4px 10px; border-radius:6px;">PHYSICAL PORT: LAN ${idx}</span>
+                <span class="card-badge ${isUp ? 'emerald' : ''}" id="topoBadge_lan${idx}">
+                  ${isUp ? (mode === 'layer2_ap' ? 'ACCESS POINT' : 'DIRECT CLIENT') : 'DISCONNECTED'}
                 </span>
               </div>
               <div style="display:flex; align-items:center; gap:8px;">
-                <label style="font-size:11px; font-family:var(--font-mono); color:var(--text-dim);">Port Mode:</label>
-                <select class="mh-input" id="topoMode_lan${idx}" onchange="onTopoModeChange(${idx})" style="padding:4px 10px; font-size:11px; font-family:var(--font-mono); width:210px;">
+                <label style="font-size:11px; font-family:var(--font-mono); color:var(--text-dim);">Port Role:</label>
+                <select class="mh-input" id="topoMode_lan${idx}" onchange="onTopoModeChange(${idx})" style="padding:5px 10px; font-size:11.5px; font-family:var(--font-mono); width:210px;">
                   <option value="empty" ${mode === 'empty' ? 'selected' : ''}>Empty / Unconnected</option>
                   <option value="direct" ${mode === 'direct' ? 'selected' : ''}>Direct End-Device (1 Client)</option>
-                  <option value="layer2_ap" ${mode === 'layer2_ap' ? 'selected' : ''}>Layer 2 AP / Switch / Sec Router</option>
+                  <option value="layer2_ap" ${mode === 'layer2_ap' ? 'selected' : ''}>Intermediate AP / Switch / Router</option>
                 </select>
               </div>
             </div>
 
-            <!-- DIRECT END-DEVICE MODE -->
-            <div id="topoDirectBody_lan${idx}" style="display: ${mode === 'direct' ? 'block' : 'none'};">
-              <!-- AUTO DHCP CLIENT PICKER -->
-              <div style="background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.22); border-radius:8px; padding:10px 12px; margin-bottom:12px;">
-                <label style="font-size:10.5px; font-weight:700; font-family:var(--font-mono); color:#10b981; display:flex; align-items:center; gap:6px; margin-bottom:6px;">
-                  <svg style="width:13px; height:13px; stroke:currentColor; fill:none; stroke-width:2;" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/></svg>
-                  <span>SELECT FROM DETECTED / DHCP CLIENTS (AUTO-FILL)</span>
-                </label>
-                <select class="mh-input" id="topoDirectSelect_lan${idx}" onchange="onSelectDirectClient(${idx}, this.value)" style="width:100%; padding:6px 10px; font-size:11.5px; font-family:var(--font-mono); border-color:rgba(16,185,129,0.4);">
-                  <option value="">-- Choose Client (Auto-Populates Below) --</option>
-                  ${availClients.map(c => `<option value="${escapeHtml(c.ip)}" ${devIp === c.ip ? 'selected' : ''}>${escapeHtml(c.name || 'Device')} — ${escapeHtml(c.ip)} [${escapeHtml(c.mac || '--')}]</option>`).join('')}
+            <!-- 1. DIRECT END-DEVICE MODE -->
+            <div id="topoDirectBody_lan${idx}" style="display:${mode === 'direct' ? 'block' : 'none'};">
+              <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                <label style="font-size:11px; font-family:var(--font-mono); color:var(--text-dim); min-width:110px;">Connected Client:</label>
+                <select class="mh-input" id="topoDirectSelect_lan${idx}" onchange="onSelectDirectClient(${idx}, this.value)" style="flex:1; min-width:240px; padding:7px 12px; font-size:12px; font-family:var(--font-mono);">
+                  <option value="">-- Choose Connected Client --</option>
+                  ${availClients.map(c => `<option value="${escapeHtml(c.ip)}" ${devIp === c.ip ? 'selected' : ''}>${escapeHtml(c.name || 'Device')} &bull; ${escapeHtml(c.ip)} [${escapeHtml(c.mac || '--')}]</option>`).join('')}
                 </select>
               </div>
-
-              <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:10px;">
-                <div>
-                  <label style="font-size:10px; font-family:var(--font-mono); color:var(--text-dim); display:block; margin-bottom:3px;">Device Name</label>
-                  <input type="text" class="mh-input" id="topoDevName_lan${idx}" value="${devName}" placeholder="e.g. maxos [PC]">
-                </div>
-                <div>
-                  <label style="font-size:10px; font-family:var(--font-mono); color:var(--text-dim); display:block; margin-bottom:3px;">IPv4 Address</label>
-                  <input type="text" class="mh-input" id="topoDevIp_lan${idx}" value="${devIp}" placeholder="10.0.0.111">
-                </div>
-                <div>
-                  <label style="font-size:10px; font-family:var(--font-mono); color:var(--text-dim); display:block; margin-bottom:3px;">MAC Address</label>
-                  <input type="text" class="mh-input" id="topoDevMac_lan${idx}" value="${devMac}" placeholder="10:65:30:7a:9c:02">
-                </div>
-              </div>
+              <input type="hidden" id="topoDevName_lan${idx}" value="${devName}">
+              <input type="hidden" id="topoDevIp_lan${idx}" value="${devIp}">
+              <input type="hidden" id="topoDevMac_lan${idx}" value="${devMac}">
             </div>
 
-            <!-- LAYER 2 AP / SWITCH MODE -->
-            <div id="topoApBody_lan${idx}" style="display: ${mode === 'layer2_ap' ? 'block' : 'none'};">
-              <div style="background:rgba(56,189,248,0.06); border:1px solid rgba(56,189,248,0.22); border-radius:8px; padding:10px 12px; margin-bottom:12px;">
-                <div style="font-size:11px; font-weight:800; color:#38bdf8; font-family:var(--font-mono); margin-bottom:8px; display:flex; align-items:center; gap:6px;">
-                  <svg style="width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2;" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-                  LAYER 2 INTERMEDIATE DEVICE (AP / SWITCH / SECONDARY ROUTER)
-                </div>
-
-                <!-- AUTO DHCP AP PICKER -->
-                <div style="margin-bottom:10px;">
-                  <label style="font-size:10px; font-weight:700; font-family:var(--font-mono); color:#38bdf8; display:flex; align-items:center; gap:5px; margin-bottom:4px;">
-                    <span>QUICK SELECT AP / ROUTER FROM DETECTED CLIENTS</span>
-                  </label>
-                  <select class="mh-input" id="topoApSelect_lan${idx}" onchange="onSelectApClient(${idx}, this.value)" style="width:100%; padding:6px 10px; font-size:11.5px; font-family:var(--font-mono); border-color:rgba(56,189,248,0.4);">
-                    <option value="">-- Choose AP / Switch (Auto-Populates Below) --</option>
-                    ${availClients.map(c => `<option value="${escapeHtml(c.ip)}" ${apIp === c.ip ? 'selected' : ''}>${escapeHtml(c.name || 'AP')} — ${escapeHtml(c.ip)} [${escapeHtml(c.mac || '--')}]</option>`).join('')}
-                  </select>
-                </div>
-
-                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:8px;">
-                  <div>
-                    <label style="font-size:10px; font-family:var(--font-mono); color:var(--text-dim); display:block; margin-bottom:3px;">AP / Switch Name</label>
-                    <input type="text" class="mh-input" id="topoApName_lan${idx}" value="${apName}" placeholder="e.g. Asus Router / AP">
-                  </div>
-                  <div>
-                    <label style="font-size:10px; font-family:var(--font-mono); color:var(--text-dim); display:block; margin-bottom:3px;">AP IP Address</label>
-                    <input type="text" class="mh-input" id="topoApIp_lan${idx}" value="${apIp}" placeholder="10.0.0.166">
-                  </div>
-                  <div>
-                    <label style="font-size:10px; font-family:var(--font-mono); color:var(--text-dim); display:block; margin-bottom:3px;">AP MAC Address</label>
-                    <input type="text" class="mh-input" id="topoApMac_lan${idx}" value="${apMac}" placeholder="a8:1b:5a:c3:01:13">
-                  </div>
-                  <div>
-                    <label style="font-size:10px; font-family:var(--font-mono); color:var(--text-dim); display:block; margin-bottom:3px;">Hardware Model</label>
-                    <input type="text" class="mh-input" id="topoApModel_lan${idx}" value="${apModel}" placeholder="Asus RT-AX53U">
-                  </div>
-                </div>
+            <!-- 2. INTERMEDIATE AP / SWITCH MODE -->
+            <div id="topoApBody_lan${idx}" style="display:${mode === 'layer2_ap' ? 'block' : 'none'};">
+              <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px; flex-wrap:wrap;">
+                <label style="font-size:11px; font-family:var(--font-mono); color:#38bdf8; min-width:110px; font-weight:700;">AP / Switch Node:</label>
+                <select class="mh-input" id="topoApSelect_lan${idx}" onchange="onSelectApClient(${idx}, this.value)" style="flex:1; min-width:240px; padding:7px 12px; font-size:12px; font-family:var(--font-mono); border-color:rgba(56,189,248,0.4);">
+                  <option value="">-- Choose AP or Router Device --</option>
+                  ${availClients.map(c => `<option value="${escapeHtml(c.ip)}" ${apIp === c.ip ? 'selected' : ''}>${escapeHtml(c.name || 'AP')} &bull; ${escapeHtml(c.ip)} [${escapeHtml(c.mac || '--')}]</option>`).join('')}
+                </select>
               </div>
+              <input type="hidden" id="topoApName_lan${idx}" value="${apName}">
+              <input type="hidden" id="topoApIp_lan${idx}" value="${apIp}">
+              <input type="hidden" id="topoApMac_lan${idx}" value="${apMac}">
+              <input type="hidden" id="topoApModel_lan${idx}" value="${apModel}">
 
-              <!-- Downstream Multi-Layer Devices -->
-              <div>
-                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
-                  <span style="font-size:11px; font-weight:700; color:var(--text-main); font-family:var(--font-mono);">DOWNSTREAM CLIENT HIERARCHY (LAYERS 3 &amp; 4)</span>
-                  <div style="display:flex; gap:6px;">
-                    <button type="button" class="mh-btn btn-sm" onclick="addLayer3DeviceRow(${idx}, 3)" style="padding:4px 10px; font-size:10.5px;">+ ADD LAYER 3 CLIENT</button>
-                    <button type="button" class="mh-btn btn-sm btn-ghost" onclick="addLayer3DeviceRow(${idx}, 4)" style="padding:4px 10px; font-size:10.5px;">+ ADD LAYER 4 (SUB-AP)</button>
-                  </div>
+              <!-- DOWNSTREAM CLIENT CHECKLIST -->
+              <div style="background:rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:12px 14px;">
+                <div style="font-size:11px; font-weight:700; color:var(--text-main); font-family:var(--font-mono); margin-bottom:10px; display:flex; align-items:center; justify-content:space-between;">
+                  <span>CLIENTS CONNECTED THROUGH THIS AP / SWITCH</span>
+                  <span style="font-size:10px; color:var(--text-dim); font-weight:normal;">Check devices to route under this node</span>
                 </div>
-                <div id="topoLayer3List_lan${idx}" style="display:flex; flex-direction:column; gap:6px;">
-                  ${l3List.map((c, cIdx) => renderLayer3RowHtml(idx, cIdx, c, availClients)).join('')}
+                <div id="topoApClientsList_lan${idx}" style="display:flex; flex-direction:column; gap:8px;">
+                  ${availClients.filter(c => c.ip !== apIp && c.ip !== devIp && c.ip !== '10.0.0.1').map(c => {
+                    const isChecked = l3Ips.includes(c.ip) || (idx === 3 && (c.name.includes('NAS') || c.name.includes('Vivo') || c.name.includes('POCO') || c.name.includes('maxnet-b')));
+                    const existing = l3List.find(item => item.ip === c.ip);
+                    const conn = existing ? existing.conn_type : (c.name.includes('NAS') || c.name.includes('maxnet') ? 'LAN Port' : '5GHz WiFi');
+                    return `
+                      <div class="topo-client-check-row" style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:6px 10px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.04); border-radius:8px;">
+                        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; flex:1; font-family:var(--font-mono); font-size:11.5px;">
+                          <input type="checkbox" class="topo-l3-check" data-port="${idx}" data-ip="${escapeHtml(c.ip)}" data-name="${escapeHtml(c.name || 'Device')}" data-mac="${escapeHtml(c.mac || '')}" ${isChecked ? 'checked' : ''} style="width:16px; height:16px; accent-color:#38bdf8;">
+                          <span style="font-weight:700; color:var(--text-main);">${escapeHtml(c.name || 'Device')}</span>
+                          <span style="color:var(--text-dim); font-size:10.5px;">(${escapeHtml(c.ip)})</span>
+                        </label>
+                        <select class="mh-input topo-l3-conn-sel" data-ip="${escapeHtml(c.ip)}" style="padding:3px 8px; font-size:10.5px; font-family:var(--font-mono); width:110px;">
+                          <option value="5GHz WiFi" ${conn === '5GHz WiFi' ? 'selected' : ''}>5GHz WiFi</option>
+                          <option value="2.4GHz WiFi" ${conn === '2.4GHz WiFi' ? 'selected' : ''}>2.4GHz WiFi</option>
+                          <option value="LAN Port" ${conn === 'LAN Port' ? 'selected' : ''}>LAN Port</option>
+                        </select>
+                      </div>
+                    `;
+                  }).join('')}
                 </div>
               </div>
             </div>
@@ -13561,57 +13495,71 @@
       container.innerHTML = html;
     }
 
-    function renderLayer3RowHtml(portIdx, cIdx, c = {}, availClients = null) {
-      if (!availClients) availClients = getAvailableNetworkClients();
-      const name = escapeHtml(c.name || '');
-      const ip = escapeHtml(c.ip || '');
-      const mac = escapeHtml(c.mac || '');
-      const conn = c.conn_type || 'LAN Port';
-      const tier = c.tier == 4 ? 4 : 3;
-
-      return `
-        <div class="topo-l3-row" style="display:grid; grid-template-columns: 85px 1.4fr 1.3fr 1fr 1fr 34px; gap:8px; align-items:center; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:6px; padding:6px 8px;">
-          <select class="mh-input l3-tier" style="padding:4px 6px; font-size:10px; font-weight:700; color:${tier === 4 ? '#ec4899' : '#38bdf8'}; background:${tier === 4 ? 'rgba(236,72,153,0.1)' : 'rgba(56,189,248,0.1)'}; border-color:${tier === 4 ? 'rgba(236,72,153,0.3)' : 'rgba(56,189,248,0.3)'};">
-            <option value="3" ${tier === 3 ? 'selected' : ''}>Layer 3</option>
-            <option value="4" ${tier === 4 ? 'selected' : ''}>Layer 4</option>
-          </select>
-          <select class="mh-input l3-picker" onchange="onSelectL3Client(this)" style="padding:4px 6px; font-size:10.5px; font-family:var(--font-mono); border-color:rgba(56,189,248,0.3);">
-            <option value="">-- Quick Select Client --</option>
-            ${availClients.map(ac => `<option value="${escapeHtml(ac.ip)}" ${ip === ac.ip ? 'selected' : ''}>${escapeHtml(ac.name || 'Device')} (${escapeHtml(ac.ip)})</option>`).join('')}
-          </select>
-          <input type="text" class="mh-input l3-name" placeholder="Device Name" value="${name}" style="padding:4px 8px; font-size:11px;">
-          <input type="text" class="mh-input l3-ip" placeholder="IP Address" value="${ip}" style="padding:4px 8px; font-size:11px; font-family:var(--font-mono);">
-          <select class="mh-input l3-conn" style="padding:4px 6px; font-size:10.5px;">
-            <option value="LAN Port" ${conn === 'LAN Port' ? 'selected' : ''}>LAN Port</option>
-            <option value="5GHz WiFi" ${conn === '5GHz WiFi' ? 'selected' : ''}>5GHz WiFi</option>
-            <option value="2.4GHz WiFi" ${conn === '2.4GHz WiFi' ? 'selected' : ''}>2.4GHz WiFi</option>
-          </select>
-          <button type="button" class="mh-btn btn-sm btn-danger" onclick="removeLayer3DeviceRow(this)" style="padding:4px 0; width:30px; text-align:center;" title="Remove Client">&times;</button>
-          <input type="hidden" class="l3-mac" value="${mac}">
-        </div>
-      `;
-    }
-
     function onTopoModeChange(idx) {
       const mode = (document.getElementById('topoMode_lan' + idx) || {}).value || 'empty';
       const directBody = document.getElementById('topoDirectBody_lan' + idx);
       const apBody = document.getElementById('topoApBody_lan' + idx);
+      const badge = document.getElementById('topoBadge_lan' + idx);
+
       if (directBody) directBody.style.display = (mode === 'direct') ? 'block' : 'none';
       if (apBody) apBody.style.display = (mode === 'layer2_ap') ? 'block' : 'none';
+      if (badge) {
+        if (mode === 'empty') {
+          badge.className = 'card-badge';
+          badge.textContent = 'DISCONNECTED';
+        } else if (mode === 'direct') {
+          badge.className = 'card-badge emerald';
+          badge.textContent = 'DIRECT CLIENT';
+        } else {
+          badge.className = 'card-badge';
+          badge.style.background = 'rgba(56,189,248,0.15)';
+          badge.style.color = '#38bdf8';
+          badge.style.borderColor = 'rgba(56,189,248,0.35)';
+          badge.textContent = 'ACCESS POINT';
+        }
+      }
     }
 
-    function addLayer3DeviceRow(idx, tier = 3) {
-      const list = document.getElementById('topoLayer3List_lan' + idx);
-      if (!list) return;
-      const count = list.querySelectorAll('.topo-l3-row').length;
-      const div = document.createElement('div');
-      div.innerHTML = renderLayer3RowHtml(idx, count, { name: '', ip: '', mac: '', conn_type: 'LAN Port', tier: tier });
-      list.appendChild(div.firstElementChild);
-    }
+    async function autoMapNetworkTopology() {
+      const availClients = getAvailableNetworkClients();
+      if (!availClients || availClients.length === 0) {
+        showToast('No active DHCP clients found to map', 'warning');
+        return;
+      }
 
-    function removeLayer3DeviceRow(btn) {
-      const row = btn.closest('.topo-l3-row');
-      if (row) row.remove();
+      // Automatically identify PC for LAN 2 and Asus for LAN 3
+      const pcDev = availClients.find(c => c.ip === '10.0.0.111' || /pc|maxos|desktop|laptop/i.test(c.name)) || availClients[0];
+      const apDev = availClients.find(c => c.ip === '10.0.0.166' || /asus|router|ap|switch/i.test(c.name)) || availClients.find(c => c.ip !== (pcDev ? pcDev.ip : ''));
+
+      const autoConfig = {
+        status: "ok",
+        ports: {
+          lan1: { portIndex: 1, mode: 'empty', device: null },
+          lan2: {
+            portIndex: 2,
+            mode: pcDev ? 'direct' : 'empty',
+            device: pcDev ? { name: pcDev.name || 'maxos [PC]', ip: pcDev.ip, mac: pcDev.mac || '' } : null
+          },
+          lan3: {
+            portIndex: 3,
+            mode: apDev ? 'layer2_ap' : 'empty',
+            ap: apDev ? { name: apDev.name || 'Asus Router / AP', ip: apDev.ip, mac: apDev.mac || '', model: 'Asus RT-AX53U' } : null,
+            layer3_devices: availClients.filter(c => (!pcDev || c.ip !== pcDev.ip) && (!apDev || c.ip !== apDev.ip) && c.ip !== '10.0.0.1').map(c => ({
+              name: c.name || 'Device',
+              ip: c.ip,
+              mac: c.mac || '',
+              conn_type: /nas|server|storage/i.test(c.name) ? 'LAN Port' : '5GHz WiFi',
+              tier: 3
+            }))
+          },
+          lan4: { portIndex: 4, mode: 'empty', device: null }
+        }
+      };
+
+      window._topologyLayers = autoConfig;
+      renderTopologyLayersUI(autoConfig);
+      await saveTopologyLayersConfig();
+      showToast('Topology auto-mapped & updated live!', 'success');
     }
 
     async function saveTopologyLayersConfig() {
@@ -13626,36 +13574,43 @@
         if (mode === 'empty') {
           config.ports[key] = { portIndex: idx, mode: 'empty', device: null };
         } else if (mode === 'direct') {
+          const sel = document.getElementById('topoDirectSelect_lan' + idx);
+          const chosenIp = sel ? sel.value : '';
+          const avail = getAvailableNetworkClients();
+          const c = avail.find(item => item.ip === chosenIp) || {};
           config.ports[key] = {
             portIndex: idx,
             mode: 'direct',
             device: {
-              name: (document.getElementById('topoDevName_lan' + idx) || {}).value || 'Direct Device',
-              ip: (document.getElementById('topoDevIp_lan' + idx) || {}).value || '',
-              mac: (document.getElementById('topoDevMac_lan' + idx) || {}).value || ''
+              name: c.name || (document.getElementById('topoDevName_lan' + idx) || {}).value || 'Direct Client',
+              ip: chosenIp || (document.getElementById('topoDevIp_lan' + idx) || {}).value || '',
+              mac: c.mac || (document.getElementById('topoDevMac_lan' + idx) || {}).value || ''
             }
           };
         } else if (mode === 'layer2_ap') {
-          const l3Rows = document.querySelectorAll('#topoLayer3List_lan' + idx + ' .topo-l3-row');
+          const sel = document.getElementById('topoApSelect_lan' + idx);
+          const chosenIp = sel ? sel.value : '';
+          const avail = getAvailableNetworkClients();
+          const apClient = avail.find(item => item.ip === chosenIp) || {};
+
+          const checks = document.querySelectorAll(`.topo-l3-check[data-port="${idx}"]:checked`);
           const l3Devices = [];
-          l3Rows.forEach(row => {
-            const tier = parseInt((row.querySelector('.l3-tier') || {}).value, 10) || 3;
-            const name = (row.querySelector('.l3-name') || {}).value || '';
-            const ip = (row.querySelector('.l3-ip') || {}).value || '';
-            const mac = (row.querySelector('.l3-mac') || {}).value || '';
-            const conn_type = (row.querySelector('.l3-conn') || {}).value || 'LAN Port';
-            if (ip || name) {
-              l3Devices.push({ tier, name, ip, mac, conn_type });
-            }
+          checks.forEach(chk => {
+            const ip = chk.getAttribute('data-ip');
+            const name = chk.getAttribute('data-name');
+            const mac = chk.getAttribute('data-mac');
+            const connSel = document.querySelector(`.topo-l3-conn-sel[data-ip="${ip}"]`);
+            const conn_type = connSel ? connSel.value : 'LAN Port';
+            l3Devices.push({ tier: 3, name, ip, mac, conn_type });
           });
 
           config.ports[key] = {
             portIndex: idx,
             mode: 'layer2_ap',
             ap: {
-              name: (document.getElementById('topoApName_lan' + idx) || {}).value || 'Asus Router / AP',
-              ip: (document.getElementById('topoApIp_lan' + idx) || {}).value || '10.0.0.166',
-              mac: (document.getElementById('topoApMac_lan' + idx) || {}).value || '',
+              name: apClient.name || (document.getElementById('topoApName_lan' + idx) || {}).value || 'Asus Router / AP',
+              ip: chosenIp || (document.getElementById('topoApIp_lan' + idx) || {}).value || '10.0.0.166',
+              mac: apClient.mac || (document.getElementById('topoApMac_lan' + idx) || {}).value || '',
               model: (document.getElementById('topoApModel_lan' + idx) || {}).value || 'Asus RT-AX53U'
             },
             layer3_devices: l3Devices
@@ -14115,12 +14070,49 @@
       }
     }
 
-    // ADB Device state tracking (per serial)
-    const adbDeviceStates = {
+    // ADB Device state tracking (per serial) with LocalStorage persistence
+    let adbDeviceStates = {
       torch: {},
       silent: {},
-      screen: {}
+      screen: {},
+      screenAwake: {},
+      volume: {},
+      radio: {},
+      wirelessAdb: {}
     };
+
+    try {
+      const savedAdb = localStorage.getItem('maxnet_adb_states');
+      if (savedAdb) adbDeviceStates = Object.assign(adbDeviceStates, JSON.parse(savedAdb));
+    } catch (e) {}
+
+    function saveAdbDeviceStates() {
+      try {
+        localStorage.setItem('maxnet_adb_states', JSON.stringify(adbDeviceStates));
+      } catch (e) {}
+    }
+
+    function getAdbDeviceState(serial) {
+      if (!serial) serial = 'default_adb';
+      if (!adbDeviceStates.torch) adbDeviceStates.torch = {};
+      if (!adbDeviceStates.screenAwake) adbDeviceStates.screenAwake = {};
+      if (!adbDeviceStates.volume) adbDeviceStates.volume = {};
+      if (!adbDeviceStates.radio) adbDeviceStates.radio = {};
+      if (!adbDeviceStates.wirelessAdb) adbDeviceStates.wirelessAdb = {};
+
+      if (adbDeviceStates.torch[serial] === undefined) adbDeviceStates.torch[serial] = false;
+      if (adbDeviceStates.screenAwake[serial] === undefined) adbDeviceStates.screenAwake[serial] = true;
+      if (adbDeviceStates.volume[serial] === undefined) adbDeviceStates.volume[serial] = 10;
+      if (!adbDeviceStates.radio[serial]) adbDeviceStates.radio[serial] = 'active';
+      if (adbDeviceStates.wirelessAdb[serial] === undefined) adbDeviceStates.wirelessAdb[serial] = false;
+      return {
+        torch: adbDeviceStates.torch[serial],
+        screenAwake: adbDeviceStates.screenAwake[serial],
+        volume: adbDeviceStates.volume[serial],
+        radio: adbDeviceStates.radio[serial],
+        wirelessAdb: adbDeviceStates.wirelessAdb[serial]
+      };
+    }
 
     function updateAdbTorchUI(isOn) {
       const btn = document.getElementById('btnTorchToggle');
@@ -14144,7 +14136,7 @@
         }
       }
       if (sub) {
-        sub.textContent = isOn ? 'Camera torch LED is active (ON)' : 'Toggle camera torch LED on connected Android handset';
+        sub.innerHTML = `<strong style="color:${isOn ? '#f59e0b' : 'var(--text-dim)'};">State: ${isOn ? 'ON' : 'OFF'}</strong> &bull; High-intensity rear camera LED torch`;
       }
     }
 
@@ -14153,6 +14145,7 @@
       const cur = !!adbDeviceStates.torch[ser];
       const next = !cur;
       adbDeviceStates.torch[ser] = next;
+      saveAdbDeviceStates();
 
       // Update UI immediately with glowing tactile response
       updateAdbTorchUI(next);
@@ -14182,9 +14175,14 @@
       const sub = document.getElementById('dispVolumeSub');
       const silentBtn = document.getElementById('btnVolSilent');
 
+      if (!adbDeviceStates.volume) adbDeviceStates.volume = {};
+      if (!adbDeviceStates.silent) adbDeviceStates.silent = {};
+
       if (direction === 'silent') {
         const isSilent = !adbDeviceStates.silent[ser];
         adbDeviceStates.silent[ser] = isSilent;
+        adbDeviceStates.volume[ser] = isSilent ? 0 : 10;
+        saveAdbDeviceStates();
         if (silentBtn) {
           if (isSilent) silentBtn.classList.add('active-warning');
           else silentBtn.classList.remove('active-warning');
@@ -14193,12 +14191,23 @@
           pill.className = isSilent ? 'setting-pill pill-amber' : 'setting-pill';
           pill.textContent = isSilent ? 'SILENT ON' : 'MEDIA';
         }
-        if (sub) sub.textContent = isSilent ? 'Handset is in silent / mute mode' : 'Speaker audio active';
+        if (sub) {
+          sub.innerHTML = `<strong style="color:${isSilent ? '#f59e0b' : 'var(--text-main)'};">Level: ${isSilent ? 'MUTED' : 'Volume 10'}</strong> &bull; Speaker media audio level`;
+        }
         showToast(isSilent ? 'Phone switched to Silent Mode' : 'Silent mode deactivated', 'warning');
       } else {
+        let curVol = adbDeviceStates.volume[ser] !== undefined ? adbDeviceStates.volume[ser] : 10;
+        if (direction === 'up') curVol = Math.min(15, curVol + 1);
+        else curVol = Math.max(0, curVol - 1);
+        adbDeviceStates.volume[ser] = curVol;
+        adbDeviceStates.silent[ser] = (curVol === 0);
+        saveAdbDeviceStates();
         if (pill) {
           pill.className = 'setting-pill pill-cyan';
           pill.textContent = direction === 'up' ? 'VOL +' : 'VOL -';
+        }
+        if (sub) {
+          sub.innerHTML = `<strong style="color:${curVol === 0 ? '#f59e0b' : 'var(--text-main)'};">Level: ${curVol === 0 ? 'MUTED' : `Volume ${curVol}`}</strong> &bull; Speaker media audio level`;
         }
         showToast(`Volume adjusted (${direction.toUpperCase()})`, 'info');
       }
@@ -14213,6 +14222,9 @@
     async function runDeviceWake(btn) {
       const ser = selectedAdbSerial || 'default';
       adbDeviceStates.screen[ser] = 'on';
+      if (!adbDeviceStates.screenAwake) adbDeviceStates.screenAwake = {};
+      adbDeviceStates.screenAwake[ser] = true;
+      saveAdbDeviceStates();
       if (btn) {
         btn.classList.add('active-cyan', 'btn-pulse');
         setTimeout(() => btn.classList.remove('btn-pulse'), 350);
@@ -14223,7 +14235,7 @@
       const pill = document.getElementById('dispPowerStatus');
       const sub = document.getElementById('dispPowerSub');
       if (pill) { pill.className = 'setting-pill pill-cyan'; pill.textContent = 'AWAKE'; }
-      if (sub) sub.textContent = 'Display screen is turned ON';
+      if (sub) sub.innerHTML = `<strong style="color:#38bdf8;">State: AWAKE</strong> &bull; Handset touch display is active`;
       showToast('Waking phone screen...', 'info');
 
       try {
@@ -14236,6 +14248,9 @@
     async function runDeviceSleep(btn) {
       const ser = selectedAdbSerial || 'default';
       adbDeviceStates.screen[ser] = 'off';
+      if (!adbDeviceStates.screenAwake) adbDeviceStates.screenAwake = {};
+      adbDeviceStates.screenAwake[ser] = false;
+      saveAdbDeviceStates();
       if (btn) {
         btn.classList.add('active-cyan', 'btn-pulse');
         setTimeout(() => btn.classList.remove('btn-pulse'), 350);
@@ -14246,7 +14261,7 @@
       const pill = document.getElementById('dispPowerStatus');
       const sub = document.getElementById('dispPowerSub');
       if (pill) { pill.className = 'setting-pill'; pill.textContent = 'SLEEPING'; }
-      if (sub) sub.textContent = 'Display screen is turned OFF';
+      if (sub) sub.innerHTML = `<strong style="color:var(--text-dim);">State: SLEEPING</strong> &bull; Handset touch display is powered down`;
       showToast('Screen put to sleep', 'info');
 
       try {
@@ -14571,7 +14586,22 @@
 
       if (saveBtn) saveBtn.textContent = 'SAVE';
 
-      if (key === 'lan_ip') {
+      if (key === 'client_history_days') {
+        titleEl.textContent = 'Client History Retention';
+        descEl.textContent = 'Select duration to retain per-device bandwidth and DHCP client logs';
+        bodyEl.innerHTML = `
+          <div class="mh-form-group">
+            <label class="mh-label">Retention Period (Days)</label>
+            <select id="modalSelect_client_history" class="mh-input" style="width:100%; box-sizing:border-box;">
+              <option value="7">7 Days</option>
+              <option value="15" selected>15 Days (Default)</option>
+              <option value="30">30 Days (1 Month)</option>
+              <option value="60">60 Days (2 Months)</option>
+              <option value="90">90 Days (Quarterly)</option>
+            </select>
+          </div>
+        `;
+      } else if (key === 'lan_ip') {
         titleEl.textContent = 'Gateway IP Address';
         descEl.textContent = 'Primary IPv4 address for the bridge router interface (br-lan). Default is 10.0.0.1.';
         const curVal = document.getElementById('netLanIp').value || '10.0.0.1';
@@ -14834,7 +14864,13 @@
     async function saveSettingModal() {
       if (!currentModalKey) { closeSettingModal(); return; }
 
-      if (currentModalKey === 'lan_ip') {
+      if (currentModalKey === 'client_history_days') {
+        const selVal = document.getElementById('modalSelect_client_history').value;
+        const disp = document.getElementById('disp_client_history_days');
+        if (disp) disp.textContent = `${selVal} Days Retention • Click to change duration`;
+        showToast(`Client history retention set to ${selVal} days`, 'success');
+        scheduleNetworkAutoSave();
+      } else if (currentModalKey === 'lan_ip') {
         const val = (document.getElementById('modalInput_lan_ip').value || '10.0.0.1').trim();
         document.getElementById('netLanIp').value = val;
         const disp = document.getElementById('disp_lan_ip');
@@ -15143,26 +15179,52 @@
       if (!detailView || detailView.style.display === 'none') return;
 
       const selDev = activeAdbDevices.find(d => (d.serial === selectedAdbSerial || d.bus === selectedAdbSerial)) || activeAdbDevices[0];
-      const ser = selDev ? (selDev.serial || selDev.bus || selectedAdbSerial) : selectedAdbSerial;
+      const ser = selDev ? (selDev.serial || selDev.bus || selectedAdbSerial) : (selectedAdbSerial || 'default_adb');
+      const state = getAdbDeviceState(ser);
 
-      // Synchronize active toggle states for this device
-      updateAdbTorchUI(!!adbDeviceStates.torch[ser]);
-      const isSilent = !!adbDeviceStates.silent[ser];
-      const silentBtn = document.getElementById('btnVolSilent');
-      if (silentBtn) {
-        if (isSilent) silentBtn.classList.add('active-warning');
-        else silentBtn.classList.remove('active-warning');
+      // 1. Torch status & subtitle
+      const isTorchOn = !!state.torch;
+      updateAdbTorchUI(isTorchOn);
+      const torchSub = document.getElementById('dispTorchSub');
+      if (torchSub) {
+        torchSub.innerHTML = `<strong style="color:${isTorchOn ? '#f59e0b' : 'var(--text-dim)'};">State: ${isTorchOn ? 'ON' : 'OFF'}</strong> &bull; High-intensity rear camera LED torch`;
       }
-      const isSleep = adbDeviceStates.screen[ser] === 'off';
+
+      // 2. Display screen status & subtitle
+      const isAwake = (state.screenAwake !== false);
       const wakeBtn = document.getElementById('btnDisplayWake');
       const sleepBtn = document.getElementById('btnDisplaySleep');
       if (wakeBtn) {
-        if (!isSleep) wakeBtn.classList.add('active-cyan');
+        if (isAwake) wakeBtn.classList.add('active-cyan');
         else wakeBtn.classList.remove('active-cyan');
       }
       if (sleepBtn) {
-        if (isSleep) sleepBtn.classList.add('active-cyan');
+        if (!isAwake) sleepBtn.classList.add('active-cyan');
         else sleepBtn.classList.remove('active-cyan');
+      }
+      const pwrSub = document.getElementById('dispPowerSub');
+      if (pwrSub) {
+        pwrSub.innerHTML = `<strong style="color:${isAwake ? '#38bdf8' : 'var(--text-dim)'};">State: ${isAwake ? 'AWAKE' : 'SLEEPING'}</strong> &bull; Handset touch display is ${isAwake ? 'active' : 'powered down'}`;
+      }
+
+      // 3. Volume subtitle
+      const volSub = document.getElementById('dispVolumeSub');
+      if (volSub) {
+        const isMuted = state.volume === 0;
+        volSub.innerHTML = `<strong style="color:${isMuted ? '#f59e0b' : 'var(--text-main)'};">Level: ${isMuted ? 'MUTED' : `Volume ${state.volume}`}</strong> &bull; Speaker media audio level`;
+      }
+
+      // 4. Radio subtitle
+      const radioSub = document.getElementById('dispRadioSub');
+      if (radioSub) {
+        radioSub.innerHTML = `<strong style="color:#10b981;">State: 5G SA Connected</strong> &bull; Cycle airplane mode to re-attach`;
+      }
+
+      // 5. Wireless ADB subtitle
+      const wAdbSub = document.getElementById('dispWirelessAdbSub');
+      if (wAdbSub) {
+        const wOn = !!state.wirelessAdb;
+        wAdbSub.innerHTML = `<strong style="color:${wOn ? '#10b981' : 'var(--text-dim)'};">State: ${wOn ? 'Enabled (Port 5555)' : 'Disabled'}</strong> &bull; TCP/IP network debugging`;
       }
     }
 
@@ -15186,66 +15248,71 @@
 
     // ==================== ACTIVE SESSIONS & REMOTE DEVICE LOGOUT ====================
     async function fetchActiveSessions() {
-      const container = document.getElementById('otherSessionsContainer');
-      const countBadge = document.getElementById('otherSessionsCount');
-      const curIpEl = document.getElementById('currentDeviceIp');
-      const curUaEl = document.getElementById('currentDeviceUa');
+      const container = document.getElementById('activeSessionsFlatList');
+      if (!container) return;
+
       const curToken = localStorage.getItem('maxnet_token') || '';
 
       try {
         const res = await fetch(`/cgi-bin/auth?action=list_sessions&token=${encodeURIComponent(curToken)}`);
         const data = await res.json();
         const sessions = data.sessions || [];
+        const clientIp = data.current_ip || '10.0.0.111';
 
-        if (curIpEl && data.current_ip) curIpEl.textContent = data.current_ip;
-        if (curUaEl && navigator.userAgent) {
-          const uaStr = navigator.userAgent;
-          const isAndroid = /Android/i.test(uaStr);
-          const isLinux = /Linux/i.test(uaStr) && !isAndroid;
-          const isWindows = /Windows/i.test(uaStr);
-          const isMac = /Macintosh/i.test(uaStr);
-          const plat = isAndroid ? 'Android Device' : (isLinux ? 'Linux (x86_64)' : (isWindows ? 'Windows PC' : (isMac ? 'macOS Device' : 'Browser')));
-          curUaEl.textContent = `${plat} • ${navigator.appName || 'Client'}`;
-        }
+        // Parse user agent
+        const uaStr = navigator.userAgent;
+        const isAndroid = /Android/i.test(uaStr);
+        const isLinux = /Linux/i.test(uaStr) && !isAndroid;
+        const isWindows = /Windows/i.test(uaStr);
+        const isMac = /Macintosh/i.test(uaStr);
+        const plat = isAndroid ? 'Android Smartphone' : (isLinux ? 'Linux Workstation' : (isWindows ? 'Windows PC' : (isMac ? 'Apple macOS' : 'Web Browser')));
 
+        // Separate active session from other sessions
+        let curSession = sessions.find(s => s.is_current || s.token === curToken);
         const otherSessions = sessions.filter(s => !s.is_current && s.token !== curToken);
-        if (countBadge) countBadge.textContent = `${otherSessions.length} OTHER SESSIONS`;
 
-        if (container) {
-          if (otherSessions.length === 0) {
-            container.innerHTML = `
-              <div style="padding:16px; text-align:center; color:var(--text-dim); font-size:11.5px; font-family:var(--font-mono); background:rgba(255,255,255,0.02); border-radius:8px;">
-                No other devices currently authenticated. Your gateway connection is isolated and secure.
+        let html = '';
+
+        // 1. ACTIVE SESSION (ALWAYS ON TOP)
+        html += `
+          <div class="setting-row-item">
+            <div class="setting-label-col">
+              <span class="setting-label-bold">${plat} &bull; ${escapeHtml(curSession && curSession.user ? curSession.user : 'root')}</span>
+              <span class="setting-label-sub"><strong style="color:#10b981;">Active Device (This Session)</strong> &bull; IP: ${escapeHtml(clientIp)} &bull; Gateway Operator</span>
+            </div>
+            <div class="setting-control-col">
+              <button type="button" class="round-action-btn btn-danger-action" title="Sign Out This Device" onclick="logoutSession()">
+                <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              </button>
+            </div>
+          </div>
+        `;
+
+        // 2. OTHER AUTHENTICATED SESSIONS
+        otherSessions.forEach(s => {
+          const isAnd = /Android/i.test(s.ua || '');
+          const isLin = /Linux/i.test(s.ua || '') && !isAnd;
+          const isWin = /Windows/i.test(s.ua || '');
+          const isApple = /iPhone|iPad|Mac/i.test(s.ua || '');
+          const devTitle = isAnd ? 'Android Phone' : (isLin ? 'Linux Client' : (isWin ? 'Windows Host' : (isApple ? 'Apple Device' : 'Authenticated Session')));
+          const dateStr = s.created ? new Date(s.created * 1000).toLocaleTimeString() : 'Active';
+
+          html += `
+            <div class="setting-row-item">
+              <div class="setting-label-col">
+                <span class="setting-label-bold">${devTitle} &bull; ${escapeHtml(s.user || 'root')}</span>
+                <span class="setting-label-sub">IP: ${escapeHtml(s.ip || '10.0.0.1')} &bull; Authenticated: ${dateStr}</span>
               </div>
-            `;
-          } else {
-            container.innerHTML = otherSessions.map(s => {
-              const isAnd = /Android/i.test(s.ua || '');
-              const isLin = /Linux/i.test(s.ua || '') && !isAnd;
-              const isWin = /Windows/i.test(s.ua || '');
-              const isApple = /iPhone|iPad|Mac/i.test(s.ua || '');
-              const osBadge = isAnd ? 'ANDROID' : (isLin ? 'LINUX' : (isWin ? 'WINDOWS' : (isApple ? 'APPLE' : 'DEVICE')));
-              const dateStr = s.created ? new Date(s.created * 1000).toLocaleTimeString() : 'Active';
+              <div class="setting-control-col">
+                <button type="button" class="round-action-btn btn-danger-action" title="Sign Out Device" onclick="logoutSingleDevice('${escapeHtml(s.token)}')">
+                  <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                </button>
+              </div>
+            </div>
+          `;
+        });
 
-              return `
-                <div class="setting-row-item">
-                  <div class="setting-label-col">
-                    <div class="setting-title-wrap">
-                      <span class="setting-title">${escapeHtml(s.user || 'root')} Session</span>
-                      <span class="setting-pill">${osBadge}</span>
-                    </div>
-                    <div class="setting-desc">IP: ${escapeHtml(s.ip || '10.0.0.1')} &bull; Login: ${dateStr}</div>
-                  </div>
-                  <div class="setting-control-col">
-                    <button type="button" class="round-action-btn btn-danger-action" title="Sign Out Device" onclick="logoutSingleDevice('${escapeHtml(s.token)}')">
-                      <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                    </button>
-                  </div>
-                </div>
-              `;
-            }).join('');
-          }
-        }
+        container.innerHTML = html;
       } catch (e) {
         console.error('fetchActiveSessions error', e);
       }
@@ -16070,6 +16137,34 @@
       }
     }
 
+    
+    // ==================== USB WAN TETHERING CONTROLLERS ====================
+    let usbTetherEnabled = true;
+    let usbTetherDnsEnabled = true;
+
+    async function toggleUsbTethering(enabled) {
+      usbTetherEnabled = enabled;
+      const stateEl = document.getElementById('dispUsbTetherState');
+      const badgeEl = document.getElementById('dispUsbTetherBadge');
+      if (enabled) {
+        if (stateEl) stateEl.textContent = 'State: Active (usb0) • Primary upstream internet gateway over USB';
+        if (badgeEl) { badgeEl.className = 'setting-status-badge badge-active'; badgeEl.textContent = '5G SA ONLINE'; }
+        showToast('USB WAN Tethering enabled', 'success');
+      } else {
+        if (stateEl) stateEl.textContent = 'State: Disabled • USB tethering interface usb0 brought down';
+        if (badgeEl) { badgeEl.className = 'setting-status-badge badge-disabled'; badgeEl.textContent = 'DISCONNECTED'; }
+        showToast('USB WAN Tethering disabled', 'info');
+      }
+      try {
+        await apiFetch('/cgi-bin/device?action=settings_tether&enabled=' + (enabled ? '1' : '0'));
+      } catch (e) {}
+    }
+
+    async function toggleUsbTetherDns(enabled) {
+      usbTetherDnsEnabled = enabled;
+      showToast('Tethering DNS Forwarding ' + (enabled ? 'Enabled' : 'Disabled'), 'info');
+    }
+
     async function fetchNetworkConfig() {
       try {
         const res = await fetch('/cgi-bin/network');
@@ -16890,12 +16985,99 @@
       }
     }
 
+    let _factoryResetTimer = null;
+    let _factoryResetCountdown = 10;
+
+    function showFactoryResetModal() {
+      const overlay = document.getElementById('factoryResetModalOverlay');
+      const btn = document.getElementById('btnConfirmFactoryReset');
+      if (!overlay || !btn) return;
+
+      overlay.style.display = 'flex';
+      _factoryResetCountdown = 10;
+      btn.disabled = true;
+      btn.style.cursor = 'not-allowed';
+      btn.style.background = 'rgba(239,68,68,0.2)';
+      btn.style.color = 'rgba(255,255,255,0.4)';
+      btn.textContent = `RESET GATEWAY (${_factoryResetCountdown}s)`;
+
+      clearInterval(_factoryResetTimer);
+      _factoryResetTimer = setInterval(() => {
+        _factoryResetCountdown--;
+        if (_factoryResetCountdown > 0) {
+          btn.textContent = `RESET GATEWAY (${_factoryResetCountdown}s)`;
+        } else {
+          clearInterval(_factoryResetTimer);
+          btn.disabled = false;
+          btn.style.cursor = 'pointer';
+          btn.style.background = '#ef4444';
+          btn.style.color = '#ffffff';
+          btn.textContent = 'RESET GATEWAY';
+        }
+      }, 1000);
+    }
+
+    function closeFactoryResetModal() {
+      clearInterval(_factoryResetTimer);
+      const overlay = document.getElementById('factoryResetModalOverlay');
+      if (overlay) overlay.style.display = 'none';
+    }
+
+    async function executeFactoryReset() {
+      if (_factoryResetCountdown > 0) return;
+      closeFactoryResetModal();
+      showToast('Initiating factory reset... Router rebooting', 'warning', 8000);
+      try {
+        await fetch('/cgi-bin/restore?action=reset', { method: 'POST' });
+      } catch (e) {}
+    }
+
     function confirmFactoryReset() {
-      if (!confirm('CRITICAL WARNING: Factory Reset will erase all custom configurations, network settings, and restore defaults. Continue?')) return;
-      if (!confirm('FINAL CONFIRMATION: Confirm factory wipe and system reset?')) return;
-      fetch('/cgi-bin/restore?action=reset', { method: 'POST' })
-        .then(() => alert('Factory reset initiated. Gateway rebooting into default state...'))
-        .catch(() => alert('Factory reset triggered.'));
+      showFactoryResetModal();
+    }
+
+    function confirmFactoryResetRouter() {
+      showFactoryResetModal();
+    }
+
+    async function downloadSystemLog() {
+      try {
+        showToast('Fetching system log...', 'info');
+        const res = await fetch('/cgi-bin/logs?type=system&lines=1000');
+        const data = await res.json();
+        const blob = new Blob([data.raw || ''], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `system_log_${Date.now()}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('System log downloaded!', 'success');
+      } catch (e) {
+        showToast('Error downloading system log', 'error');
+      }
+    }
+
+    async function downloadKernelLog() {
+      try {
+        showToast('Fetching kernel dmesg log...', 'info');
+        const res = await fetch('/cgi-bin/logs?type=kernel&lines=1000');
+        const data = await res.json();
+        const blob = new Blob([data.raw || ''], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `kernel_dmesg_${Date.now()}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('Kernel dmesg downloaded!', 'success');
+      } catch (e) {
+        showToast('Error downloading kernel log', 'error');
+      }
     }
 
         // ==================== GLOBAL TOAST NOTIFICATION COMPONENT ====================
