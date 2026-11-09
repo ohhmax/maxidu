@@ -4000,6 +4000,7 @@
       border-radius: 12px !important;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
       box-sizing: border-box;
+      width: 100%;
       max-width: 980px;
       margin-left: auto;
       margin-right: auto;
@@ -5981,6 +5982,9 @@
     }
     #settingsDetailPageView:has(#acc-terminal-cli.page-active) .settings-subnav-bar,
     body.terminal-active .settings-subnav-bar {
+      width: 100% !important;
+      max-width: 980px !important;
+      align-self: center !important;
       flex-shrink: 0 !important;
       margin-bottom: 4px !important;
     }
@@ -8365,8 +8369,7 @@
               <!-- 3. DEDICATED IN-PAGE VIEW: SMS MESSAGES (NO POPUP) -->
               <div id="adbSmsPageView" style="display:none; flex-direction:column; gap:8px;">
                 <div style="display:flex; align-items:center; gap:8px;">
-                  <input type="text" class="mh-input" id="adbSmsPageSearch" placeholder="Search SMS messages by sender or keyword..." oninput="filterAdbSmsPage(this.value)" style="flex:1; font-size:12px; padding:7px 12px; border-radius:8px;">
-                  <span class="card-badge" id="adbSmsPageCountBadge" style="font-size:9.5px; height:32px; display:inline-flex; align-items:center; padding:0 8px; white-space:nowrap;">-- MSGS</span>
+                  <input type="text" class="mh-input" id="adbSmsPageSearch" placeholder="Search messages..." oninput="filterAdbSmsPage(this.value)" style="flex:1; font-size:12px; padding:7px 12px; border-radius:8px;">
                   <button type="button" class="round-action-btn" title="Refresh SMS" onclick="fetchAdbSmsPage(this)" id="btnAdbRefreshSmsPage" style="width:32px; height:32px; min-width:32px;">
                     <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
                   </button>
@@ -8380,8 +8383,7 @@
               <!-- 4. DEDICATED IN-PAGE VIEW: CALL HISTORY (NO POPUP) -->
               <div id="adbCallsPageView" style="display:none; flex-direction:column; gap:8px;">
                 <div style="display:flex; align-items:center; gap:8px;">
-                  <input type="text" class="mh-input" id="adbCallsPageSearch" placeholder="Search call logs by number or name..." oninput="filterAdbCallsPage(this.value)" style="flex:1; font-size:12px; padding:7px 12px; border-radius:8px;">
-                  <span class="card-badge" id="adbCallsPageCountBadge" style="font-size:9.5px; height:32px; display:inline-flex; align-items:center; padding:0 8px; white-space:nowrap;">-- CALLS</span>
+                  <input type="text" class="mh-input" id="adbCallsPageSearch" placeholder="Search call logs..." oninput="filterAdbCallsPage(this.value)" style="flex:1; font-size:12px; padding:7px 12px; border-radius:8px;">
                   <button type="button" class="round-action-btn" title="Refresh Calls" onclick="fetchAdbCallsPage(this)" id="btnAdbRefreshCallsPage" style="width:32px; height:32px; min-width:32px;">
                     <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
                   </button>
@@ -8395,8 +8397,7 @@
               <!-- 5. DEDICATED IN-PAGE VIEW: CONTACTS (NO POPUP) -->
               <div id="adbContactsPageView" style="display:none; flex-direction:column; gap:8px;">
                 <div style="display:flex; align-items:center; gap:8px;">
-                  <input type="text" class="mh-input" id="adbContactsPageSearch" placeholder="Search contacts by name or phone..." oninput="filterAdbContactsPage(this.value)" style="flex:1; font-size:12px; padding:7px 12px; border-radius:8px;">
-                  <span class="card-badge" id="adbContactsPageCountBadge" style="font-size:9.5px; height:32px; display:inline-flex; align-items:center; padding:0 8px; white-space:nowrap;">-- CONTACTS</span>
+                  <input type="text" class="mh-input" id="adbContactsPageSearch" placeholder="Search contacts..." oninput="filterAdbContactsPage(this.value)" style="flex:1; font-size:12px; padding:7px 12px; border-radius:8px;">
                   <button type="button" class="round-action-btn" title="Refresh Contacts" onclick="fetchAdbContactsPage(this)" id="btnAdbRefreshContactsPage" style="width:32px; height:32px; min-width:32px;">
                     <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
                   </button>
@@ -8443,7 +8444,7 @@
               <div class="setting-row-item">
                 <div class="setting-label-col">
                   <span class="setting-label-bold">Network Share Access</span>
-                  <span class="setting-label-sub" id="smbShareAddressText">\\10.0.0.1\Pendrive &bull; smb://10.0.0.1/Pendrive</span>
+                  <span class="setting-label-sub" id="smbShareAddressText">smb://10.0.0.1/Pendrive</span>
                 </div>
                 <div class="setting-control-col">
                   <button type="button" class="round-action-btn" onclick="copySmbPath()" title="Copy Share Path">
@@ -8981,11 +8982,11 @@
               <div style="display:flex; flex-direction:column;">
                 <div class="setting-row-item">
                   <div class="setting-label-col">
-                    <span class="setting-label-bold" style="color:#f59e0b;">Gateway Reboot</span>
-                    <span class="setting-label-sub">Safely sync filesystem buffers and perform graceful router restart</span>
+                    <span class="setting-label-bold">Reboot</span>
+                    <span class="setting-label-sub">Gracefully restart the router</span>
                   </div>
                   <div class="setting-control-col">
-                    <button class="round-action-btn btn-warning-action" title="Reboot Router Gateway" onclick="confirmRebootRouter()">
+                    <button class="round-action-btn btn-warning-action" title="Reboot Router" onclick="confirmRebootRouter()">
                       <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
                     </button>
                   </div>
@@ -8994,10 +8995,10 @@
                 <div class="setting-row-item">
                   <div class="setting-label-col">
                     <span class="setting-label-bold">Power Cycle USB (VBUS)</span>
-                    <span class="setting-label-sub">Cut and restore 5V VBUS rail to re-enumerate tethered modems</span>
+                    <span class="setting-label-sub">Power cycle USB ports and modems</span>
                   </div>
                   <div class="setting-control-col">
-                    <button class="round-action-btn btn-orange-action" title="Power Cycle USB Hub (VBUS Reset)" onclick="powerCycleUsbHub()">
+                    <button class="round-action-btn" title="Power Cycle USB Hub (VBUS Reset)" onclick="powerCycleUsbHub()">
                       <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
                     </button>
                   </div>
@@ -9006,10 +9007,10 @@
                 <div class="setting-row-item">
                   <div class="setting-label-col">
                     <span class="setting-label-bold">Restart Network</span>
-                    <span class="setting-label-sub">Reload Linux interfaces, firewall rules, and multi-link daemon</span>
+                    <span class="setting-label-sub">Restart interfaces and multi-link</span>
                   </div>
                   <div class="setting-control-col">
-                    <button class="round-action-btn btn-cyan-action" title="Restart Network &amp; Multi-Link Daemon" onclick="restartNetworkAndMultilink()">
+                    <button class="round-action-btn" title="Restart Network &amp; Multi-Link Daemon" onclick="restartNetworkAndMultilink()">
                       <svg viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
                     </button>
                   </div>
@@ -9018,10 +9019,10 @@
                 <div class="setting-row-item">
                   <div class="setting-label-col">
                     <span class="setting-label-bold">Flush DNS &amp; Conntrack</span>
-                    <span class="setting-label-sub">Clear dnsmasq cache and flush kernel conntrack state tables</span>
+                    <span class="setting-label-sub">Flush DNS cache and conntrack</span>
                   </div>
                   <div class="setting-control-col">
-                    <button class="round-action-btn btn-purple-action" title="Clear DNS &amp; Conntrack Cache" onclick="clearDnsAndConntrack()">
+                    <button class="round-action-btn" title="Clear DNS &amp; Conntrack Cache" onclick="clearDnsAndConntrack()">
                       <svg viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                     </button>
                   </div>
@@ -9030,10 +9031,10 @@
                 <div class="setting-row-item">
                   <div class="setting-label-col">
                     <span class="setting-label-bold">Backup Configuration</span>
-                    <span class="setting-label-sub">Export full system configuration, interfaces, and scripts (.tar.gz)</span>
+                    <span class="setting-label-sub">Export system backup (.tar.gz)</span>
                   </div>
                   <div class="setting-control-col">
-                    <button class="round-action-btn btn-emerald-action" title="Download Configuration Backup Archive" onclick="downloadBackupArchive()">
+                    <button class="round-action-btn" title="Download Configuration Backup Archive" onclick="downloadBackupArchive()">
                       <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                     </button>
                   </div>
@@ -9042,10 +9043,10 @@
                 <div class="setting-row-item">
                   <div class="setting-label-col">
                     <span class="setting-label-bold">Restore Configuration</span>
-                    <span class="setting-label-sub">Upload previously generated configuration archive to restore state</span>
+                    <span class="setting-label-sub">Upload backup archive to restore</span>
                   </div>
                   <div class="setting-control-col">
-                    <button class="round-action-btn btn-blue-action" title="Restore Configuration Archive" onclick="document.getElementById('backupFileInput').click()">
+                    <button class="round-action-btn" title="Restore Configuration Archive" onclick="document.getElementById('backupFileInput').click()">
                       <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                     </button>
                     <input type="file" id="backupFileInput" accept=".tar.gz,.tgz" style="display:none;" onchange="handleRestoreFileChosen(this)">
@@ -9065,10 +9066,10 @@
                 <div class="setting-row-item">
                   <div class="setting-label-col">
                     <span class="setting-label-bold">Check Latest Updates</span>
-                    <span class="setting-label-sub" id="updateStatusSub"><strong id="updateStatusPill" style="color:#10b981;">v2.2.20 UP TO DATE</strong> &bull; Jio AX6000 Arcadyan Custom Firmware &bull; Linux 6.18.60</span>
+                    <span class="setting-label-sub" id="updateStatusSub"><span id="updateStatusPill">v2.2.20 Up to date</span> &bull; Arcadyan AX6000 Firmware</span>
                   </div>
                   <div class="setting-control-col">
-                    <button class="round-action-btn btn-sky-action" id="btnCheckUpdate" title="Check for Latest Firmware Update" onclick="checkLatestFirmwareUpdate()">
+                    <button class="round-action-btn" id="btnCheckUpdate" title="Check for Latest Firmware Update" onclick="checkLatestFirmwareUpdate()">
                       <svg id="iconCheckUpdate" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
                     </button>
                   </div>
@@ -9076,8 +9077,8 @@
 
                 <div class="setting-row-item">
                   <div class="setting-label-col">
-                    <span class="setting-label-bold" style="color:#ef4444;">Factory Reset</span>
-                    <span class="setting-label-sub">Erase all custom configurations, credentials, and restore defaults</span>
+                    <span class="setting-label-bold">Factory Reset</span>
+                    <span class="setting-label-sub">Reset system to factory defaults</span>
                   </div>
                   <div class="setting-control-col">
                     <button class="round-action-btn btn-danger-action" title="Factory Reset Defaults" onclick="showFactoryResetModal()">
@@ -15252,7 +15253,8 @@
         const data = await res.json();
         const msgs = Array.isArray(data.messages) ? data.messages : [];
         window._cachedAdbSms = msgs;
-        if (countBadge) countBadge.textContent = `${msgs.length} MSGS`;
+        const searchInput = document.getElementById('adbSmsPageSearch');
+        if (searchInput) searchInput.placeholder = msgs.length > 0 ? `Search ${msgs.length} messages...` : 'Search messages...';
         renderAdbSmsPageList(msgs);
       } catch (e) {
         if (container) container.innerHTML = `<div style="text-align:center; padding:20px; color:#ef4444; font-size:12px;">Failed to load SMS messages: ${escapeHtml(e.message)}</div>`;
@@ -15276,20 +15278,23 @@
           if (!isNaN(d.getTime())) dateStr = d.toLocaleString();
         }
         const isIncoming = m.type === '1' || m.type === 1;
-        const typeBadge = isIncoming
-          ? '<span class="card-badge emerald" style="font-size:9px; padding:1px 6px;">INCOMING</span>'
-          : '<span class="card-badge" style="font-size:9px; padding:1px 6px; color:#38bdf8; border-color:rgba(56,189,248,0.3);">SENT</span>';
+        const arrowSvg = isIncoming
+          ? '<svg viewBox="0 0 24 24" style="width:14px; height:14px; stroke:#10b981; fill:none; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round;"><line x1="17" y1="7" x2="7" y2="17"/><polyline points="17 17 7 17 7 7"/></svg>'
+          : '<svg viewBox="0 0 24 24" style="width:14px; height:14px; stroke:#38bdf8; fill:none; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round;"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>';
+        const arrowBg = isIncoming ? 'rgba(16,185,129,0.12)' : 'rgba(56,189,248,0.12)';
 
         return `
-          <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:12px 14px; display:flex; flex-direction:column; gap:6px;">
-            <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
-              <div style="display:flex; align-items:center; gap:8px;">
-                <strong style="color:var(--text-main); font-size:12.5px; font-family:var(--font-mono);">${escapeHtml(m.address || 'Unknown Sender')}</strong>
-                ${typeBadge}
-              </div>
-              <span style="font-size:10.5px; color:var(--text-dim); font-family:var(--font-mono);">${escapeHtml(dateStr)}</span>
+          <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:11px 14px; display:flex; align-items:flex-start; gap:12px;">
+            <div style="width:28px; height:28px; min-width:28px; border-radius:50%; background:${arrowBg}; display:flex; align-items:center; justify-content:center; margin-top:2px;">
+              ${arrowSvg}
             </div>
-            <div style="font-size:12px; color:var(--text-main); line-height:1.5; word-break:break-word; white-space:pre-wrap;">${escapeHtml(m.body || '')}</div>
+            <div style="display:flex; flex-direction:column; gap:4px; flex:1; min-width:0;">
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                <strong style="color:var(--text-main); font-size:12.5px; font-family:var(--font-mono);">${escapeHtml(m.address || 'Unknown Sender')}</strong>
+                <span style="font-size:10.5px; color:var(--text-dim); font-family:var(--font-mono);">${escapeHtml(dateStr)}</span>
+              </div>
+              <div style="font-size:12px; color:var(--text-main); line-height:1.5; word-break:break-word; white-space:pre-wrap;">${escapeHtml(m.body || '')}</div>
+            </div>
           </div>
         `;
       }).join('');
@@ -15329,7 +15334,8 @@
         const data = await res.json();
         const logs = Array.isArray(data.call_logs) ? data.call_logs : [];
         window._cachedAdbCalls = logs;
-        if (countBadge) countBadge.textContent = `${logs.length} CALLS`;
+        const searchInput = document.getElementById('adbCallsPageSearch');
+        if (searchInput) searchInput.placeholder = logs.length > 0 ? `Search ${logs.length} calls by number or name...` : 'Search call logs...';
         renderAdbCallsPageList(logs);
       } catch (e) {
         if (container) container.innerHTML = `<div style="text-align:center; padding:20px; color:#ef4444; font-size:12px;">Failed to load call history: ${escapeHtml(e.message)}</div>`;
@@ -15352,13 +15358,15 @@
           const d = new Date(parseInt(c.date, 10));
           if (!isNaN(d.getTime())) dateStr = d.toLocaleString();
         }
-        let typeBadge = '<span class="card-badge" style="font-size:9px;">CALL</span>';
+        let arrowSvg = '<svg viewBox="0 0 24 24" style="width:14px; height:14px; stroke:#38bdf8; fill:none; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round;"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>';
+        let arrowBg = 'rgba(56,189,248,0.12)';
+
         if (c.type === '1' || c.type === 1) {
-          typeBadge = '<span class="card-badge emerald" style="font-size:9px; padding:1px 6px;">INCOMING</span>';
-        } else if (c.type === '2' || c.type === 2) {
-          typeBadge = '<span class="card-badge" style="font-size:9px; padding:1px 6px; color:#38bdf8; border-color:rgba(56,189,248,0.3);">OUTGOING</span>';
+          arrowSvg = '<svg viewBox="0 0 24 24" style="width:14px; height:14px; stroke:#10b981; fill:none; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round;"><line x1="17" y1="7" x2="7" y2="17"/><polyline points="17 17 7 17 7 7"/></svg>';
+          arrowBg = 'rgba(16,185,129,0.12)';
         } else if (c.type === '3' || c.type === 3) {
-          typeBadge = '<span class="card-badge" style="font-size:9px; padding:1px 6px; color:#ef4444; border-color:rgba(239,68,68,0.3);">MISSED</span>';
+          arrowSvg = '<svg viewBox="0 0 24 24" style="width:14px; height:14px; stroke:#ef4444; fill:none; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round;"><line x1="17" y1="7" x2="7" y2="17"/><polyline points="17 17 7 17 7 7"/></svg>';
+          arrowBg = 'rgba(239,68,68,0.12)';
         }
 
         const durSec = parseInt(c.duration || '0', 10);
@@ -15366,12 +15374,14 @@
 
         return `
           <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:10px 14px; display:flex; align-items:center; justify-content:space-between; gap:10px;">
-            <div style="display:flex; flex-direction:column; gap:2px; min-width:0;">
-              <div style="display:flex; align-items:center; gap:8px;">
-                <strong style="color:var(--text-main); font-size:12.5px; font-family:var(--font-mono);">${escapeHtml(c.number || 'Private Number')}</strong>
-                ${typeBadge}
+            <div style="display:flex; align-items:center; gap:12px; min-width:0;">
+              <div style="width:28px; height:28px; min-width:28px; border-radius:50%; background:${arrowBg}; display:flex; align-items:center; justify-content:center;">
+                ${arrowSvg}
               </div>
-              <span style="font-size:11px; color:var(--text-dim);">${c.name && c.name !== 'NULL' ? escapeHtml(c.name) + ' &bull; ' : ''}${escapeHtml(dateStr)}</span>
+              <div style="display:flex; flex-direction:column; gap:2px; min-width:0;">
+                <strong style="color:var(--text-main); font-size:12.5px; font-family:var(--font-mono);">${escapeHtml(c.number || 'Private Number')}</strong>
+                <span style="font-size:11px; color:var(--text-dim);">${c.name && c.name !== 'NULL' ? escapeHtml(c.name) + ' &bull; ' : ''}${escapeHtml(dateStr)}</span>
+              </div>
             </div>
             <span style="font-size:11px; color:var(--text-dim); font-family:var(--font-mono); white-space:nowrap;">${durFmt}</span>
           </div>
@@ -15413,7 +15423,8 @@
         const data = await res.json();
         const contacts = Array.isArray(data.contacts) ? data.contacts : [];
         window._cachedAdbContacts = contacts;
-        if (countBadge) countBadge.textContent = `${contacts.length} CONTACTS`;
+        const searchInput = document.getElementById('adbContactsPageSearch');
+        if (searchInput) searchInput.placeholder = contacts.length > 0 ? `Search ${contacts.length} contacts...` : 'Search contacts...';
         renderAdbContactsPageList(contacts);
       } catch (e) {
         if (container) container.innerHTML = `<div style="text-align:center; padding:20px; color:#ef4444; font-size:12px;">Failed to load contacts: ${escapeHtml(e.message)}</div>`;
@@ -15432,9 +15443,14 @@
 
       container.innerHTML = list.map(c => `
         <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:10px 14px; display:flex; align-items:center; justify-content:space-between; gap:10px;">
-          <div style="display:flex; flex-direction:column; gap:2px;">
-            <strong style="color:var(--text-main); font-size:12.5px;">${escapeHtml(c.name || 'Unnamed Contact')}</strong>
-            <span style="font-size:11px; color:var(--text-dim); font-family:var(--font-mono);">${escapeHtml(c.number || '--')}</span>
+          <div style="display:flex; align-items:center; gap:12px; min-width:0;">
+            <div style="width:28px; height:28px; min-width:28px; border-radius:50%; background:rgba(167,139,250,0.12); display:flex; align-items:center; justify-content:center;">
+              <svg viewBox="0 0 24 24" style="width:14px; height:14px; stroke:#a78bfa; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:2px; min-width:0;">
+              <strong style="color:var(--text-main); font-size:12.5px;">${escapeHtml(c.name || 'Unnamed Contact')}</strong>
+              <span style="font-size:11px; color:var(--text-dim); font-family:var(--font-mono);">${escapeHtml(c.number || '--')}</span>
+            </div>
           </div>
           <span class="card-badge" style="font-size:9.5px;">MOBILE</span>
         </div>
@@ -18856,6 +18872,11 @@
           if (capBadge) {
             capBadge.textContent = data.mounted ? `${data.total_space || '--'} (${data.free_space || '--'} free)` : 'No Storage';
           }
+          const shareAddrEl = document.getElementById('smbShareAddressText');
+          if (shareAddrEl) {
+            const ip = (window._lastDataCache && window._lastDataCache.network && window._lastDataCache.network.lan_ip) || window.location.hostname || '10.0.0.1';
+            shareAddrEl.textContent = `smb://${ip}/Pendrive`;
+          }
           const userDescEl = document.getElementById('disp_smb_user_desc');
           if (userDescEl) {
             userDescEl.textContent = `User: ${data.username || 'max'} • Click to configure credentials`;
@@ -18933,21 +18954,30 @@
     function copySmbPath(type) {
       const storDev = (window._lastDataCache && window._lastDataCache.usb_devices && window._lastDataCache.usb_devices.find(d => d.device_type === 'storage' || d.device_type === 'pendrive' || d.has_storage));
       const ip = (storDev && storDev.virtual_ip) || (window._lastDataCache && window._lastDataCache.network && window._lastDataCache.network.lan_ip) || window.location.hostname || '10.0.0.1';
-      const path = type === 'win' ? `\\\\${ip}\\Pendrive` : `smb://${ip}/Pendrive`;
+      const path = `smb://${ip}/Pendrive`;
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(path).then(() => {
-          const statusEl = document.getElementById('smbActionStatus');
-          if (statusEl) {
-            statusEl.style.color = '#38bdf8';
-            statusEl.innerText = 'Copied ' + path + ' to clipboard';
-            setTimeout(() => { if (statusEl) statusEl.innerText = ''; }, 3000);
-          }
+          if (typeof showToast === 'function') showToast(`Copied ${path} to clipboard`, 'success');
         }).catch(() => {
-          prompt('Copy network path:', path);
+          fallbackCopyText(path);
         });
       } else {
-        prompt('Copy network path:', path);
+        fallbackCopyText(path);
       }
+    }
+
+    function fallbackCopyText(text) {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        if (typeof showToast === 'function') showToast(`Copied ${text} to clipboard`, 'success');
+      } catch (e) {}
     }
 
     function onSelectMultiLinkSlot(slotNum) {
