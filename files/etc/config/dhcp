@@ -56,3 +56,8 @@ config host
 	option mac '7a:31:f7:e8:20:e4'
 	option ip '10.0.0.77'
 
+config host
+	option name 'maxos'
+	option mac '10:65:30:7a:9c:02'
+	option ip '10.0.0.111'
+
