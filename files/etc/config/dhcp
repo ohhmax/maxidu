@@ -86,4 +86,10 @@ config host
 	option mac '8c:a3:99:7b:81:2b'
 	option ip '10.0.0.2'
 
+config host
+	option name 'realme-6'
+	option mac '46:df:eb:aa:43:32'
+	option ip '10.0.0.197'
+
+
 

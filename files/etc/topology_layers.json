@@ -53,6 +53,15 @@
           "devices": []
         },
         {
+          "name": "realme-6",
+          "ip": "10.0.0.197",
+          "mac": "46:df:eb:aa:43:32",
+          "conn_type": "2.4GHz WiFi",
+          "is_router": false,
+          "tier": 3,
+          "devices": []
+        },
+        {
           "name": "Synology NAS",
           "ip": "10.0.0.5",
           "mac": "00:11:32:92:02:1b",
