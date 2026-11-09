@@ -53,25 +53,27 @@ get_dev_model() {
 
 get_gateway() {
     dev="$1"
-    # 1. Fast path: Direct kernel route lookup (zero CPU overhead)
+    # 1. From pre-fetched ubus dump (zero additional socket overhead)
+    if [ -n "$UBUS_DUMP" ]; then
+        gw=$(echo "$UBUS_DUMP" | jq -r --arg d "$dev" '.interface[] | select(.device == $d or .l3_device == $d) | (.route[]? | select(.target == "0.0.0.0") | .nexthop) // (.inactive.route[]? | select(.target == "0.0.0.0") | .nexthop) // .data.dhcpserver // empty' 2>/dev/null | head -n 1)
+        if [ -n "$gw" ] && [ "$gw" != "null" ]; then
+            echo "$gw"
+            return
+        fi
+    fi
+    # 2. Try direct kernel route lookup
     gw=$(ip route show dev "$dev" 2>/dev/null | awk '/default via/ {print $3}' | head -n 1)
     if [ -n "$gw" ]; then
         echo "$gw"
         return
     fi
-    # 2. Try udhcpc lease
+    # 3. Try udhcpc lease
     if [ -f "/var/run/udhcpc-$dev.leases" ]; then
         gw=$(awk -F= '/router/ {print $2}' "/var/run/udhcpc-$dev.leases" 2>/dev/null | head -n 1)
         if [ -n "$gw" ]; then
             echo "$gw"
             return
         fi
-    fi
-    # 3. Query netifd dump via jq (active, inactive default route, or dhcpserver)
-    gw=$(ubus call network.interface dump 2>/dev/null | jq -r --arg d "$dev" '.interface[] | select(.device == $d) | (.route[]? | select(.target == "0.0.0.0") | .nexthop) // (.inactive.route[]? | select(.target == "0.0.0.0") | .nexthop) // .data.dhcpserver // empty' 2>/dev/null | head -n 1)
-    if [ -n "$gw" ] && [ "$gw" != "null" ]; then
-        echo "$gw"
-        return
     fi
     # 4. Fallback: Android standard subnet gateway (.129 or .1)
     ip_addr=$(ip -4 a show dev "$dev" 2>/dev/null | awk '/inet / {print $2}' | awk -F'/' '{print $1}' | head -n 1)
@@ -89,6 +91,7 @@ get_gateway() {
 
 while true; do
     NOW=$(date +%s)
+    UBUS_DUMP=$(ubus call network.interface dump 2>/dev/null)
     PREV_TIME=0
     [ -f "$PREV_STATS" ] && PREV_TIME=$(awk '/__TIME__/ {print $2}' "$PREV_STATS")
     TIME_DELTA=$((NOW - PREV_TIME))
@@ -133,7 +136,7 @@ while true; do
                 esac
                 ip route replace default via "$gw" dev "$iface" table $tbl_id 2>/dev/null
                 ip rule add from "$ip_addr" table $tbl_id priority $tbl_id 2>/dev/null || true
-                if ping -c 1 -W 1 -I "$iface" 1.1.1.1 >/dev/null 2>&1 || ping -c 1 -W 1 -I "$iface" 8.8.8.8 >/dev/null 2>&1; then
+                if ping -c 1 -W 1 -I "$ip_addr" 1.1.1.1 >/dev/null 2>&1 || ping -c 1 -W 1 -I "$ip_addr" 8.8.8.8 >/dev/null 2>&1; then
                     health="1"
                 fi
             fi
