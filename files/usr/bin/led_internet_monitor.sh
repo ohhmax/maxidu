@@ -49,15 +49,22 @@ led_red() {
 }
 
 check_connectivity() {
-    # 1. First test public DNS resolvers
+    # 1. Fast zero-overhead check: read multilink daemon status if active
+    if [ -f "/tmp/multilink_status.json" ]; then
+        if grep -q '"active_count": [1-9]' "/tmp/multilink_status.json" 2>/dev/null; then
+            return 0
+        fi
+    fi
+
+    # 2. Fallback: probe public DNS resolvers
     if ping -c 1 -W 2 1.1.1.1 >/dev/null 2>&1 || ping -c 1 -W 2 8.8.8.8 >/dev/null 2>&1; then
         return 0
     fi
 
-    # 2. Check if default WAN gateway responds
+    # 3. Fallback: check if default gateway responds
     local def_gw
     def_gw=$(ip -4 route show default 2>/dev/null | awk '/default/ {print $3}' | head -n 1)
-    if [ -n "$def_gw" ] && [ "$def_gw" != "127.0.0.1" ] && [ "$def_gw" != "192.168.1.1" ]; then
+    if [ -n "$def_gw" ] && [ "$def_gw" != "127.0.0.1" ]; then
         if ping -c 1 -W 2 "$def_gw" >/dev/null 2>&1; then
             return 0
         fi
@@ -73,7 +80,6 @@ MAX_FAIL=3
 led_blue
 
 while true; do
-    # Re-evaluate LED paths if not found at initial start
     [ -z "$LED_GREEN" ] && LED_GREEN=$(find_led_path "green")
     [ -z "$LED_BLUE" ] && LED_BLUE=$(find_led_path "blue")
     [ -z "$LED_RED" ] && LED_RED=$(find_led_path "red")

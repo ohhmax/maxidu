@@ -1,3 +1,4 @@
+
 config defaults
 	option syn_flood '1'
 	option input 'REJECT'
@@ -15,14 +16,13 @@ config zone
 
 config zone
 	option name 'wan'
-	list network 'wan'
-	list network 'wan6'
-	list network 'wan_usb'
+	option network 'wan wan6 wan_usb wan_usb1 wan_usb2 wan_usb3 wan_usb4 wan_usb5'
 	option input 'REJECT'
 	option output 'ACCEPT'
 	option forward 'DROP'
 	option masq '1'
 	option mtu_fix '1'
+	option masq6 '1'
 
 config forwarding
 	option src 'lan'
@@ -42,7 +42,7 @@ config rule
 	option proto 'icmp'
 	option icmp_type 'echo-request'
 	option family 'ipv4'
-	option target 'ACCEPT'
+	option target 'DROP'
 
 config rule
 	option name 'Allow-IGMP'
@@ -59,12 +59,36 @@ config rule
 	option family 'ipv6'
 	option target 'ACCEPT'
 
-config redirect 'adb_forward'
-	option name 'ADB-Forward'
-	option src 'lan'
-	option src_ip '10.0.0.0/24'
-	option src_dip '10.0.0.254'
-	option src_dport '5555'
-	option dest 'wan'
-	option dest_port '5555'
-	option target 'DNAT'
+config rule
+	option name 'Allow-ICMPv6-Input'
+	option src 'wan'
+	option proto 'icmp'
+	list icmp_type 'echo-request'
+	list icmp_type 'echo-reply'
+	list icmp_type 'destination-unreachable'
+	list icmp_type 'packet-too-big'
+	list icmp_type 'time-exceeded'
+	list icmp_type 'bad-header'
+	list icmp_type 'unknown-header-type'
+	list icmp_type 'router-solicitation'
+	list icmp_type 'neighbour-solicitation'
+	list icmp_type 'router-advertisement'
+	list icmp_type 'neighbour-advertisement'
+	option family 'ipv6'
+	option target 'ACCEPT'
+
+config rule
+	option name 'Allow-ICMPv6-Forward'
+	option src 'wan'
+	option dest '*'
+	option proto 'icmp'
+	list icmp_type 'echo-request'
+	list icmp_type 'echo-reply'
+	list icmp_type 'destination-unreachable'
+	list icmp_type 'packet-too-big'
+	list icmp_type 'time-exceeded'
+	list icmp_type 'bad-header'
+	list icmp_type 'unknown-header-type'
+	option family 'ipv6'
+	option target 'ACCEPT'
+

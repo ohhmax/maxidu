@@ -1,0 +1,117 @@
+#!/bin/sh
+echo "Content-Type: application/json"
+echo "Access-Control-Allow-Origin: *"
+echo "Access-Control-Allow-Methods: GET, POST, OPTIONS"
+echo "Access-Control-Allow-Headers: Content-Type"
+echo ""
+
+CONF_FILE="/etc/topology_layers.json"
+
+# Default configuration if none exists
+init_default() {
+  cat << 'EOF'
+{
+  "status": "ok",
+  "ports": {
+    "lan1": {
+      "portIndex": 1,
+      "mode": "empty",
+      "device": null
+    },
+    "lan2": {
+      "portIndex": 2,
+      "mode": "direct",
+      "device": {
+        "ip": "10.0.0.111",
+        "mac": "10:65:30:7a:9c:02",
+        "name": "maxos [PC]"
+      }
+    },
+    "lan3": {
+      "portIndex": 3,
+      "mode": "layer2_ap",
+      "ap": {
+        "ip": "10.0.0.166",
+        "mac": "a8:1b:5a:c3:01:13",
+        "name": "Asus Router / AP",
+        "model": "Asus RT-AX53U AP"
+      },
+      "layer3_devices": [
+        {
+          "ip": "10.0.0.5",
+          "mac": "00:11:32:92:02:1b",
+          "name": "Synology NAS [STORAGE]",
+          "conn_type": "LAN Port"
+        },
+        {
+          "ip": "10.0.0.238",
+          "mac": "f2:82:95:8f:db:29",
+          "name": "Vivo V2153 [PHONE]",
+          "conn_type": "5GHz WiFi"
+        },
+        {
+          "ip": "10.0.0.104",
+          "mac": "76:74:c6:67:5a:89",
+          "name": "POCO-X6-5G [PHONE]",
+          "conn_type": "5GHz WiFi"
+        },
+        {
+          "ip": "10.0.0.2",
+          "mac": "8c:a3:99:7b:81:2b",
+          "name": "maxnet-b [ROUTER]",
+          "conn_type": "LAN Port"
+        }
+      ]
+    },
+    "lan4": {
+      "portIndex": 4,
+      "mode": "empty",
+      "device": null
+    }
+  }
+}
+EOF
+}
+
+if [ "$REQUEST_METHOD" = "POST" ]; then
+  POST_DATA=$(cat)
+  if [ -n "$POST_DATA" ]; then
+    echo "$POST_DATA" | jq . > "$CONF_FILE" 2>/dev/null
+    if [ $? -eq 0 ]; then
+      sync
+      echo '{"status":"ok","message":"Topology layer configuration saved successfully"}'
+      exit 0
+    fi
+  fi
+fi
+
+# Check query params for action=save or reset
+QS="$QUERY_STRING"
+case "$QS" in
+  *action=reset*)
+    init_default > "$CONF_FILE"
+    sync
+    cat "$CONF_FILE"
+    exit 0
+    ;;
+  *action=save*)
+    DATA=$(echo "$QS" | sed -n 's/.*data=\([^&]*\).*/\1/p')
+    if [ -n "$DATA" ]; then
+      # url decode
+      DECODED=$(printf '%b' "${DATA//%/\\x}")
+      echo "$DECODED" | jq . > "$CONF_FILE" 2>/dev/null
+      if [ $? -eq 0 ]; then
+        sync
+        echo '{"status":"ok","message":"Topology layer configuration saved successfully"}'
+        exit 0
+      fi
+    fi
+    ;;
+esac
+
+if [ -f "$CONF_FILE" ] && [ -s "$CONF_FILE" ]; then
+  cat "$CONF_FILE"
+else
+  init_default | tee "$CONF_FILE"
+  sync
+fi

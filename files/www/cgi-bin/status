@@ -4,35 +4,61 @@ echo "Cache-Control: no-cache, no-store, must-revalidate"
 echo "Access-Control-Allow-Origin: *"
 echo ""
 
-# 1. Router Data
+# 1. Firmware info (Clean version without build number)
+FIRMWARE_VER=$(grep -o 'v2\.[0-9.]*' /etc/banner 2>/dev/null | head -n 1)
+[ -z "$FIRMWARE_VER" ] && FIRMWARE_VER="v2.2.20"
+
+# 2. Router System & CPU
 UPTIME_RAW=$(cat /proc/uptime 2>/dev/null || echo "0 0")
 UPTIME_SEC=$(echo "$UPTIME_RAW" | awk '{print int($1)}')
 DAYS=$((UPTIME_SEC / 86400))
 HOURS=$(( (UPTIME_SEC % 86400) / 3600 ))
-MINS=$(( (UPTIME_SEC % 3600) / 60 ))
-UPTIME_FMT="${HOURS}h ${MINS}m"
+MINS=$(( (UPTIME_SEC % 3600) / 60 )); SECS=$(( UPTIME_SEC % 60 ))
+UPTIME_FMT="${HOURS}h ${MINS}m ${SECS}s"
 [ "$DAYS" -gt 0 ] && UPTIME_FMT="${DAYS}d ${UPTIME_FMT}"
 
 LOAD_1=$(awk '{print $1}' /proc/loadavg 2>/dev/null || echo 0)
 LOAD_5=$(awk '{print $2}' /proc/loadavg 2>/dev/null || echo 0)
 LOAD_15=$(awk '{print $3}' /proc/loadavg 2>/dev/null || echo 0)
+CPU_PCT=$(awk -v l="$LOAD_1" 'BEGIN {pct = int((l / 4) * 100); if (pct > 100) pct = 100; if (pct < 0) pct = 0; print pct}')
 
 MEM_TOTAL=$(awk '/MemTotal/ {print $2}' /proc/meminfo 2>/dev/null || echo 0)
-MEM_FREE=$(awk '/MemFree/ {print $2}' /proc/meminfo 2>/dev/null || echo 0)
 MEM_AVAIL=$(awk '/MemAvailable/ {print $2}' /proc/meminfo 2>/dev/null || echo 0)
 MEM_USED=$((MEM_TOTAL - MEM_AVAIL))
-[ "$MEM_USED" -lt 0 ] && MEM_USED=0
-MEM_PCT=$(( MEM_USED * 100 / (MEM_TOTAL > 0 ? MEM_TOTAL : 1) ))
+MEM_PCT=0
+[ "$MEM_TOTAL" -gt 0 ] && MEM_PCT=$((MEM_USED * 100 / MEM_TOTAL))
 
-# Router CPU Thermals
-R_TEMP_CPU=$(cat /sys/class/thermal/thermal_zone0/temp 2>/dev/null || echo 0)
-R_TEMP_C=$(awk -v val="$R_TEMP_CPU" 'BEGIN {printf "%.1f", val/1000}')
+R_TEMP_RAW=$(cat /sys/class/thermal/thermal_zone0/temp 2>/dev/null || echo 0)
+R_TEMP_C=$(awk -v t="$R_TEMP_RAW" 'BEGIN {printf "%.1f", t/1000}')
 
-# Overlay Storage
-OV_TOTAL=$(df -m /overlay 2>/dev/null | tail -n 1 | awk '{print $2}')
-OV_USED=$(df -m /overlay 2>/dev/null | tail -n 1 | awk '{print $3}')
-OV_FREE=$(df -m /overlay 2>/dev/null | tail -n 1 | awk '{print $4}')
-OV_PCT=$(df -m /overlay 2>/dev/null | tail -n 1 | awk '{print $5}' | tr -d '%')
+OVERLAY_TOTAL=$(df -m /overlay 2>/dev/null | tail -n 1 | awk '{print $2}')
+OVERLAY_USED=$(df -m /overlay 2>/dev/null | tail -n 1 | awk '{print $3}')
+OVERLAY_FREE=$(df -m /overlay 2>/dev/null | tail -n 1 | awk '{print $4}')
+OVERLAY_PCT=$(df -m /overlay 2>/dev/null | tail -n 1 | awk '{print $5}' | tr -d '%')
+
+LAN_IP=$(ip -4 a show dev br-lan 2>/dev/null | awk '/inet / {print $2}' | awk -F'/' '{print $1}' | head -n 1)
+[ -z "$LAN_IP" ] && LAN_IP="10.0.0.1"
+
+WAN_IP=$(ip -4 a show dev usb0 2>/dev/null | awk '/inet / {print $2}' | awk -F'/' '{print $1}')
+[ -z "$WAN_IP" ] && WAN_IP="10.146.46.254"
+
+GW_IP=$(ip route show default dev usb0 2>/dev/null | awk '{print $3}' | head -n 1)
+[ -z "$GW_IP" ] && GW_IP="10.146.46.110"
+
+DNS_IP=$(awk '/nameserver/ {print $2}' /tmp/resolv.conf.auto 2>/dev/null | head -n 1)
+[ -z "$DNS_IP" ] && DNS_IP="$GW_IP"
+
+# Port Link Speeds
+PORTS=""
+for p in lan1 lan2 lan3 lan4 wan; do
+    s=$(cat /sys/class/net/$p/speed 2>/dev/null || echo 0)
+    [ "$s" = "-1" ] && s=0
+    st="down"
+    [ "$s" -gt 0 ] && st="up"
+    d=$(cat /sys/class/net/$p/duplex 2>/dev/null || echo "none")
+    [ -n "$PORTS" ] && PORTS="$PORTS,"
+    PORTS="$PORTS{\"id\":\"$p\",\"speed\":$s,\"duplex\":\"$d\",\"status\":\"$st\"}"
+done
 
 # USB0 Traffic & Speed
 USB_RX_B=$(cat /sys/class/net/usb0/statistics/rx_bytes 2>/dev/null || echo 0)
@@ -44,70 +70,331 @@ USB_TX_E=$(cat /sys/class/net/usb0/statistics/tx_errors 2>/dev/null || echo 0)
 USB_RX_MB=$(awk -v b="$USB_RX_B" 'BEGIN {printf "%.2f", b/1048576}')
 USB_TX_MB=$(awk -v b="$USB_TX_B" 'BEGIN {printf "%.2f", b/1048576}')
 
-# 2. Phone ADB Query (Single subshell execution)
-ADB_OUT=$(adb shell '
-echo "[BATTERY]"
-dumpsys battery | head -n 20
-echo "[DEVICE]"
-echo "model: "$(getprop ro.product.model)
-echo "android: "$(getprop ro.build.version.release)
-echo "[5G]"
-dumpsys telephony.registry | grep -m 1 "mCellInfo="
-dumpsys telephony.registry | grep -m 1 "mSignalStrength="
-echo "[STORAGE]"
-df -h /data | grep "/dev/block" | tail -n 1
-echo "[RAM]"
-free -m | grep Mem
-' 2>/dev/null)
+# Connected LAN Clients (1-pass high-speed awk + persistent traffic accounting)
+export PATH=/usr/sbin:/usr/bin:/sbin:/bin
+CLIENTS_JSON=$(awk '
+BEGIN {
+  while ((getline line < "/tmp/dhcp.leases") > 0) {
+    split(line, p, " ");
+    m = tolower(p[2]);
+    if (m != "") {
+      lease_ip[m] = p[3];
+      if (p[4] != "" && p[4] != "*") name[m] = p[4];
+    }
+  }
+  close("/tmp/dhcp.leases");
 
-P_LEVEL=$(echo "$ADB_OUT" | awk '/  level:/ {print $2; exit}')
-P_STATUS_CODE=$(echo "$ADB_OUT" | awk '/  status:/ {print $2; exit}')
-P_VOLT=$(echo "$ADB_OUT" | awk '/  voltage:/ {print $2; exit}')
-P_TEMP_RAW=$(echo "$ADB_OUT" | awk '/  temperature:/ {print $2; exit}')
-P_TEMP=$(awk -v val="${P_TEMP_RAW:-0}" 'BEGIN {printf "%.1f", val/10}')
-P_MODEL=$(echo "$ADB_OUT" | awk -F': ' '/model:/ {print $2; exit}')
-P_ANDROID=$(echo "$ADB_OUT" | awk -F': ' '/android:/ {print $2; exit}')
+  while ((getline line < "/etc/hosts") > 0) {
+    if (line ~ /^[0-9]/) {
+      split(line, hp, " ");
+      if (hp[2] != "") ip_name[hp[1]] = hp[2];
+    }
+  }
+  close("/etc/hosts");
 
-P_STATUS="Charging"
-if [ "$P_STATUS_CODE" = "5" ]; then
-    P_STATUS="Full (Trickle)"
-elif [ "$P_STATUS_CODE" = "4" ]; then
-    P_STATUS="Protected / Paused"
-elif [ "$P_STATUS_CODE" = "3" ]; then
-    P_STATUS="Discharging"
+  # Load blocked clients
+  while ((getline bline < "/etc/blocked_clients.json") > 0) {
+    if (bline ~ /"ip":/ || bline ~ /"mac":/) {
+      nb = split(bline, bp, "\"");
+      for (bi = 1; bi <= nb; bi++) {
+        if (bp[bi] == "ip" && bp[bi+2] != "") is_blk[bp[bi+2]] = 1;
+        if (bp[bi] == "mac" && bp[bi+2] != "") is_blk[tolower(bp[bi+2])] = 1;
+      }
+    }
+  }
+  close("/etc/blocked_clients.json");
+
+  # Dynamic known device mappings
+  name["10:65:30:7a:9c:02"] = "maxos";
+  name["f8:59:71:1c:1a:d8"] = "maxos";
+  name["00:11:32:92:02:1b"] = "Synology NAS";
+  name["8c:a3:99:7b:81:2b"] = "maxnet-b";
+  name["a8:1b:5a:c3:01:13"] = "Asus Router";
+  name["f6:93:15:10:10:d2"] = "POCO-X6-5G";
+  name["f2:82:95:8f:db:29"] = "Vivo V2153";
+  name["76:74:c6:67:5a:89"] = "POCO-X6-5G";
+
+  ip_name["10.0.0.111"] = "maxos";
+  ip_name["10.0.0.5"] = "Synology NAS";
+  ip_name["10.0.0.2"] = "maxnet-b";
+  ip_name["10.0.0.166"] = "Asus Router";
+  ip_name["10.0.0.118"] = "POCO-X6-5G";
+  ip_name["10.0.0.238"] = "Vivo V2153";
+  ip_name["10.0.0.104"] = "POCO-X6-5G";
+
+  port["10:65:30:7a:9c:02"] = "LAN 2";
+  port["f8:59:71:1c:1a:d8"] = "LAN 2";
+  port["00:11:32:92:02:1b"] = "LAN 3";
+  port["8c:a3:99:7b:81:2b"] = "LAN 3";
+  port["a8:1b:5a:c3:01:13"] = "LAN 3";
+  port["f6:93:15:10:10:d2"] = "LAN 3";
+  port["f2:82:95:8f:db:29"] = "LAN 3";
+  port["76:74:c6:67:5a:89"] = "LAN 3";
+
+  while (("/usr/sbin/brctl showmacs br-lan" | getline line) > 0) {
+    split(line, p, " ");
+    if (p[3] == "no") {
+      m = tolower(p[2]);
+      port[m] = (p[1] == "1" ? "LAN 1" : (p[1] == "2" ? "LAN 2" : (p[1] == "3" ? "LAN 3" : (p[1] == "4" ? "LAN 4" : "LAN Switch"))));
+    }
+  }
+  close("/usr/sbin/brctl showmacs br-lan");
+
+  tsv_f = "/tmp/traffic_totals.tsv"; if ((getline < tsv_f) < 0) tsv_f = "/etc/traffic_totals.tsv"; close(tsv_f);
+  while ((getline line < tsv_f) > 0) {
+    if (line ~ /^#/ || length(line) < 5) continue;
+    split(line, p, " ");
+    m = tolower(p[1]);
+    rx[m] = p[3] + 0;
+    tx[m] = p[4] + 0;
+  }
+  close(tsv_f);
+
+  while ((getline line < "/proc/net/nf_conntrack") > 0) {
+    if (line !~ /src=10\.0\.0\./) continue;
+    n = split(line, f, " ");
+    src_ip = ""; b1 = 0; b2 = 0; bc = 0;
+    for (i = 1; i <= n; i++) {
+      if (f[i] ~ /^src=10\.0\.0\./ && src_ip == "") src_ip = substr(f[i], 5);
+      else if (f[i] ~ /^bytes=/) {
+        bc++;
+        val = substr(f[i], 7) + 0;
+        if (bc == 1) b1 = val;
+        else if (bc == 2) b2 = val;
+      }
+    }
+    if (src_ip != "" && src_ip != "10.0.0.1") {
+      con_tx[src_ip] += b1;
+      con_rx[src_ip] += b2;
+    }
+  }
+  close("/proc/net/nf_conntrack");
+
+  while (("/sbin/ip -6 neigh show dev br-lan" | getline line) > 0) {
+    if (line ~ /lladdr/ && line !~ /FAILED/) {
+      n6 = split(line, p6, " ");
+      ip6 = p6[1];
+      for (k = 1; k <= n6; k++) {
+        if (p6[k] == "lladdr") {
+          m = tolower(p6[k+1]);
+          if (m != "") {
+            if (!(m in ipv6) || ip6 ~ /^(fd|2)/) ipv6[m] = ip6;
+          }
+        }
+      }
+    }
+  }
+  close("/sbin/ip -6 neigh show dev br-lan");
+
+  while (("/sbin/ip -4 neigh show dev br-lan" | getline nline) > 0) {
+    split(nline, np, " ");
+    nip = np[1];
+    if (nline ~ /FAILED/ || nline ~ /INCOMPLETE/) {
+      failed_ip[nip] = 1;
+      continue;
+    }
+    for (i = 1; i <= length(np); i++) {
+      if (np[i] == "lladdr") {
+        nmac = tolower(np[i+1]);
+        if (nmac != "" && nmac != "00:00:00:00:00:00" && nip ~ /^10\.0\.0\./) {
+          all_macs[nmac] = 1;
+          mac_ip[nmac] = nip;
+        }
+        break;
+      }
+    }
+  }
+  close("/sbin/ip -4 neigh show dev br-lan");
+
+  while ((getline line < "/proc/net/arp") > 0) {
+    if (line ~ /^IP/) continue;
+    split(line, p, " ");
+    if (p[6] == "br-lan" && p[3] == "0x2" && p[4] != "00:00:00:00:00:00") {
+      m = tolower(p[4]);
+      c_ip = p[1];
+      if (c_ip ~ /^10\.0\.0\./ && !(c_ip in failed_ip) && !(m in all_macs)) {
+        all_macs[m] = 1;
+        mac_ip[m] = c_ip;
+      }
+    }
+  }
+  close("/proc/net/arp");
+
+  printf "[{\"ip\":\"10.0.0.1\",\"ipv6\":\"\",\"mac\":\"d2:61:fb:c9:5e:c5\",\"name\":\"MAXNET GATEWAY (Host)\",\"port\":\"LOCAL (Router)\",\"rx_mb\":\"0.00\",\"tx_mb\":\"0.00\",\"total_mb\":\"0.00\",\"rx_bytes\":0,\"tx_bytes\":0,\"total_bytes\":0,\"is_self\":true,\"connected\":true,\"blocked\":false}";
+
+  for (mac in all_macs) {
+    if (mac == "d2:61:fb:c9:5e:c5" || mac == "36:c5:a4:72:17:40") continue;
+    ip = (mac in mac_ip) ? mac_ip[mac] : "";
+    if (ip == "" || (ip in failed_ip) || ip == "10.0.0.1") continue;
+    h = (mac in name) ? name[mac] : ((ip in ip_name) ? ip_name[ip] : "Device");
+    pt = (mac in port) ? port[mac] : "LAN Switch";
+    c_ip6 = (mac in ipv6) ? ipv6[mac] : "";
+
+    c_rx = (mac in rx) ? rx[mac] : ((ip in con_rx) ? con_rx[ip] : 0);
+    c_tx = (mac in tx) ? tx[mac] : ((ip in con_tx) ? con_tx[ip] : 0);
+    c_tot = c_rx + c_tx;
+    rx_mb = sprintf("%.2f", c_rx / 1048576);
+    tx_mb = sprintf("%.2f", c_tx / 1048576);
+    tot_mb = sprintf("%.2f", c_tot / 1048576);
+    blk = ((mac in is_blk) || (ip in is_blk)) ? "true" : "false";
+
+    printf ",{\"ip\":\"%s\",\"ipv6\":\"%s\",\"mac\":\"%s\",\"name\":\"%s\",\"port\":\"%s\",\"rx_mb\":\"%s\",\"tx_mb\":\"%s\",\"total_mb\":\"%s\",\"rx_bytes\":%.0f,\"tx_bytes\":%.0f,\"total_bytes\":%.0f,\"connected\":true,\"blocked\":%s}",
+      ip, c_ip6, mac, h, pt, rx_mb, tx_mb, tot_mb, c_rx, c_tx, c_tot, blk;
+  }
+
+  while ((getline hline < "/etc/device_history_15d.json") > 0) {
+    if (hline ~ /"mac":/ && hline ~ /"ip":/) {
+      hmac = ""; hip = ""; hname = "";
+      nh = split(hline, hp, "\"");
+      for (k = 1; k <= nh; k++) {
+        if (hp[k] == "mac") hmac = tolower(hp[k+2]);
+        if (hp[k] == "ip") hip = hp[k+2];
+        if (hp[k] == "name") hname = hp[k+2];
+      }
+      if (hmac != "" && !(hmac in all_macs) && hip != "" && hip != "10.0.0.1" && hmac != "d2:61:fb:c9:5e:c5") {
+        blk = ((hmac in is_blk) || (hip in is_blk)) ? "true" : "false";
+        pt = (hmac in port) ? port[hmac] : "LAN 3";
+        rx_mb = sprintf("%.2f", ((hmac in rx) ? rx[hmac] : 0) / 1048576);
+        tx_mb = sprintf("%.2f", ((hmac in tx) ? tx[hmac] : 0) / 1048576);
+        tot_mb = sprintf("%.2f", (((hmac in rx) ? rx[hmac] : 0) + ((hmac in tx) ? tx[hmac] : 0)) / 1048576);
+        printf ",{\"ip\":\"%s\",\"ipv6\":\"\",\"mac\":\"%s\",\"name\":\"%s\",\"port\":\"%s\",\"rx_mb\":\"%s\",\"tx_mb\":\"%s\",\"total_mb\":\"%s\",\"rx_bytes\":%.0f,\"tx_bytes\":%.0f,\"total_bytes\":%.0f,\"connected\":false,\"blocked\":%s,\"status\":\"disconnected\"}",
+          hip, hmac, hname, pt, rx_mb, tx_mb, tot_mb, ((hmac in rx) ? rx[hmac] : 0), ((hmac in tx) ? tx[hmac] : 0), (((hmac in rx) ? rx[hmac] : 0) + ((hmac in tx) ? tx[hmac] : 0)), blk;
+      }
+    }
+  }
+  close("/etc/device_history_15d.json");
+
+  printf "]";
+}')
+
+if [ -f /etc/traffic_lifetime.json ]; then
+    LIFETIME_JSON=$(cat /etc/traffic_lifetime.json 2>/dev/null)
+else
+    LIFETIME_JSON='{"lifetime_rx_bytes":23362494768,"lifetime_tx_bytes":27862730402,"lifetime_total_bytes":51225225170,"lifetime_rx_gb":"22.28","lifetime_tx_gb":"26.57","lifetime_total_gb":"48.85"}'
 fi
 
-P_RSRP=$(echo "$ADB_OUT" | grep -o 'ssRsrp = -[0-9]*' | head -n 1 | awk '{print $3}')
-P_RSRQ=$(echo "$ADB_OUT" | grep -o 'ssRsrq = -[0-9]*' | head -n 1 | awk '{print $3}')
-P_SINR=$(echo "$ADB_OUT" | grep -o 'ssSinr = [0-9]*' | head -n 1 | awk '{print $3}')
-P_PCI=$(echo "$ADB_OUT" | grep -o 'mPci = [0-9]*' | head -n 1 | awk '{print $3}')
-P_BAND=$(echo "$ADB_OUT" | grep -o 'mBands = \[[0-9]*\]' | head -n 1 | sed 's/[^0-9]//g')
-P_BARS=$(echo "$ADB_OUT" | grep -o 'nrLevel=[0-9]*' | head -n 1 | awk -F'=' '{print $2}')
-
-P_STOR_LINE=$(echo "$ADB_OUT" | grep "/dev/block" | tail -n 1)
-P_STOR_TOT=$(echo "$P_STOR_LINE" | awk '{print $2}')
-P_STOR_USED=$(echo "$P_STOR_LINE" | awk '{print $3}')
-P_STOR_AVAIL=$(echo "$P_STOR_LINE" | awk '{print $4}')
-P_STOR_PCT=$(echo "$P_STOR_LINE" | awk '{print $5}')
-
-P_RAM_LINE=$(echo "$ADB_OUT" | awk '/Mem:/ {print $0; exit}')
-P_RAM_TOT=$(echo "$P_RAM_LINE" | awk '{print $2}')
-P_RAM_USED=$(echo "$P_RAM_LINE" | awk '{print $3}')
-P_RAM_FREE=$(echo "$P_RAM_LINE" | awk '{print $4}')
-P_RAM_PCT=0
-if [ -n "$P_RAM_TOT" ] && [ "$P_RAM_TOT" -gt 0 ]; then
-    P_RAM_PCT=$(( P_RAM_USED * 100 / P_RAM_TOT ))
+if [ -f /etc/topology_layers.json ]; then
+    TOPOLOGY_LAYERS_JSON=$(cat /etc/topology_layers.json 2>/dev/null)
+else
+    TOPOLOGY_LAYERS_JSON='{}'
 fi
 
+if [ -f /tmp/usb_devices.json ]; then
+    USB_DEVICES_JSON=$(cat /tmp/usb_devices.json 2>/dev/null)
+    [ -z "$USB_DEVICES_JSON" ] && USB_DEVICES_JSON="[]"
+else
+    USB_DEVICES_JSON="[]"
+fi
+
+# 3. High-Speed Low-Overhead Telemetry from Daemon Cache (0ms latency, zero phone load)
+if [ -f /tmp/phone_telemetry.json ]; then
+    MOBILE_JSON=$(cat /tmp/phone_telemetry.json)
+else
+    MOBILE_JSON='{"connected":false,"model":"No Device","cellular":{"pci":0,"band":"--","frequency":"--","arfcn":"--","rsrp_dbm":-105,"sinr_db":0,"operator":"Offline"}}'
+fi
+
+P_CONN=$(echo "$MOBILE_JSON" | jq -r '.connected // false')
+P_PCI=$(echo "$MOBILE_JSON" | jq -r '.cellular.pci // 0')
+P_BAND=$(echo "$MOBILE_JSON" | jq -r '.cellular.band // "n77"' | tr -d 'n')
+P_FREQ=$(echo "$MOBILE_JSON" | jq -r '.cellular.frequency // "3.5 GHz C-Band"')
+P_ARFCN=$(echo "$MOBILE_JSON" | jq -r '.cellular.arfcn // "634080"')
+P_RSRP=$(echo "$MOBILE_JSON" | jq -r '.cellular.rsrp_dbm // -98')
+P_SINR=$(echo "$MOBILE_JSON" | jq -r '.cellular.sinr_db // 13')
+P_OP=$(echo "$MOBILE_JSON" | jq -r '.cellular.operator // "Jio True5G"')
+P_PA_TEMP=$(echo "$MOBILE_JSON" | jq -r '.cellular.pa_temp_c // 44.0')
+P_CELL_IP=$(echo "$MOBILE_JSON" | jq -r '.cell_ip // "192.0.0.2"')
+P_NEIGHBORS=$(echo "$MOBILE_JSON" | jq -c '.cellular.neighbors // []')
+
+STAT_JSON="/tmp/traffic_stats.json"; [ ! -f "$STAT_JSON" ] && [ -f "/etc/traffic_stats.json" ] && STAT_JSON="/etc/traffic_stats.json"; if [ -f "$STAT_JSON" ]; then
+    WAN_RX_B=$(jq -r '.wan.rx_bytes // 0' "$STAT_JSON" 2>/dev/null)
+    WAN_TX_B=$(jq -r '.wan.tx_bytes // 0' "$STAT_JSON" 2>/dev/null)
+    USB_RX_MB=$(jq -r '.wan.rx_mb // "0.00"' "$STAT_JSON" 2>/dev/null)
+    USB_TX_MB=$(jq -r '.wan.tx_mb // "0.00"' "$STAT_JSON" 2>/dev/null)
+    WAN_TOT_MB=$(jq -r '.wan.total_mb // "0.00"' "$STAT_JSON" 2>/dev/null)
+else
+    WAN_RX_B=$USB_RX_B
+    WAN_TX_B=$USB_TX_B
+    WAN_TOT_MB=$(awk -v r="$USB_RX_MB" -v t="$USB_TX_MB" 'BEGIN {printf "%.2f", r + t}')
+fi
+TS_RAW=$(tailscale status --json 2>/dev/null)
+TS_STATE=$(echo "$TS_RAW" | jq -r '.BackendState // "Stopped"' 2>/dev/null)
+TS_ONLINE=$(echo "$TS_RAW" | jq -r '.Self.Online // false' 2>/dev/null)
+TS_IP=$(echo "$TS_RAW" | jq -r '.Self.TailscaleIPs[0] // ""' 2>/dev/null)
+TS_HOST=$(echo "$TS_RAW" | jq -r '.Self.HostName // "Maxnet-USB"' 2>/dev/null)
+if [ "$P_CONN" = "true" ] && [ -n "$P_PCI" ] && [ "$P_PCI" != "0" ]; then
+    TOWERS_JSON=$(jq -n \
+      --argjson serv "{\"pci\": ${P_PCI:-0}, \"band\": \"n${P_BAND}\", \"freq\": \"${P_FREQ}\", \"arfcn\": \"${P_ARFCN}\", \"rsrp_dbm\": ${P_RSRP:-0}, \"sinr_db\": ${P_SINR:-0}, \"carrier\": \"${P_OP}\", \"is_serving\": true, \"status\": \"Connected\"}" \
+      --argjson neigh "${P_NEIGHBORS:-[]}" \
+      "[\$serv] + [(\$neigh[] | . + {\"is_serving\": false, \"status\": \"Available\"})]" 2>/dev/null)
+fi
+[ -z "$TOWERS_JSON" ] && TOWERS_JSON="[]"
+export HOME=/root
+ADB_DEVS=$(adb devices -l 2>/dev/null | awk 'BEGIN{printf "[";c=0} NR>1 && $2=="device"{s=$1; m="Android"; for(i=3;i<=NF;i++) if($i ~ /^model:/) m=substr($i,7); if(c>0) printf ","; printf "{\"serial\":\"%s\",\"model\":\"%s\"}", s, m; c++} END{printf "]"}')
+[ -z "$ADB_DEVS" ] && ADB_DEVS="[]"
+
+HAS_HUB=false
+HUB_MODEL=""
+HUB_MFG=""
+HUB_PORTS=0
+HUB_SPEED=0
+
+for dev in /sys/bus/usb/devices/*; do
+  [ -f "$dev/bDeviceClass" ] || continue
+  bname=$(basename "$dev")
+  case "$bname" in
+    usb*|*:*) continue ;;
+  esac
+  cls=$(cat "$dev/bDeviceClass" 2>/dev/null)
+  if [ "$cls" = "09" ]; then
+    HAS_HUB=true
+    HUB_MODEL=$(cat "$dev/product" 2>/dev/null || echo "USB Hub")
+    HUB_MFG=$(cat "$dev/manufacturer" 2>/dev/null || echo "Generic")
+    HUB_PORTS=$(cat "$dev/maxchild" 2>/dev/null || echo 4)
+    HUB_SPEED=$(cat "$dev/speed" 2>/dev/null || echo 5000)
+    break
+  fi
+done
+
+USB_HUB_JSON=$(jq -n   --argjson connected "$HAS_HUB"   --arg model "$HUB_MODEL"   --arg mfg "$HUB_MFG"   --argjson ports "${HUB_PORTS:-0}"   --argjson speed "${HUB_SPEED:-0}"   '{"connected": $connected, "model": $model, "manufacturer": $mfg, "ports": $ports, "speed_mbps": $speed}')
+if [ -f /tmp/multilink_status.json ]; then MULTILINK_JSON=$(cat /tmp/multilink_status.json); else MULTILINK_JSON=x27{"active_count":1,"mode":"AUTO MERGE","limit_mbps":0,"combined_speed_mbps":0,"links":[]}x27; fi
 cat << JSON
 {
+  "usb_hub": ${USB_HUB_JSON},
+  "multilink": ${MULTILINK_JSON},
+  "traffic": {
+    "wan_rx_bytes": ${WAN_RX_B:-0},
+    "wan_tx_bytes": ${WAN_TX_B:-0},
+    "live_rx_bytes": ${USB_RX_B:-0},
+    "live_tx_bytes": ${USB_TX_B:-0},
+    "wan_rx_mb": "${USB_RX_MB:-0}",
+    "wan_tx_mb": "${USB_TX_MB:-0}",
+    "wan_total_mb": "${WAN_TOT_MB:-0}"
+  },
   "timestamp": "$(date -u '+%Y-%m-%d %H:%M:%S UTC')",
+  "firmware": "${FIRMWARE_VER}",
+  "lifetime_traffic": ${LIFETIME_JSON},
+  "topology_layers": ${TOPOLOGY_LAYERS_JSON},
+  "network": {
+    "lan_ip": "${LAN_IP}",
+    "wan_ip": "${WAN_IP}",
+    "tether_ip": "${WAN_IP}",
+    "gateway_ip": "${GW_IP}",
+    "dns_ip": "${DNS_IP}",
+    "cell_ip": "${P_CELL_IP}",
+    "ports": [${PORTS}]
+  },
+  "clients": ${CLIENTS_JSON},
+  "towers": ${TOWERS_JSON:-[]},
+  "adb_devices": ${ADB_DEVS},
+  "tailscale": {"backend_state": "${TS_STATE}", "online": ${TS_ONLINE:-false}, "ip": "${TS_IP}", "hostname": "${TS_HOST}"},
   "router": {
-    "hostname": "Maxnet-USB",
+    "hostname": "$(uci get system.@system[0].hostname 2>/dev/null || cat /proc/sys/kernel/hostname 2>/dev/null || echo "Maxnet-Gateway")",
     "model": "Jio AX6000 Qualcomm IPQ9574",
     "kernel": "Linux 6.18.60 Maxnet-USB",
     "uptime": "${UPTIME_FMT}",
+    "uptime_seconds": ${UPTIME_SEC:-0},
     "load_avg": ["${LOAD_1}", "${LOAD_5}", "${LOAD_15}"],
+    "cpu_pct": ${CPU_PCT:-0},
     "temp_c": ${R_TEMP_C:-0},
     "memory": {
       "total_mb": $((MEM_TOTAL / 1024)),
@@ -116,56 +403,23 @@ cat << JSON
       "used_pct": ${MEM_PCT:-0}
     },
     "storage": {
-      "total_mb": ${OV_TOTAL:-0},
-      "used_mb": ${OV_USED:-0},
-      "free_mb": ${OV_FREE:-0},
-      "used_pct": ${OV_PCT:-0}
+      "total_mb": ${OVERLAY_TOTAL:-0},
+      "free_mb": ${OVERLAY_FREE:-0},
+      "used_pct": ${OVERLAY_PCT:-0}
     },
     "usb": {
       "speed_mbps": 5000,
       "link_mode": "USB 3.0 SuperSpeed",
       "mtu": 1400,
-      "rx_mb": ${USB_RX_MB:-0},
-      "tx_mb": ${USB_TX_MB:-0},
-      "rx_packets": ${USB_RX_P:-0},
-      "tx_packets": ${USB_TX_P:-0},
-      "rx_errors": ${USB_RX_E:-0},
-      "tx_errors": ${USB_TX_E:-0}
+      "rx_mb": ${USB_RX_MB},
+      "tx_mb": ${USB_TX_MB},
+      "rx_packets": ${USB_RX_P},
+      "tx_packets": ${USB_TX_P},
+      "rx_errors": ${USB_RX_E},
+      "tx_errors": ${USB_TX_E}
     }
   },
-  "mobile": {
-    "connected": true,
-    "model": "${P_MODEL:-Samsung Galaxy S21 FE 5G}",
-    "os": "Android ${P_ANDROID:-16}",
-    "battery": {
-      "level": ${P_LEVEL:-0},
-      "status": "${P_STATUS:-Charging}",
-      "temp_c": ${P_TEMP:-0},
-      "voltage_mv": ${P_VOLT:-0}
-    },
-    "cellular": {
-      "operator": "Jio True5G",
-      "network": "5G Standalone NR_SA",
-      "band": "n${P_BAND:-77}",
-      "frequency": "3.5 GHz C-Band",
-      "pci": ${P_PCI:-528},
-      "rsrp_dbm": ${P_RSRP:--99},
-      "rsrq_db": ${P_RSRQ:--11},
-      "sinr_db": ${P_SINR:-10},
-      "bars": ${P_BARS:-4}
-    },
-    "storage": {
-      "total": "${P_STOR_TOT:-224G}",
-      "used": "${P_STOR_USED:-5.7G}",
-      "avail": "${P_STOR_AVAIL:-218G}",
-      "used_pct": "${P_STOR_PCT:-3%}"
-    },
-    "memory": {
-      "total_mb": ${P_RAM_TOT:-7358},
-      "used_mb": ${P_RAM_USED:-6500},
-      "free_mb": ${P_RAM_FREE:-850},
-      "used_pct": ${P_RAM_PCT:-88}
-    }
-  }
+  "usb_devices": ${USB_DEVICES_JSON:-[]},
+  "mobile": ${MOBILE_JSON}
 }
 JSON
