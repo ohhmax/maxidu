@@ -14,4 +14,23 @@ awk '{print $3}' /tmp/dhcp.leases 2>/dev/null | while read -r ip; do
     ping -c 1 -W 1 "$ip" >/dev/null 2>&1 &
 done
 
-echo '{"status": "ok", "message": "LAN dual-stack IPv4/IPv6 scan broadcast triggered"}'
+# Asynchronous background NetBIOS name collector
+(
+    TMP="/tmp/netbios_cache.tmp"
+    echo "{" > "$TMP"
+    FIRST=1
+    for ip in $(awk '{print $3}' /tmp/dhcp.leases 2>/dev/null; echo "10.0.0.1 10.0.0.2 10.0.0.5 10.0.0.111"); do
+        [ -z "$ip" ] && continue
+        nb=$(/usr/bin/nmblookup -A "$ip" 2>/dev/null | awk '/<00> - / && !/GROUP/ {print $1; exit}')
+        if [ -n "$nb" ]; then
+            [ "$FIRST" -eq 0 ] && echo "," >> "$TMP"
+            echo -n "  \"$ip\": \"$nb\"" >> "$TMP"
+            FIRST=0
+        fi
+    done
+    echo "" >> "$TMP"
+    echo "}" >> "$TMP"
+    mv "$TMP" /tmp/netbios_cache.json
+) >/dev/null 2>&1 &
+
+echo '{"status": "ok", "message": "LAN dual-stack IPv4/IPv6 scan & NetBIOS discovery triggered"}'

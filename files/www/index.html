@@ -5448,6 +5448,36 @@
       font-family: var(--font-mono);
       color: var(--text-dim);
     }
+    .csc-vendor-badge {
+      font-size: 10px;
+      font-weight: 700;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.08);
+      padding: 2px 7px;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      font-family: var(--font-mono);
+    }
+    .csc-meta-badge {
+      font-size: 10px;
+      font-weight: 600;
+      color: #a78bfa;
+      background: rgba(167, 139, 250, 0.08);
+      padding: 2px 7px;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(167, 139, 250, 0.2);
+      font-family: var(--font-mono);
+    }
+    [data-theme="light"] .csc-vendor-badge {
+      color: #0284c7;
+      background: #f0f9ff;
+      border-color: #bae6fd;
+    }
+    [data-theme="light"] .csc-meta-badge {
+      color: #7c3aed;
+      background: #f5f3ff;
+      border-color: #ddd6fe;
+    }
     .csc-bottom-row {
       display: flex;
       align-items: center;
@@ -13953,11 +13983,13 @@
               <div>${actionBtnHtml}</div>
             </div>
 
-            <!-- 2. MIDDLE ROW: ADDRESSING -->
+            <!-- 2. MIDDLE ROW: ADDRESSING & DISCOVERY -->
             <div class="csc-net-row">
               <span class="csc-ip-badge">${escapeHtml(c.ip)}</span>
               ${c.ipv6 ? `<span class="csc-ipv6-badge" title="${escapeHtml(c.ipv6)}">IPv6: ${escapeHtml(c.ipv6)}</span>` : ''}
               <span class="csc-mac-badge">MAC: ${escapeHtml(c.mac || '--')}</span>
+              ${c.vendor ? `<span class="csc-vendor-badge" title="Vendor / Manufacturer: ${escapeHtml(c.vendor)}">${escapeHtml(c.vendor)}</span>` : ''}
+              ${c.netbios || c.mdns || c.dns_name ? `<span class="csc-meta-badge" title="mDNS: ${escapeHtml(c.mdns || '--')} | NetBIOS: ${escapeHtml(c.netbios || '--')} | DNS: ${escapeHtml(c.dns_name || '--')} | LLMNR: ${escapeHtml(c.llmnr || '--')}">HOST: ${escapeHtml(c.netbios || c.mdns || c.dns_name)}</span>` : ''}
             </div>
 
             <!-- 3. BOTTOM ROW: METRICS -->
