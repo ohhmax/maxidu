@@ -14263,6 +14263,9 @@
       const container = document.getElementById('dhcpClientDetailView');
       if (!container) return;
 
+      const curLan = (window._lastDataCache && window._lastDataCache.network && window._lastDataCache.network.lan_ip) || '10.0.0.1';
+      const isGateway = Boolean(c.is_self || c.ip === curLan || c.ip === '10.0.0.1' || (c.port && c.port.toLowerCase().includes('local')));
+
       const statusInfo = getClientStatusInfo(c);
       const hostName = getClientHostOrDnsName(c);
       let vendor = (c.vendor || '').trim();
@@ -14376,12 +14379,15 @@
         <div class="setting-row-item">
           <div class="setting-label-col">
             <span class="setting-label-bold">Internet Access Policy</span>
-            <span class="setting-label-sub">${isBlocked ? 'Device is blocked by firewall from routing traffic' : 'Device has unrestricted LAN and internet access'}</span>
+            <span class="setting-label-sub">${isGateway ? 'Core router system gateway (Protected host, cannot be blocked)' : (isBlocked ? 'Device is blocked by firewall from routing traffic' : 'Device has unrestricted LAN and internet access')}</span>
           </div>
           <div class="setting-control-col">
-            ${isBlocked
-              ? `<button class="mh-btn btn-sm btn-ghost" onclick="unblockDevice('${escapeHtml(c.ip)}', '${escapeHtml(c.mac)}'); setTimeout(() => openDhcpClientDetail('${escapeHtml(c.ip)}', false), 600);">UNBLOCK</button>`
-              : `<button class="mh-btn btn-sm btn-danger" onclick="blockDevice('${escapeHtml(c.ip)}', '${escapeHtml(c.mac)}', '${escapeHtml(hostName || c.ip)}'); setTimeout(() => openDhcpClientDetail('${escapeHtml(c.ip)}', false), 600);">BLOCK</button>`
+            ${isGateway
+              ? `<span class="card-badge emerald" style="font-size:9.5px; font-weight:700;">PROTECTED</span>`
+              : (isBlocked
+                ? `<button class="mh-btn btn-sm btn-ghost" onclick="unblockDevice('${escapeHtml(c.ip)}', '${escapeHtml(c.mac)}'); setTimeout(() => openDhcpClientDetail('${escapeHtml(c.ip)}', false), 600);">UNBLOCK</button>`
+                : `<button class="mh-btn btn-sm btn-danger" onclick="blockDevice('${escapeHtml(c.ip)}', '${escapeHtml(c.mac)}', '${escapeHtml(hostName || c.ip)}'); setTimeout(() => openDhcpClientDetail('${escapeHtml(c.ip)}', false), 600);">BLOCK</button>`
+              )
             }
           </div>
         </div>
@@ -14389,12 +14395,15 @@
         <div class="setting-row-item">
           <div class="setting-label-col">
             <span class="setting-label-bold">Static IP Reservation</span>
-            <span class="setting-label-sub">Bind ${escapeHtml(c.ip)} to MAC ${escapeHtml(c.mac || '--')} permanently</span>
+            <span class="setting-label-sub">${isGateway ? 'Permanently bound to master network bridge interface (br-lan)' : `Bind ${escapeHtml(c.ip)} to MAC ${escapeHtml(c.mac || '--')} permanently`}</span>
           </div>
           <div class="setting-control-col">
-            <button type="button" class="round-action-btn" title="Reserve Static Lease" onclick="reserveClientStaticLease('${escapeHtml(c.ip)}', '${escapeHtml(c.mac)}', '${escapeHtml(hostName || '')}')">
-              <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-            </button>
+            ${isGateway
+              ? `<span class="card-badge" style="font-size:9.5px; font-weight:700;">STATIC BR-LAN</span>`
+              : `<button type="button" class="round-action-btn" title="Reserve Static Lease" onclick="reserveClientStaticLease('${escapeHtml(c.ip)}', '${escapeHtml(c.mac)}', '${escapeHtml(hostName || '')}')">
+                   <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                 </button>`
+            }
           </div>
         </div>
       `;
@@ -14412,6 +14421,11 @@
     }
 
     async function reserveClientStaticLease(ip, mac, name) {
+      const curLan = (window._lastDataCache && window._lastDataCache.network && window._lastDataCache.network.lan_ip) || '10.0.0.1';
+      if (ip === curLan || ip === '10.0.0.1') {
+        if (typeof showToast === 'function') showToast('Gateway IP is already statically assigned to br-lan.', 'info');
+        return;
+      }
       if (!ip || !mac) return;
       try {
         const res = await fetch('/cgi-bin/network', {
@@ -14941,6 +14955,12 @@
     }
 
     async function blockDevice(ip, mac, name) {
+      const curLan = (window._lastDataCache && window._lastDataCache.network && window._lastDataCache.network.lan_ip) || '10.0.0.1';
+      if (ip === curLan || ip === '10.0.0.1' || ip === '127.0.0.1') {
+        if (typeof showToast === 'function') showToast('Cannot block router gateway host.', 'error');
+        else alert('Cannot block router gateway host.');
+        return;
+      }
       if (!confirm(`Are you sure you want to block internet access for ${name || ip}?`)) return;
       try {
         await fetch('/cgi-bin/clients', {
@@ -14972,6 +14992,12 @@
       const mac = document.getElementById('manualBlockMac').value.trim();
       if (!ip && !mac) {
         alert('Please enter an IP or MAC address to block.');
+        return;
+      }
+      const curLan = (window._lastDataCache && window._lastDataCache.network && window._lastDataCache.network.lan_ip) || '10.0.0.1';
+      if (ip === curLan || ip === '10.0.0.1' || ip === '127.0.0.1') {
+        if (typeof showToast === 'function') showToast('Cannot block router gateway host.', 'error');
+        else alert('Cannot block router gateway host.');
         return;
       }
       await blockDevice(ip, mac, 'Firewall Blocked Device');
