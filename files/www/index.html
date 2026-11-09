@@ -6715,7 +6715,7 @@
         <!-- SETTINGS NAV TILES GRID (13 CLICKABLE CARDS) -->
         <div class="settings-grid" id="settingsGrid">
           <!-- 1. Network -->
-          <div class="settings-nav-card" onclick="openSettingPage('acc-network')" data-search="network dhcp gateway ip subnet mask dns nameservers lease pool lan interface">
+          <div class="settings-nav-card" onclick="openSettingPage('acc-network')" data-search="network dhcp gateway ip subnet mask dns nameservers lease pool lan interface ipv6 slaac dhcpv6 ula flow offloading acceleration ppe mss mtu">
             <div class="snc-left">
               <div class="snc-icon-box" style="color:#38bdf8;">
                 <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
@@ -7039,6 +7039,8 @@
                   <input type="number" id="netDhcpLimit" value="150">
                   <select id="netDhcpLease"><option value="12h">12h</option></select>
                   <input type="text" id="netDns" value="1.1.1.1 8.8.8.8">
+                  <input type="text" id="netIpv6WanMode" value="dhcpv6">
+                  <input type="text" id="netIpv6Ula" value="fd00::/48">
                 </div>
 
                 <!-- 1. GATEWAY IP ADDRESS (ANDROID POPUP ROW WITH CHEVRON >) -->
@@ -7184,6 +7186,159 @@
                   </div>
                   <div class="setting-arrow-col">
                     <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                  </div>
+                </div>
+
+                <!-- IPV6 DUAL-STACK CONFIGURATION SECTION -->
+                <div class="setting-section-divider"></div>
+                <div class="setting-section-header">IPv6 Dual-Stack Configuration</div>
+
+                <!-- 1. IPv6 Master Enable Toggle -->
+                <div class="setting-row-item">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">IPv6 Dual-Stack Support</span>
+                    <span class="setting-label-sub" id="disp_ipv6_master_sub">Enable native IPv6 packet routing, dual-stack DNS resolution, and client addressing</span>
+                  </div>
+                  <div class="toggle-wrap-cell">
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="netIpv6MasterToggle" checked onchange="toggleIpv6Master(this.checked); scheduleNetworkAutoSave();">
+                      <span class="toggle-slider"></span>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- 2. Live IPv6 Addresses (Informational Row) -->
+                <div class="setting-row-item" id="rowIpv6Addrs">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">Assigned IPv6 Addresses</span>
+                    <span class="setting-label-sub" id="disp_ipv6_addrs">LAN: fd00::1/60 &bull; WAN: 2409:40c1:...</span>
+                  </div>
+                  <div class="setting-control-col">
+                    <span class="setting-status-badge badge-active" id="badgeIpv6Status">DUAL-STACK ONLINE</span>
+                  </div>
+                </div>
+
+                <!-- 3. WAN IPv6 Mode (Clickable Row) -->
+                <div class="setting-row-item setting-clickable-row" id="rowIpv6WanMode" onclick="openSettingModal('ipv6_wan_mode')">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">WAN IPv6 Assignment</span>
+                    <span class="setting-label-sub" id="disp_ipv6_wan_mode">DHCPv6-PD &amp; SLAAC (Automatic)</span>
+                  </div>
+                  <div class="setting-arrow-col">
+                    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                  </div>
+                </div>
+
+                <!-- 4. Router Advertisement (RA & SLAAC) Toggle -->
+                <div class="setting-row-item" id="rowIpv6Ra">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">Router Advertisement (RA / SLAAC)</span>
+                    <span class="setting-label-sub">Announce router presence and network prefix for client stateless autoconfiguration</span>
+                  </div>
+                  <div class="toggle-wrap-cell">
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="netIpv6RaToggle" checked onchange="scheduleNetworkAutoSave();">
+                      <span class="toggle-slider"></span>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- 5. Stateful DHCPv6 Server Toggle -->
+                <div class="setting-row-item" id="rowIpv6Dhcp6">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">DHCPv6 Stateful Server</span>
+                    <span class="setting-label-sub">Issue stateful IPv6 address leases and DNS options directly to clients</span>
+                  </div>
+                  <div class="toggle-wrap-cell">
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="netIpv6Dhcp6Toggle" onchange="scheduleNetworkAutoSave();">
+                      <span class="toggle-slider"></span>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- 6. ULA IPv6 Prefix (Clickable Row) -->
+                <div class="setting-row-item setting-clickable-row" id="rowIpv6Ula" onclick="openSettingModal('ipv6_ula')">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">IPv6 ULA Prefix</span>
+                    <span class="setting-label-sub" id="disp_ipv6_ula">fd00::/48 &bull; Unique local address scope</span>
+                  </div>
+                  <div class="setting-arrow-col">
+                    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                  </div>
+                </div>
+
+                <!-- 7. IPv6 Privacy Extensions Toggle -->
+                <div class="setting-row-item" id="rowIpv6Privacy">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">IPv6 Privacy Extensions (RFC 4941)</span>
+                    <span class="setting-label-sub">Generate randomized temporary IPv6 addresses to protect device privacy</span>
+                  </div>
+                  <div class="toggle-wrap-cell">
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="netIpv6PrivacyToggle" onchange="scheduleNetworkAutoSave();">
+                      <span class="toggle-slider"></span>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- PERFORMANCE & HARDWARE ACCELERATION SECTION -->
+                <div class="setting-section-divider"></div>
+                <div class="setting-section-header">Performance &amp; Hardware Acceleration</div>
+
+                <!-- 1. Hardware Packet Offloading (PPE) -->
+                <div class="setting-row-item">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">Hardware Flow Offloading (Qualcomm PPE)</span>
+                    <span class="setting-label-sub">Bypass CPU entirely for established flows using Qualcomm Packet Processing Engine</span>
+                  </div>
+                  <div class="toggle-wrap-cell">
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="netHwFlowToggle" checked onchange="scheduleNetworkAutoSave();">
+                      <span class="toggle-slider"></span>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- 2. Software Netfilter Flowtable -->
+                <div class="setting-row-item">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">Software Flowtable Offload</span>
+                    <span class="setting-label-sub">Kernel netfilter flowtable fast-path bypass for minimum CPU utilization</span>
+                  </div>
+                  <div class="toggle-wrap-cell">
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="netSwFlowToggle" checked onchange="scheduleNetworkAutoSave();">
+                      <span class="toggle-slider"></span>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- 3. TCP MSS Clamping -->
+                <div class="setting-row-item">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">TCP MSS Clamping (PMTU Fix)</span>
+                    <span class="setting-label-sub">Automatically adjust TCP MSS to WAN MTU to prevent packet fragmentation on cellular links</span>
+                  </div>
+                  <div class="toggle-wrap-cell">
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="netMssClampToggle" checked onchange="scheduleNetworkAutoSave();">
+                      <span class="toggle-slider"></span>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- 4. DNS Rebind Protection -->
+                <div class="setting-row-item">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">DNS Rebind Attack Protection</span>
+                    <span class="setting-label-sub">Block upstream RFC 1918 private IP responses from public DNS forwarders</span>
+                  </div>
+                  <div class="toggle-wrap-cell">
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="netDnsRebindToggle" checked onchange="scheduleNetworkAutoSave();">
+                      <span class="toggle-slider"></span>
+                    </label>
                   </div>
                 </div>
               </div>
@@ -15465,7 +15620,17 @@
         dhcp_start: startEl ? startEl.value.trim() : '100',
         dhcp_limit: limitEl ? limitEl.value.trim() : '150',
         dhcp_leasetime: leaseEl ? leaseEl.value.trim() : '12h',
-        dhcp_ignore: (toggleEl && toggleEl.checked) ? 0 : 1
+        dhcp_ignore: (toggleEl && toggleEl.checked) ? 0 : 1,
+        ipv6_enabled: (document.getElementById('netIpv6MasterToggle') && document.getElementById('netIpv6MasterToggle').checked) ? 1 : 0,
+        ipv6_wan_mode: document.getElementById('netIpv6WanMode') ? document.getElementById('netIpv6WanMode').value : 'dhcpv6',
+        ipv6_ra: (document.getElementById('netIpv6RaToggle') && document.getElementById('netIpv6RaToggle').checked) ? 1 : 0,
+        ipv6_dhcp6: (document.getElementById('netIpv6Dhcp6Toggle') && document.getElementById('netIpv6Dhcp6Toggle').checked) ? 1 : 0,
+        ipv6_ula: document.getElementById('netIpv6Ula') ? document.getElementById('netIpv6Ula').value : 'fd00::/48',
+        ipv6_privacy: (document.getElementById('netIpv6PrivacyToggle') && document.getElementById('netIpv6PrivacyToggle').checked) ? 1 : 0,
+        flow_offloading: (document.getElementById('netSwFlowToggle') && document.getElementById('netSwFlowToggle').checked) ? 1 : 0,
+        flow_offloading_hw: (document.getElementById('netHwFlowToggle') && document.getElementById('netHwFlowToggle').checked) ? 1 : 0,
+        mss_clamping: (document.getElementById('netMssClampToggle') && document.getElementById('netMssClampToggle').checked) ? 1 : 0,
+        dns_rebind: (document.getElementById('netDnsRebindToggle') && document.getElementById('netDnsRebindToggle').checked) ? 1 : 0
       };
 
       try {
@@ -15713,6 +15878,31 @@
           <div>
             <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">Target Ports</label>
             <textarea id="modalTextarea_ports_list" class="mh-input" rows="5" style="width:100%; font-size:11.5px; font-family:var(--font-mono); resize:vertical; padding:8px 10px; line-height:1.4;">${escapeHtml(curPorts)}</textarea>
+          </div>
+        `;
+      } else if (key === 'ipv6_wan_mode') {
+        titleEl.textContent = 'WAN IPv6 Address Assignment';
+        descEl.textContent = 'Select how the router requests and delegates public IPv6 prefixes from the upstream ISP or tethered modem.';
+        const curMode = (document.getElementById('netIpv6WanMode') ? document.getElementById('netIpv6WanMode').value : 'dhcpv6') || 'dhcpv6';
+        bodyEl.innerHTML = `
+          <div>
+            <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">Assignment Protocol</label>
+            <select id="modalSelect_ipv6_wan_mode" class="mh-input" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+              <option value="dhcpv6" ${curMode === 'dhcpv6' ? 'selected' : ''}>DHCPv6-PD &amp; SLAAC (Automatic Stateful Prefix Delegation)</option>
+              <option value="slaac" ${curMode === 'slaac' ? 'selected' : ''}>SLAAC Only (Stateless Autoconfiguration)</option>
+              <option value="static" ${curMode === 'static' ? 'selected' : ''}>Static IPv6 Address</option>
+              <option value="disabled" ${curMode === 'disabled' ? 'selected' : ''}>Disabled (No WAN IPv6)</option>
+            </select>
+          </div>
+        `;
+      } else if (key === 'ipv6_ula') {
+        titleEl.textContent = 'Unique Local IPv6 Prefix (ULA)';
+        descEl.textContent = 'Configure RFC 4193 Unique Local Address prefix for private local routing (e.g. fd00::/48 or fd80:beef::/48).';
+        const curUla = (document.getElementById('netIpv6Ula') ? document.getElementById('netIpv6Ula').value : 'fd00::/48') || 'fd00::/48';
+        bodyEl.innerHTML = `
+          <div>
+            <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">ULA Network Prefix</label>
+            <input type="text" id="modalInput_ipv6_ula" class="mh-input" value="${escapeHtml(curUla)}" placeholder="fd00::/48" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
           </div>
         `;
       }
@@ -15991,6 +16181,30 @@
         const count = val.split(',').filter(x => x.trim().length > 0).length;
         const disp = document.getElementById('disp_diag_ports_count');
         if (disp) disp.textContent = `${count} Custom Ports Configured (Click to edit)`;
+      } else if (currentModalKey === 'ipv6_wan_mode') {
+        const val = document.getElementById('modalSelect_ipv6_wan_mode').value;
+        if (document.getElementById('netIpv6WanMode')) document.getElementById('netIpv6WanMode').value = val;
+        const disp = document.getElementById('disp_ipv6_wan_mode');
+        if (disp) {
+          const map = {
+            dhcpv6: 'DHCPv6-PD & SLAAC (Automatic)',
+            slaac: 'SLAAC Only (Stateless Autoconfiguration)',
+            static: 'Static IPv6 Address',
+            disabled: 'Disabled (No WAN IPv6)'
+          };
+          disp.textContent = map[val] || val;
+        }
+        scheduleNetworkAutoSave();
+      } else if (currentModalKey === 'ipv6_ula') {
+        const val = (document.getElementById('modalInput_ipv6_ula').value || '').trim();
+        if (val && !val.includes(':')) {
+          showToast('Invalid IPv6 ULA prefix (e.g. fd00::/48)', 'error');
+          return;
+        }
+        if (document.getElementById('netIpv6Ula')) document.getElementById('netIpv6Ula').value = val || 'fd00::/48';
+        const disp = document.getElementById('disp_ipv6_ula');
+        if (disp) disp.textContent = `${val || 'fd00::/48'} • Unique local address scope`;
+        scheduleNetworkAutoSave();
       }
 
       closeSettingModal();
@@ -17140,6 +17354,27 @@
       }
     }
 
+    function toggleIpv6Master(enabled) {
+      const rows = ['rowIpv6Addrs', 'rowIpv6WanMode', 'rowIpv6Ra', 'rowIpv6Dhcp6', 'rowIpv6Ula', 'rowIpv6Privacy'];
+      rows.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.style.opacity = enabled ? '1' : '0.38';
+          el.style.pointerEvents = enabled ? 'auto' : 'none';
+        }
+      });
+      const badge = document.getElementById('badgeIpv6Status');
+      if (badge) {
+        if (enabled) {
+          badge.textContent = 'DUAL-STACK ONLINE';
+          badge.className = 'setting-status-badge badge-active';
+        } else {
+          badge.textContent = 'IPV6 DISABLED';
+          badge.className = 'setting-status-badge badge-disabled';
+        }
+      }
+    }
+
     function setDnsPreset(presetString) {
       const dnsInput = document.getElementById('netDns');
       if (dnsInput) {
@@ -17328,6 +17563,60 @@
 
         // Static Leases
         renderStaticLeases(data.static_leases || []);
+
+        // IPv6 Dual-Stack Settings
+        if (document.getElementById('netIpv6MasterToggle')) {
+          const isIpv6On = data.ipv6_enabled === undefined || data.ipv6_enabled === 1 || data.ipv6_enabled === '1';
+          document.getElementById('netIpv6MasterToggle').checked = isIpv6On;
+          toggleIpv6Master(isIpv6On);
+        }
+        if (data.ipv6_wan_mode && document.getElementById('netIpv6WanMode')) {
+          document.getElementById('netIpv6WanMode').value = data.ipv6_wan_mode;
+          const disp = document.getElementById('disp_ipv6_wan_mode');
+          if (disp) {
+            const map = {
+              dhcpv6: 'DHCPv6-PD & SLAAC (Automatic)',
+              slaac: 'SLAAC Only (Stateless Autoconfiguration)',
+              static: 'Static IPv6 Address',
+              disabled: 'Disabled (No WAN IPv6)'
+            };
+            disp.textContent = map[data.ipv6_wan_mode] || data.ipv6_wan_mode;
+          }
+        }
+        if (document.getElementById('netIpv6RaToggle')) {
+          document.getElementById('netIpv6RaToggle').checked = (data.ipv6_ra === undefined || data.ipv6_ra === 1 || data.ipv6_ra === '1');
+        }
+        if (document.getElementById('netIpv6Dhcp6Toggle')) {
+          document.getElementById('netIpv6Dhcp6Toggle').checked = (data.ipv6_dhcp6 === 1 || data.ipv6_dhcp6 === '1');
+        }
+        if (data.ipv6_ula && document.getElementById('netIpv6Ula')) {
+          document.getElementById('netIpv6Ula').value = data.ipv6_ula;
+          const disp = document.getElementById('disp_ipv6_ula');
+          if (disp) disp.textContent = `${data.ipv6_ula} • Unique local address scope`;
+        }
+        if (document.getElementById('netIpv6PrivacyToggle')) {
+          document.getElementById('netIpv6PrivacyToggle').checked = (data.ipv6_privacy === 1 || data.ipv6_privacy === '1');
+        }
+        const dispAddrs = document.getElementById('disp_ipv6_addrs');
+        if (dispAddrs) {
+          const lanAddr = data.ipv6_lan_addr || 'fd00::1/60';
+          const wanAddr = data.ipv6_wan_addr || 'None';
+          dispAddrs.textContent = `LAN: ${lanAddr} • WAN: ${wanAddr}`;
+        }
+
+        // Performance & Hardware Acceleration
+        if (document.getElementById('netHwFlowToggle')) {
+          document.getElementById('netHwFlowToggle').checked = (data.flow_offloading_hw === undefined || data.flow_offloading_hw === 1 || data.flow_offloading_hw === '1');
+        }
+        if (document.getElementById('netSwFlowToggle')) {
+          document.getElementById('netSwFlowToggle').checked = (data.flow_offloading === undefined || data.flow_offloading === 1 || data.flow_offloading === '1');
+        }
+        if (document.getElementById('netMssClampToggle')) {
+          document.getElementById('netMssClampToggle').checked = (data.mss_clamping === undefined || data.mss_clamping === 1 || data.mss_clamping === '1');
+        }
+        if (document.getElementById('netDnsRebindToggle')) {
+          document.getElementById('netDnsRebindToggle').checked = (data.dns_rebind === undefined || data.dns_rebind === 1 || data.dns_rebind === '1');
+        }
       } catch (e) {
         console.error("fetchNetworkConfig error", e);
       }

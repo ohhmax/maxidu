@@ -46,7 +46,6 @@ if [ "$ACTION" = "add_lease" ]; then
         exit 0
     fi
 
-    # Delete existing lease with same MAC if any
     for idx in $(uci -q show dhcp | grep '=host$' | cut -d'=' -f1 | cut -d'.' -f2); do
         cur_mac=$(uci -q get "dhcp.$idx.mac")
         if [ "$cur_mac" = "$L_MAC" ]; then
@@ -95,6 +94,18 @@ if [ "$ACTION" = "set" ]; then
     DHCP_IGN=$(echo "$POST_DATA" | jq -r '.dhcp_ignore // empty' 2>/dev/null)
     MTU_VAL=$(echo "$POST_DATA" | jq -r '.mtu // empty' 2>/dev/null)
 
+    # IPv6 & Acceleration Settings
+    IPV6_EN=$(echo "$POST_DATA" | jq -r '.ipv6_enabled // empty' 2>/dev/null)
+    IPV6_WAN=$(echo "$POST_DATA" | jq -r '.ipv6_wan_mode // empty' 2>/dev/null)
+    IPV6_RA=$(echo "$POST_DATA" | jq -r '.ipv6_ra // empty' 2>/dev/null)
+    IPV6_DHCP6=$(echo "$POST_DATA" | jq -r '.ipv6_dhcp6 // empty' 2>/dev/null)
+    IPV6_ULA=$(echo "$POST_DATA" | jq -r '.ipv6_ula // empty' 2>/dev/null)
+    IPV6_PRIV=$(echo "$POST_DATA" | jq -r '.ipv6_privacy // empty' 2>/dev/null)
+    FLOW_OFF=$(echo "$POST_DATA" | jq -r '.flow_offloading // empty' 2>/dev/null)
+    FLOW_OFF_HW=$(echo "$POST_DATA" | jq -r '.flow_offloading_hw // empty' 2>/dev/null)
+    MSS_CLAMP=$(echo "$POST_DATA" | jq -r '.mss_clamping // empty' 2>/dev/null)
+    DNS_REBIND=$(echo "$POST_DATA" | jq -r '.dns_rebind // empty' 2>/dev/null)
+
     if [ -n "$LAN_IP" ]; then
         if ! is_valid_ipv4 "$LAN_IP"; then
             echo '{"status": "error", "message": "Invalid LAN IP address."}'
@@ -129,8 +140,61 @@ if [ "$ACTION" = "set" ]; then
         uci set network.lan.mtu="$MTU_VAL"
     fi
 
+    # Apply IPv6 Configuration
+    if [ "$IPV6_EN" = "1" ]; then
+        uci set dhcp.lan.ra='server'
+        uci set dhcp.lan.ra_slaac='1'
+        uci set dhcp.lan.ra_default='1'
+        sysctl -w net.ipv6.conf.all.disable_ipv6=0 >/dev/null 2>&1
+    elif [ "$IPV6_EN" = "0" ]; then
+        uci set dhcp.lan.ra='disabled'
+        uci set dhcp.lan.dhcpv6='disabled'
+        sysctl -w net.ipv6.conf.all.disable_ipv6=1 >/dev/null 2>&1
+    fi
+
+    if [ -n "$IPV6_RA" ]; then
+        [ "$IPV6_RA" = "1" ] && uci set dhcp.lan.ra='server' || uci set dhcp.lan.ra='disabled'
+    fi
+
+    if [ -n "$IPV6_DHCP6" ]; then
+        [ "$IPV6_DHCP6" = "1" ] && uci set dhcp.lan.dhcpv6='server' || uci set dhcp.lan.dhcpv6='disabled'
+    fi
+
+    if [ -n "$IPV6_ULA" ] && [ "$IPV6_ULA" != "null" ]; then
+        uci set network.globals.ula_prefix="$IPV6_ULA"
+    fi
+
+    if [ -n "$IPV6_PRIV" ]; then
+        if [ "$IPV6_PRIV" = "1" ]; then
+            sysctl -w net.ipv6.conf.all.use_tempaddr=2 >/dev/null 2>&1
+            sysctl -w net.ipv6.conf.default.use_tempaddr=2 >/dev/null 2>&1
+        else
+            sysctl -w net.ipv6.conf.all.use_tempaddr=0 >/dev/null 2>&1
+            sysctl -w net.ipv6.conf.default.use_tempaddr=0 >/dev/null 2>&1
+        fi
+    fi
+
+    # Apply Firewall & Rocket Speed Flow Offload Settings
+    reload_fw=0
+    if [ -n "$FLOW_OFF" ]; then
+        uci set firewall.@defaults[0].flow_offloading="$FLOW_OFF"
+        reload_fw=1
+    fi
+    if [ -n "$FLOW_OFF_HW" ]; then
+        uci set firewall.@defaults[0].flow_offloading_hw="$FLOW_OFF_HW"
+        reload_fw=1
+    fi
+    if [ -n "$MSS_CLAMP" ]; then
+        uci set firewall.@zone[1].mtu_fix="$MSS_CLAMP"
+        reload_fw=1
+    fi
+    if [ -n "$DNS_REBIND" ]; then
+        uci set dhcp.@dnsmasq[0].rebind_protection="$DNS_REBIND"
+    fi
+
     uci commit network
     uci commit dhcp
+    [ $reload_fw -eq 1 ] && uci commit firewall && (/sbin/fw4 reload >/dev/null 2>&1) &
     (/etc/init.d/dnsmasq restart >/dev/null 2>&1) &
     echo '{"status": "ok", "message": "Network configuration applied successfully."}'
     exit 0
@@ -148,6 +212,27 @@ DHCP_LIMIT=$(uci -q get dhcp.lan.limit || echo '150')
 DHCP_LEASE=$(uci -q get dhcp.lan.leasetime || echo '12h')
 DHCP_IGN=$(uci -q get dhcp.lan.ignore || echo '0')
 MTU_VAL=$(uci -q get network.lan.mtu || echo '1500')
+
+# IPv6 status & settings
+DHCP_RA=$(uci -q get dhcp.lan.ra || echo 'disabled')
+DHCP_V6=$(uci -q get dhcp.lan.dhcpv6 || echo 'disabled')
+IPV6_EN=0
+[ "$DHCP_RA" = "server" ] && IPV6_EN=1
+IPV6_ULA=$(uci -q get network.globals.ula_prefix || echo 'fd00::/48')
+IPV6_WAN_MODE=$(uci -q get network.wan6.proto || echo 'auto')
+IPV6_PRIV=$(cat /proc/sys/net/ipv6/conf/all/use_tempaddr 2>/dev/null || echo '0')
+[ "$IPV6_PRIV" = "2" ] && IPV6_PRIV=1
+
+IPV6_LAN_ADDR=$(ip -6 -o addr show dev br-lan scope global 2>/dev/null | awk '{print $4}' | head -n 1)
+[ -z "$IPV6_LAN_ADDR" ] && IPV6_LAN_ADDR="fd00::1/60"
+IPV6_WAN_ADDR=$(ip -6 -o addr show dev usb0 scope global 2>/dev/null | awk '{print $4}' | head -n 1)
+[ -z "$IPV6_WAN_ADDR" ] && IPV6_WAN_ADDR="--"
+
+# Hardware acceleration & firewall tuning
+FLOW_OFF=$(uci -q get firewall.@defaults[0].flow_offloading || echo '1')
+FLOW_OFF_HW=$(uci -q get firewall.@defaults[0].flow_offloading_hw || echo '1')
+MSS_CLAMP=$(uci -q get firewall.@zone[1].mtu_fix || echo '1')
+DNS_REBIND=$(uci -q get dhcp.@dnsmasq[0].rebind_protection || echo '1')
 
 # Extract static leases
 LEASES_JSON=$(uci -q show dhcp | grep '=host$' | cut -d'=' -f1 | while read -r sec; do
@@ -176,6 +261,18 @@ cat << JSON
   "dhcp_leasetime": "$DHCP_LEASE",
   "dhcp_ignore": $DHCP_IGN,
   "mtu": "$MTU_VAL",
+  "ipv6_enabled": $IPV6_EN,
+  "ipv6_wan_mode": "$IPV6_WAN_MODE",
+  "ipv6_ra": $([ "$DHCP_RA" = "server" ] && echo 1 || echo 0),
+  "ipv6_dhcp6": $([ "$DHCP_V6" = "server" ] && echo 1 || echo 0),
+  "ipv6_ula": "$IPV6_ULA",
+  "ipv6_privacy": $IPV6_PRIV,
+  "ipv6_lan_addr": "$IPV6_LAN_ADDR",
+  "ipv6_wan_addr": "$IPV6_WAN_ADDR",
+  "flow_offloading": $FLOW_OFF,
+  "flow_offloading_hw": $FLOW_OFF_HW,
+  "mss_clamping": $MSS_CLAMP,
+  "dns_rebind": $DNS_REBIND,
   "static_leases": $LEASES_JSON,
   "wan": {
     "proto": "$WAN_PROTO",
