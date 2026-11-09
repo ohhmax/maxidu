@@ -12,6 +12,121 @@ init_default() {
   cat << 'EOF'
 {
   "status": "ok",
+  "version": 2,
+  "tree": {
+    "id": "root",
+    "type": "router",
+    "name": "MAXNET GATEWAY",
+    "ip": "10.0.0.1",
+    "mac": "2e:dd:4c:b2:8c:fa",
+    "uplinkPort": null,
+    "numPorts": 4,
+    "ports": [
+      {
+        "id": "root-lan1",
+        "label": "LAN 1",
+        "role": "empty",
+        "child": null
+      },
+      {
+        "id": "root-lan2",
+        "label": "LAN 2",
+        "role": "device",
+        "child": {
+          "id": "dev-maxos",
+          "type": "device",
+          "name": "maxos [PC]",
+          "ip": "10.0.0.111",
+          "mac": "10:65:30:7a:9c:02",
+          "uplinkPort": "root-lan2"
+        }
+      },
+      {
+        "id": "root-lan3",
+        "label": "LAN 3",
+        "role": "node",
+        "child": {
+          "id": "node-maxnet-b",
+          "type": "ap",
+          "name": "maxnet-b",
+          "ip": "10.0.0.2",
+          "mac": "8c:a3:99:7b:81:2b",
+          "uplinkPort": "root-lan3",
+          "numPorts": 4,
+          "ports": [
+            {
+              "id": "maxnet-b-lan1",
+              "label": "LAN 1",
+              "role": "device",
+              "child": {
+                "id": "dev-synology",
+                "type": "device",
+                "name": "Synology NAS",
+                "ip": "10.0.0.5",
+                "mac": "00:11:32:92:02:1b",
+                "uplinkPort": "maxnet-b-lan1"
+              }
+            },
+            {
+              "id": "maxnet-b-lan2",
+              "label": "LAN 2",
+              "role": "empty",
+              "child": null
+            },
+            {
+              "id": "maxnet-b-lan3",
+              "label": "LAN 3",
+              "role": "empty",
+              "child": null
+            },
+            {
+              "id": "maxnet-b-lan4",
+              "label": "LAN 4",
+              "role": "empty",
+              "child": null
+            }
+          ],
+          "wireless_clients": [
+            {
+              "name": "POCO-X6-5G",
+              "ip": "10.0.0.110",
+              "mac": "16:cb:1a:6a:a2:81",
+              "band": "2.4G",
+              "linkSpeed": "72 Mbps"
+            },
+            {
+              "name": "Vivo V2153",
+              "ip": "10.0.0.238",
+              "mac": "f2:82:95:8f:db:29",
+              "band": "2.4G",
+              "linkSpeed": "72 Mbps"
+            },
+            {
+              "name": "V2111",
+              "ip": "10.0.0.232",
+              "mac": "ee:e5:0b:24:d5:eb",
+              "band": "2.4G",
+              "linkSpeed": "65 Mbps"
+            },
+            {
+              "name": "realme-6",
+              "ip": "10.0.0.197",
+              "mac": "46:df:eb:aa:43:32",
+              "band": "2.4G",
+              "linkSpeed": "65 Mbps"
+            }
+          ]
+        }
+      },
+      {
+        "id": "root-lan4",
+        "label": "LAN 4",
+        "role": "empty",
+        "child": null
+      }
+    ],
+    "wireless_clients": []
+  },
   "ports": {
     "lan1": {
       "portIndex": 1,
@@ -53,6 +168,12 @@ init_default() {
           "ip": "10.0.0.232",
           "mac": "ee:e5:0b:24:d5:eb",
           "name": "V2111",
+          "conn_type": "2.4GHz WiFi"
+        },
+        {
+          "ip": "10.0.0.197",
+          "mac": "46:df:eb:aa:43:32",
+          "name": "realme-6",
           "conn_type": "2.4GHz WiFi"
         },
         {
