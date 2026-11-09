@@ -38,9 +38,16 @@ if [ "$ACTION" = "block" ]; then
         exit 0
     fi
 
-    LAN_IP=$(uci get network.lan.ipaddr 2>/dev/null || echo "10.0.0.1")
-    if [ "$IP" = "$LAN_IP" ] || [ "$IP" = "10.0.0.1" ] || [ "$IP" = "127.0.0.1" ]; then
-        echo '{"status": "error", "message": "Cannot block router gateway host"}'
+    LAN_IP=$(uci get network.lan.ipaddr 2>/dev/null)
+    [ -z "$LAN_IP" ] && LAN_IP=$(ip -4 a show dev br-lan 2>/dev/null | awk '/inet / {print $2}' | awk -F'/' '{print $1}' | head -n 1)
+    ROUTER_MAC=$(cat /sys/class/net/br-lan/address 2>/dev/null | tr '[:upper:]' '[:lower:]')
+
+    if [ -n "$IP" ] && { [ "$IP" = "$LAN_IP" ] || [ "$IP" = "10.0.0.1" ] || [ "$IP" = "127.0.0.1" ]; }; then
+        echo '{"status": "error", "message": "Cannot block router gateway host IP"}'
+        exit 0
+    fi
+    if [ -n "$MAC" ] && [ -n "$ROUTER_MAC" ] && [ "$MAC" = "$ROUTER_MAC" ]; then
+        echo '{"status": "error", "message": "Cannot block router gateway host MAC"}'
         exit 0
     fi
 

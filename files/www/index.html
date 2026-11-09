@@ -14214,6 +14214,21 @@
       return { status: 'Online', color: '#10b981', glow: 'rgba(16,185,129,0.4)' };
     }
 
+    function isGatewayDevice(c) {
+      if (!c) return false;
+      const curLan = (window._lastDataCache && window._lastDataCache.network && window._lastDataCache.network.lan_ip) || window.location.hostname || '10.0.0.1';
+      const clients = (window._lastDataCache && Array.isArray(window._lastDataCache.clients)) ? window._lastDataCache.clients : cachedClients;
+      const gatewayClient = clients.find(item => item && (item.is_self || (item.port && item.port.toLowerCase().includes('local'))));
+      const gatewayMac = (gatewayClient && gatewayClient.mac) ? gatewayClient.mac.toLowerCase() : '';
+
+      if (c.is_self) return true;
+      if (c.ip && (c.ip === curLan || c.ip === window.location.hostname || c.ip === '127.0.0.1' || (gatewayClient && c.ip === gatewayClient.ip))) return true;
+      if (c.mac && gatewayMac && c.mac.toLowerCase() === gatewayMac) return true;
+      if (c.port && c.port.toLowerCase().includes('local')) return true;
+      if (c.name && c.name.toLowerCase().includes('gateway (host)')) return true;
+      return false;
+    }
+
     function openDhcpClientDetail(ip, pushHistory = true) {
       if (!ip) return;
       window._currentDhcpClientDetail = ip;
@@ -14263,8 +14278,7 @@
       const container = document.getElementById('dhcpClientDetailView');
       if (!container) return;
 
-      const curLan = (window._lastDataCache && window._lastDataCache.network && window._lastDataCache.network.lan_ip) || '10.0.0.1';
-      const isGateway = Boolean(c.is_self || c.ip === curLan || c.ip === '10.0.0.1' || (c.port && c.port.toLowerCase().includes('local')));
+      const isGateway = isGatewayDevice(c);
 
       const statusInfo = getClientStatusInfo(c);
       const hostName = getClientHostOrDnsName(c);
@@ -14421,8 +14435,7 @@
     }
 
     async function reserveClientStaticLease(ip, mac, name) {
-      const curLan = (window._lastDataCache && window._lastDataCache.network && window._lastDataCache.network.lan_ip) || '10.0.0.1';
-      if (ip === curLan || ip === '10.0.0.1') {
+      if (isGatewayDevice({ ip, mac, name })) {
         if (typeof showToast === 'function') showToast('Gateway IP is already statically assigned to br-lan.', 'info');
         return;
       }
@@ -14454,8 +14467,7 @@
         ? window._lastDataCache.clients
         : (Array.isArray(window._lastClientsCache) ? window._lastClientsCache : []);
 
-      const curLan = (window._lastDataCache && window._lastDataCache.network && window._lastDataCache.network.lan_ip) || '10.0.0.1';
-      let filtered = clients.filter(c => c && c.ip && c.ip !== curLan && !c.is_self && !c.is_tether && (!c.port || !c.port.toLowerCase().includes('tether')));
+      let filtered = clients.filter(c => c && c.ip && !isGatewayDevice(c) && !c.is_tether && (!c.port || !c.port.toLowerCase().includes('tether')));
 
       const map = new Map();
       filtered.forEach(c => {
@@ -14955,8 +14967,7 @@
     }
 
     async function blockDevice(ip, mac, name) {
-      const curLan = (window._lastDataCache && window._lastDataCache.network && window._lastDataCache.network.lan_ip) || '10.0.0.1';
-      if (ip === curLan || ip === '10.0.0.1' || ip === '127.0.0.1') {
+      if (isGatewayDevice({ ip, mac, name })) {
         if (typeof showToast === 'function') showToast('Cannot block router gateway host.', 'error');
         else alert('Cannot block router gateway host.');
         return;
@@ -14994,8 +15005,7 @@
         alert('Please enter an IP or MAC address to block.');
         return;
       }
-      const curLan = (window._lastDataCache && window._lastDataCache.network && window._lastDataCache.network.lan_ip) || '10.0.0.1';
-      if (ip === curLan || ip === '10.0.0.1' || ip === '127.0.0.1') {
+      if (isGatewayDevice({ ip, mac })) {
         if (typeof showToast === 'function') showToast('Cannot block router gateway host.', 'error');
         else alert('Cannot block router gateway host.');
         return;

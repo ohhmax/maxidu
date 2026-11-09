@@ -37,7 +37,9 @@ OVERLAY_FREE=$(df -m /overlay 2>/dev/null | tail -n 1 | awk '{print $4}')
 OVERLAY_PCT=$(df -m /overlay 2>/dev/null | tail -n 1 | awk '{print $5}' | tr -d '%')
 
 LAN_IP=$(ip -4 a show dev br-lan 2>/dev/null | awk '/inet / {print $2}' | awk -F'/' '{print $1}' | head -n 1)
-[ -z "$LAN_IP" ] && LAN_IP="10.0.0.1"
+[ -z "$LAN_IP" ] && LAN_IP=$(uci get network.lan.ipaddr 2>/dev/null || echo "10.0.0.1")
+ROUTER_MAC=$(cat /sys/class/net/br-lan/address 2>/dev/null | tr '[:upper:]' '[:lower:]')
+[ -z "$ROUTER_MAC" ] && ROUTER_MAC="d2:61:fb:c9:5e:c5"
 
 WAN_IP=$(ip -4 a show dev usb0 2>/dev/null | awk '/inet / {print $2}' | awk -F'/' '{print $1}')
 [ -z "$WAN_IP" ] && WAN_IP="10.146.46.254"
@@ -72,7 +74,7 @@ USB_TX_MB=$(awk -v b="$USB_TX_B" 'BEGIN {printf "%.2f", b/1048576}')
 
 # Connected LAN Clients (1-pass high-speed awk + persistent traffic accounting)
 export PATH=/usr/sbin:/usr/bin:/sbin:/bin
-CLIENTS_JSON=$(awk '
+CLIENTS_JSON=$(awk -v lan_ip="$LAN_IP" -v router_mac="$ROUTER_MAC" '
 function get_vendor(m,   p, c2) {
   if (m in vendor) return vendor[m];
   p = substr(m, 1, 8);
@@ -88,6 +90,11 @@ function get_vendor(m,   p, c2) {
   return "Standard Network Device";
 }
 BEGIN {
+  if (lan_ip == "") lan_ip = "10.0.0.1";
+  if (router_mac == "") router_mac = "d2:61:fb:c9:5e:c5";
+  lan_prefix = lan_ip;
+  sub(/\.[0-9]+$/, ".", lan_prefix);
+  src_pat = "^src=" lan_prefix;
   while ((getline line < "/tmp/dhcp.leases") > 0) {
     split(line, p, " ");
     m = tolower(p[2]);
@@ -174,7 +181,7 @@ BEGIN {
 
   netbios_name["10.0.0.5"] = "HOMEDRIVE";
   netbios_name["10.0.0.111"] = "MAXOS";
-  netbios_name["10.0.0.1"] = "MAXNET-GATEWAY";
+  netbios_name[lan_ip] = "MAXNET-GATEWAY";
   netbios_name["10.0.0.2"] = "MAXNET-B";
 
   while ((getline nbline < "/tmp/netbios_cache.json") > 0) {
@@ -208,11 +215,11 @@ BEGIN {
   close(tsv_f);
 
   while ((getline line < "/proc/net/nf_conntrack") > 0) {
-    if (line !~ /src=10\.0\.0\./) continue;
+    if (line !~ src_pat) continue;
     n = split(line, f, " ");
     src_ip = ""; b1 = 0; b2 = 0; bc = 0;
     for (i = 1; i <= n; i++) {
-      if (f[i] ~ /^src=10\.0\.0\./ && src_ip == "") src_ip = substr(f[i], 5);
+      if (f[i] ~ src_pat && src_ip == "") src_ip = substr(f[i], 5);
       else if (f[i] ~ /^bytes=/) {
         bc++;
         val = substr(f[i], 7) + 0;
@@ -220,7 +227,7 @@ BEGIN {
         else if (bc == 2) b2 = val;
       }
     }
-    if (src_ip != "" && src_ip != "10.0.0.1") {
+    if (src_ip != "" && src_ip != lan_ip) {
       con_tx[src_ip] += b1;
       con_rx[src_ip] += b2;
     }
@@ -253,7 +260,7 @@ BEGIN {
     for (i = 1; i <= length(np); i++) {
       if (np[i] == "lladdr") {
         nmac = tolower(np[i+1]);
-        if (nmac != "" && nmac != "00:00:00:00:00:00" && nip ~ /^10\.0\.0\./) {
+        if (nmac != "" && nmac != "00:00:00:00:00:00" && nip ~ /^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/ && nip != lan_ip) {
           all_macs[nmac] = 1;
           prio = 5;
           if (nline ~ /REACHABLE/ || nline ~ /DELAY/ || nline ~ /PERMANENT/) {
@@ -281,7 +288,7 @@ BEGIN {
     if (p[6] == "br-lan" && p[3] == "0x2" && p[4] != "00:00:00:00:00:00") {
       m = tolower(p[4]);
       c_ip = p[1];
-      if (c_ip ~ /^10\.0\.0\./) {
+      if (c_ip ~ /^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/ && c_ip != lan_ip) {
         all_macs[m] = 1;
         prio = (m in lease_ip && c_ip == lease_ip[m]) ? 40 : 10;
         if (!(m in mac_prio) || prio >= mac_prio[m]) {
@@ -293,15 +300,15 @@ BEGIN {
   }
   close("/proc/net/arp");
 
-  printf "[{\"ip\":\"10.0.0.1\",\"ipv6\":\"fd00::1\",\"mac\":\"d2:61:fb:c9:5e:c5\",\"name\":\"MAXNET GATEWAY (Host)\",\"port\":\"LOCAL (Router)\",\"vendor\":\"Qualcomm Atheros\",\"dns_name\":\"maxnet-gateway.lan\",\"domain\":\"lan\",\"mdns\":\"maxnet-gateway.local\",\"netbios\":\"MAXNET-GATEWAY\",\"llmnr\":\"MAXNET-GATEWAY\",\"rx_mb\":\"0.00\",\"tx_mb\":\"0.00\",\"total_mb\":\"0.00\",\"rx_bytes\":0,\"tx_bytes\":0,\"total_bytes\":0,\"is_self\":true,\"connected\":true,\"blocked\":false}";
+  printf "[{\"ip\":\"%s\",\"ipv6\":\"fd00::1\",\"mac\":\"%s\",\"name\":\"MAXNET GATEWAY (Host)\",\"port\":\"LOCAL (Router)\",\"vendor\":\"Qualcomm Atheros\",\"dns_name\":\"maxnet-gateway.lan\",\"domain\":\"lan\",\"mdns\":\"maxnet-gateway.local\",\"netbios\":\"MAXNET-GATEWAY\",\"llmnr\":\"MAXNET-GATEWAY\",\"rx_mb\":\"0.00\",\"tx_mb\":\"0.00\",\"total_mb\":\"0.00\",\"rx_bytes\":0,\"tx_bytes\":0,\"total_bytes\":0,\"is_self\":true,\"connected\":true,\"blocked\":false}", lan_ip, router_mac;
 
   for (mac in all_macs) {
-    if (mac == "d2:61:fb:c9:5e:c5" || mac == "36:c5:a4:72:17:40") continue;
+    if (mac == router_mac || mac == "d2:61:fb:c9:5e:c5" || mac == "36:c5:a4:72:17:40") continue;
     ip = (mac in mac_ip) ? mac_ip[mac] : "";
     if (ip == "" && (mac in lease_ip)) {
       ip = lease_ip[mac];
     }
-    if (ip == "" || ip == "10.0.0.1") continue;
+    if (ip == "" || ip == lan_ip) continue;
 
     # Check live bridge and neighbor connectivity
     is_live = ((mac in is_on_bridge) || (mac in is_reach)) ? 1 : 0;
@@ -339,7 +346,7 @@ BEGIN {
         if (hp[k] == "ip") hip = hp[k+2];
         if (hp[k] == "name") hname = hp[k+2];
       }
-      if (hmac != "" && !(hmac in all_macs) && hip != "" && hip != "10.0.0.1" && hmac != "d2:61:fb:c9:5e:c5") {
+      if (hmac != "" && !(hmac in all_macs) && hip != "" && hip != lan_ip && hmac != router_mac && hmac != "d2:61:fb:c9:5e:c5") {
         blk = ((hmac in is_blk) || (hip in is_blk)) ? "true" : "false";
         pt = (hmac in port) ? port[hmac] : "LAN 3";
         rx_mb = sprintf("%.2f", ((hmac in rx) ? rx[hmac] : 0) / 1048576);
