@@ -7574,15 +7574,23 @@
           </div>
           <div class="accordion-content">
             <div class="settings-card-body">
-              <!-- SEARCH BAR DIRECTLY UNDER TOP BAR (NO RIGHT CAPSULES, LEFT MAGNIFIER) -->
-              <div style="position:relative; width:100%; margin-bottom:14px;">
-                <svg viewBox="0 0 24 24" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); width:15px; height:15px; fill:none; stroke:var(--text-dim); stroke-width:2; pointer-events:none;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" class="mh-input" id="dhcpClientsSearchInput" placeholder="Search from connected devices..." oninput="onSearchClients(this.value)" style="width:100%; box-sizing:border-box; padding:8px 12px 8px 36px; font-size:12px; font-family:var(--font-mono); border-radius:8px;">
+              <!-- 1. DHCP CLIENTS LIST VIEW -->
+              <div id="dhcpClientsListView" style="display:flex; flex-direction:column; gap:10px;">
+                <!-- SEARCH BAR DIRECTLY UNDER TOP BAR -->
+                <div style="position:relative; width:100%;">
+                  <svg viewBox="0 0 24 24" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); width:15px; height:15px; fill:none; stroke:var(--text-dim); stroke-width:2; pointer-events:none;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  <input type="text" class="mh-input" id="dhcpClientsSearchInput" placeholder="Search from connected devices..." oninput="onSearchClients(this.value)" style="width:100%; box-sizing:border-box; padding:8px 12px 8px 36px; font-size:12px; font-family:var(--font-mono); border-radius:8px;">
+                </div>
+
+                <!-- Simple Clean Clients Cards Container -->
+                <div id="fullClientsCards" style="display:flex; flex-direction:column; gap:6px;">
+                  <!-- Populated dynamically via renderClientsCards -->
+                </div>
               </div>
 
-              <!-- Simple Clean Clients Cards Container -->
-              <div id="fullClientsCards" style="display:flex; flex-direction:column; gap:8px;">
-                <!-- Populated dynamically via renderClientsCards -->
+              <!-- 2. DEDICATED DEVICE DETAIL PAGE VIEW -->
+              <div id="dhcpClientDetailView" style="display:none; flex-direction:column; gap:6px;">
+                <!-- Populated dynamically via renderDhcpClientDetail -->
               </div>
             </div>
           </div>
@@ -9761,6 +9769,13 @@
       } else if (id === 'acc-lan-clients') {
         document.body.classList.remove('terminal-active');
         if (typeof renderClientsCards === 'function') renderClientsCards(cachedClients);
+        const curHash = window.location.hash || '';
+        if (curHash.includes('&client=')) {
+          const clientIp = decodeURIComponent(curHash.split('&client=')[1].split('&')[0]);
+          if (clientIp) openDhcpClientDetail(clientIp, false);
+        } else {
+          closeDhcpClientDetail(false);
+        }
       } else if (id === 'acc-topo-layers') {
         document.body.classList.remove('terminal-active');
         if (typeof fetchTopologyLayers === 'function') fetchTopologyLayers();
@@ -9799,6 +9814,10 @@
     }
 
     function closeSettingPage(triggerHistoryBack = true) {
+      if (window._currentDhcpClientDetail) {
+        closeDhcpClientDetail(triggerHistoryBack);
+        return;
+      }
       if (window._currentAdbDeviceDetail) {
         closeAdbDeviceDetail(triggerHistoryBack);
         return;
@@ -9862,12 +9881,18 @@
         return;
       }
 
-      // 2. If ADB Device Detail View is open, close it and return to ADB list!
+      // 2. If DHCP Device Detail View is open, close it and return to DHCP list!
+      if (window._currentDhcpClientDetail) {
+        closeDhcpClientDetail(false);
+        return;
+      }
+
+      // 2b. If ADB Device Detail View is open, close it and return to ADB list!
       if (window._currentAdbDeviceDetail) {
         closeAdbDeviceDetail(false);
         return;
       }
-
+      
       // 3. If logout confirm modal is open, close it!
       const logoutModal = document.getElementById('logoutConfirmModal');
       if (logoutModal && logoutModal.style.display !== 'none') {
@@ -9883,6 +9908,13 @@
           const newId = rawId.split('&')[0];
           if (newId && newId !== window._currentSettingPage) {
             openSettingPage(newId, false);
+          } else if (newId === 'acc-lan-clients') {
+            if (rawId.includes('&client=')) {
+              const clientIp = decodeURIComponent(rawId.split('&client=')[1].split('&')[0]);
+              if (clientIp) openDhcpClientDetail(clientIp, false);
+            } else {
+              closeDhcpClientDetail(false);
+            }
           } else if (newId === 'acc-adb-device') {
             if (rawId.includes('&dev=')) {
               const devSer = decodeURIComponent(rawId.split('&dev=')[1].split('&')[0]);
@@ -14104,75 +14136,301 @@
         });
       }
 
+      // Update detail view if currently open
+      if (window._currentDhcpClientDetail) {
+        const curDev = sorted.find(c => c.ip === window._currentDhcpClientDetail);
+        if (curDev) renderDhcpClientDetail(curDev);
+      }
+
       container.innerHTML = sorted.map(c => {
-        const isBlocked = blockedIps.has(c.ip);
-        const rxFmt = fmtBytes(c.rx_bytes);
-        const txFmt = fmtBytes(c.tx_bytes);
-        const totFmt = fmtBytes(c.total_bytes);
-
-        const curLan = (window._lastDataCache && window._lastDataCache.network && window._lastDataCache.network.lan_ip) || '10.0.0.1';
-        let actionBtnHtml = '';
-        if (c.is_self || c.ip === curLan) {
-          actionBtnHtml = `<span class="card-badge">GATEWAY HOST</span>`;
-        } else if (c.is_tether || (c.port && c.port.toLowerCase().includes('tether')) || (c.name && c.name.toLowerCase().includes('tether'))) {
-          actionBtnHtml = `<span class="card-badge">5G MODEM TETHER</span>`;
-        } else if (isBlocked) {
-          actionBtnHtml = `<button class="mh-btn btn-sm btn-ghost" onclick="unblockDevice('${c.ip}', '${c.mac}')">UNBLOCK</button>`;
-        } else {
-          actionBtnHtml = `<button class="mh-btn btn-sm btn-danger" onclick="blockDevice('${c.ip}', '${c.mac}', '${escapeHtml(c.name)}')">BLOCK</button>`;
+        const statusInfo = getClientStatusInfo(c);
+        const hostName = getClientHostOrDnsName(c);
+        let vendor = (c.vendor || '').trim();
+        if (!vendor || vendor.toLowerCase() === 'unknown' || vendor === 'NULL') {
+          vendor = 'N/A';
         }
 
-        const isTether = c.is_tether || (c.port && c.port.toLowerCase().includes('tether')) || (c.name && c.name.toLowerCase().includes('tether'));
-        const isGateway = c.is_self || c.ip === curLan;
-        const portStr = escapeHtml(c.port || (isGateway ? 'LOCAL' : 'LAN'));
-
-        let dotClass = 'connected';
-        let statusTitle = 'Connected (Active)';
-        let statusBadgeText = 'ACTIVE LINK';
-        if (isBlocked || c.blocked) {
-          dotClass = 'blocked';
-          statusTitle = 'Blocked Device';
-          statusBadgeText = 'BLOCKED ACCESS';
-        } else if (c.connected === false) {
-          dotClass = 'disconnected';
-          statusTitle = 'Disconnected (15-Day Retention)';
-          statusBadgeText = '15-DAY CACHED';
-        }
+        const hostNameHtml = hostName
+          ? `<div class="setting-label-bold" style="font-size:13.5px; line-height:1.3;">${escapeHtml(hostName)}</div>`
+          : '';
 
         return `
-          <div class="client-spacious-card ${isBlocked ? 'is-blocked' : ''}">
-            <!-- 1. TOP ROW: HOSTNAME & PORT & ACTION -->
-            <div class="csc-top-row">
-              <div class="csc-host-wrap">
-                <span class="csc-dot ${dotClass}" title="${statusTitle}"></span>
-                <span class="csc-hostname" title="${escapeHtml(c.name || 'Device')}">${escapeHtml(c.name || 'Device')}</span>
-                <span class="csc-port-badge">PORT: <strong>${portStr}</strong></span>
-              </div>
-              <div>${actionBtnHtml}</div>
+          <div class="setting-row-item setting-clickable-row" onclick="openDhcpClientDetail('${escapeHtml(c.ip)}')" style="cursor:pointer; display:flex; align-items:center; gap:12px; padding:11px 14px;">
+            <div style="display:flex; align-items:center; justify-content:center; width:18px; min-width:18px;">
+              <span style="display:inline-block; width:9px; height:9px; border-radius:50%; background:${statusInfo.color}; box-shadow:0 0 7px ${statusInfo.glow};" title="${statusInfo.status}"></span>
             </div>
-
-            <!-- 2. MIDDLE ROW: ADDRESSING & DISCOVERY -->
-            <div class="csc-net-row">
-              <span class="csc-ip-badge">${escapeHtml(c.ip)}</span>
-              ${c.ipv6 ? `<span class="csc-ipv6-badge" title="${escapeHtml(c.ipv6)}">IPv6: ${escapeHtml(c.ipv6)}</span>` : ''}
-              <span class="csc-mac-badge">MAC: ${escapeHtml(c.mac || '--')}</span>
-              ${c.vendor ? `<span class="csc-vendor-badge" title="Vendor / Manufacturer: ${escapeHtml(c.vendor)}">${escapeHtml(c.vendor)}</span>` : ''}
-              ${c.netbios || c.mdns || c.dns_name ? `<span class="csc-meta-badge" title="mDNS: ${escapeHtml(c.mdns || '--')} | NetBIOS: ${escapeHtml(c.netbios || '--')} | DNS: ${escapeHtml(c.dns_name || '--')} | LLMNR: ${escapeHtml(c.llmnr || '--')}">HOST: ${escapeHtml(c.netbios || c.mdns || c.dns_name)}</span>` : ''}
+            <div class="setting-label-col" style="flex:1; min-width:0; display:flex; flex-direction:column; gap:2px;">
+              ${hostNameHtml}
+              <div style="font-size:12px; font-family:var(--font-mono); color:var(--text-muted); line-height:1.3;">${escapeHtml(c.ip || '--')}</div>
+              <div style="font-size:11px; color:var(--text-dim); line-height:1.3;">${escapeHtml(vendor)}</div>
             </div>
-
-            <!-- 3. BOTTOM ROW: METRICS -->
-            <div class="csc-bottom-row">
-              <div class="csc-traffic-pill">
-                <span class="tot">15-DAY USAGE: ${totFmt}</span>
-                <span class="flow">↓ ${rxFmt} &nbsp;|&nbsp; ↑ ${txFmt}</span>
-              </div>
-              <span style="font-size:9.5px; font-weight:700; color:${dotClass === 'connected' ? '#10b981' : (dotClass === 'blocked' ? '#ef4444' : '#71717a')}; font-family:var(--font-mono);">${statusBadgeText}</span>
+            <div class="setting-arrow-col">
+              <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
             </div>
           </div>
         `;
       }).join('');
     }
     window.renderClientCards = renderClientsCards;
+
+    /* ==================== DHCP CLIENTS HELPERS & DETAIL VIEW ==================== */
+    window._currentDhcpClientDetail = null;
+
+    function getClientHostOrDnsName(c) {
+      if (!c) return '';
+      const candidates = [c.name, c.dns_name, c.mdns, c.netbios, c.llmnr];
+      for (const val of candidates) {
+        if (!val) continue;
+        const s = String(val).trim();
+        if (s === '*' || s === '?' || s === 'NULL' || s.toLowerCase() === 'device' || s.toLowerCase() === 'unknown' || s === c.ip || s === `${c.ip}.lan` || s === `${c.ip}.local`) {
+          continue;
+        }
+        return s;
+      }
+      return '';
+    }
+
+    function getClientStatusInfo(c) {
+      if (!c) return { status: 'Offline', color: '#71717a', glow: 'rgba(113,113,122,0.3)' };
+      const isBlocked = blockedIps.has(c.ip) || c.blocked;
+      if (isBlocked) {
+        return { status: 'Blocked', color: '#ef4444', glow: 'rgba(239,68,68,0.4)' };
+      }
+      if (c.status === 'conflict' || c.conflict) {
+        return { status: 'Conflict', color: '#a855f7', glow: 'rgba(168,85,247,0.4)' };
+      }
+      if (c.is_static || c.is_reserved || c.reserved || (window._staticLeases && window._staticLeases.some(l => l.ip === c.ip || (l.mac && c.mac && l.mac.toLowerCase() === c.mac.toLowerCase())))) {
+        return { status: 'Reserved', color: '#3b82f6', glow: 'rgba(59,130,246,0.4)' };
+      }
+      if (c.status === 'renewing' || c.renewing) {
+        return { status: 'Renewing', color: '#f97316', glow: 'rgba(249,115,22,0.4)' };
+      }
+      if (c.status === 'requesting' || c.requesting) {
+        return { status: 'Requesting', color: '#eab308', glow: 'rgba(234,179,8,0.4)' };
+      }
+      if (c.connected === false || c.status === 'offline') {
+        return { status: 'Offline', color: '#71717a', glow: 'rgba(113,113,122,0.3)' };
+      }
+      return { status: 'Online', color: '#10b981', glow: 'rgba(16,185,129,0.4)' };
+    }
+
+    function openDhcpClientDetail(ip, pushHistory = true) {
+      if (!ip) return;
+      window._currentDhcpClientDetail = ip;
+
+      const listView = document.getElementById('dhcpClientsListView');
+      const detailView = document.getElementById('dhcpClientDetailView');
+      if (listView) listView.style.display = 'none';
+      if (detailView) detailView.style.display = 'flex';
+
+      const client = (cachedClients || []).find(c => c.ip === ip) || { ip: ip };
+      const displayName = getClientHostOrDnsName(client) || client.ip;
+
+      const navTitle = document.getElementById('settingsDetailNavTitle');
+      if (navTitle) {
+        navTitle.innerHTML = `<span style="cursor:pointer;" onclick="closeDhcpClientDetail(true)">DHCP Clients</span> <span style="opacity:0.4;">&rsaquo;</span> <span style="color:#10b981;">${escapeHtml(displayName)}</span>`;
+      }
+
+      renderDhcpClientDetail(client);
+
+      if (pushHistory) {
+        try {
+          history.pushState({ tab: 'settings', page: 'dhcp-client-detail', clientIp: ip }, '', '#setting=acc-lan-clients&client=' + encodeURIComponent(ip));
+        } catch (e) {}
+      }
+    }
+
+    function closeDhcpClientDetail(triggerHistoryBack = true) {
+      if (!window._currentDhcpClientDetail) return;
+      window._currentDhcpClientDetail = null;
+
+      const listView = document.getElementById('dhcpClientsListView');
+      const detailView = document.getElementById('dhcpClientDetailView');
+      if (detailView) detailView.style.display = 'none';
+      if (listView) listView.style.display = 'flex';
+
+      const navTitle = document.getElementById('settingsDetailNavTitle');
+      if (navTitle) navTitle.textContent = 'DHCP Clients';
+
+      if (triggerHistoryBack && window.location.hash.includes('&client=')) {
+        try {
+          history.back();
+        } catch (e) {}
+      }
+    }
+
+    function renderDhcpClientDetail(c) {
+      const container = document.getElementById('dhcpClientDetailView');
+      if (!container) return;
+
+      const statusInfo = getClientStatusInfo(c);
+      const hostName = getClientHostOrDnsName(c);
+      let vendor = (c.vendor || '').trim();
+      if (!vendor || vendor.toLowerCase() === 'unknown' || vendor === 'NULL') vendor = 'N/A';
+
+      const totFmt = fmtBytes(c.total_bytes);
+      const rxFmt = fmtBytes(c.rx_bytes);
+      const txFmt = fmtBytes(c.tx_bytes);
+      const isBlocked = blockedIps.has(c.ip) || c.blocked;
+
+      container.innerHTML = `
+        <!-- SUMMARY STRIP (MATCHING SYSTEM INFO SINGLE ROW TELEMETRY) -->
+        <div class="setting-row-item" style="padding:10px 14px;">
+          <div class="setting-label-col">
+            <span class="setting-label-bold" style="font-size:13.5px;">${escapeHtml(hostName || c.ip)}</span>
+            <span class="setting-label-sub">${escapeHtml(vendor)} &bull; ${escapeHtml(c.port || 'LAN Interface')}</span>
+          </div>
+          <div class="setting-control-col">
+            <span class="card-badge" style="border-color:${statusInfo.color}; color:${statusInfo.color}; background:rgba(255,255,255,0.04); font-size:10px; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+              <span style="width:6px; height:6px; border-radius:50%; background:${statusInfo.color}; display:inline-block;"></span>
+              ${statusInfo.status.toUpperCase()}
+            </span>
+          </div>
+        </div>
+
+        <!-- SECTION 1: INTERNET & DATA USAGE -->
+        <div class="setting-section-header">Internet &amp; Data Traffic</div>
+
+        <div class="setting-row-item">
+          <div class="setting-label-col">
+            <span class="setting-label-bold">Total Data Consumption</span>
+            <span class="setting-label-sub">Cumulative gateway transfer recorded for this client</span>
+          </div>
+          <div class="setting-control-col">
+            <span style="font-size:12.5px; font-weight:700; font-family:var(--font-mono); color:var(--text-main);">${totFmt}</span>
+          </div>
+        </div>
+
+        <div class="setting-row-item">
+          <div class="setting-label-col">
+            <span class="setting-label-bold">Download Traffic (Rx)</span>
+            <span class="setting-label-sub">Packets received from internet through router</span>
+          </div>
+          <div class="setting-control-col">
+            <span style="font-size:12px; font-family:var(--font-mono); color:var(--text-dim);">&darr; ${rxFmt}</span>
+          </div>
+        </div>
+
+        <div class="setting-row-item">
+          <div class="setting-label-col">
+            <span class="setting-label-bold">Upload Traffic (Tx)</span>
+            <span class="setting-label-sub">Packets transmitted to internet through router</span>
+          </div>
+          <div class="setting-control-col">
+            <span style="font-size:12px; font-family:var(--font-mono); color:var(--text-dim);">&uarr; ${txFmt}</span>
+          </div>
+        </div>
+
+        <!-- SECTION 2: DEVICE TELEMETRY & ADDRESSING -->
+        <div class="setting-section-divider"></div>
+        <div class="setting-section-header">Network Addressing &amp; Identifiers</div>
+
+        <div class="setting-row-item">
+          <div class="setting-label-col">
+            <span class="setting-label-bold">IPv4 Address</span>
+            <span class="setting-label-sub">${escapeHtml(c.ip)} &bull; Subnet mask: 255.255.255.0</span>
+          </div>
+          <div class="setting-control-col">
+            <button type="button" class="round-action-btn" title="Copy IPv4 Address" onclick="copyClientText('${escapeHtml(c.ip)}')">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="setting-row-item">
+          <div class="setting-label-col">
+            <span class="setting-label-bold">IPv6 Global / Link-Local</span>
+            <span class="setting-label-sub">${c.ipv6 ? escapeHtml(c.ipv6) : 'Not Assigned (IPv4 Only)'}</span>
+          </div>
+          ${c.ipv6 ? `
+          <div class="setting-control-col">
+            <button type="button" class="round-action-btn" title="Copy IPv6 Address" onclick="copyClientText('${escapeHtml(c.ipv6)}')">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>` : ''}
+        </div>
+
+        <div class="setting-row-item">
+          <div class="setting-label-col">
+            <span class="setting-label-bold">MAC Address &amp; Hardware</span>
+            <span class="setting-label-sub">${escapeHtml(c.mac || '--')} &bull; Vendor: ${escapeHtml(vendor)}</span>
+          </div>
+          <div class="setting-control-col">
+            <button type="button" class="round-action-btn" title="Copy MAC Address" onclick="copyClientText('${escapeHtml(c.mac || '')}')">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="setting-row-item">
+          <div class="setting-label-col">
+            <span class="setting-label-bold">Network Discovery Names</span>
+            <span class="setting-label-sub">DNS: ${escapeHtml(c.dns_name || 'N/A')} &bull; mDNS: ${escapeHtml(c.mdns || 'N/A')} &bull; NetBIOS: ${escapeHtml(c.netbios || 'N/A')}</span>
+          </div>
+        </div>
+
+        <!-- SECTION 3: ACCESS CONTROLS & RESERVATION -->
+        <div class="setting-section-divider"></div>
+        <div class="setting-section-header">Access Policies &amp; Static Lease</div>
+
+        <div class="setting-row-item">
+          <div class="setting-label-col">
+            <span class="setting-label-bold">Internet Access Policy</span>
+            <span class="setting-label-sub">${isBlocked ? 'Device is blocked by firewall from routing traffic' : 'Device has unrestricted LAN and internet access'}</span>
+          </div>
+          <div class="setting-control-col">
+            ${isBlocked
+              ? `<button class="mh-btn btn-sm btn-ghost" onclick="unblockDevice('${escapeHtml(c.ip)}', '${escapeHtml(c.mac)}'); setTimeout(() => openDhcpClientDetail('${escapeHtml(c.ip)}', false), 600);">UNBLOCK</button>`
+              : `<button class="mh-btn btn-sm btn-danger" onclick="blockDevice('${escapeHtml(c.ip)}', '${escapeHtml(c.mac)}', '${escapeHtml(hostName || c.ip)}'); setTimeout(() => openDhcpClientDetail('${escapeHtml(c.ip)}', false), 600);">BLOCK</button>`
+            }
+          </div>
+        </div>
+
+        <div class="setting-row-item">
+          <div class="setting-label-col">
+            <span class="setting-label-bold">Static IP Reservation</span>
+            <span class="setting-label-sub">Bind ${escapeHtml(c.ip)} to MAC ${escapeHtml(c.mac || '--')} permanently</span>
+          </div>
+          <div class="setting-control-col">
+            <button type="button" class="round-action-btn" title="Reserve Static Lease" onclick="reserveClientStaticLease('${escapeHtml(c.ip)}', '${escapeHtml(c.mac)}', '${escapeHtml(hostName || '')}')">
+              <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function copyClientText(text) {
+      if (!text) return;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          showToast(`Copied ${text} to clipboard`, 'success');
+        });
+      } else {
+        fallbackCopyText(text);
+      }
+    }
+
+    async function reserveClientStaticLease(ip, mac, name) {
+      if (!ip || !mac) return;
+      try {
+        const res = await fetch('/cgi-bin/network', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'add_lease', name: name || 'client', mac, ip })
+        });
+        const data = await res.json();
+        if (data.status === 'ok') {
+          showToast(`Reserved ${ip} for ${name || mac}`, 'success');
+          if (typeof fetchNetworkConfig === 'function') fetchNetworkConfig();
+          if (typeof fetchData === 'function') fetchData();
+        } else {
+          showToast('Failed to reserve IP: ' + (data.message || 'error'), 'error');
+        }
+      } catch (e) {
+        showToast('Reservation error: ' + e.message, 'error');
+      }
+    }
 
     // =========================================================================
     // NETWORK TOPOLOGY & PORT LAYER MAPPING (MULTI-LAYER & AUTO DHCP CLIENTS)
