@@ -6224,35 +6224,13 @@
     }
 
 
-    /* ==================== DEVICE HEALTH STATUS EMBLEM & METRICS ==================== */
-    .device-health-circle-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 18px 14px;
-      margin-bottom: 14px;
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 14px;
+    .stat-vert-sep {
+      width: 1px;
+      height: 20px;
+      background: rgba(255, 255, 255, 0.08);
     }
-    .device-health-stat-box {
-      flex: 1;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 8px;
-      padding: 6px 8px;
-      text-align: center;
-      transition: background 0.2s ease, border-color 0.2s ease;
-    }
-    [data-theme="light"] .device-health-circle-card {
-      background: #f8fafc !important;
-      border: 1px solid #e2e8f0 !important;
-    }
-    [data-theme="light"] .device-health-stat-box {
-      background: #ffffff !important;
-      border: 1px solid #e2e8f0 !important;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+    [data-theme="light"] .stat-vert-sep {
+      background: rgba(0, 0, 0, 0.08) !important;
     }
 
     /* ==================== ANDROID-STYLE SETTING ROWS & MODAL DIALOG ==================== */
@@ -7723,30 +7701,34 @@
           </div>
           <div class="accordion-content">
             <div class="settings-card-body">
-              <!-- TOP ROUND BIG CIRCLE: DEVICE HEALTH STATUS (NO PROGRESS BAR) -->
-              <div class="device-health-circle-card" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:18px 14px; margin-bottom:14px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:14px;">
-                <!-- Big Round Status Circle (No progress bar, symmetrical status emblem) -->
-                <div id="deviceHealthCircleContainer" style="width:130px; height:130px; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; border:3px solid #10b981; background:rgba(16,185,129,0.06); transition:border-color 0.4s ease, background 0.4s ease; box-sizing:border-box;">
-                  <span id="deviceHealthStatusBadge" style="font-size:14px; font-weight:800; font-family:var(--font-mono); letter-spacing:0.8px; text-transform:uppercase; color:#10b981;">HEALTHY</span>
+              <!-- TOP ROUND BIG CIRCLE: DEVICE HEALTH STATUS (SEAMLESS UI, NO BOXED CONTAINERS) -->
+              <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:12px 0 16px 0;">
+                <!-- Big Round Status Circle -->
+                <div id="deviceHealthCircleContainer" style="width:120px; height:120px; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; border:2px solid #10b981; background:transparent; transition:border-color 0.4s ease; box-sizing:border-box;">
+                  <span id="deviceHealthStatusBadge" style="font-size:13.5px; font-weight:800; font-family:var(--font-mono); letter-spacing:0.8px; text-transform:uppercase; color:#10b981;">HEALTHY</span>
                   <span id="deviceHealthTempMain" style="font-size:20px; font-weight:800; font-family:var(--font-mono); color:var(--text-main); margin-top:2px;">--&deg;C</span>
                 </div>
 
-                <!-- Compact Metrics Badges Directly Under Circle: CPU %, RAM %, UPTIME -->
-                <div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-top:14px; width:100%; max-width:320px;">
-                  <div class="device-health-stat-box">
-                    <div style="font-size:9px; color:var(--text-dim); font-family:var(--font-mono); font-weight:700; text-transform:uppercase;">CPU</div>
-                    <div id="deviceHealthCpuVal" style="font-size:13px; font-weight:800; font-family:var(--font-mono); color:#38bdf8; margin-top:2px;">--%</div>
+                <!-- Clean Metrics (No box backgrounds, matching UI typography) -->
+                <div style="display:flex; align-items:center; justify-content:center; gap:22px; margin-top:14px; width:100%;">
+                  <div style="text-align:center; min-width:65px;">
+                    <div style="font-size:9.5px; color:var(--text-dim); font-family:var(--font-mono); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">CPU</div>
+                    <div id="deviceHealthCpuVal" style="font-size:14px; font-weight:800; font-family:var(--font-mono); color:#38bdf8; margin-top:2px;">--%</div>
                   </div>
-                  <div class="device-health-stat-box">
-                    <div style="font-size:9px; color:var(--text-dim); font-family:var(--font-mono); font-weight:700; text-transform:uppercase;">RAM</div>
-                    <div id="deviceHealthRamVal" style="font-size:13px; font-weight:800; font-family:var(--font-mono); color:#a855f7; margin-top:2px;">--%</div>
+                  <div class="stat-vert-sep"></div>
+                  <div style="text-align:center; min-width:65px;">
+                    <div style="font-size:9.5px; color:var(--text-dim); font-family:var(--font-mono); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">RAM</div>
+                    <div id="deviceHealthRamVal" style="font-size:14px; font-weight:800; font-family:var(--font-mono); color:#a855f7; margin-top:2px;">--%</div>
                   </div>
-                  <div class="device-health-stat-box">
-                    <div style="font-size:9px; color:var(--text-dim); font-family:var(--font-mono); font-weight:700; text-transform:uppercase;">UPTIME</div>
-                    <div id="deviceHealthUptimeVal" style="font-size:13px; font-weight:800; font-family:var(--font-mono); color:#10b981; margin-top:2px;">--</div>
+                  <div class="stat-vert-sep"></div>
+                  <div style="text-align:center; min-width:65px;">
+                    <div style="font-size:9.5px; color:var(--text-dim); font-family:var(--font-mono); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">UPTIME</div>
+                    <div id="deviceHealthUptimeVal" style="font-size:14px; font-weight:800; font-family:var(--font-mono); color:#10b981; margin-top:2px;">--</div>
                   </div>
                 </div>
               </div>
+
+              <div class="setting-section-divider" style="margin-bottom:8px;"></div>
 
               <!-- SECTION 1: PROCESSOR & SOC -->
               <div class="setting-section-header">Processor &amp; SoC</div>
@@ -19534,7 +19516,6 @@
 
         if (circleContainer) {
           circleContainer.style.borderColor = healthColor;
-          circleContainer.style.background = healthBg;
         }
         if (badgeEl) {
           badgeEl.textContent = healthState;
