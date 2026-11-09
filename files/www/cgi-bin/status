@@ -259,6 +259,8 @@ BEGIN {
           if (nline ~ /REACHABLE/ || nline ~ /DELAY/ || nline ~ /PERMANENT/) {
             is_reach[nmac] = 1;
             prio = (nmac in lease_ip && nip == lease_ip[nmac]) ? 100 : 50;
+          } else if (nline ~ /STALE/) {
+            prio = (nmac in lease_ip && nip == lease_ip[nmac]) ? 35 : 25;
           } else if (nmac in lease_ip && nip == lease_ip[nmac]) {
             prio = 30;
           }
@@ -279,7 +281,7 @@ BEGIN {
     if (p[6] == "br-lan" && p[3] == "0x2" && p[4] != "00:00:00:00:00:00") {
       m = tolower(p[4]);
       c_ip = p[1];
-      if (c_ip ~ /^10\.0\.0\./ && !(c_ip in failed_ip)) {
+      if (c_ip ~ /^10\.0\.0\./) {
         all_macs[m] = 1;
         prio = (m in lease_ip && c_ip == lease_ip[m]) ? 40 : 10;
         if (!(m in mac_prio) || prio >= mac_prio[m]) {
@@ -296,13 +298,14 @@ BEGIN {
   for (mac in all_macs) {
     if (mac == "d2:61:fb:c9:5e:c5" || mac == "36:c5:a4:72:17:40") continue;
     ip = (mac in mac_ip) ? mac_ip[mac] : "";
-    if ((ip == "" || (ip in failed_ip)) && (mac in lease_ip) && !(lease_ip[mac] in failed_ip)) {
+    if (ip == "" && (mac in lease_ip)) {
       ip = lease_ip[mac];
     }
-    if (ip == "" || (ip in failed_ip) || ip == "10.0.0.1") continue;
+    if (ip == "" || ip == "10.0.0.1") continue;
 
     # Check live bridge and neighbor connectivity
     is_live = ((mac in is_on_bridge) || (mac in is_reach)) ? 1 : 0;
+    if ((ip in failed_ip) && !(mac in is_on_bridge)) is_live = 0;
     conn_str = is_live ? "true" : "false";
 
     h = (mac in name) ? name[mac] : ((ip in ip_name) ? ip_name[ip] : "Device");
