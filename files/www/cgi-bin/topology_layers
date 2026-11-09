@@ -31,34 +31,34 @@ init_default() {
       "portIndex": 3,
       "mode": "layer2_ap",
       "ap": {
-        "ip": "10.0.0.166",
-        "mac": "a8:1b:5a:c3:01:13",
-        "name": "Asus Router / AP",
-        "model": "Asus RT-AX53U AP"
+        "ip": "10.0.0.2",
+        "mac": "8c:a3:99:7b:81:2b",
+        "name": "maxnet-b",
+        "model": "Broadcom BCM4908 AP"
       },
       "layer3_devices": [
         {
-          "ip": "10.0.0.5",
-          "mac": "00:11:32:92:02:1b",
-          "name": "Synology NAS [STORAGE]",
-          "conn_type": "LAN Port"
+          "ip": "10.0.0.110",
+          "mac": "16:cb:1a:6a:a2:81",
+          "name": "POCO-X6-5G",
+          "conn_type": "2.4GHz WiFi"
         },
         {
           "ip": "10.0.0.238",
           "mac": "f2:82:95:8f:db:29",
-          "name": "Vivo V2153 [PHONE]",
-          "conn_type": "5GHz WiFi"
+          "name": "Vivo V2153",
+          "conn_type": "2.4GHz WiFi"
         },
         {
-          "ip": "10.0.0.104",
-          "mac": "76:74:c6:67:5a:89",
-          "name": "POCO-X6-5G [PHONE]",
-          "conn_type": "5GHz WiFi"
+          "ip": "10.0.0.232",
+          "mac": "ee:e5:0b:24:d5:eb",
+          "name": "V2111",
+          "conn_type": "2.4GHz WiFi"
         },
         {
-          "ip": "10.0.0.2",
-          "mac": "8c:a3:99:7b:81:2b",
-          "name": "maxnet-b [ROUTER]",
+          "ip": "10.0.0.5",
+          "mac": "00:11:32:92:02:1b",
+          "name": "Synology NAS",
           "conn_type": "LAN Port"
         }
       ]
