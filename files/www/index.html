@@ -8179,14 +8179,6 @@
 
               <!-- 2. ADB SELECTED DEVICE CONTROLS VIEW (NO SECOND BACK BUTTON, GROUPWISE CONTROLS) -->
               <div id="adbDetailView" style="display:none; flex-direction:column; gap:6px;">
-                <!-- ADB SUB-PAGE SWITCHER (DEDICATED PAGES, NO MODAL POPUPS) -->
-                <div class="adb-sub-tabbar" style="display:flex; align-items:center; gap:6px; margin-bottom:10px; padding:3px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px;">
-                  <button type="button" class="adb-sub-tab active" data-subview="controls" onclick="switchAdbSubView('controls')">Controls</button>
-                  <button type="button" class="adb-sub-tab" data-subview="sms" onclick="switchAdbSubView('sms')">SMS Messages</button>
-                  <button type="button" class="adb-sub-tab" data-subview="calls" onclick="switchAdbSubView('calls')">Call History</button>
-                  <button type="button" class="adb-sub-tab" data-subview="contacts" onclick="switchAdbSubView('contacts')">Contacts</button>
-                </div>
-
                 <!-- SECTION 1: DEVICE DIAGNOSTICS & TELEMETRY -->
                 <div class="setting-section-header">Device Telemetry &amp; System</div>
 
@@ -8371,34 +8363,13 @@
               </div>
 
               <!-- 3. DEDICATED IN-PAGE VIEW: SMS MESSAGES (NO POPUP) -->
-              <div id="adbSmsPageView" style="display:none; flex-direction:column; gap:10px;">
-                <div class="adb-sub-tabbar" style="display:flex; align-items:center; gap:6px; margin-bottom:6px; padding:3px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px;">
-                  <button type="button" class="adb-sub-tab" data-subview="controls" onclick="switchAdbSubView('controls')">Controls</button>
-                  <button type="button" class="adb-sub-tab active" data-subview="sms" onclick="switchAdbSubView('sms')">SMS Messages</button>
-                  <button type="button" class="adb-sub-tab" data-subview="calls" onclick="switchAdbSubView('calls')">Call History</button>
-                  <button type="button" class="adb-sub-tab" data-subview="contacts" onclick="switchAdbSubView('contacts')">Contacts</button>
-                </div>
-
-                <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:4px 0 8px 0; border-bottom:1px solid rgba(255,255,255,0.08);">
-                  <div style="display:flex; align-items:center; gap:8px;">
-                    <button type="button" class="round-action-btn" onclick="switchAdbSubView('controls')" title="Back to Controls" style="width:30px; height:30px; min-width:30px;">
-                      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-                    </button>
-                    <div>
-                      <span class="setting-label-bold" style="font-size:13px;">SMS Messages</span>
-                      <span class="setting-label-sub" id="adbSmsPageSubtitle">Handset SMS Inbox</span>
-                    </div>
-                  </div>
-                  <div style="display:flex; align-items:center; gap:6px;">
-                    <span class="card-badge" id="adbSmsPageCountBadge" style="font-size:9.5px;">-- MSGS</span>
-                    <button type="button" class="round-action-btn" title="Refresh SMS" onclick="fetchAdbSmsPage(this)" id="btnAdbRefreshSmsPage">
-                      <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-                    </button>
-                  </div>
-                </div>
-
-                <div>
-                  <input type="text" class="mh-input" id="adbSmsPageSearch" placeholder="Search SMS messages by sender or keyword..." oninput="filterAdbSmsPage(this.value)" style="width:100%; font-size:12px; padding:7px 12px; border-radius:8px;">
+              <div id="adbSmsPageView" style="display:none; flex-direction:column; gap:8px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <input type="text" class="mh-input" id="adbSmsPageSearch" placeholder="Search SMS messages by sender or keyword..." oninput="filterAdbSmsPage(this.value)" style="flex:1; font-size:12px; padding:7px 12px; border-radius:8px;">
+                  <span class="card-badge" id="adbSmsPageCountBadge" style="font-size:9.5px; height:32px; display:inline-flex; align-items:center; padding:0 8px; white-space:nowrap;">-- MSGS</span>
+                  <button type="button" class="round-action-btn" title="Refresh SMS" onclick="fetchAdbSmsPage(this)" id="btnAdbRefreshSmsPage" style="width:32px; height:32px; min-width:32px;">
+                    <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                  </button>
                 </div>
 
                 <div id="adbSmsPageContainer" style="display:flex; flex-direction:column; gap:8px;">
@@ -8407,30 +8378,13 @@
               </div>
 
               <!-- 4. DEDICATED IN-PAGE VIEW: CALL HISTORY (NO POPUP) -->
-              <div id="adbCallsPageView" style="display:none; flex-direction:column; gap:10px;">
-                <div class="adb-sub-tabbar" style="display:flex; align-items:center; gap:6px; margin-bottom:6px; padding:3px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px;">
-                  <button type="button" class="adb-sub-tab" data-subview="controls" onclick="switchAdbSubView('controls')">Controls</button>
-                  <button type="button" class="adb-sub-tab" data-subview="sms" onclick="switchAdbSubView('sms')">SMS Messages</button>
-                  <button type="button" class="adb-sub-tab active" data-subview="calls" onclick="switchAdbSubView('calls')">Call History</button>
-                  <button type="button" class="adb-sub-tab" data-subview="contacts" onclick="switchAdbSubView('contacts')">Contacts</button>
-                </div>
-
-                <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:4px 0 8px 0; border-bottom:1px solid rgba(255,255,255,0.08);">
-                  <div style="display:flex; align-items:center; gap:8px;">
-                    <button type="button" class="round-action-btn" onclick="switchAdbSubView('controls')" title="Back to Controls" style="width:30px; height:30px; min-width:30px;">
-                      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-                    </button>
-                    <div>
-                      <span class="setting-label-bold" style="font-size:13px;">Call History</span>
-                      <span class="setting-label-sub" id="adbCallsPageSubtitle">Incoming, outgoing, and missed call logs</span>
-                    </div>
-                  </div>
-                  <div style="display:flex; align-items:center; gap:6px;">
-                    <span class="card-badge" id="adbCallsPageCountBadge" style="font-size:9.5px;">-- CALLS</span>
-                    <button type="button" class="round-action-btn" title="Refresh Calls" onclick="fetchAdbCallsPage(this)" id="btnAdbRefreshCallsPage">
-                      <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-                    </button>
-                  </div>
+              <div id="adbCallsPageView" style="display:none; flex-direction:column; gap:8px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <input type="text" class="mh-input" id="adbCallsPageSearch" placeholder="Search call logs by number or name..." oninput="filterAdbCallsPage(this.value)" style="flex:1; font-size:12px; padding:7px 12px; border-radius:8px;">
+                  <span class="card-badge" id="adbCallsPageCountBadge" style="font-size:9.5px; height:32px; display:inline-flex; align-items:center; padding:0 8px; white-space:nowrap;">-- CALLS</span>
+                  <button type="button" class="round-action-btn" title="Refresh Calls" onclick="fetchAdbCallsPage(this)" id="btnAdbRefreshCallsPage" style="width:32px; height:32px; min-width:32px;">
+                    <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                  </button>
                 </div>
 
                 <div id="adbCallsPageContainer" style="display:flex; flex-direction:column; gap:8px;">
@@ -8439,34 +8393,13 @@
               </div>
 
               <!-- 5. DEDICATED IN-PAGE VIEW: CONTACTS (NO POPUP) -->
-              <div id="adbContactsPageView" style="display:none; flex-direction:column; gap:10px;">
-                <div class="adb-sub-tabbar" style="display:flex; align-items:center; gap:6px; margin-bottom:6px; padding:3px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px;">
-                  <button type="button" class="adb-sub-tab" data-subview="controls" onclick="switchAdbSubView('controls')">Controls</button>
-                  <button type="button" class="adb-sub-tab" data-subview="sms" onclick="switchAdbSubView('sms')">SMS Messages</button>
-                  <button type="button" class="adb-sub-tab" data-subview="calls" onclick="switchAdbSubView('calls')">Call History</button>
-                  <button type="button" class="adb-sub-tab active" data-subview="contacts" onclick="switchAdbSubView('contacts')">Contacts</button>
-                </div>
-
-                <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:4px 0 8px 0; border-bottom:1px solid rgba(255,255,255,0.08);">
-                  <div style="display:flex; align-items:center; gap:8px;">
-                    <button type="button" class="round-action-btn" onclick="switchAdbSubView('controls')" title="Back to Controls" style="width:30px; height:30px; min-width:30px;">
-                      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-                    </button>
-                    <div>
-                      <span class="setting-label-bold" style="font-size:13px;">Device Contacts</span>
-                      <span class="setting-label-sub" id="adbContactsPageSubtitle">Phonebook contacts retrieved via ADB</span>
-                    </div>
-                  </div>
-                  <div style="display:flex; align-items:center; gap:6px;">
-                    <span class="card-badge" id="adbContactsPageCountBadge" style="font-size:9.5px;">-- CONTACTS</span>
-                    <button type="button" class="round-action-btn" title="Refresh Contacts" onclick="fetchAdbContactsPage(this)" id="btnAdbRefreshContactsPage">
-                      <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-                    </button>
-                  </div>
-                </div>
-
-                <div>
-                  <input type="text" class="mh-input" id="adbContactsPageSearch" placeholder="Search contacts by name or phone..." oninput="filterAdbContactsPage(this.value)" style="width:100%; font-size:12px; padding:7px 12px; border-radius:8px;">
+              <div id="adbContactsPageView" style="display:none; flex-direction:column; gap:8px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <input type="text" class="mh-input" id="adbContactsPageSearch" placeholder="Search contacts by name or phone..." oninput="filterAdbContactsPage(this.value)" style="flex:1; font-size:12px; padding:7px 12px; border-radius:8px;">
+                  <span class="card-badge" id="adbContactsPageCountBadge" style="font-size:9.5px; height:32px; display:inline-flex; align-items:center; padding:0 8px; white-space:nowrap;">-- CONTACTS</span>
+                  <button type="button" class="round-action-btn" title="Refresh Contacts" onclick="fetchAdbContactsPage(this)" id="btnAdbRefreshContactsPage" style="width:32px; height:32px; min-width:32px;">
+                    <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                  </button>
                 </div>
 
                 <div id="adbContactsPageContainer" style="display:flex; flex-direction:column; gap:8px;">
@@ -15444,6 +15377,17 @@
           </div>
         `;
       }).join('');
+    }
+
+    function filterAdbCallsPage(query) {
+      const q = (query || '').toLowerCase().trim();
+      const list = window._cachedAdbCalls || [];
+      if (!q) {
+        renderAdbCallsPageList(list);
+        return;
+      }
+      const filtered = list.filter(c => (c.number || '').toLowerCase().includes(q) || (c.name || '').toLowerCase().includes(q));
+      renderAdbCallsPageList(filtered);
     }
 
     /* --- DEDICATED IN-PAGE CONTACTS HANDLER --- */
