@@ -121,8 +121,14 @@ if [ "$ACTION" = "devices" ]; then
             friendly_model="OPPO A37"
         fi
 
-        item=$(printf '{"serial":"%s","model":"%s","raw_model":"%s","manufacturer":"%s","speed_mbps":%d,"port":%d,"adb_enabled":%s,"is_wan":%s}' \
-            "$ser" "$friendly_model" "$prod" "$mfg" "$spd" "$port" "$adb_ok" "$is_wan")
+        batt_pct=""
+        if [ "$adb_ok" = "true" ]; then
+            batt_pct=$(adb -s "$ser" shell 'dumpsys battery 2>/dev/null | awk "/level:/ {print \$2; exit}"' 2>/dev/null | tr -cd '0-9')
+        fi
+        [ -z "$batt_pct" ] && batt_json="null" || batt_json="$batt_pct"
+
+        item=$(printf '{"serial":"%s","model":"%s","raw_model":"%s","manufacturer":"%s","speed_mbps":%d,"port":%d,"adb_enabled":%s,"is_wan":%s,"battery_pct":%s}' \
+            "$ser" "$friendly_model" "$prod" "$mfg" "$spd" "$port" "$adb_ok" "$is_wan" "$batt_json")
         [ $COUNT -gt 0 ] && DEVS_LIST="$DEVS_LIST,"
         DEVS_LIST="$DEVS_LIST$item"
         COUNT=$((COUNT + 1))
@@ -418,6 +424,16 @@ if [ "$TARGET_HAS_ADB" != "true" ]; then
   "connected": true,
   "adb_enabled": false,
   "device_id": "${TARGET_SERIAL}",
+  "model": "${P_MODEL}",
+  "brand": "${P_BRAND}",
+  "soc": "--",
+  "android_version": "--",
+  "security_patch": "--",
+  "battery_level": null,
+  "battery_temp": null,
+  "battery_charging": false,
+  "battery_status": "--",
+  "battery_health": "--",
   "has_sim": false,
   "identity": {
     "model": "${P_MODEL}",
@@ -489,6 +505,32 @@ P_SEC=$(echo "$RAW" | sed -n '/===PROPS===/{n;n;n;n;n;p;}' | tr -d '\r\n')
 [ -z "$P_ANDROID" ] && P_ANDROID="--"
 [ -z "$P_SEC" ] && P_SEC="--"
 
+DISPLAY_MODEL="$P_MODEL"
+if [ "$TARGET_SERIAL" = "RZCW6090G4J" ] || [ "$P_MODEL" = "SM-G990B2" ]; then
+    DISPLAY_MODEL="Samsung Galaxy S21 FE 5G"
+elif [ "$TARGET_SERIAL" = "4e1c1cf" ] || [ "$P_MODEL" = "A37f" ]; then
+    DISPLAY_MODEL="OPPO A37"
+fi
+
+SOC_NAME="$P_SOC"
+case "$P_SOC" in
+    SM8350|lahaina) SOC_NAME="Snapdragon 888 5G ($P_SOC)" ;;
+    SM8450|taro) SOC_NAME="Snapdragon 8 Gen 1 ($P_SOC)" ;;
+    SM8475|cape) SOC_NAME="Snapdragon 8+ Gen 1 ($P_SOC)" ;;
+    SM8550|kalama) SOC_NAME="Snapdragon 8 Gen 2 ($P_SOC)" ;;
+    SM8650|pineapple) SOC_NAME="Snapdragon 8 Gen 3 ($P_SOC)" ;;
+    SM8750|sun) SOC_NAME="Snapdragon 8 Elite ($P_SOC)" ;;
+    SM7475) SOC_NAME="Snapdragon 7+ Gen 2 ($P_SOC)" ;;
+    SM7450) SOC_NAME="Snapdragon 7 Gen 1 ($P_SOC)" ;;
+    SM7325) SOC_NAME="Snapdragon 778G ($P_SOC)" ;;
+    SM7250) SOC_NAME="Snapdragon 765G ($P_SOC)" ;;
+    MT6877) SOC_NAME="MediaTek Dimensity 900 ($P_SOC)" ;;
+    MT6893) SOC_NAME="MediaTek Dimensity 1200 ($P_SOC)" ;;
+    MT6983) SOC_NAME="MediaTek Dimensity 9000 ($P_SOC)" ;;
+    MT6985) SOC_NAME="MediaTek Dimensity 9200 ($P_SOC)" ;;
+    MT6989) SOC_NAME="MediaTek Dimensity 9300 ($P_SOC)" ;;
+esac
+
 LEVEL=$(echo "$RAW" | awk '/  level:/ {print $2; exit}')
 STATUS_CODE=$(echo "$RAW" | awk '/  status:/ {print $2; exit}')
 VOLT=$(echo "$RAW" | awk '/  voltage:/ {print $2; exit}')
@@ -497,6 +539,30 @@ BAT_TEMP=$(awk -v t="${TEMP_RAW:-0}" 'BEGIN {printf "%.1f", t/10}')
 HEALTH_CODE=$(echo "$RAW" | awk '/  health:/ {print $2; exit}')
 TECH=$(echo "$RAW" | awk '/  technology:/ {print $2; exit}')
 [ -z "$TECH" ] && TECH="Li-ion"
+
+IS_CHARGING=false
+BAT_STATUS="Connected"
+case "$STATUS_CODE" in
+    2) BAT_STATUS="Charging"; IS_CHARGING=true ;;
+    3) BAT_STATUS="Discharging"; IS_CHARGING=false ;;
+    4) BAT_STATUS="Not Charging"; IS_CHARGING=false ;;
+    5) BAT_STATUS="Full"; IS_CHARGING=false ;;
+    *) BAT_STATUS="Discharging"; IS_CHARGING=false ;;
+esac
+
+if echo "$RAW" | grep -qiE "mProtectBatteryMode[:=][ ]*1" && [ "$STATUS_CODE" = "4" ]; then
+    BAT_STATUS="Not Charging (Protect Battery)"
+fi
+
+BAT_HEALTH="Good"
+case "$HEALTH_CODE" in
+    2) BAT_HEALTH="Good" ;;
+    3) BAT_HEALTH="Overheat" ;;
+    4) BAT_HEALTH="Dead" ;;
+    5) BAT_HEALTH="Over Voltage" ;;
+    7) BAT_HEALTH="Cold" ;;
+    *) BAT_HEALTH="Good" ;;
+esac
 
 AP_TEMP=$(echo "$RAW" | awk -F'mValue=' '/mName=AP/ {split($2,a,","); print a[1]; exit}')
 USB_TEMP=$(echo "$RAW" | awk -F'mValue=' '/mName=USB/ {split($2,a,","); print a[1]; exit}')
@@ -607,11 +673,23 @@ cat << JSON
   "connected": true,
   "adb_enabled": true,
   "device_id": "${TARGET_SERIAL}",
+  "model": "${DISPLAY_MODEL}",
+  "brand": "${P_BRAND}",
+  "soc": "${SOC_NAME}",
+  "android_version": "${P_ANDROID}",
+  "security_patch": "${P_SEC}",
+  "battery_level": ${LEVEL:-0},
+  "battery_temp": ${BAT_TEMP:-0},
+  "battery_charging": ${IS_CHARGING},
+  "battery_status": "${BAT_STATUS}",
+  "battery_health": "${BAT_HEALTH}",
   "has_sim": ${HAS_SIM},
   "identity": {
-    "model": "${P_MODEL}",
+    "model": "${DISPLAY_MODEL}",
+    "raw_model": "${P_MODEL}",
     "brand": "${P_BRAND}",
-    "soc": "${P_SOC}",
+    "soc": "${SOC_NAME}",
+    "raw_soc": "${P_SOC}",
     "android": "${P_ANDROID}",
     "security_patch": "${P_SEC}",
     "serial": "${TARGET_SERIAL}"
@@ -628,7 +706,10 @@ cat << JSON
     "level": ${LEVEL:-0},
     "voltage_mv": ${VOLT:-0},
     "temp_c": ${BAT_TEMP:-0},
+    "status": "${BAT_STATUS}",
     "status_code": "${STATUS_CODE:-0}",
+    "charging": ${IS_CHARGING},
+    "health": "${BAT_HEALTH}",
     "health_code": "${HEALTH_CODE:-0}",
     "technology": "${TECH}"
   },

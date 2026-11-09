@@ -6226,26 +6226,117 @@
 
     /* ==================== ANDROID-STYLE SETTING ROWS & MODAL DIALOG ==================== */
     .round-action-btn.btn-danger-action {
-      border-color: rgba(239, 68, 68, 0.45);
-      color: #ef4444;
-      background: rgba(239, 68, 68, 0.08);
+      border-color: rgba(239, 68, 68, 0.45) !important;
+      color: #ef4444 !important;
+      background: rgba(239, 68, 68, 0.08) !important;
     }
     .round-action-btn.btn-danger-action:hover {
-      background: rgba(239, 68, 68, 0.2);
-      border-color: #ef4444;
-      color: #f87171;
+      background: rgba(239, 68, 68, 0.2) !important;
+      border-color: #ef4444 !important;
+      color: #f87171 !important;
       box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
     }
     .round-action-btn.btn-warning-action {
-      border-color: rgba(245, 158, 11, 0.45);
-      color: #f59e0b;
-      background: rgba(245, 158, 11, 0.08);
+      border-color: rgba(245, 158, 11, 0.45) !important;
+      color: #f59e0b !important;
+      background: rgba(245, 158, 11, 0.08) !important;
     }
     .round-action-btn.btn-warning-action:hover {
-      background: rgba(245, 158, 11, 0.2);
-      border-color: #f59e0b;
-      color: #fbbf24;
+      background: rgba(245, 158, 11, 0.2) !important;
+      border-color: #f59e0b !important;
+      color: #fbbf24 !important;
       box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+    }
+    .round-action-btn.btn-orange-action {
+      border-color: rgba(249, 115, 22, 0.45) !important;
+      color: #f97316 !important;
+      background: rgba(249, 115, 22, 0.08) !important;
+    }
+    .round-action-btn.btn-orange-action:hover {
+      background: rgba(249, 115, 22, 0.2) !important;
+      border-color: #f97316 !important;
+      color: #fb923c !important;
+      box-shadow: 0 4px 14px rgba(249, 115, 22, 0.35);
+    }
+    .round-action-btn.btn-cyan-action {
+      border-color: rgba(6, 182, 212, 0.45) !important;
+      color: #06b6d4 !important;
+      background: rgba(6, 182, 212, 0.08) !important;
+    }
+    .round-action-btn.btn-cyan-action:hover {
+      background: rgba(6, 182, 212, 0.2) !important;
+      border-color: #06b6d4 !important;
+      color: #22d3ee !important;
+      box-shadow: 0 4px 14px rgba(6, 182, 212, 0.35);
+    }
+    .round-action-btn.btn-purple-action {
+      border-color: rgba(168, 85, 247, 0.45) !important;
+      color: #a855f7 !important;
+      background: rgba(168, 85, 247, 0.08) !important;
+    }
+    .round-action-btn.btn-purple-action:hover {
+      background: rgba(168, 85, 247, 0.2) !important;
+      border-color: #a855f7 !important;
+      color: #c084fc !important;
+      box-shadow: 0 4px 14px rgba(168, 85, 247, 0.35);
+    }
+    .round-action-btn.btn-emerald-action {
+      border-color: rgba(16, 185, 129, 0.45) !important;
+      color: #10b981 !important;
+      background: rgba(16, 185, 129, 0.08) !important;
+    }
+    .round-action-btn.btn-emerald-action:hover {
+      background: rgba(16, 185, 129, 0.2) !important;
+      border-color: #10b981 !important;
+      color: #34d399 !important;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+    }
+    .round-action-btn.btn-blue-action {
+      border-color: rgba(59, 130, 246, 0.45) !important;
+      color: #3b82f6 !important;
+      background: rgba(59, 130, 246, 0.08) !important;
+    }
+    .round-action-btn.btn-blue-action:hover {
+      background: rgba(59, 130, 246, 0.2) !important;
+      border-color: #3b82f6 !important;
+      color: #60a5fa !important;
+      box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+    }
+    .round-action-btn.btn-sky-action {
+      border-color: rgba(56, 189, 248, 0.45) !important;
+      color: #38bdf8 !important;
+      background: rgba(56, 189, 248, 0.08) !important;
+    }
+    .round-action-btn.btn-sky-action:hover {
+      background: rgba(56, 189, 248, 0.2) !important;
+      border-color: #38bdf8 !important;
+      color: #7dd3fc !important;
+      box-shadow: 0 4px 14px rgba(56, 189, 248, 0.35);
+    }
+    .adb-sub-tab {
+      flex: 1;
+      padding: 6px 12px;
+      font-size: 11.5px;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      border-radius: 8px;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .adb-sub-tab:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .adb-sub-tab.active {
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      border-color: rgba(56, 189, 248, 0.35);
+      box-shadow: 0 2px 8px rgba(56, 189, 248, 0.15);
     }
     .setting-save-pill {
       margin-left: auto;
@@ -7601,6 +7692,38 @@
           </div>
           <div class="accordion-content">
             <div class="settings-card-body">
+              <!-- TOP CIRCULAR DEVICE HEALTH & THERMAL STATUS METER -->
+              <div class="device-health-circle-card" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:18px 14px; margin-bottom:14px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:14px;">
+                <!-- Big Round SVG Gauge -->
+                <div style="position:relative; width:134px; height:134px; display:flex; align-items:center; justify-content:center;">
+                  <svg width="134" height="134" viewBox="0 0 134 134" style="transform:rotate(-90deg);">
+                    <circle cx="67" cy="67" r="56" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="8"/>
+                    <circle id="deviceHealthCircleRing" cx="67" cy="67" r="56" fill="none" stroke="#10b981" stroke-width="8" stroke-dasharray="351.86" stroke-dashoffset="90" stroke-linecap="round" style="transition:stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.5s ease; filter:drop-shadow(0 0 8px currentColor);"/>
+                  </svg>
+                  <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; pointer-events:none;">
+                    <span id="deviceHealthStatusBadge" style="font-size:13px; font-weight:800; font-family:var(--font-mono); letter-spacing:0.8px; text-transform:uppercase; color:#10b981;">HEALTHY</span>
+                    <span id="deviceHealthTempMain" style="font-size:17px; font-weight:800; font-family:var(--font-mono); color:var(--text-main); margin-top:2px;">--&deg;C</span>
+                    <span id="deviceHealthSubLabel" style="font-size:9.5px; color:var(--text-dim); font-family:var(--font-mono); text-transform:uppercase; letter-spacing:0.5px;">SYSTEM HEALTH</span>
+                  </div>
+                </div>
+
+                <!-- Compact Metrics Badges Directly Under Circle: CPU %, RAM %, TEMP -->
+                <div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-top:14px; width:100%; max-width:320px;">
+                  <div style="flex:1; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:6px 8px; text-align:center;">
+                    <div style="font-size:9px; color:var(--text-dim); font-family:var(--font-mono); font-weight:700; text-transform:uppercase;">CPU</div>
+                    <div id="deviceHealthCpuVal" style="font-size:13px; font-weight:800; font-family:var(--font-mono); color:#38bdf8; margin-top:2px;">--%</div>
+                  </div>
+                  <div style="flex:1; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:6px 8px; text-align:center;">
+                    <div style="font-size:9px; color:var(--text-dim); font-family:var(--font-mono); font-weight:700; text-transform:uppercase;">RAM</div>
+                    <div id="deviceHealthRamVal" style="font-size:13px; font-weight:800; font-family:var(--font-mono); color:#a855f7; margin-top:2px;">--%</div>
+                  </div>
+                  <div style="flex:1; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:6px 8px; text-align:center;">
+                    <div style="font-size:9px; color:var(--text-dim); font-family:var(--font-mono); font-weight:700; text-transform:uppercase;">TEMP</div>
+                    <div id="deviceHealthTempVal" style="font-size:13px; font-weight:800; font-family:var(--font-mono); color:#10b981; margin-top:2px;">--&deg;C</div>
+                  </div>
+                </div>
+              </div>
+
               <!-- SECTION 1: PROCESSOR & SOC -->
               <div class="setting-section-header">Processor &amp; SoC</div>
 
@@ -8054,6 +8177,14 @@
 
               <!-- 2. ADB SELECTED DEVICE CONTROLS VIEW (NO SECOND BACK BUTTON, GROUPWISE CONTROLS) -->
               <div id="adbDetailView" style="display:none; flex-direction:column; gap:6px;">
+                <!-- ADB SUB-PAGE SWITCHER (DEDICATED PAGES, NO MODAL POPUPS) -->
+                <div class="adb-sub-tabbar" style="display:flex; align-items:center; gap:6px; margin-bottom:10px; padding:3px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px;">
+                  <button type="button" class="adb-sub-tab active" data-subview="controls" onclick="switchAdbSubView('controls')">Controls</button>
+                  <button type="button" class="adb-sub-tab" data-subview="sms" onclick="switchAdbSubView('sms')">SMS Messages</button>
+                  <button type="button" class="adb-sub-tab" data-subview="calls" onclick="switchAdbSubView('calls')">Call History</button>
+                  <button type="button" class="adb-sub-tab" data-subview="contacts" onclick="switchAdbSubView('contacts')">Contacts</button>
+                </div>
+
                 <!-- SECTION 1: DEVICE DIAGNOSTICS & TELEMETRY -->
                 <div class="setting-section-header">Device Telemetry &amp; System</div>
 
@@ -8112,7 +8243,7 @@
                 <div class="setting-section-header">Communications &amp; Data</div>
 
                 <!-- 5. SMS MESSAGES -->
-                <div class="setting-row-item setting-clickable-row" onclick="openAdbSmsModal()">
+                <div class="setting-row-item setting-clickable-row" onclick="switchAdbSubView('sms')">
                   <div class="setting-label-col">
                     <span class="setting-label-bold">SMS Messages</span>
                     <span class="setting-label-sub" id="dispDevSmsSub">View SMS inbox, conversations &bull; Tap to load messages</span>
@@ -8123,7 +8254,7 @@
                 </div>
 
                 <!-- 6. CALL HISTORY -->
-                <div class="setting-row-item setting-clickable-row" onclick="openAdbCallLogsModal()">
+                <div class="setting-row-item setting-clickable-row" onclick="switchAdbSubView('calls')">
                   <div class="setting-label-col">
                     <span class="setting-label-bold">Call History</span>
                     <span class="setting-label-sub" id="dispDevCallsSub">View incoming, outgoing, and missed call logs &bull; Tap to load</span>
@@ -8134,7 +8265,7 @@
                 </div>
 
                 <!-- 7. CONTACTS -->
-                <div class="setting-row-item setting-clickable-row" onclick="openAdbContactsModal()">
+                <div class="setting-row-item setting-clickable-row" onclick="switchAdbSubView('contacts')">
                   <div class="setting-label-col">
                     <span class="setting-label-bold">Device Contacts</span>
                     <span class="setting-label-sub" id="dispDevContactsSub">View phonebook directory and saved phone numbers &bull; Tap to load</span>
@@ -8237,6 +8368,110 @@
                       <svg viewBox="0 0 24 24"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
                     </button>
                   </div>
+                </div>
+              </div>
+
+              <!-- 3. DEDICATED IN-PAGE VIEW: SMS MESSAGES (NO POPUP) -->
+              <div id="adbSmsPageView" style="display:none; flex-direction:column; gap:10px;">
+                <div class="adb-sub-tabbar" style="display:flex; align-items:center; gap:6px; margin-bottom:6px; padding:3px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px;">
+                  <button type="button" class="adb-sub-tab" data-subview="controls" onclick="switchAdbSubView('controls')">Controls</button>
+                  <button type="button" class="adb-sub-tab active" data-subview="sms" onclick="switchAdbSubView('sms')">SMS Messages</button>
+                  <button type="button" class="adb-sub-tab" data-subview="calls" onclick="switchAdbSubView('calls')">Call History</button>
+                  <button type="button" class="adb-sub-tab" data-subview="contacts" onclick="switchAdbSubView('contacts')">Contacts</button>
+                </div>
+
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:4px 0 8px 0; border-bottom:1px solid rgba(255,255,255,0.08);">
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <button type="button" class="round-action-btn" onclick="switchAdbSubView('controls')" title="Back to Controls" style="width:30px; height:30px; min-width:30px;">
+                      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+                    </button>
+                    <div>
+                      <span class="setting-label-bold" style="font-size:13px;">SMS Messages</span>
+                      <span class="setting-label-sub" id="adbSmsPageSubtitle">Handset SMS Inbox</span>
+                    </div>
+                  </div>
+                  <div style="display:flex; align-items:center; gap:6px;">
+                    <span class="card-badge" id="adbSmsPageCountBadge" style="font-size:9.5px;">-- MSGS</span>
+                    <button type="button" class="round-action-btn" title="Refresh SMS" onclick="fetchAdbSmsPage(this)" id="btnAdbRefreshSmsPage">
+                      <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <input type="text" class="mh-input" id="adbSmsPageSearch" placeholder="Search SMS messages by sender or keyword..." oninput="filterAdbSmsPage(this.value)" style="width:100%; font-size:12px; padding:7px 12px; border-radius:8px;">
+                </div>
+
+                <div id="adbSmsPageContainer" style="display:flex; flex-direction:column; gap:8px;">
+                  <!-- Dynamically rendered -->
+                </div>
+              </div>
+
+              <!-- 4. DEDICATED IN-PAGE VIEW: CALL HISTORY (NO POPUP) -->
+              <div id="adbCallsPageView" style="display:none; flex-direction:column; gap:10px;">
+                <div class="adb-sub-tabbar" style="display:flex; align-items:center; gap:6px; margin-bottom:6px; padding:3px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px;">
+                  <button type="button" class="adb-sub-tab" data-subview="controls" onclick="switchAdbSubView('controls')">Controls</button>
+                  <button type="button" class="adb-sub-tab" data-subview="sms" onclick="switchAdbSubView('sms')">SMS Messages</button>
+                  <button type="button" class="adb-sub-tab active" data-subview="calls" onclick="switchAdbSubView('calls')">Call History</button>
+                  <button type="button" class="adb-sub-tab" data-subview="contacts" onclick="switchAdbSubView('contacts')">Contacts</button>
+                </div>
+
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:4px 0 8px 0; border-bottom:1px solid rgba(255,255,255,0.08);">
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <button type="button" class="round-action-btn" onclick="switchAdbSubView('controls')" title="Back to Controls" style="width:30px; height:30px; min-width:30px;">
+                      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+                    </button>
+                    <div>
+                      <span class="setting-label-bold" style="font-size:13px;">Call History</span>
+                      <span class="setting-label-sub" id="adbCallsPageSubtitle">Incoming, outgoing, and missed call logs</span>
+                    </div>
+                  </div>
+                  <div style="display:flex; align-items:center; gap:6px;">
+                    <span class="card-badge" id="adbCallsPageCountBadge" style="font-size:9.5px;">-- CALLS</span>
+                    <button type="button" class="round-action-btn" title="Refresh Calls" onclick="fetchAdbCallsPage(this)" id="btnAdbRefreshCallsPage">
+                      <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div id="adbCallsPageContainer" style="display:flex; flex-direction:column; gap:8px;">
+                  <!-- Dynamically rendered -->
+                </div>
+              </div>
+
+              <!-- 5. DEDICATED IN-PAGE VIEW: CONTACTS (NO POPUP) -->
+              <div id="adbContactsPageView" style="display:none; flex-direction:column; gap:10px;">
+                <div class="adb-sub-tabbar" style="display:flex; align-items:center; gap:6px; margin-bottom:6px; padding:3px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px;">
+                  <button type="button" class="adb-sub-tab" data-subview="controls" onclick="switchAdbSubView('controls')">Controls</button>
+                  <button type="button" class="adb-sub-tab" data-subview="sms" onclick="switchAdbSubView('sms')">SMS Messages</button>
+                  <button type="button" class="adb-sub-tab" data-subview="calls" onclick="switchAdbSubView('calls')">Call History</button>
+                  <button type="button" class="adb-sub-tab active" data-subview="contacts" onclick="switchAdbSubView('contacts')">Contacts</button>
+                </div>
+
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:4px 0 8px 0; border-bottom:1px solid rgba(255,255,255,0.08);">
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <button type="button" class="round-action-btn" onclick="switchAdbSubView('controls')" title="Back to Controls" style="width:30px; height:30px; min-width:30px;">
+                      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+                    </button>
+                    <div>
+                      <span class="setting-label-bold" style="font-size:13px;">Device Contacts</span>
+                      <span class="setting-label-sub" id="adbContactsPageSubtitle">Phonebook contacts retrieved via ADB</span>
+                    </div>
+                  </div>
+                  <div style="display:flex; align-items:center; gap:6px;">
+                    <span class="card-badge" id="adbContactsPageCountBadge" style="font-size:9.5px;">-- CONTACTS</span>
+                    <button type="button" class="round-action-btn" title="Refresh Contacts" onclick="fetchAdbContactsPage(this)" id="btnAdbRefreshContactsPage">
+                      <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <input type="text" class="mh-input" id="adbContactsPageSearch" placeholder="Search contacts by name or phone..." oninput="filterAdbContactsPage(this.value)" style="width:100%; font-size:12px; padding:7px 12px; border-radius:8px;">
+                </div>
+
+                <div id="adbContactsPageContainer" style="display:flex; flex-direction:column; gap:8px;">
+                  <!-- Dynamically rendered -->
                 </div>
               </div>
             </div></div>
@@ -8810,15 +9045,15 @@
           </div>
           <div class="accordion-content">
             <div class="settings-card-body">
-              <!-- MAINTENANCE OPERATIONS (CLEAN ROWS WITH ROUND ACTION ICONS) -->
+              <!-- MAINTENANCE OPERATIONS (CLEAN ROWS WITH COLOR-CODED ACTION ICONS) -->
               <div style="display:flex; flex-direction:column;">
                 <div class="setting-row-item">
                   <div class="setting-label-col">
-                    <span class="setting-label-bold">Gateway Reboot</span>
+                    <span class="setting-label-bold" style="color:#f59e0b;">Gateway Reboot</span>
                     <span class="setting-label-sub">Safely sync filesystem buffers and perform graceful router restart</span>
                   </div>
                   <div class="setting-control-col">
-                    <button class="round-action-btn btn-danger-action" title="Reboot Router Gateway" onclick="confirmRebootRouter()">
+                    <button class="round-action-btn btn-warning-action" title="Reboot Router Gateway" onclick="confirmRebootRouter()">
                       <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
                     </button>
                   </div>
@@ -8830,7 +9065,7 @@
                     <span class="setting-label-sub">Cut and restore 5V VBUS rail to re-enumerate tethered modems</span>
                   </div>
                   <div class="setting-control-col">
-                    <button class="round-action-btn" title="Power Cycle USB Hub (VBUS Reset)" onclick="powerCycleUsbHub()">
+                    <button class="round-action-btn btn-orange-action" title="Power Cycle USB Hub (VBUS Reset)" onclick="powerCycleUsbHub()">
                       <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
                     </button>
                   </div>
@@ -8842,7 +9077,7 @@
                     <span class="setting-label-sub">Reload Linux interfaces, firewall rules, and multi-link daemon</span>
                   </div>
                   <div class="setting-control-col">
-                    <button class="round-action-btn" title="Restart Network &amp; Multi-Link Daemon" onclick="restartNetworkAndMultilink()">
+                    <button class="round-action-btn btn-cyan-action" title="Restart Network &amp; Multi-Link Daemon" onclick="restartNetworkAndMultilink()">
                       <svg viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
                     </button>
                   </div>
@@ -8854,7 +9089,7 @@
                     <span class="setting-label-sub">Clear dnsmasq cache and flush kernel conntrack state tables</span>
                   </div>
                   <div class="setting-control-col">
-                    <button class="round-action-btn" title="Clear DNS &amp; Conntrack Cache" onclick="clearDnsAndConntrack()">
+                    <button class="round-action-btn btn-purple-action" title="Clear DNS &amp; Conntrack Cache" onclick="clearDnsAndConntrack()">
                       <svg viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                     </button>
                   </div>
@@ -8866,7 +9101,7 @@
                     <span class="setting-label-sub">Export full system configuration, interfaces, and scripts (.tar.gz)</span>
                   </div>
                   <div class="setting-control-col">
-                    <button class="round-action-btn" title="Download Configuration Backup Archive" onclick="downloadBackupArchive()">
+                    <button class="round-action-btn btn-emerald-action" title="Download Configuration Backup Archive" onclick="downloadBackupArchive()">
                       <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                     </button>
                   </div>
@@ -8878,7 +9113,7 @@
                     <span class="setting-label-sub">Upload previously generated configuration archive to restore state</span>
                   </div>
                   <div class="setting-control-col">
-                    <button class="round-action-btn" title="Restore Configuration Archive" onclick="document.getElementById('backupFileInput').click()">
+                    <button class="round-action-btn btn-blue-action" title="Restore Configuration Archive" onclick="document.getElementById('backupFileInput').click()">
                       <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                     </button>
                     <input type="file" id="backupFileInput" accept=".tar.gz,.tgz" style="display:none;" onchange="handleRestoreFileChosen(this)">
@@ -8901,7 +9136,7 @@
                     <span class="setting-label-sub" id="updateStatusSub"><strong id="updateStatusPill" style="color:#10b981;">v2.2.20 UP TO DATE</strong> &bull; Jio AX6000 Arcadyan Custom Firmware &bull; Linux 6.18.60</span>
                   </div>
                   <div class="setting-control-col">
-                    <button class="round-action-btn" id="btnCheckUpdate" title="Check for Latest Firmware Update" onclick="checkLatestFirmwareUpdate()">
+                    <button class="round-action-btn btn-sky-action" id="btnCheckUpdate" title="Check for Latest Firmware Update" onclick="checkLatestFirmwareUpdate()">
                       <svg id="iconCheckUpdate" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
                     </button>
                   </div>
@@ -14952,15 +15187,48 @@
           const sSub = document.getElementById('dispDevSerialSub');
           const rSub = document.getElementById('dispRadioSub');
 
-          if (mTitle && data.model) mTitle.textContent = `${data.brand ? data.brand + ' ' : ''}${data.model}`;
-          if (mSub) mSub.textContent = `Android ${data.android_version || '--'} • Patch: ${data.security_patch || '--'} • SoC: ${data.soc || '--'}`;
-          if (bSub) {
-            const chg = data.battery_charging ? 'Charging' : (data.battery_usb ? 'USB Powered' : 'Discharging');
-            bSub.textContent = `Level: ${data.battery_level ?? '--'}% (${chg}) • Temp: ${data.battery_temp ?? '--'}°C • Health: ${data.battery_health || 'Good'}`;
+          // Model & Brand
+          const ident = data.identity || {};
+          const brand = data.brand || ident.brand || '';
+          const model = data.model || ident.model || 'Android Handset';
+          const android = data.android_version || ident.android || '--';
+          const patch = data.security_patch || ident.security_patch || '--';
+          const soc = data.soc || ident.soc || '--';
+
+          if (mTitle) mTitle.textContent = `${brand ? brand + ' ' : ''}${model}`;
+          if (mSub) mSub.textContent = `Android ${android} • Patch: ${patch} • SoC: ${soc}`;
+
+          // Battery
+          const batt = data.battery || {};
+          const bLevel = data.battery_level ?? batt.level ?? '--';
+          const bTemp = data.battery_temp ?? batt.temp_c ?? '--';
+          const bHealth = data.battery_health || batt.health || (batt.health_code === '2' ? 'Good' : 'Normal');
+          let bState = data.battery_status || batt.status;
+          if (!bState) {
+            if (data.battery_charging || batt.charging || batt.status_code === '2') bState = 'Charging';
+            else if (batt.status_code === '4') bState = 'Not Charging (Protected)';
+            else if (batt.status_code === '5') bState = 'Full';
+            else bState = 'Discharging';
           }
-          if (sSub) sSub.textContent = `Serial: ${data.serial || selectedAdbSerial} • Port: ${data.port || '2-1'} • Speed: ${data.speed_mbps || 480} Mbps`;
-          if (rSub && (data.operator || data.network_type)) {
-            rSub.textContent = `Carrier: ${data.operator || 'Jio'} • Network: ${data.network_type || '5G SA'} • SIM: ${data.sim_state || 'Ready'}`;
+          if (bSub) {
+            bSub.textContent = `Level: ${bLevel}% (${bState}) • Temp: ${bTemp}°C • Health: ${bHealth}`;
+          }
+
+          // Serial & USB
+          const usb = data.usb || {};
+          const serial = data.serial || ident.serial || data.device_id || selectedAdbSerial;
+          const speed = data.speed_mbps || usb.speed_mbps || 480;
+          const std = usb.standard || (speed >= 5000 ? 'USB 3.0' : 'USB 2.0');
+          const port = data.port || usb.port || '1';
+          if (sSub) sSub.textContent = `Serial: ${serial} • Port: ${port} • ${std} (${speed} Mbps)`;
+
+          // Radio
+          const radio = data.radio || {};
+          const oper = radio.operator || data.operator || 'Cellular';
+          const net = radio.network || data.network_type || '5G SA';
+          const band = radio.band ? ` • ${radio.band}` : '';
+          if (rSub) {
+            rSub.textContent = `Carrier: ${oper} • ${net}${band} • State: Active`;
           }
         }
       } catch (e) {
@@ -14978,47 +15246,98 @@
       }
     }
 
-    /* --- SMS MESSAGES --- */
-    async function openAdbSmsModal() {
-      const overlay = document.getElementById('adbSmsModalOverlay');
-      const body = document.getElementById('adbSmsModalBody');
-      const title = document.getElementById('adbSmsModalTitle');
-      const subtitle = document.getElementById('adbSmsModalSubtitle');
-      const countEl = document.getElementById('adbSmsCountText');
-      if (!overlay || !body) return;
+    /* ==================== ADB SUB-PAGE SWITCHING & RENDER (NO POPUPS) ==================== */
+    window._currentAdbSubView = 'controls';
 
-      overlay.style.display = 'flex';
-      const devName = (document.getElementById('dispDevModelTitle') || {}).textContent || selectedAdbSerial;
-      if (title) title.textContent = 'SMS Messages';
-      if (subtitle) subtitle.textContent = `${devName} • Handset SMS Inbox`;
-      body.innerHTML = `
-        <div style="text-align:center; padding:30px; color:var(--text-dim); font-size:12px; font-family:var(--font-mono);">
-          <svg class="spin-icon" viewBox="0 0 24 24" style="width:22px; height:22px; stroke:#38bdf8; margin:0 auto 10px; display:block;"><circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-dashoffset="12"/></svg>
-          Fetching SMS messages via ADB...
-        </div>
-      `;
+    function switchAdbSubView(view) {
+      window._currentAdbSubView = view;
+      const views = {
+        'controls': document.getElementById('adbDetailView'),
+        'sms': document.getElementById('adbSmsPageView'),
+        'calls': document.getElementById('adbCallsPageView'),
+        'contacts': document.getElementById('adbContactsPageView')
+      };
+
+      // Hide all sub-views
+      Object.values(views).forEach(v => { if (v) v.style.display = 'none'; });
+
+      // Show target sub-view
+      if (views[view]) {
+        views[view].style.display = 'flex';
+      }
+
+      // Update active state in all tab bars
+      document.querySelectorAll('.adb-sub-tab').forEach(t => {
+        if (t.getAttribute('data-subview') === view) {
+          t.classList.add('active');
+        } else {
+          t.classList.remove('active');
+        }
+      });
+
+      // Update breadcrumb navigation
+      const devName = (document.getElementById('dispDevModelTitle') || {}).textContent || selectedAdbSerial || 'Device';
+      const navTitle = document.getElementById('settingsDetailNavTitle');
+      if (navTitle) {
+        if (view === 'controls') {
+          navTitle.innerHTML = `<span style="cursor:pointer;" onclick="closeAdbDeviceDetail(true)">ADB Devices</span> <span style="opacity:0.4;">&rsaquo;</span> <span style="color:#38bdf8;">${escapeHtml(devName)}</span>`;
+        } else {
+          const titles = { 'sms': 'SMS Messages', 'calls': 'Call History', 'contacts': 'Contacts' };
+          navTitle.innerHTML = `<span style="cursor:pointer;" onclick="closeAdbDeviceDetail(true)">ADB Devices</span> <span style="opacity:0.4;">&rsaquo;</span> <span style="cursor:pointer; color:#38bdf8;" onclick="switchAdbSubView('controls')">${escapeHtml(devName)}</span> <span style="opacity:0.4;">&rsaquo;</span> <span style="color:#10b981;">${titles[view]}</span>`;
+        }
+      }
+
+      // Automatically trigger data load for the selected view
+      if (view === 'sms') {
+        if (!window._cachedAdbSms || window._cachedAdbSms.length === 0) fetchAdbSmsPage();
+      } else if (view === 'calls') {
+        if (!window._cachedAdbCalls || window._cachedAdbCalls.length === 0) fetchAdbCallsPage();
+      } else if (view === 'contacts') {
+        if (!window._cachedAdbContacts || window._cachedAdbContacts.length === 0) fetchAdbContactsPage();
+      }
+    }
+
+    /* --- DEDICATED IN-PAGE SMS HANDLER --- */
+    async function fetchAdbSmsPage(btn) {
+      const container = document.getElementById('adbSmsPageContainer');
+      const countBadge = document.getElementById('adbSmsPageCountBadge');
+      const subtitle = document.getElementById('adbSmsPageSubtitle');
+      const devName = (document.getElementById('dispDevModelTitle') || {}).textContent || selectedAdbSerial || 'Handset';
+      if (subtitle) subtitle.textContent = `${devName} • SMS Inbox`;
+      if (btn) btn.classList.add('rotating');
+
+      if (container && (!window._cachedAdbSms || window._cachedAdbSms.length === 0)) {
+        container.innerHTML = `
+          <div style="text-align:center; padding:30px; color:var(--text-dim); font-size:12px; font-family:var(--font-mono);">
+            <svg class="spin-icon" viewBox="0 0 24 24" style="width:22px; height:22px; stroke:#38bdf8; margin:0 auto 10px; display:block;"><circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-dashoffset="12"/></svg>
+            Loading SMS messages from handset via ADB...
+          </div>
+        `;
+      }
 
       try {
         const res = await apiFetch(`/cgi-bin/device?action=sms&serial=${encodeURIComponent(selectedAdbSerial || '')}`);
         const data = await res.json();
         const msgs = Array.isArray(data.messages) ? data.messages : [];
         window._cachedAdbSms = msgs;
-        if (countEl) countEl.textContent = `${msgs.length} messages loaded`;
-        renderAdbSmsList(msgs);
+        if (countBadge) countBadge.textContent = `${msgs.length} MSGS`;
+        renderAdbSmsPageList(msgs);
       } catch (e) {
-        body.innerHTML = `<div style="text-align:center; padding:20px; color:#ef4444; font-size:12px;">Failed to load SMS: ${escapeHtml(e.message)}</div>`;
+        if (container) container.innerHTML = `<div style="text-align:center; padding:20px; color:#ef4444; font-size:12px;">Failed to load SMS messages: ${escapeHtml(e.message)}</div>`;
+      } finally {
+        if (btn) setTimeout(() => btn.classList.remove('rotating'), 600);
       }
     }
 
-    function renderAdbSmsList(list) {
-      const body = document.getElementById('adbSmsModalBody');
-      if (!body) return;
+    function renderAdbSmsPageList(list) {
+      const container = document.getElementById('adbSmsPageContainer');
+      if (!container) return;
       if (!list || list.length === 0) {
-        body.innerHTML = `<div style="text-align:center; padding:24px; color:var(--text-dim); font-size:12px; font-family:var(--font-mono);">No SMS messages found on device.</div>`;
+        container.innerHTML = `<div style="text-align:center; padding:24px; color:var(--text-dim); font-size:12px; font-family:var(--font-mono);">No SMS messages found on device.</div>`;
         return;
       }
 
-      body.innerHTML = list.map(m => {
+      container.innerHTML = list.map(m => {
         let dateStr = '--';
         if (m.date) {
           const d = new Date(parseInt(m.date, 10));
@@ -15030,72 +15349,72 @@
           : '<span class="card-badge" style="font-size:9px; padding:1px 6px; color:#38bdf8; border-color:rgba(56,189,248,0.3);">SENT</span>';
 
         return `
-          <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:10px 14px; display:flex; flex-direction:column; gap:6px;">
+          <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:12px 14px; display:flex; flex-direction:column; gap:6px;">
             <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
               <div style="display:flex; align-items:center; gap:8px;">
-                <strong style="color:var(--text-main); font-size:12px; font-family:var(--font-mono);">${escapeHtml(m.address || 'Unknown')}</strong>
+                <strong style="color:var(--text-main); font-size:12.5px; font-family:var(--font-mono);">${escapeHtml(m.address || 'Unknown Sender')}</strong>
                 ${typeBadge}
               </div>
               <span style="font-size:10.5px; color:var(--text-dim); font-family:var(--font-mono);">${escapeHtml(dateStr)}</span>
             </div>
-            <div style="font-size:11.5px; color:var(--text-main); line-height:1.5; word-break:break-word; white-space:pre-wrap;">${escapeHtml(m.body || '')}</div>
+            <div style="font-size:12px; color:var(--text-main); line-height:1.5; word-break:break-word; white-space:pre-wrap;">${escapeHtml(m.body || '')}</div>
           </div>
         `;
       }).join('');
     }
 
-    function filterAdbSms(query) {
+    function filterAdbSmsPage(query) {
       const q = (query || '').toLowerCase().trim();
       const list = window._cachedAdbSms || [];
       if (!q) {
-        renderAdbSmsList(list);
+        renderAdbSmsPageList(list);
         return;
       }
       const filtered = list.filter(m => (m.address || '').toLowerCase().includes(q) || (m.body || '').toLowerCase().includes(q));
-      renderAdbSmsList(filtered);
+      renderAdbSmsPageList(filtered);
     }
 
-    function closeAdbSmsModal() {
-      const overlay = document.getElementById('adbSmsModalOverlay');
-      if (overlay) overlay.style.display = 'none';
-    }
+    /* --- DEDICATED IN-PAGE CALL HISTORY HANDLER --- */
+    async function fetchAdbCallsPage(btn) {
+      const container = document.getElementById('adbCallsPageContainer');
+      const countBadge = document.getElementById('adbCallsPageCountBadge');
+      const subtitle = document.getElementById('adbCallsPageSubtitle');
+      const devName = (document.getElementById('dispDevModelTitle') || {}).textContent || selectedAdbSerial || 'Handset';
+      if (subtitle) subtitle.textContent = `${devName} • Call History`;
+      if (btn) btn.classList.add('rotating');
 
-    /* --- CALL HISTORY --- */
-    async function openAdbCallLogsModal() {
-      const overlay = document.getElementById('adbCallsModalOverlay');
-      const body = document.getElementById('adbCallsModalBody');
-      const title = document.getElementById('adbCallsModalTitle');
-      const countEl = document.getElementById('adbCallsCountText');
-      if (!overlay || !body) return;
-
-      overlay.style.display = 'flex';
-      body.innerHTML = `
-        <div style="text-align:center; padding:30px; color:var(--text-dim); font-size:12px; font-family:var(--font-mono);">
-          <svg class="spin-icon" viewBox="0 0 24 24" style="width:22px; height:22px; stroke:#38bdf8; margin:0 auto 10px; display:block;"><circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-dashoffset="12"/></svg>
-          Fetching call logs via ADB...
-        </div>
-      `;
+      if (container && (!window._cachedAdbCalls || window._cachedAdbCalls.length === 0)) {
+        container.innerHTML = `
+          <div style="text-align:center; padding:30px; color:var(--text-dim); font-size:12px; font-family:var(--font-mono);">
+            <svg class="spin-icon" viewBox="0 0 24 24" style="width:22px; height:22px; stroke:#38bdf8; margin:0 auto 10px; display:block;"><circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-dashoffset="12"/></svg>
+            Loading call logs from handset via ADB...
+          </div>
+        `;
+      }
 
       try {
         const res = await apiFetch(`/cgi-bin/device?action=call_logs&serial=${encodeURIComponent(selectedAdbSerial || '')}`);
         const data = await res.json();
         const logs = Array.isArray(data.call_logs) ? data.call_logs : [];
-        if (countEl) countEl.textContent = `${logs.length} calls logged`;
-        renderAdbCallLogsList(logs);
+        window._cachedAdbCalls = logs;
+        if (countBadge) countBadge.textContent = `${logs.length} CALLS`;
+        renderAdbCallsPageList(logs);
       } catch (e) {
-        body.innerHTML = `<div style="text-align:center; padding:20px; color:#ef4444; font-size:12px;">Failed to load call logs: ${escapeHtml(e.message)}</div>`;
+        if (container) container.innerHTML = `<div style="text-align:center; padding:20px; color:#ef4444; font-size:12px;">Failed to load call history: ${escapeHtml(e.message)}</div>`;
+      } finally {
+        if (btn) setTimeout(() => btn.classList.remove('rotating'), 600);
       }
     }
 
-    function renderAdbCallLogsList(list) {
-      const body = document.getElementById('adbCallsModalBody');
-      if (!body) return;
+    function renderAdbCallsPageList(list) {
+      const container = document.getElementById('adbCallsPageContainer');
+      if (!container) return;
       if (!list || list.length === 0) {
-        body.innerHTML = `<div style="text-align:center; padding:24px; color:var(--text-dim); font-size:12px; font-family:var(--font-mono);">No call logs recorded on device.</div>`;
+        container.innerHTML = `<div style="text-align:center; padding:24px; color:var(--text-dim); font-size:12px; font-family:var(--font-mono);">No call logs recorded on device.</div>`;
         return;
       }
 
-      body.innerHTML = list.map(c => {
+      container.innerHTML = list.map(c => {
         let dateStr = '--';
         if (c.date) {
           const d = new Date(parseInt(c.date, 10));
@@ -15117,7 +15436,7 @@
           <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:10px 14px; display:flex; align-items:center; justify-content:space-between; gap:10px;">
             <div style="display:flex; flex-direction:column; gap:2px; min-width:0;">
               <div style="display:flex; align-items:center; gap:8px;">
-                <strong style="color:var(--text-main); font-size:12px; font-family:var(--font-mono);">${escapeHtml(c.number || 'Private Number')}</strong>
+                <strong style="color:var(--text-main); font-size:12.5px; font-family:var(--font-mono);">${escapeHtml(c.number || 'Private Number')}</strong>
                 ${typeBadge}
               </div>
               <span style="font-size:11px; color:var(--text-dim);">${c.name && c.name !== 'NULL' ? escapeHtml(c.name) + ' &bull; ' : ''}${escapeHtml(dateStr)}</span>
@@ -15128,47 +15447,47 @@
       }).join('');
     }
 
-    function closeAdbCallLogsModal() {
-      const overlay = document.getElementById('adbCallsModalOverlay');
-      if (overlay) overlay.style.display = 'none';
-    }
+    /* --- DEDICATED IN-PAGE CONTACTS HANDLER --- */
+    async function fetchAdbContactsPage(btn) {
+      const container = document.getElementById('adbContactsPageContainer');
+      const countBadge = document.getElementById('adbContactsPageCountBadge');
+      const subtitle = document.getElementById('adbContactsPageSubtitle');
+      const devName = (document.getElementById('dispDevModelTitle') || {}).textContent || selectedAdbSerial || 'Handset';
+      if (subtitle) subtitle.textContent = `${devName} • Contacts`;
+      if (btn) btn.classList.add('rotating');
 
-    /* --- CONTACTS --- */
-    async function openAdbContactsModal() {
-      const overlay = document.getElementById('adbContactsModalOverlay');
-      const body = document.getElementById('adbContactsModalBody');
-      const countEl = document.getElementById('adbContactsCountText');
-      if (!overlay || !body) return;
-
-      overlay.style.display = 'flex';
-      body.innerHTML = `
-        <div style="text-align:center; padding:30px; color:var(--text-dim); font-size:12px; font-family:var(--font-mono);">
-          <svg class="spin-icon" viewBox="0 0 24 24" style="width:22px; height:22px; stroke:#38bdf8; margin:0 auto 10px; display:block;"><circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-dashoffset="12"/></svg>
-          Fetching contacts via ADB...
-        </div>
-      `;
+      if (container && (!window._cachedAdbContacts || window._cachedAdbContacts.length === 0)) {
+        container.innerHTML = `
+          <div style="text-align:center; padding:30px; color:var(--text-dim); font-size:12px; font-family:var(--font-mono);">
+            <svg class="spin-icon" viewBox="0 0 24 24" style="width:22px; height:22px; stroke:#38bdf8; margin:0 auto 10px; display:block;"><circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-dashoffset="12"/></svg>
+            Loading contacts from handset via ADB...
+          </div>
+        `;
+      }
 
       try {
         const res = await apiFetch(`/cgi-bin/device?action=contacts&serial=${encodeURIComponent(selectedAdbSerial || '')}`);
         const data = await res.json();
         const contacts = Array.isArray(data.contacts) ? data.contacts : [];
         window._cachedAdbContacts = contacts;
-        if (countEl) countEl.textContent = `${contacts.length} contacts found`;
-        renderAdbContactsList(contacts);
+        if (countBadge) countBadge.textContent = `${contacts.length} CONTACTS`;
+        renderAdbContactsPageList(contacts);
       } catch (e) {
-        body.innerHTML = `<div style="text-align:center; padding:20px; color:#ef4444; font-size:12px;">Failed to load contacts: ${escapeHtml(e.message)}</div>`;
+        if (container) container.innerHTML = `<div style="text-align:center; padding:20px; color:#ef4444; font-size:12px;">Failed to load contacts: ${escapeHtml(e.message)}</div>`;
+      } finally {
+        if (btn) setTimeout(() => btn.classList.remove('rotating'), 600);
       }
     }
 
-    function renderAdbContactsList(list) {
-      const body = document.getElementById('adbContactsModalBody');
-      if (!body) return;
+    function renderAdbContactsPageList(list) {
+      const container = document.getElementById('adbContactsPageContainer');
+      if (!container) return;
       if (!list || list.length === 0) {
-        body.innerHTML = `<div style="text-align:center; padding:24px; color:var(--text-dim); font-size:12px; font-family:var(--font-mono);">No contacts found on device.</div>`;
+        container.innerHTML = `<div style="text-align:center; padding:24px; color:var(--text-dim); font-size:12px; font-family:var(--font-mono);">No contacts found on device.</div>`;
         return;
       }
 
-      body.innerHTML = list.map(c => `
+      container.innerHTML = list.map(c => `
         <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:10px 14px; display:flex; align-items:center; justify-content:space-between; gap:10px;">
           <div style="display:flex; flex-direction:column; gap:2px;">
             <strong style="color:var(--text-main); font-size:12.5px;">${escapeHtml(c.name || 'Unnamed Contact')}</strong>
@@ -15179,21 +15498,24 @@
       `).join('');
     }
 
-    function filterAdbContacts(query) {
+    function filterAdbContactsPage(query) {
       const q = (query || '').toLowerCase().trim();
       const list = window._cachedAdbContacts || [];
       if (!q) {
-        renderAdbContactsList(list);
+        renderAdbContactsPageList(list);
         return;
       }
       const filtered = list.filter(c => (c.name || '').toLowerCase().includes(q) || (c.number || '').toLowerCase().includes(q));
-      renderAdbContactsList(filtered);
+      renderAdbContactsPageList(filtered);
     }
 
-    function closeAdbContactsModal() {
-      const overlay = document.getElementById('adbContactsModalOverlay');
-      if (overlay) overlay.style.display = 'none';
-    }
+    // Modal compatibility redirects to in-page view (no popups)
+    function openAdbSmsModal() { switchAdbSubView('sms'); }
+    function openAdbCallLogsModal() { switchAdbSubView('calls'); }
+    function openAdbContactsModal() { switchAdbSubView('contacts'); }
+    function closeAdbSmsModal() { switchAdbSubView('controls'); }
+    function closeAdbCallLogsModal() { switchAdbSubView('controls'); }
+    function closeAdbContactsModal() { switchAdbSubView('controls'); }
 
     /* --- SCREENSHOT --- */
     async function captureAdbScreenshot(btn) {
@@ -16380,9 +16702,8 @@
       selectedAdbSerial = serial;
 
       const listView = document.getElementById('adbListView');
-      const detailView = document.getElementById('adbDetailView');
       if (listView) listView.style.display = 'none';
-      if (detailView) detailView.style.display = 'flex';
+      switchAdbSubView('controls');
 
       const selDev = activeAdbDevices.find(d => (d.serial === serial || d.bus === serial)) || { serial: serial, model: 'Android Handset' };
       const devName = selDev.model || selDev.brand || 'Android Handset';
@@ -16413,12 +16734,18 @@
     }
 
     function closeAdbDeviceDetail(triggerHistoryBack = true) {
+      if (window._currentAdbSubView && window._currentAdbSubView !== 'controls') {
+        switchAdbSubView('controls');
+        return;
+      }
       if (!window._currentAdbDeviceDetail) return;
       window._currentAdbDeviceDetail = null;
 
       const listView = document.getElementById('adbListView');
-      const detailView = document.getElementById('adbDetailView');
-      if (detailView) detailView.style.display = 'none';
+      ['adbDetailView', 'adbSmsPageView', 'adbCallsPageView', 'adbContactsPageView'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+      });
       if (listView) listView.style.display = 'block';
 
       const navTitle = document.getElementById('settingsDetailNavTitle');
@@ -19144,6 +19471,96 @@
 
         const ramUsageBadge = document.getElementById('sysRamUsageBadge');
         if (ramUsageBadge) ramUsageBadge.textContent = `${mem.used_pct || 0}%`;
+
+        // Thermals & Device Health Status Gauge
+        const thermals = data.thermals || [];
+        let maxTemp = 0;
+        let avgTemp = 0;
+        if (thermals.length > 0) {
+          let sum = 0;
+          thermals.forEach(t => {
+            const v = parseFloat(t.temp_c) || 0;
+            if (v > maxTemp) maxTemp = v;
+            sum += v;
+          });
+          avgTemp = sum / thermals.length;
+        } else {
+          maxTemp = 42.0;
+          avgTemp = 42.0;
+        }
+
+        // Determine health state based on temperature:
+        // cool: < 38°C
+        // healthy: 38°C - 44°C
+        // normal: 44.1°C - 50°C
+        // warm: 50.1°C - 60°C
+        // critical: > 60°C
+        let healthState = 'NORMAL';
+        let healthColor = '#10b981';
+        let healthGlow = 'rgba(16,185,129,0.35)';
+        let healthDesc = 'Optimal System Health';
+
+        if (maxTemp < 38) {
+          healthState = 'COOL';
+          healthColor = '#06b6d4';
+          healthGlow = 'rgba(6,182,212,0.4)';
+          healthDesc = 'Optimal Chill Condition';
+        } else if (maxTemp <= 44) {
+          healthState = 'HEALTHY';
+          healthColor = '#10b981';
+          healthGlow = 'rgba(16,185,129,0.4)';
+          healthDesc = 'Healthy Operating Condition';
+        } else if (maxTemp <= 50) {
+          healthState = 'NORMAL';
+          healthColor = '#38bdf8';
+          healthGlow = 'rgba(56,189,248,0.4)';
+          healthDesc = 'Normal Operating Temp';
+        } else if (maxTemp <= 60) {
+          healthState = 'WARM';
+          healthColor = '#f59e0b';
+          healthGlow = 'rgba(245,158,11,0.4)';
+          healthDesc = 'Elevated Thermal Load';
+        } else {
+          healthState = 'CRITICAL';
+          healthColor = '#ef4444';
+          healthGlow = 'rgba(239,68,68,0.5)';
+          healthDesc = 'Critical Overheating Alert';
+        }
+
+        // Update Circular Gauge & Compact Stats
+        const circleRing = document.getElementById('deviceHealthCircleRing');
+        const badgeEl = document.getElementById('deviceHealthStatusBadge');
+        const tempMainEl = document.getElementById('deviceHealthTempMain');
+        const subLabelEl = document.getElementById('deviceHealthSubLabel');
+        const circleCpuVal = document.getElementById('deviceHealthCpuVal');
+        const circleRamVal = document.getElementById('deviceHealthRamVal');
+        const circleTempVal = document.getElementById('deviceHealthTempVal');
+
+        if (badgeEl) {
+          badgeEl.textContent = healthState;
+          badgeEl.style.color = healthColor;
+        }
+        if (tempMainEl) {
+          tempMainEl.textContent = `${maxTemp.toFixed(1)}°C`;
+        }
+        if (subLabelEl) {
+          subLabelEl.textContent = healthDesc;
+        }
+
+        if (circleRing) {
+          // Circumference for r=56 is 2 * PI * 56 = 351.86
+          const circ = 351.86;
+          // Scale from 20C (0%) to 75C (100%)
+          const pct = Math.min(100, Math.max(10, ((maxTemp - 20) / (75 - 20)) * 100));
+          const offset = circ * (1 - pct / 100);
+          circleRing.style.strokeDashoffset = offset;
+          circleRing.style.stroke = healthColor;
+          circleRing.style.filter = `drop-shadow(0 0 10px ${healthGlow})`;
+        }
+
+        if (circleCpuVal) circleCpuVal.textContent = `${cpu.usage_pct ?? 0}%`;
+        if (circleRamVal) circleRamVal.textContent = `${mem.used_pct ?? 0}%`;
+        if (circleTempVal) circleTempVal.textContent = `${maxTemp.toFixed(1)}°C`;
 
         // Thermals
         renderDeviceInfoThermals(data.thermals || []);
