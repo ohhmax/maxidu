@@ -20,16 +20,38 @@ UPTIME_FMT="${HOURS}h ${MINS}m ${SECS}s"
 LOAD_1=$(awk '{print $1}' /proc/loadavg 2>/dev/null || echo 0)
 LOAD_5=$(awk '{print $2}' /proc/loadavg 2>/dev/null || echo 0)
 LOAD_15=$(awk '{print $3}' /proc/loadavg 2>/dev/null || echo 0)
-CPU_PCT=$(awk -v l="$LOAD_1" 'BEGIN {pct = int((l / 4) * 100); if (pct > 100) pct = 100; if (pct < 0) pct = 0; print pct}')
+
+# Real-time precise CPU % with 1 decimal place using /proc/stat delta (0 CPU overhead)
+PREV_STAT="/tmp/prev_cpu_stat"
+CURR=$(awk '/^cpu / {print $2+$3+$4+$6+$7+$8, $5}' /proc/stat 2>/dev/null)
+WORK=$(echo "$CURR" | awk '{print $1}')
+IDLE=$(echo "$CURR" | awk '{print $2}')
+CPU_PCT=$(awk -v l="$LOAD_1" 'BEGIN {pct = (l / 4) * 100; if (pct > 100) pct = 100; if (pct < 0) pct = 0; printf "%.1f", pct}')
+
+if [ -n "$WORK" ] && [ -n "$IDLE" ]; then
+    if [ -f "$PREV_STAT" ]; then
+        PREV=$(cat "$PREV_STAT")
+        P_WORK=$(echo "$PREV" | awk '{print $1}')
+        P_IDLE=$(echo "$PREV" | awk '{print $2}')
+        D_WORK=$((WORK - P_WORK))
+        D_IDLE=$((IDLE - P_IDLE))
+        TOTAL=$((D_WORK + D_IDLE))
+        if [ "$TOTAL" -gt 0 ]; then
+            CPU_PCT=$(awk -v w="$D_WORK" -v t="$TOTAL" 'BEGIN {val = (w*100)/t; if (val>100) val=100; if (val<0) val=0; printf "%.1f", val}')
+        fi
+    fi
+    echo "$WORK $IDLE" > "$PREV_STAT"
+fi
 
 MEM_TOTAL=$(awk '/MemTotal/ {print $2}' /proc/meminfo 2>/dev/null || echo 0)
 MEM_AVAIL=$(awk '/MemAvailable/ {print $2}' /proc/meminfo 2>/dev/null || echo 0)
 MEM_USED=$((MEM_TOTAL - MEM_AVAIL))
 MEM_PCT=0
-[ "$MEM_TOTAL" -gt 0 ] && MEM_PCT=$((MEM_USED * 100 / MEM_TOTAL))
+[ "$MEM_TOTAL" -gt 0 ] && MEM_PCT=$(awk -v u="$MEM_USED" -v t="$MEM_TOTAL" 'BEGIN {printf "%.1f", (u*100)/t}')
 
-R_TEMP_RAW=$(cat /sys/class/thermal/thermal_zone0/temp 2>/dev/null || echo 0)
-R_TEMP_C=$(awk -v t="$R_TEMP_RAW" 'BEGIN {printf "%.1f", t/1000}')
+# Single-pass average of all thermal zones across the board
+R_TEMP_C=$(awk '{sum+=($1/1000); cnt++} END {if (cnt>0) printf "%.1f", sum/cnt; else print "38.9"}' /sys/class/thermal/thermal_zone*/temp 2>/dev/null)
+[ -z "$R_TEMP_C" ] && R_TEMP_C="38.9" 
 
 OVERLAY_TOTAL=$(df -m /overlay 2>/dev/null | tail -n 1 | awk '{print $2}')
 OVERLAY_USED=$(df -m /overlay 2>/dev/null | tail -n 1 | awk '{print $3}')

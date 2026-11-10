@@ -3653,8 +3653,8 @@
       position: relative;
       flex: 1;
       width: 100%;
-      min-height: calc(100vh - 64px);
-      height: calc(100vh - 64px);
+      min-height: 100%;
+      height: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -5607,20 +5607,72 @@
       box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05) !important;
     }
 
-    /* TOPOLOGY TOP BAR (CLEAN DEDICATED HEADER ROW, ZERO CANVAS OVERLAP) */
+    /* TOPOLOGY TOP BAR (FLOATING GLASS HEADER, CANVAS SLIDES UNDERNEATH) */
     .topo-top-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
       display: flex;
       align-items: center;
       justify-content: space-between;
       width: 100%;
-      padding: 12px 18px 4px 18px;
+      padding: 10px 18px;
       box-sizing: border-box;
       z-index: 100;
-      position: sticky;
-      top: 0;
-      flex-shrink: 0;
+      pointer-events: none;
+      background: transparent;
+    }
+    .topo-brand-meta, .topo-toolbar {
+      pointer-events: auto;
+    }
+    .topo-telemetry-dock {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      background: rgba(15, 17, 25, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.08);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      z-index: 90;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    [data-theme="light"] .topo-telemetry-dock {
+      background: rgba(255, 255, 255, 0.85);
+      border-color: rgba(0, 0, 0, 0.08);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    }
+    .topo-tele-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-dim, #94a3b8);
+      letter-spacing: 0.3px;
+    }
+    .topo-tele-val {
+      font-weight: 800;
+      color: var(--text-main, #f8fafc);
+    }
+    .topo-tele-sep {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+    }
+    [data-theme="light"] .topo-tele-sep {
+      background: rgba(0, 0, 0, 0.2);
     }
     /* TOPOLOGY CANVAS BRAND META */
     .topo-brand-meta {
@@ -7307,6 +7359,27 @@
 
         <div class="bw-box">
           <svg id="usbBwSvg" role="img" aria-label="End-to-End Multi-Link Bandwidth Pipeline"></svg>
+        </div>
+
+        <!-- REAL-TIME ROUTER TELEMETRY DOCK (0 CPU LOAD, REAL-TIME CPU %, RAM %, AVG TEMP) -->
+        <div class="topo-telemetry-dock" id="topoTelemetryDock">
+          <div class="topo-tele-item">
+            <svg style="width:13px;height:13px;stroke:#38bdf8;fill:none;stroke-width:2;" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3m6-3v3M9 20v3m6-3v3M20 9h3m-3 6h3M1 9h3m-3 6h3"/></svg>
+            <span>CPU</span>
+            <span class="topo-tele-val" id="topoDockCpu" style="color:#38bdf8;">--%</span>
+          </div>
+          <div class="topo-tele-sep"></div>
+          <div class="topo-tele-item">
+            <svg style="width:13px;height:13px;stroke:#10b981;fill:none;stroke-width:2;" viewBox="0 0 24 24"><path d="M6 19v-3m4 3v-6m4 3v-2m4 5V5"/><rect x="2" y="3" width="20" height="18" rx="2"/></svg>
+            <span>RAM</span>
+            <span class="topo-tele-val" id="topoDockRam" style="color:#10b981;">--%</span>
+          </div>
+          <div class="topo-tele-sep"></div>
+          <div class="topo-tele-item">
+            <svg style="width:13px;height:13px;stroke:#f59e0b;fill:none;stroke-width:2;" viewBox="0 0 24 24"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>
+            <span>TEMP</span>
+            <span class="topo-tele-val" id="topoDockTemp" style="color:#f59e0b;">--°C</span>
+          </div>
         </div>
       </div>
     </div>
@@ -13334,10 +13407,10 @@
       }
 
       lanPorts.forEach((p, idx) => {
-        let portLabel = p.label || ('LAN ' + (idx + 1));
+        let portLabel = 'L' + (idx + 1);
         if (node.id === 'root') {
-          if (node.wan_mode === 'lan_as_wan_1' && idx === 0) portLabel = 'LAN 1 [WAN 2]';
-          else if (node.wan_mode === 'lan_as_wan_4' && idx === 3) portLabel = 'LAN 4 [WAN 2]';
+          if (node.wan_mode === 'lan_as_wan_1' && idx === 0) portLabel = 'W2';
+          else if (node.wan_mode === 'lan_as_wan_4' && idx === 3) portLabel = 'W2';
         }
         slots.push({ type: 'lan', port: p, idx: idx, label: portLabel, role: p.role, child: p.child });
       });
@@ -13409,7 +13482,7 @@
       if (Array.isArray(node.ports)) {
         node.ports.forEach(p => {
           if (p.role === 'device' && p.child) count += 1;
-          else if (p.role === 'node' && p.child) count += computeSubtreeClientCount(p.child);
+          else if (p.role === 'node' && p.child) count += 1 + computeSubtreeClientCount(p.child);
         });
       }
       return count;
@@ -13866,7 +13939,7 @@
       computeLayeredSubtreeBounds(tree, screenW);
 
       const treeBounds = tree._layout || { subtreeW: 600, subtreeH: 500 };
-      const rootY = prefs.showWan ? (isPhone ? 110 : 124) : (isPhone ? 36 : 42);
+      const rootY = prefs.showWan ? (isPhone ? 140 : 156) : (isPhone ? 36 : 42);
       const initialW = isPhone ? Math.max(390, treeBounds.subtreeW + 60) : Math.max(boxW || 640, treeBounds.subtreeW + 80);
       const rtrCenterX = initialW / 2;
 
@@ -13907,7 +13980,7 @@
         const wanW = isPhone ? 210 : (isTablet ? 230 : 250);
         const wanH = 34;
         const wanX = rtrCenterX - wanW / 2;
-        const wanY = rootY - 54;
+        const wanY = rootY - 82;
 
         globalMinX = Math.min(globalMinX, wanX);
         globalMaxX = Math.max(globalMaxX, wanX + wanW);
@@ -14201,23 +14274,15 @@
           drawRouterApIcon(rtrIconBoxX + 16, rtrIconBoxY + 16, nodeLayerColor, chassisG);
         }
 
-        // Title & Subtitle at rtrX + 46 (fixed 32px icon + 8px gap)
+        // Title only (Clean router title, no layer info or IP)
         const tTitle = mk("text", {
           x: rtrX + 46,
-          y: l.y + 17,
-          style: `font-size:9.5px; font-weight:800; font-family:var(--font-mono); fill:${topoTheme.textMain};`
+          y: l.y + 24,
+          style: `font-size:10.5px; font-weight:800; font-family:var(--font-mono); fill:${topoTheme.textMain};`
         }, chassisG);
         let apTitle = isRoot ? ((window._lastDataCache && window._lastDataCache.router && window._lastDataCache.router.hostname) || node.name || "MAXNET") : (node.name || "Access Point");
-        if (apTitle.length > 17) apTitle = apTitle.substring(0, 16) + "…";
+        if (apTitle.length > 20) apTitle = apTitle.substring(0, 19) + "…";
         tTitle.textContent = apTitle;
-
-        const badgeTag = isRoot ? 'ROUTER' : (isSwitch ? 'SWITCH' : (node.type === 'router' ? 'ROUTER' : 'AP'));
-        const tSub = mk("text", {
-          x: rtrX + 46,
-          y: l.y + 29,
-          style: `font-size:7.5px; font-weight:700; font-family:var(--font-mono); fill:${nodeLayerColor};`
-        }, chassisG);
-        tSub.textContent = `[L${depth + 1} ${badgeTag}] ${node.ip || ''}`;
 
         // Online soft pulse dot on chassis at top-left
         mk("circle", {
@@ -14312,8 +14377,16 @@
           };
 
           const isWan = slot.type === 'wan';
-          const sockStrokeCol = isWan ? (usbStyle.lineStroke || '#0284c7') : (isConnected ? (isLan ? nodeLayerColor : themeColors.wifi) : topoTheme.cardBorderIdle);
-          const sockFillCol = isWan ? (isLight ? 'rgba(2,132,199,0.08)' : 'rgba(56,189,248,0.1)') : (isConnected ? (isLight ? 'rgba(2,132,199,0.06)' : 'rgba(56,189,248,0.08)') : (isLight ? '#f8fafc' : 'rgba(255,255,255,0.02)'));
+          // Check if physical WAN Ethernet cable is connected (wan port status === 'up')
+          let isWanPortUp = false;
+          if (isWan && window._lastDataCache && window._lastDataCache.network && Array.isArray(window._lastDataCache.network.ports)) {
+            const wanPortObj = window._lastDataCache.network.ports.find(p => p.id === 'wan');
+            if (wanPortObj && wanPortObj.status === 'up') isWanPortUp = true;
+          }
+          const isSlotActive = isWan ? isWanPortUp : isConnected;
+
+          const sockStrokeCol = isWan ? (isWanPortUp ? (usbStyle.lineStroke || '#0284c7') : topoTheme.cardBorderIdle) : (isConnected ? (isLan ? nodeLayerColor : themeColors.wifi) : topoTheme.cardBorderIdle);
+          const sockFillCol = isWan ? (isWanPortUp ? (isLight ? 'rgba(2,132,199,0.08)' : 'rgba(56,189,248,0.1)') : (isLight ? '#f8fafc' : 'rgba(255,255,255,0.02)')) : (isConnected ? (isLight ? 'rgba(2,132,199,0.06)' : 'rgba(56,189,248,0.08)') : (isLight ? '#f8fafc' : 'rgba(255,255,255,0.02)'));
 
           mk("rect", {
             x: socketX,
@@ -14332,11 +14405,11 @@
             cx: socketX + 5,
             cy: socketY + 5.5,
             r: 1.5,
-            class: (isConnected || isWan) ? "topo-pulse-dot" : "",
-            fill: (isConnected || isWan) ? "#10b981" : (isLight ? "#94a3b8" : "#52525b")
+            class: isSlotActive ? "topo-pulse-dot" : "",
+            fill: isSlotActive ? "#10b981" : (isLight ? "#94a3b8" : "#52525b")
           }, sockG);
 
-          let sLbl = slot.label || (isWan ? 'WAN' : (isLan ? `LAN ${slot.idx + 1}` : 'Wi-Fi'));
+          let sLbl = slot.label || (isWan ? 'WAN' : (isLan ? `L${slot.idx + 1}` : 'Wi-Fi'));
 
           // Perfect centered two-row layout: Top row centered label, Bottom row centered people icon + count
           if (childCount > 0) {
@@ -14366,7 +14439,7 @@
               x: socketCenterX,
               y: socketY + 15,
               "text-anchor": "middle",
-              style: `font-size:7.2px; font-weight:800; font-family:var(--font-mono); fill:${(isConnected || isWan) ? (isWan ? (usbStyle.lineStroke || '#0284c7') : (isLan ? nodeLayerColor : themeColors.wifi)) : topoTheme.textDim};`
+              style: `font-size:7.2px; font-weight:800; font-family:var(--font-mono); fill:${isSlotActive ? (isWan ? (usbStyle.lineStroke || '#0284c7') : (isLan ? nodeLayerColor : themeColors.wifi)) : topoTheme.textDim};`
             }, sockG);
             tSockLbl.textContent = sLbl;
           }
@@ -15111,6 +15184,26 @@
       if (d.router && d.router.hostname) {
         const hTitle = document.getElementById('dashBrandTitle');
         if (hTitle) hTitle.innerText = d.router.hostname.toUpperCase();
+      }
+
+      // Update bottom telemetry dock (0 CPU load, smooth real-time view)
+      if (d.router) {
+        const dCpu = document.getElementById('topoDockCpu');
+        if (dCpu) {
+          const rawCpu = (d.router.cpu_pct !== undefined) ? d.router.cpu_pct : 0;
+          dCpu.textContent = (typeof rawCpu === 'number' ? rawCpu.toFixed(1) : rawCpu) + '%';
+        }
+        const dRam = document.getElementById('topoDockRam');
+        if (dRam) {
+          const mem = d.router.memory || {};
+          const ramPct = (mem.used_pct !== undefined) ? mem.used_pct : 0;
+          dRam.textContent = (typeof ramPct === 'number' ? ramPct.toFixed(1) : ramPct) + '%';
+        }
+        const dTemp = document.getElementById('topoDockTemp');
+        if (dTemp) {
+          const rawTemp = (d.router.temp_c !== undefined) ? d.router.temp_c : 38.9;
+          dTemp.textContent = (typeof rawTemp === 'number' ? rawTemp.toFixed(1) : rawTemp) + '°C';
+        }
       }
 
       if (d.firmware) {
