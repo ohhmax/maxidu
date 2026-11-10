@@ -3544,6 +3544,7 @@
       flex-direction: column;
       padding: 10px 14px 20px 14px;
       box-sizing: border-box;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .usb-bw-container::before {
       content: "";
@@ -3551,12 +3552,42 @@
       inset: 0;
       pointer-events: none;
       background:
-        radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--c) 10%, transparent), transparent 60%),
-        linear-gradient(var(--grid) 1px, transparent 1px) 0 0/40px 40px,
-        linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0/40px 40px;
-      -webkit-mask-image: radial-gradient(ellipse at center, #000 0%, transparent 80%);
-      mask-image: radial-gradient(ellipse at center, #000 0%, transparent 80%);
+        radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--c) 8%, transparent), transparent 75%),
+        linear-gradient(var(--grid) 1px, transparent 1px) 0 0/36px 36px,
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0/36px 36px;
       border-radius: var(--radius-lg);
+    }
+    /* Full Page Topology Viewer Mode */
+    .usb-bw-container.topo-fullpage-mode {
+      position: fixed !important;
+      inset: 0 !important;
+      z-index: 99999 !important;
+      width: 100vw !important;
+      max-width: 100vw !important;
+      height: 100vh !important;
+      margin: 0 !important;
+      padding: 14px 18px !important;
+      border-radius: 0 !important;
+      background: var(--bg, #090b10) !important;
+      box-sizing: border-box !important;
+    }
+    .usb-bw-container.topo-fullpage-mode::before {
+      border-radius: 0 !important;
+    }
+    .usb-bw-container.topo-fullpage-mode .bw-head {
+      max-width: 100% !important;
+      padding: 0 4px !important;
+    }
+    .usb-bw-container.topo-fullpage-mode .bw-box {
+      min-height: calc(100vh - 70px) !important;
+      height: calc(100vh - 70px) !important;
+    }
+    /* ZERO CPU/RAM OPTIMIZATION: Pause all SVG and CSS animations when offscreen/backgrounded */
+    .topo-paused,
+    .topo-paused *,
+    .topo-paused svg,
+    .topo-paused svg * {
+      animation-play-state: paused !important;
     }
     .bw-head {
       position: relative;
@@ -6787,13 +6818,30 @@
     }
     .topo-round-actions {
       display: flex;
-      align-items: center;
-      gap: 8px;
+      align-items: flex-start;
+      gap: 10px;
       flex-shrink: 0;
     }
+    .topo-action-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3.5px;
+    }
+    .topo-action-label {
+      font-size: 8px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      letter-spacing: 0.4px;
+      color: var(--text-dim, #71717a);
+      text-transform: uppercase;
+      line-height: 1;
+      text-align: center;
+      user-select: none;
+    }
     .topo-round-btn {
-      width: 34px;
-      height: 34px;
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
       display: inline-flex;
       align-items: center;
@@ -6807,8 +6855,8 @@
       flex-shrink: 0;
     }
     .topo-round-btn svg {
-      width: 15px;
-      height: 15px;
+      width: 13px;
+      height: 13px;
       stroke: currentColor;
       fill: none;
       stroke-width: 2;
@@ -6934,6 +6982,9 @@
     [data-theme="light"] .topo-remove-btn:hover {
       background: rgba(239, 68, 68, 0.14);
     }
+    [data-theme="light"] .topo-action-label {
+      color: #64748b;
+    }
     @media (max-width: 480px) {
       .topo-header-row {
         flex-direction: column;
@@ -6943,7 +6994,11 @@
       }
       .topo-round-actions {
         width: 100%;
-        justify-content: flex-end;
+        justify-content: space-between;
+        gap: 4px;
+      }
+      .topo-action-label {
+        font-size: 7.5px;
       }
     }
     .topo-validation-box {
@@ -8097,21 +8152,36 @@
                   <span class="setting-label-sub" style="font-size:11.5px;">Port mapping, hierarchical layers, and device layout</span>
                 </div>
                 <div class="topo-round-actions">
-                  <button type="button" class="topo-round-btn btn-save" onclick="saveTopologyLayersConfig()" id="btnSaveTopo" title="Save Topology" aria-label="Save Topology">
-                    <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                  </button>
-                  <button type="button" class="topo-round-btn btn-auto" onclick="autoMapNetworkTopology()" id="btnAutoMapTopo" title="Auto-Map from Clients" aria-label="Auto-Map from Clients">
-                    <svg viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-                  </button>
-                  <button type="button" class="topo-round-btn btn-reset" onclick="resetTopologyLayersConfig()" id="btnResetTopo" title="Reset Defaults" aria-label="Reset Defaults">
-                    <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><polyline points="3 3 3 8 8 8"/></svg>
-                  </button>
-                  <button type="button" class="topo-round-btn btn-export" onclick="openExportTopologyModal()" id="btnExportTopo" title="Export Topology JSON" aria-label="Export JSON">
-                    <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                  </button>
-                  <button type="button" class="topo-round-btn btn-import" onclick="openImportTopologyModal()" id="btnImportTopo" title="Import Topology JSON" aria-label="Import JSON">
-                    <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                  </button>
+                  <div class="topo-action-item">
+                    <button type="button" class="topo-round-btn btn-save" onclick="saveTopologyLayersConfig()" id="btnSaveTopo" title="Save Topology" aria-label="Save Topology">
+                      <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    </button>
+                    <span class="topo-action-label">Save</span>
+                  </div>
+                  <div class="topo-action-item">
+                    <button type="button" class="topo-round-btn btn-auto" onclick="autoMapNetworkTopology()" id="btnAutoMapTopo" title="Auto-Map from Clients" aria-label="Auto-Map from Clients">
+                      <svg viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                    </button>
+                    <span class="topo-action-label">Auto</span>
+                  </div>
+                  <div class="topo-action-item">
+                    <button type="button" class="topo-round-btn btn-reset" onclick="resetTopologyLayersConfig()" id="btnResetTopo" title="Reset Defaults" aria-label="Reset Defaults">
+                      <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><polyline points="3 3 3 8 8 8"/></svg>
+                    </button>
+                    <span class="topo-action-label">Reset</span>
+                  </div>
+                  <div class="topo-action-item">
+                    <button type="button" class="topo-round-btn btn-export" onclick="openExportTopologyModal()" id="btnExportTopo" title="Export Topology JSON" aria-label="Export JSON">
+                      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    </button>
+                    <span class="topo-action-label">Export</span>
+                  </div>
+                  <div class="topo-action-item">
+                    <button type="button" class="topo-round-btn btn-import" onclick="openImportTopologyModal()" id="btnImportTopo" title="Import Topology JSON" aria-label="Import JSON">
+                      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    </button>
+                    <span class="topo-action-label">Import</span>
+                  </div>
                 </div>
               </div>
 
@@ -10653,11 +10723,17 @@
             setTimeout(buildUsbBwSvg, 300);
           }
         } else {
-          // On Mobile: Full screen Settings view
+          // On Mobile: Full screen Settings view (Pause SVG to save CPU/RAM)
           if (dashContainer) dashContainer.classList.remove('settings-side-open');
           if (tabOv) tabOv.style.display = 'none';
           if (tabSet) tabSet.style.display = 'block';
           if (menuBtn) menuBtn.classList.remove('active');
+          const svgEl = document.getElementById('usbBwSvg');
+          const topoBox = document.querySelector('.usb-bw-container');
+          if (svgEl && typeof svgEl.pauseAnimations === 'function') {
+            try { svgEl.pauseAnimations(); } catch (e) {}
+          }
+          if (topoBox) topoBox.classList.add('topo-paused');
         }
 
         if (!keepSubpage && window._currentSettingPage) {
@@ -10674,6 +10750,12 @@
         if (tabOv) tabOv.style.display = 'block';
         if (tabSet) tabSet.style.display = 'none';
         if (menuBtn) menuBtn.classList.remove('active');
+        const svgEl = document.getElementById('usbBwSvg');
+        const topoBox = document.querySelector('.usb-bw-container');
+        if (svgEl && typeof svgEl.unpauseAnimations === 'function') {
+          try { svgEl.unpauseAnimations(); } catch (e) {}
+        }
+        if (topoBox) topoBox.classList.remove('topo-paused');
         if (typeof buildUsbBwSvg === 'function') {
           setTimeout(buildUsbBwSvg, 50);
           setTimeout(buildUsbBwSvg, 300);
@@ -11846,41 +11928,38 @@
       const svg = document.getElementById('usbBwSvg');
       const btn = document.getElementById('topoZoomResetBtn');
       if (svg) {
-        svg.style.transform = `translate(${_topoPanX}px, ${_topoPanY}px) scale(${_topoZoom})`;
-        svg.style.transformOrigin = '50% 10%';
-        svg.style.transition = 'transform 0.18s cubic-bezier(0.16, 1, 0.3, 1)';
+        svg.style.transform = `translate3d(${_topoPanX}px, ${_topoPanY}px, 0) scale(${_topoZoom})`;
+        svg.style.transformOrigin = '50% 50%';
+        svg.style.transition = _isTopoDragging ? 'none' : 'transform 0.18s cubic-bezier(0.16, 1, 0.3, 1)';
       }
       if (btn) {
         btn.textContent = `${Math.round(_topoZoom * 100)}%`;
       }
     }
     function toggleTopologyFullscreen() {
-      const container = document.getElementById('tabOverview');
+      const container = document.querySelector('.usb-bw-container');
       const icon = document.getElementById('topoFsIcon');
-      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-        if (container.requestFullscreen) {
-          container.requestFullscreen();
-        } else if (container.webkitRequestFullscreen) {
-          container.webkitRequestFullscreen();
-        }
-        if (icon) {
+      if (!container) return;
+
+      const isFull = container.classList.toggle('topo-fullpage-mode');
+      if (icon) {
+        if (isFull) {
           icon.innerHTML = '<path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/>';
-        }
-      } else {
-        if (document.exitFullscreen) {
-          document.exitFullscreen();
-        } else if (document.webkitExitFullscreen) {
-          document.webkitExitFullscreen();
-        }
-        if (icon) {
+        } else {
           icon.innerHTML = '<path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>';
         }
       }
+      resetTopologyZoom();
+      setTimeout(() => {
+        if (typeof buildUsbBwSvg === 'function') buildUsbBwSvg();
+      }, 60);
     }
-    document.addEventListener('fullscreenchange', () => {
-      const icon = document.getElementById('topoFsIcon');
-      if (!document.fullscreenElement && icon) {
-        icon.innerHTML = '<path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>';
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const container = document.querySelector('.usb-bw-container');
+        if (container && container.classList.contains('topo-fullpage-mode')) {
+          toggleTopologyFullscreen();
+        }
       }
     });
 
@@ -12019,6 +12098,47 @@
     }
     document.addEventListener('DOMContentLoaded', initTopoPanDrag);
     setTimeout(initTopoPanDrag, 500);
+
+    // ZERO CPU / RAM TOPOLOGY OPTIMIZER (Pauses SMIL & CSS animations when off-screen or backgrounded)
+    function initTopologyCpuOptimization() {
+      const svg = document.getElementById('usbBwSvg');
+      const container = document.querySelector('.usb-bw-container');
+      if (!svg || !container) return;
+
+      function updateTopologyState(isDisplaying) {
+        if (isDisplaying && !document.hidden) {
+          if (typeof svg.unpauseAnimations === 'function') {
+            try { svg.unpauseAnimations(); } catch (e) {}
+          }
+          container.classList.remove('topo-paused');
+        } else {
+          if (typeof svg.pauseAnimations === 'function') {
+            try { svg.pauseAnimations(); } catch (e) {}
+          }
+          container.classList.add('topo-paused');
+        }
+      }
+
+      if ('IntersectionObserver' in window) {
+        if (window._topoObserver) window._topoObserver.disconnect();
+        window._topoObserver = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            const tabOv = document.getElementById('tabOverview');
+            const isOv = tabOv && tabOv.style.display !== 'none';
+            updateTopologyState(entry.isIntersecting && isOv);
+          });
+        }, { threshold: 0.05 });
+        window._topoObserver.observe(container);
+      }
+
+      document.addEventListener('visibilitychange', () => {
+        const tabOv = document.getElementById('tabOverview');
+        const isOv = tabOv && tabOv.style.display !== 'none';
+        updateTopologyState(!document.hidden && isOv);
+      });
+    }
+    document.addEventListener('DOMContentLoaded', initTopologyCpuOptimization);
+    setTimeout(initTopologyCpuOptimization, 600);
 
     // RICH NODE DETAILS MODAL SHEET CONTROLLER
     let _activeDetailTarget = null;
@@ -12778,7 +12898,8 @@
       if (isRouterOrAp) {
         const wClients = node.wireless_clients || [];
         const wCount = wClients.length;
-        const wSubW = wCount > 0 ? (wCount * clientCardW + (wCount - 1) * gap) : portBoxW;
+        const wCols = (isMobile && wCount > 2) ? 2 : wCount;
+        const wSubW = wCount > 0 ? (wCols * clientCardW + (wCols - 1) * gap) : portBoxW;
         slots.push({
           type: 'wifi',
           label: 'Wi-Fi',
@@ -12845,7 +12966,7 @@
       showWan: true,          // boolean: show/hide ingress WAN modems
       showSpeeds: true,       // boolean: show/hide link speeds (1Gbps, etc.)
       infoDensity: 'full',    // 'full' (IP/MAC/Band) | 'compact' (Name only)
-      refreshRate: '10s'      // '5s' | '10s' | '30s' | 'off'
+      refreshRate: 'off'      // 'off' (Default: 0 CPU / 0 RAM) | '5s' | '10s' | '30s'
     };
 
     function getTopologyPrefs() {
@@ -12939,11 +13060,18 @@
 
       if (ms > 0) {
         window._topoRefreshTimer = setInterval(() => {
+          if (document.hidden) return;
+          const tabOverview = document.getElementById('tabOverview');
+          const isOverviewVisible = tabOverview && tabOverview.style.display !== 'none';
+          if (!isOverviewVisible) return;
+
           const topoAcc = document.getElementById('acc-topo-layers');
-          const tabDash = document.getElementById('tabDashboard');
-          const isVisible = (tabDash && tabDash.style.display !== 'none') || (topoAcc && topoAcc.classList.contains('active'));
-          if (isVisible && typeof fetchTopologyLayers === 'function') {
-            fetchTopologyLayers(true);
+          const isSettingsOpen = topoAcc && topoAcc.classList.contains('active');
+
+          if (isOverviewVisible || isSettingsOpen) {
+            if (typeof fetchTopologyLayers === 'function') {
+              fetchTopologyLayers(true);
+            }
           }
         }, ms);
       }
@@ -13051,21 +13179,42 @@
       const connectedIngress = bwLinks.filter(l => l && l.connected && l.name !== "Standby");
       const ingressLinks = connectedIngress.length > 0 ? connectedIngress : bwLinks.slice(0, 1);
 
-      // Auto-layout sizing
+      // Auto-layout sizing with generous vertical breathing room
       const rootBounds = computeSubtreeBounds(tree, isMobile);
       const treeDepth = computeTreeMaxDepth(tree);
 
-      const W = Math.max(isMobile ? 640 : 960, rootBounds.width + (isMobile ? 60 : 120));
-      const H = Math.max(isMobile ? 480 : 540, (prefs.showWan ? 220 : 130) + treeDepth * (isMobile ? 135 : 165));
+      const W = Math.max(isMobile ? 580 : 960, rootBounds.width + (isMobile ? 60 : 120));
+      const H = Math.max(isMobile ? 540 : 560, (prefs.showWan ? 240 : 140) + treeDepth * (isMobile ? 165 : 185) + 40);
 
       svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
       const defs = mk("defs", {}, svg);
+
+      // FULL PAGE TOPOLOGY BACKGROUND GRID (Zero edge trimming, complete canvas blueprint)
+      const pat = mk("pattern", {
+        id: "topoGridPat",
+        width: "36",
+        height: "36",
+        patternUnits: "userSpaceOnUse"
+      }, defs);
+      mk("path", {
+        d: "M 36 0 L 0 0 0 36",
+        fill: "none",
+        stroke: isLight ? "rgba(15, 25, 40, 0.05)" : "rgba(255, 255, 255, 0.035)",
+        "stroke-width": "0.75"
+      }, pat);
+      mk("rect", {
+        x: "0",
+        y: "0",
+        width: "100%",
+        height: "100%",
+        fill: "url(#topoGridPat)"
+      }, svg);
 
       const rtrCenterX = W / 2;
       const rtrBoxW = isMobile ? 124 : 136;
       const rtrBoxH = isMobile ? 44 : 48;
       const rtrBoxX = rtrCenterX - rtrBoxW / 2;
-      const rtrBoxY = prefs.showWan ? (isMobile ? 120 : 130) : (isMobile ? 36 : 42);
+      const rtrBoxY = prefs.showWan ? (isMobile ? 124 : 134) : (isMobile ? 38 : 44);
 
       // 1. INGRESS DEVICES & CONDUITS (Top of Diagram - if enabled)
       if (prefs.showWan) {
@@ -13170,7 +13319,7 @@
 
       const totalSlotsW = slots.reduce((sum, s) => sum + s.width, 0) + (numSlots - 1) * slotGap;
       const slotsStartX = rtrCenterX - totalSlotsW / 2;
-      const rootPortsY = rtrBoxY + rtrBoxH + (isMobile ? 32 : 38);
+      const rootPortsY = rtrBoxY + rtrBoxH + (isMobile ? 36 : 44);
 
       let curSlotX = slotsStartX;
 
@@ -13311,25 +13460,34 @@
             const wifiStartY = rootPortsY + portBoxH + (isMobile ? 36 : 42);
             const clients = slot.clients;
             const numWc = clients.length;
-            const wGap = isMobile ? 6 : 8;
-            const totalW = numWc * clientCardW + (numWc - 1) * wGap;
+            const isGrid = isMobile && numWc > 2;
+            const numCols = isGrid ? 2 : numWc;
+            const numRows = Math.ceil(numWc / numCols);
+            const wGapX = isMobile ? 6 : 8;
+            const wGapY = isMobile ? 6 : 8;
+            const totalW = numCols * clientCardW + (numCols - 1) * wGapX;
             const startWcX = slotCenterX - totalW / 2;
 
             clients.forEach((wc, wcIdx) => {
-              const wcX = startWcX + wcIdx * (clientCardW + wGap);
+              const col = isGrid ? (wcIdx % 2) : wcIdx;
+              const row = isGrid ? Math.floor(wcIdx / 2) : 0;
+              const wcX = startWcX + col * (clientCardW + wGapX);
+              const wcY = wifiStartY + row * (clientCardH + wGapY);
               const wcCenterX = wcX + clientCardW / 2;
 
-              // Dashed WiFi link from WiFi box bottom to wireless client card top (smooth S-curve or orthogonal)
+              const isClientOnline = (wc.connected !== false && wc.status !== 'offline' && wc.status !== 'disconnected');
+
+              // Dashed WiFi link from WiFi box bottom to wireless client card top (ALWAYS DRAWN)
               const dWifiLink = (prefs.lineStyle === 'orthogonal') ?
-                `M${slotCenterX} ${rootPortsY + portBoxH} L${slotCenterX} ${(rootPortsY + portBoxH + wifiStartY) / 2} L${wcCenterX} ${(rootPortsY + portBoxH + wifiStartY) / 2} L${wcCenterX} ${wifiStartY}` :
-                `M${slotCenterX} ${rootPortsY + portBoxH} C${slotCenterX} ${rootPortsY + portBoxH + 20}, ${wcCenterX} ${wifiStartY - 18}, ${wcCenterX} ${wifiStartY}`;
+                `M${slotCenterX} ${rootPortsY + portBoxH} L${slotCenterX} ${(rootPortsY + portBoxH + wcY) / 2} L${wcCenterX} ${(rootPortsY + portBoxH + wcY) / 2} L${wcCenterX} ${wcY}` :
+                `M${slotCenterX} ${rootPortsY + portBoxH} C${slotCenterX} ${rootPortsY + portBoxH + 20}, ${wcCenterX} ${wcY - 18}, ${wcCenterX} ${wcY}`;
               mk("path", {
                 d: dWifiLink,
-                stroke: wifiColor,
+                stroke: isClientOnline ? wifiColor : topoTheme.conduitIdle,
                 "stroke-width": 1.2,
                 "stroke-dasharray": "3 2.5",
                 fill: "none",
-                style: "opacity:0.75;"
+                style: isClientOnline ? "opacity:0.75;" : "opacity:0.25;"
               }, svg);
 
               // Client Card
@@ -13341,34 +13499,34 @@
 
               mk("rect", {
                 x: wcX,
-                y: wifiStartY,
+                y: wcY,
                 width: clientCardW,
                 height: finalH,
                 rx: 5,
                 ry: 5,
                 fill: topoTheme.cardBg,
-                stroke: isLight ? topoTheme.cardBorder : wifiColor,
+                stroke: isClientOnline ? (isLight ? topoTheme.cardBorder : wifiColor) : topoTheme.cardBorderIdle,
                 "stroke-width": 1.0,
-                style: `filter:${topoTheme.cardShadow};`
+                style: `filter:${topoTheme.cardShadow};` + (isClientOnline ? "" : "opacity:0.8;")
               }, wcG);
 
-              drawWifiAntennaIcon(wcX + 9, wifiStartY + finalH / 2, wifiColor, wcG);
+              drawWifiAntennaIcon(wcX + 9, wcY + finalH / 2, isClientOnline ? wifiColor : topoTheme.textDim, wcG);
 
               let wcName = wc.name || wc.ip || "WiFi";
               if (wcName.length > 9) wcName = wcName.substring(0, 8) + "…";
 
               const tWcName = mk("text", {
                 x: wcX + 18,
-                y: isCompact ? (wifiStartY + 13) : (wifiStartY + 9),
-                style: `font-size:7.5px; font-weight:700; font-family:var(--font-mono); fill:${topoTheme.textMain};`
+                y: isCompact ? (wcY + 13) : (wcY + 9),
+                style: `font-size:7.5px; font-weight:700; font-family:var(--font-mono); fill:${isClientOnline ? topoTheme.textMain : topoTheme.textDim};`
               }, wcG);
               tWcName.textContent = wcName;
 
               if (!isCompact) {
                 const tWcBand = mk("text", {
                   x: wcX + 18,
-                  y: wifiStartY + 17,
-                  style: `font-size:6.5px; font-weight:800; font-family:var(--font-mono); fill:${wifiColor};`
+                  y: wcY + 17,
+                  style: `font-size:6.5px; font-weight:800; font-family:var(--font-mono); fill:${isClientOnline ? wifiColor : topoTheme.textDim};`
                 }, wcG);
                 tWcBand.textContent = `[Wi-Fi] ${wc.ip ? wc.ip.split('.').slice(2).join('.') : ''}`;
               }
@@ -13417,24 +13575,27 @@
         const devClass = (typeof classifyLanDevice === 'function') ? classifyLanDevice(dev) : { type: 'client', title: 'Device', color: '#10b981', badge: 'DEVICE' };
         const devW = isMobile ? 86 : 104;
         const devH = isMobile ? 26 : 30;
-        const devY = parentY + (isMobile ? 36 : 46);
+        const devY = parentY + (isMobile ? 38 : 46);
         const devBoxX = parentX - devW / 2;
         const devColor = isLight ? (devClass.color === '#10b981' ? '#059669' : devClass.color) : devClass.color;
+
+        const isDevOnline = (dev.connected !== false && dev.status !== 'offline' && dev.status !== 'disconnected');
 
         const conduitId = `bwCableDev_${depth}_${Math.random().toString(36).substr(2, 5)}`;
         const dCable = `M${parentX} ${parentY} L${parentX} ${devY}`;
 
-        // Straight vertical wired cable from port to device
+        // Straight vertical wired cable from port to device (ALWAYS DRAWN)
         mk("path", {
           class: "base",
           d: dCable,
-          stroke: devColor,
+          stroke: isDevOnline ? devColor : topoTheme.conduitIdle,
           "stroke-width": 1.4,
           fill: "none",
-          style: "opacity:0.35;"
+          style: isDevOnline ? "opacity:0.4;" : "opacity:0.25; stroke-dasharray:4 3;"
         }, svg);
 
-        if (prefs.animMode !== 'off') {
+        // ONLY ANIMATE IF DEVICE IS ACTIVE / ONLINE!
+        if (isDevOnline && prefs.animMode !== 'off') {
           mk("path", {
             id: conduitId,
             class: "flow",
@@ -13442,7 +13603,7 @@
             stroke: devColor,
             "stroke-width": 1.6,
             fill: "none",
-            style: `filter:drop-shadow(0 0 3px ${devColor});`
+            style: (prefs.animMode === 'glow' || prefs.animMode === 'flowing') ? `filter:drop-shadow(0 0 3px ${devColor});` : ''
           }, svg);
 
           if (prefs.animMode === 'flowing') {
@@ -13481,9 +13642,9 @@
           rx: 6,
           ry: 6,
           fill: topoTheme.cardBg,
-          stroke: devColor,
+          stroke: isDevOnline ? devColor : topoTheme.cardBorderIdle,
           "stroke-width": 1.2,
-          style: `filter:${topoTheme.cardShadow};`
+          style: `filter:${topoTheme.cardShadow};` + (isDevOnline ? "" : "opacity:0.8;")
         }, devG);
 
         drawLanClientDeviceIcon(devBoxX + 11, devY + finalDevH / 2, devClass, devG);
@@ -13494,7 +13655,7 @@
         const tDevName = mk("text", {
           x: devBoxX + 22,
           y: isCompact ? (devY + finalDevH / 2 + 3) : (devY + 11),
-          style: `font-size:8px; font-weight:800; font-family:var(--font-mono); fill:${topoTheme.textMain};`
+          style: `font-size:8px; font-weight:800; font-family:var(--font-mono); fill:${isDevOnline ? topoTheme.textMain : topoTheme.textDim};`
         }, devG);
         tDevName.textContent = devName;
 
@@ -13516,10 +13677,12 @@
         const isRouter = node.type === 'router';
         const nodeColor = isSwitch ? (isLight ? '#059669' : '#10b981') : nodeLayerColor;
 
+        const isNodeOnline = (node.connected !== false && node.status !== 'offline');
+
         const isCollapsed = window._topoCollapsed && window._topoCollapsed.has(node.id);
         const nodeW = isMobile ? 120 : 136;
         const nodeH = isMobile ? 38 : 42;
-        const nodeY = parentY + (isMobile ? 36 : 46);
+        const nodeY = parentY + (isMobile ? 38 : 46);
         const nodeBoxX = parentX - nodeW / 2;
 
         const conduitId = `bwTrunkNode_${depth}_${Math.random().toString(36).substr(2, 5)}`;
@@ -13527,17 +13690,17 @@
           `M${parentX} ${parentY} L${parentX} ${nodeY}` :
           `M${parentX} ${parentY} C${parentX} ${parentY + 20}, ${parentX} ${nodeY - 20}, ${parentX} ${nodeY}`;
 
-        // Straight vertical trunk cable from parent port down to node box
+        // Straight vertical trunk cable from parent port down to node box (ALWAYS DRAWN)
         mk("path", {
           class: "base",
           d: dCable,
-          stroke: nodeColor,
+          stroke: isNodeOnline ? nodeColor : topoTheme.conduitIdle,
           "stroke-width": 1.6,
           fill: "none",
-          style: "opacity:0.4;"
+          style: isNodeOnline ? "opacity:0.45;" : "opacity:0.25; stroke-dasharray:4 3;"
         }, svg);
 
-        if (prefs.animMode !== 'off') {
+        if (isNodeOnline && prefs.animMode !== 'off') {
           mk("path", {
             id: conduitId,
             class: "flow",
@@ -13545,7 +13708,7 @@
             stroke: nodeColor,
             "stroke-width": 1.8,
             fill: "none",
-            style: `filter:drop-shadow(0 0 4px ${nodeColor});`
+            style: (prefs.animMode === 'glow' || prefs.animMode === 'flowing') ? `filter:drop-shadow(0 0 4px ${nodeColor});` : ''
           }, svg);
 
           if (prefs.animMode === 'flowing') {
@@ -13581,9 +13744,9 @@
           rx: 7,
           ry: 7,
           fill: topoTheme.cardBg,
-          stroke: nodeColor,
+          stroke: isNodeOnline ? nodeColor : topoTheme.cardBorderIdle,
           "stroke-width": 1.3,
-          style: `filter:${topoTheme.cardShadow};`
+          style: `filter:${topoTheme.cardShadow};` + (isNodeOnline ? "" : "opacity:0.85;")
         }, nodeG);
 
         if (isSwitch) {
@@ -13793,69 +13956,77 @@
 
               // Render Wireless Clients strictly under this WiFi Box
               if (cSlot.count > 0) {
-                const wifiStartY = childPortsY + cPortBoxH + (isMobile ? 34 : 38);
+                const wifiStartY = childPortsY + cPortBoxH + (isMobile ? 36 : 42);
                 const clients = cSlot.clients;
                 const numWc = clients.length;
-                const wGap = isMobile ? 6 : 8;
-                const totalW = numWc * clientCardW + (numWc - 1) * wGap;
+                const isGrid = isMobile && numWc > 2;
+                const numCols = isGrid ? 2 : numWc;
+                const numRows = Math.ceil(numWc / numCols);
+                const wGapX = isMobile ? 6 : 8;
+                const wGapY = isMobile ? 6 : 8;
+                const totalW = numCols * clientCardW + (numCols - 1) * wGapX;
                 const startWcX = csCenterX - totalW / 2;
 
                 clients.forEach((wc, wcIdx) => {
-                  const wcX = startWcX + wcIdx * (clientCardW + wGap);
+                  const col = isGrid ? (wcIdx % 2) : wcIdx;
+                  const row = isGrid ? Math.floor(wcIdx / 2) : 0;
+                  const isCompact = (prefs.infoDensity === 'compact');
+                  const finalClientH = isCompact ? 18 : clientCardH;
+                  const wcX = startWcX + col * (clientCardW + wGapX);
+                  const wcY = wifiStartY + row * (finalClientH + wGapY);
                   const wcCenterX = wcX + clientCardW / 2;
 
-                  // Dashed WiFi link line from WiFi interface box to client
+                  const isClientOnline = (wc.connected !== false && wc.status !== 'offline' && wc.status !== 'disconnected');
+
+                  // Dashed WiFi link line from WiFi interface box to client (ALWAYS DRAWN)
                   const dWifi = (prefs.lineStyle === 'orthogonal') ?
-                    `M${csCenterX} ${childPortsY + cPortBoxH} L${csCenterX} ${(childPortsY + cPortBoxH + wifiStartY) / 2} L${wcCenterX} ${(childPortsY + cPortBoxH + wifiStartY) / 2} L${wcCenterX} ${wifiStartY}` :
-                    `M${csCenterX} ${childPortsY + cPortBoxH} C${csCenterX} ${childPortsY + cPortBoxH + 18}, ${wcCenterX} ${wifiStartY - 16}, ${wcCenterX} ${wifiStartY}`;
+                    `M${csCenterX} ${childPortsY + cPortBoxH} L${csCenterX} ${(childPortsY + cPortBoxH + wcY) / 2} L${wcCenterX} ${(childPortsY + cPortBoxH + wcY) / 2} L${wcCenterX} ${wcY}` :
+                    `M${csCenterX} ${childPortsY + cPortBoxH} C${csCenterX} ${childPortsY + cPortBoxH + 18}, ${wcCenterX} ${wcY - 16}, ${wcCenterX} ${wcY}`;
                   mk("path", {
                     d: dWifi,
-                    stroke: csColor,
+                    stroke: isClientOnline ? csColor : topoTheme.conduitIdle,
                     "stroke-width": 1.2,
                     "stroke-dasharray": "3 2.5",
                     fill: "none",
-                    style: "opacity:0.75;"
+                    style: isClientOnline ? "opacity:0.75;" : "opacity:0.25;"
                   }, svg);
 
                   // Wireless Device Pill
                   const wcG = mk("g", { class: "topo-wifi-client", style: `cursor:pointer;` }, svg);
                   wcG.onclick = (e) => showTopoNodeDetail(wc, false, e);
 
-                  const isCompact = (prefs.infoDensity === 'compact');
-                  const finalClientH = isCompact ? 18 : clientCardH;
-
                   mk("rect", {
                     x: wcX,
-                    y: wifiStartY,
+                    y: wcY,
                     width: clientCardW,
                     height: finalClientH,
                     rx: 5,
                     ry: 5,
                     fill: topoTheme.cardBg,
-                    stroke: isLight ? topoTheme.cardBorder : csColor,
+                    stroke: isClientOnline ? (isLight ? topoTheme.cardBorder : csColor) : topoTheme.cardBorderIdle,
                     "stroke-width": 1.0,
-                    style: `filter:${topoTheme.cardShadow};`
+                    style: `filter:${topoTheme.cardShadow};` + (isClientOnline ? "" : "opacity:0.8;")
                   }, wcG);
 
-                  drawWifiAntennaIcon(wcX + 9, wifiStartY + finalClientH / 2, csColor, wcG);
+                  drawWifiAntennaIcon(wcX + 9, wcY + finalClientH / 2, isClientOnline ? csColor : topoTheme.textDim, wcG);
 
                   let wcName = wc.name || wc.ip || "WiFi";
                   if (wcName.length > 9) wcName = wcName.substring(0, 8) + "…";
 
                   const tWcName = mk("text", {
                     x: wcX + 18,
-                    y: isCompact ? (wifiStartY + 12) : (wifiStartY + 9),
-                    style: `font-size:7.5px; font-weight:700; font-family:var(--font-mono); fill:${topoTheme.textMain};`
+                    y: isCompact ? (wcY + 12) : (wcY + 9),
+                    style: `font-size:7.5px; font-weight:700; font-family:var(--font-mono); fill:${isClientOnline ? topoTheme.textMain : topoTheme.textDim};`
                   }, wcG);
                   tWcName.textContent = wcName;
 
                   if (!isCompact) {
                     const tWcBand = mk("text", {
                       x: wcX + 18,
-                      y: wifiStartY + 17,
-                      style: `font-size:6.5px; font-weight:800; font-family:var(--font-mono); fill:${csColor};`
+                      y: wcY + 17,
+                      style: `font-size:6.5px; font-weight:800; font-family:var(--font-mono); fill:${isClientOnline ? csColor : topoTheme.textDim};`
                     }, wcG);
-                    tWcBand.textContent = `[${cSlot.band}] ${wc.ip ? wc.ip.split('.').slice(2).join('.') : ''}`;
+                    tWcBand.textContent = `[Wi-Fi] ${wc.ip ? wc.ip.split('.').slice(2).join('.') : ''}`;
                   }
                 });
               }
@@ -16232,7 +16403,29 @@ function onRemoveWifiClient(nodeId, clientIdent) {
       }
     }
 
-    function autoMapNetworkTopology() {
+    async function autoMapNetworkTopology() {
+      if (typeof showToast === 'function') {
+        showToast('Deep-scanning network ARP tables, DHCP leases, and switch ports...', 'info');
+      }
+
+      try {
+        const res = await fetch('/cgi-bin/topology_layers?action=auto_scan', { cache: 'no-store' });
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.tree && data.tree.id === 'root') {
+            window._topoTree = data.tree;
+            window._topologyLayers = data;
+            renderTopologyLayersUI(window._topoTree);
+            if (typeof buildUsbBwSvg === 'function') buildUsbBwSvg();
+            showSaveSuccessNotification('Deep auto-topology generated from kernel bridge & ARP tables!');
+            return;
+          }
+        }
+      } catch (e) {
+        console.warn('Backend auto_scan request failed, using client heuristic auto-map:', e);
+      }
+
+      // Enhanced heuristic fallback
       const avail = getAvailableNetworkClients();
       if (!avail || avail.length === 0) {
         alert('No active clients discovered to auto-map.');
@@ -16242,10 +16435,12 @@ function onRemoveWifiClient(nodeId, clientIdent) {
       const usedIps = new Set();
       usedIps.add(tree.ip);
 
-      // 1. Identify primary APs or routers
+      // 1. Identify primary APs or routers by vendor OUI or name or port LAN 3
       const apClient = avail.find(c => {
         const nm = (c.name || '').toLowerCase();
-        return nm.includes('router') || nm.includes('ap') || nm.includes('maxnet') || nm.includes('asus') || nm.includes('openwrt') || c.ip === '10.0.0.2';
+        const vd = (c.vendor || '').toLowerCase();
+        return vd.includes('asus') || vd.includes('cisco') || vd.includes('tp-link') || vd.includes('netgear') || vd.includes('openwrt') ||
+               nm.includes('router') || nm.includes('ap') || nm.includes('maxnet') || nm.includes('asus') || nm.includes('openwrt') || c.ip === '10.0.0.166' || c.ip === '10.0.0.2';
       });
 
       if (apClient) {
@@ -16254,9 +16449,10 @@ function onRemoveWifiClient(nodeId, clientIdent) {
         apPort.child = {
           id: 'node-' + (apClient.name ? apClient.name.replace(/\s+/g, '-').toLowerCase() : 'ap'),
           type: 'ap',
-          name: apClient.name || 'maxnet-b',
-          ip: apClient.ip || '10.0.0.2',
-          mac: apClient.mac || '',
+          name: apClient.name || 'Asus Router',
+          ip: apClient.ip || '10.0.0.166',
+          mac: apClient.mac || 'a8:1b:5a:c3:01:13',
+          status: (apClient.connected !== false && apClient.status !== 'offline') ? 'online' : 'offline',
           uplinkPort: apPort.id,
           numPorts: 4,
           ports: [
@@ -16270,7 +16466,7 @@ function onRemoveWifiClient(nodeId, clientIdent) {
         usedIps.add(apClient.ip);
 
         // Map NAS or wired under AP LAN 1
-        const nasClient = avail.find(c => !usedIps.has(c.ip) && ((c.name && (c.name.toLowerCase().includes('synology') || c.name.toLowerCase().includes('nas'))) || c.ip === '10.0.0.5'));
+        const nasClient = avail.find(c => !usedIps.has(c.ip) && (((c.vendor || '').toLowerCase().includes('synology') || (c.name && (c.name.toLowerCase().includes('synology') || c.name.toLowerCase().includes('nas')))) || c.ip === '10.0.0.5'));
         if (nasClient) {
           apPort.child.ports[0].role = 'device';
           apPort.child.ports[0].child = {
@@ -16278,22 +16474,25 @@ function onRemoveWifiClient(nodeId, clientIdent) {
             type: 'device',
             name: nasClient.name || 'Synology NAS',
             ip: nasClient.ip,
-            mac: nasClient.mac || '',
+            mac: nasClient.mac || '00:11:32:92:02:1b',
+            status: (nasClient.connected !== false && nasClient.status !== 'offline') ? 'online' : 'offline',
             uplinkPort: apPort.child.ports[0].id
           };
           usedIps.add(nasClient.ip);
         }
 
-        // Map WiFi clients to AP
+        // Map WiFi clients to AP (preserving online/offline status)
         avail.forEach(c => {
-          if (!usedIps.has(c.ip) && c.ip !== '10.0.0.111') {
-            const isPhoneOrWifi = (c.conn_type && c.conn_type.includes('WiFi')) ||
-                                  (c.name && (c.name.toLowerCase().includes('poco') || c.name.toLowerCase().includes('vivo') || c.name.toLowerCase().includes('phone') || c.name.toLowerCase().includes('realme')));
-            if (isPhoneOrWifi && apPort.child.wireless_clients.length < 8) {
+          if (!usedIps.has(c.ip) && c.ip !== '10.0.0.111' && c.ip !== '10.0.0.1') {
+            const isPhoneOrWifi = (c.port && c.port.includes('LAN 3')) ||
+                                  (c.conn_type && c.conn_type.includes('WiFi')) ||
+                                  (c.name && (c.name.toLowerCase().includes('poco') || c.name.toLowerCase().includes('vivo') || c.name.toLowerCase().includes('phone') || c.name.toLowerCase().includes('realme') || c.name.toLowerCase().includes('motorola')));
+            if (isPhoneOrWifi && apPort.child.wireless_clients.length < 12) {
               apPort.child.wireless_clients.push({
                 name: c.name || 'WiFi Device',
                 ip: c.ip,
                 mac: c.mac || '',
+                status: (c.connected !== false && c.status !== 'offline') ? 'online' : 'offline',
                 band: 'WiFi',
                 linkSpeed: '72 Mbps'
               });
@@ -16304,7 +16503,7 @@ function onRemoveWifiClient(nodeId, clientIdent) {
       }
 
       // Map Workstation / PC to Root LAN 2
-      const pcClient = avail.find(c => !usedIps.has(c.ip) && ((c.name && (c.name.toLowerCase().includes('maxos') || c.name.toLowerCase().includes('pc') || c.name.toLowerCase().includes('desktop'))) || c.ip === '10.0.0.111'));
+      const pcClient = avail.find(c => !usedIps.has(c.ip) && ((c.port && c.port.includes('LAN 2')) || (c.name && (c.name.toLowerCase().includes('maxos') || c.name.toLowerCase().includes('pc') || c.name.toLowerCase().includes('desktop'))) || c.ip === '10.0.0.111'));
       if (pcClient) {
         tree.ports[1].role = 'device';
         tree.ports[1].child = {
@@ -16313,6 +16512,7 @@ function onRemoveWifiClient(nodeId, clientIdent) {
           name: pcClient.name || 'maxos',
           ip: pcClient.ip,
           mac: pcClient.mac || '',
+          status: (pcClient.connected !== false && pcClient.status !== 'offline') ? 'online' : 'offline',
           uplinkPort: tree.ports[1].id
         };
         usedIps.add(pcClient.ip);
