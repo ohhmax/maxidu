@@ -13907,6 +13907,25 @@
     // =========================================================================
     // SVG DIAGRAM BUILDER (DAGRE/ELK LAYERED TREE, ORTHOGONAL STEP EDGES, ZERO OVERLAPS)
     // =========================================================================
+    function getCombinedRouterSpeed() {
+      let speed = 0;
+      // 1. Live measured Rx + Tx on router gateway
+      if (typeof window._currentRxMbps === "number" && typeof window._currentTxMbps === "number") {
+        speed = window._currentRxMbps + window._currentTxMbps;
+      }
+      // 2. Multilink aggregated bandwidth
+      if (window._lastDataCache && window._lastDataCache.multilink && window._lastDataCache.multilink.combined_speed_mbps) {
+        const mlSpeed = parseFloat(window._lastDataCache.multilink.combined_speed_mbps) || 0;
+        if (mlSpeed > speed) speed = mlSpeed;
+      }
+      // 3. Multi-USB link array
+      if (typeof bwLinks !== "undefined" && Array.isArray(bwLinks) && bwLinks.length > 0) {
+        const usbSum = bwLinks.reduce((acc, l) => acc + (Number(l.v) || 0), 0);
+        if (usbSum > speed) speed = usbSum;
+      }
+      return speed >= 10 ? `${Math.round(speed)} Mbps` : (speed > 0 ? `${speed.toFixed(1)} Mbps` : "0.0 Mbps");
+    }
+
     function buildUsbBwSvg() {
       const svg = document.getElementById("usbBwSvg");
       if (!svg) return;
@@ -14297,8 +14316,46 @@
           style: `font-size:10.5px; font-weight:800; font-family:var(--font-mono); fill:${topoTheme.textMain};`
         }, chassisG);
         let apTitle = isRoot ? ((window._lastDataCache && window._lastDataCache.router && window._lastDataCache.router.hostname) || node.name || "MAXNET") : (node.name || "Access Point");
-        if (apTitle.length > 20) apTitle = apTitle.substring(0, 19) + "…";
+        if (apTitle.length > 12) apTitle = apTitle.substring(0, 11) + "…";
         tTitle.textContent = apTitle;
+
+        // Combined Live Speed Badge in Router Header (WAN + Multi-USB + LAN)
+        if (isRoot) {
+          const spdW = 64;
+          const spdH = 16;
+          const spdX = rtrX + rtrW - spdW - 10;
+          const spdY = l.y + 12;
+          const spdG = mk("g", { class: "topo-router-combined-speed" }, chassisG);
+
+          mk("rect", {
+            x: spdX,
+            y: spdY,
+            width: spdW,
+            height: spdH,
+            rx: 4,
+            ry: 4,
+            fill: isLight ? "rgba(16, 185, 129, 0.08)" : "rgba(16, 185, 129, 0.12)",
+            stroke: isLight ? "rgba(16, 185, 129, 0.3)" : "rgba(16, 185, 129, 0.4)",
+            "stroke-width": 0.8
+          }, spdG);
+
+          // Mini transfer icon: ⇄
+          const tIcon = mk("text", {
+            x: spdX + 6,
+            y: spdY + 11.5,
+            style: "font-size:8px; font-weight:900; fill:#10b981;"
+          }, spdG);
+          tIcon.textContent = "⇄";
+
+          const tSpdVal = mk("text", {
+            id: "rtrCombinedSpeed",
+            x: spdX + spdW - 6,
+            y: spdY + 11.5,
+            "text-anchor": "end",
+            style: "font-size:7.5px; font-weight:800; font-family:var(--font-mono); fill:#10b981;"
+          }, spdG);
+          tSpdVal.textContent = (typeof getCombinedRouterSpeed === "function") ? getCombinedRouterSpeed() : "0.0 Mbps";
+        }
 
         // Online soft pulse dot on chassis at top-left
         mk("circle", {
@@ -14542,10 +14599,10 @@
           }
 
           // Edge Label Pill in LABELS LAYER (SOLID BACKGROUND PILL, COLLISION-FREE)
-          if (prefs.showSpeeds) {
+          if (prefs.showSpeeds && c.type !== "wifi_cluster") {
             const labelX = (socketCenterX + childX) / 2;
             const lblG = mk("g", { class: `topo-edge-speed-pill ${isLayerDimmed ? 'topo-dimmed' : ''}` }, labelsLayer);
-            const pillW = (c.type === 'wifi_cluster') ? 48 : 36;
+            const pillW = 36;
             mk("rect", {
               x: labelX - pillW / 2,
               y: midY - 8,
@@ -14564,17 +14621,17 @@
               "text-anchor": "middle",
               style: `font-size:7.5px; font-weight:800; font-family:var(--font-mono); fill:${conduitColor};`
             }, lblG);
-            tSpd.textContent = (c.type === 'wifi_cluster') ? "5G/2.4G" : "1Gbps";
+            tSpd.textContent = "1Gbps";
           }
 
           // Render Child Content
           if (c.type === 'lan') {
             renderLayeredNode(c.child);
           } else if (c.type === 'wifi_cluster') {
-            // Render Wi-Fi Cluster: Round circle with Hotspot/Wi-Fi icon + people icon & count below
+            // Render Wi-Fi Cluster: Round circle with Hotspot/Wi-Fi icon + people icon & count inside
             const clCenterX = c.centerX;
-            const clCenterY = c.topY + 22;
-            const clRadius = 20;
+            const clRadius = 24;
+            const clCenterY = c.topY + clRadius;
             const wifiCol = themeColors.wifi;
             const wifiNodeId = `${node.id}-wifi-cluster`;
 
@@ -14618,42 +14675,24 @@
               stroke: "none"
             }, clG);
 
-            // Draw clean Hotspot / Wi-Fi vector icon at center
-            drawTetheringIconSmall(clCenterX, clCenterY, wifiCol, clG);
+            // Draw clean Hotspot / Wi-Fi vector icon in upper half of circle
+            drawTetheringIconSmall(clCenterX, clCenterY - 6, wifiCol, clG);
 
-            // People micro-icon + connected device count directly below the circle
-            const cntG = mk("g", { class: "topo-wifi-people-count", style: `fill:${wifiCol};` }, clG);
-            const cntPillW = 32;
-            const cntPillH = 13;
-            const cntPillY = clCenterY + clRadius + 3;
-            mk("rect", {
-              x: clCenterX - cntPillW / 2,
-              y: cntPillY,
-              width: cntPillW,
-              height: cntPillH,
-              rx: 4,
-              ry: 4,
-              fill: topoTheme.cardBg,
-              stroke: wifiCol,
-              "stroke-width": 0.8,
-              style: `filter:${isLight ? 'drop-shadow(0 1px 2px rgba(0,0,0,0.05))' : 'drop-shadow(0 2px 4px rgba(0,0,0,0.4))'};`
-            }, cntG);
-
-            // Mini vector people icon
-            const pX = clCenterX - 6;
-            const pY = cntPillY + 6.5;
-            mk("circle", { cx: pX - 3, cy: pY - 1.8, r: 1.4, fill: "currentColor" }, cntG);
-            mk("path", { d: `M ${pX - 5} ${pY + 2} a2 2 0 0 1 4 0 Z`, fill: "currentColor" }, cntG);
+            // People micro-icon + connected device count INSIDE circle directly below hotspot icon
+            const pX = clCenterX - 7;
+            const pY = clCenterY + 9;
+            mk("circle", { cx: pX, cy: pY - 2.2, r: 1.4, fill: wifiCol }, clG);
+            mk("path", { d: `M ${pX - 2.5} ${pY + 2.2} a2.5 2.5 0 0 1 5 0 Z`, fill: wifiCol }, clG);
             mk("text", {
-              x: pX + 3.5,
-              y: pY + 2.5,
+              x: clCenterX + 1.5,
+              y: pY + 2.0,
               "text-anchor": "start",
-              style: `font-size:7.5px; font-weight:800; font-family:var(--font-mono); fill:${topoTheme.textMain};`
-            }, cntG).textContent = `${c.clients.length}`;
+              style: `font-size:8.5px; font-weight:800; font-family:var(--font-mono); fill:${topoTheme.textMain};`
+            }, clG).textContent = `${c.clients.length}`;
 
             // If expanded: render clean vertical client devices (ONLY label/hostname, no IP/2.4G)
             if (c.isExpanded) {
-              const startListY = cntPillY + cntPillH + 16;
+              const startListY = clCenterY + clRadius + 16;
               const trunkX = clCenterX - 45;
               const clientCardW = 120;
               const clientCardH = 26;
@@ -14661,7 +14700,7 @@
               // Vertical bracket trunk line in EDGES LAYER
               const lastClientY = startListY + (c.clients.length - 1) * 34 + clientCardH / 2;
               mk("path", {
-                d: `M ${clCenterX} ${cntPillY + cntPillH} L ${clCenterX} ${cntPillY + cntPillH + 8} L ${trunkX} ${cntPillY + cntPillH + 8} L ${trunkX} ${lastClientY}`,
+                d: `M ${clCenterX} ${clCenterY + clRadius} L ${clCenterX} ${clCenterY + clRadius + 8} L ${trunkX} ${clCenterY + clRadius + 8} L ${trunkX} ${lastClientY}`,
                 stroke: wifiCol,
                 "stroke-width": 1.2,
                 fill: "none",
@@ -14851,6 +14890,12 @@
           `${(window._currentRxMbps + window._currentTxMbps).toFixed(1)} Mbps` :
           ((bwLinks && bwLinks[0] && bwLinks[0].v > 0) ? `${bwLinks[0].v} Mbps` : "0.0 Mbps");
         wanSpdEl.textContent = liveSpeedStr;
+      }
+
+      // Update router chassis combined speed badge dynamically
+      const rtrSpdEl = document.getElementById("rtrCombinedSpeed");
+      if (rtrSpdEl && typeof getCombinedRouterSpeed === "function") {
+        rtrSpdEl.textContent = getCombinedRouterSpeed();
       }
     }
 
