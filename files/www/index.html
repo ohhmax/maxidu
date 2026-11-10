@@ -7364,8 +7364,11 @@
             <span class="topo-brand-subtitle" id="headerVer">v2.2.20</span>
           </div>
 
-          <!-- TOPOLOGY CANVAS CONTROLS (ONLY MENU BUTTON) -->
+          <!-- TOPOLOGY CANVAS CONTROLS (RESET + MENU BUTTON) -->
           <div class="topo-toolbar" role="toolbar" aria-label="Topology Controls">
+            <button class="topo-tool-btn" onclick="resetTopologyZoom()" id="btnResetTopoView" title="Reset Topology to Default View" aria-label="Reset Topology View">
+              <svg viewBox="0 0 24 24" class="topo-tool-icon"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            </button>
             <button class="topo-tool-btn topo-menu-btn" onclick="toggleSettingsMenu()" id="btnTopoMenu" title="Settings" aria-label="Settings">
               <svg viewBox="0 0 24 24" class="topo-tool-icon"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
             </button>
@@ -8560,35 +8563,21 @@
           </div>
           <div class="accordion-content">
             <div class="settings-card-body">
-              <!-- DEVICE TELEMETRY STRIP (UNIFIED 5-ITEM INLINE ROW: CPU, RAM, TEMP, UPTIME, HEALTH) -->
-              <div class="device-telemetry-row" style="display:flex; align-items:center; justify-content:flex-start; gap:16px; flex-wrap:wrap; padding:8px 4px 14px 4px; border-bottom:1px solid rgba(255,255,255,0.06); margin-bottom:8px;">
-                <div style="text-align:center;">
-                  <div style="font-size:9px; color:var(--text-dim); font-family:var(--font-mono); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">CPU</div>
-                  <div id="deviceHealthCpuVal" style="font-size:13.5px; font-weight:800; font-family:var(--font-mono); color:#38bdf8; margin-top:1px;">--%</div>
-                </div>
-                <div class="stat-vert-sep"></div>
-                <div style="text-align:center;">
-                  <div style="font-size:9px; color:var(--text-dim); font-family:var(--font-mono); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">RAM</div>
-                  <div id="deviceHealthRamVal" style="font-size:13.5px; font-weight:800; font-family:var(--font-mono); color:#a855f7; margin-top:1px;">--%</div>
-                </div>
-                <div class="stat-vert-sep"></div>
-                <div style="text-align:center;">
-                  <div style="font-size:9px; color:var(--text-dim); font-family:var(--font-mono); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">TEMP</div>
-                  <div id="deviceHealthTempVal" style="font-size:13.5px; font-weight:800; font-family:var(--font-mono); color:#10b981; margin-top:1px;">--&deg;C</div>
-                </div>
-                <div class="stat-vert-sep"></div>
-                <div style="text-align:center;">
-                  <div style="font-size:9px; color:var(--text-dim); font-family:var(--font-mono); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">UPTIME</div>
-                  <div id="deviceHealthUptimeVal" style="font-size:13.5px; font-weight:800; font-family:var(--font-mono); color:var(--text-main); margin-top:1px;">--</div>
-                </div>
-                <div class="stat-vert-sep"></div>
-                <div style="text-align:center;">
-                  <div style="font-size:9px; color:var(--text-dim); font-family:var(--font-mono); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">HEALTH</div>
-                  <div id="deviceHealthStatusValWrap" style="font-size:13.5px; font-weight:800; font-family:var(--font-mono); color:#10b981; margin-top:1px; display:inline-flex; align-items:center; gap:5px;">
-                    <span id="deviceHealthStatusDot" style="width:6px; height:6px; border-radius:50%; background:#10b981; display:inline-block;"></span>
-                    <span id="deviceHealthStatusText">HEALTHY</span>
+              <!-- DEVICE HEALTH SUMMARY CARD (DERIVED FROM CPU, RAM, AND ALL THERMALS) -->
+              <div class="device-health-summary-card" id="deviceHealthCard" style="background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.22); border-radius:10px; padding:12px 14px; margin-bottom:14px; display:flex; align-items:center; justify-content:space-between; gap:12px; transition:all 0.2s ease;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <div id="deviceHealthIconBox" style="width:36px; height:36px; border-radius:8px; background:rgba(16,185,129,0.15); display:flex; align-items:center; justify-content:center; color:#10b981; flex-shrink:0;">
+                    <svg viewBox="0 0 24 24" style="width:20px; height:20px; stroke:currentColor; fill:none; stroke-width:2;"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                  </div>
+                  <div>
+                    <div style="display:flex; align-items:center; gap:6px;">
+                      <span style="font-size:10px; font-weight:800; font-family:var(--font-mono); color:var(--text-dim); text-transform:uppercase; letter-spacing:0.5px;">DEVICE HEALTH</span>
+                      <span id="deviceHealthStatusBadge" style="font-size:10px; font-weight:900; font-family:var(--font-mono); padding:2px 8px; border-radius:10px; background:rgba(16,185,129,0.15); color:#10b981;">HEALTHY</span>
+                    </div>
+                    <div id="deviceHealthSummarySub" style="font-size:11px; color:var(--text-main); font-family:var(--font-mono); margin-top:3px; font-weight:600;">All Systems Nominal &bull; CPU, RAM, and Thermals in Optimal Range</div>
                   </div>
                 </div>
+                <div id="deviceHealthPulse" style="width:9px; height:9px; border-radius:50%; background:#10b981; box-shadow:0 0 8px #10b981; flex-shrink:0;"></div>
               </div>
 
               <!-- SECTION 1: PROCESSOR & SOC -->
@@ -12121,6 +12110,9 @@
       _topoPanX = 0;
       _topoPanY = 0;
       applyTopologyZoom();
+      if (typeof fitTopologyToScreen === "function") {
+        fitTopologyToScreen();
+      }
     }
     function applyTopologyZoom() {
       const svg = document.getElementById('usbBwSvg');
@@ -13715,8 +13707,8 @@
         }
         const isExpanded = !!window._topoWifiExpanded[node.id];
         const clientCardW = 120;
-        const clientCardH = 26;
-        const clientGapY = 32;
+        const clientCardH = 30;
+        const clientGapY = 38;
         const totalH = isExpanded ? (wClients.length * clientGapY) : 0;
         wClients.forEach(wc => { wc._parentRouter = node; });
         const subW = isExpanded ? (clientCardW + 36) : 0;
@@ -13922,7 +13914,43 @@
         const usbSum = bwLinks.reduce((acc, l) => acc + (Number(l.v) || 0), 0);
         if (usbSum > speed) speed = usbSum;
       }
-      return speed >= 10 ? `${Math.round(speed)} Mbps` : (speed > 0 ? `${speed.toFixed(1)} Mbps` : "0.0 Mbps");
+      return `${speed.toFixed(3)} Mbps`;
+    }
+
+    function calcSpeedFlowDuration(speedMbps) {
+      const s = parseFloat(speedMbps) || 0;
+      if (s >= 50) return "0.45s";
+      if (s >= 20) return "0.75s";
+      if (s >= 10) return "1.1s";
+      if (s >= 5)  return "1.5s";
+      if (s >= 1)  return "2.0s";
+      if (s >= 0.1) return "3.0s";
+      return "5.0s";
+    }
+
+    function calcSpeedFlowWidth(speedMbps) {
+      const s = parseFloat(speedMbps) || 0;
+      if (s >= 10) return 2.4;
+      if (s >= 1)  return 1.8;
+      return 1.3;
+    }
+
+    function getDeviceSpeedMbps(ip) {
+      if (!ip) return 0;
+      if (window._clientLiveRateMap && window._clientLiveRateMap.has(ip)) {
+        return window._clientLiveRateMap.get(ip) || 0;
+      }
+      if (window._lastDataCache && Array.isArray(window._lastDataCache.clients)) {
+        const cl = window._lastDataCache.clients.find(c => c && c.ip === ip);
+        if (cl) {
+          const mb = (parseFloat(cl.rx_mb) || 0) + (parseFloat(cl.tx_mb) || 0);
+          if (mb > 1000) return 12.0;
+          if (mb > 200) return 4.0;
+          if (mb > 20) return 0.8;
+          return 0.1;
+        }
+      }
+      return 0;
     }
 
     function buildUsbBwSvg() {
@@ -13973,7 +14001,7 @@
       computeLayeredSubtreeBounds(tree, screenW);
 
       const treeBounds = tree._layout || { subtreeW: 600, subtreeH: 500 };
-      const rootY = prefs.showWan ? (isPhone ? 140 : 156) : (isPhone ? 36 : 42);
+      const rootY = prefs.showWan ? (isPhone ? 165 : 185) : (isPhone ? 50 : 60);
       const initialW = isPhone ? Math.max(390, treeBounds.subtreeW + 60) : Math.max(boxW || 640, treeBounds.subtreeW + 80);
       const rtrCenterX = initialW / 2;
 
@@ -14014,7 +14042,7 @@
         const wanW = isPhone ? 210 : (isTablet ? 230 : 250);
         const wanH = 34;
         const wanX = rtrCenterX - wanW / 2;
-        const wanY = rootY - 82;
+        const wanY = rootY - 96;
 
         globalMinX = Math.min(globalMinX, wanX);
         globalMaxX = Math.max(globalMaxX, wanX + wanW);
@@ -14044,9 +14072,13 @@
           style: (isGlow || isAnim) ? `filter:drop-shadow(0 0 5px ${usbStyle.glowColor || 'rgba(56,189,248,0.7)'});` : ''
         }, edgesLayer);
 
+        const liveWanTotalSpeed = (window._currentRxMbps > 0 || window._currentTxMbps > 0) ?
+          (window._currentRxMbps + window._currentTxMbps) :
+          ((bwLinks && bwLinks[0] && bwLinks[0].v > 0) ? Number(bwLinks[0].v) : 0);
+
         if (isAnim) {
-          const dur = prefs.animSpeed === 'fast' ? '1.0s' : (prefs.animSpeed === 'slow' ? '2.8s' : '1.8s');
-          const circ = mk("circle", { class: "pt", r: 2.4, fill: usbStyle.lineStroke || "#0284c7", style: `fill:${usbStyle.lineStroke || '#0284c7'} !important;` }, edgesLayer);
+          const dur = calcSpeedFlowDuration(liveWanTotalSpeed);
+          const circ = mk("circle", { class: "pt", r: calcSpeedFlowWidth(liveWanTotalSpeed), fill: usbStyle.lineStroke || "#0284c7", style: `fill:${usbStyle.lineStroke || "#0284c7"} !important;` }, edgesLayer);
           const m = mk("animateMotion", { dur: dur, repeatCount: "indefinite" }, circ);
           const mp = mk("mpath", { href: "#" + wanFlowId }, m);
           try { mp.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#" + wanFlowId); } catch (e) {}
@@ -14067,13 +14099,13 @@
           fill: topoTheme.cardBg,
           stroke: usbStyle.lineStroke || "#0284c7",
           "stroke-width": 1.1,
-          style: `filter:${isLight ? 'drop-shadow(0 1px 3px rgba(0,0,0,0.1))' : 'drop-shadow(0 2px 6px rgba(0,0,0,0.6))'};`
+          style: `filter:${isLight ? "drop-shadow(0 1px 3px rgba(0,0,0,0.1))" : "drop-shadow(0 2px 6px rgba(0,0,0,0.6))"};`
         }, wirePillG);
         const tWireSpd = mk("text", {
           x: rtrCenterX,
           y: wireMidY + 3.2,
           "text-anchor": "middle",
-          style: `font-size:7.5px; font-weight:800; font-family:var(--font-mono); fill:${usbStyle.lineStroke || '#0284c7'};`
+          style: `font-size:7.5px; font-weight:800; font-family:var(--font-mono); fill:${usbStyle.lineStroke || "#0284c7"};`
         }, wirePillG);
         tWireSpd.textContent = usbWireSpeed;
 
@@ -14087,12 +14119,16 @@
           style: "cursor:pointer; animation: topoNodeSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;"
         }, nodesLayer);
 
+        const liveWanIpStr = (window._lastDataCache && window._lastDataCache.network && window._lastDataCache.network.wan_ip) ||
+          (window._lastDataCache && window._lastDataCache.multilink && window._lastDataCache.multilink.links && window._lastDataCache.multilink.links[0] && window._lastDataCache.multilink.links[0].ip) ||
+          "10.228.157.161";
+
         wanG.onclick = (e) => {
           showTopoNodeDetail({
             name: "WAN (USB0)",
             type: "wan",
-            ip: (window._lastDataCache && window._lastDataCache.network && window._lastDataCache.network.wan_ip) || "Dynamic 5G",
-            speed: (window._currentRxMbps > 0 || window._currentTxMbps > 0) ? `${(window._currentRxMbps + window._currentTxMbps).toFixed(1)} Mbps` : "0.0 Mbps",
+            ip: liveWanIpStr,
+            speed: `${liveWanTotalSpeed.toFixed(3)} Mbps`,
             status: "online"
           }, false, e);
         };
@@ -14110,31 +14146,38 @@
           style: `filter:${topoTheme.cardShadow};`
         }, wanG);
 
-        // WAN Title without '5G'
+        // WAN Title on top row
         const tWanTitle = mk("text", {
           x: wanX + 10,
-          y: wanY + wanH / 2 + 3.5,
+          y: wanY + 14.5,
           style: `font-size:8.5px; font-weight:800; font-family:var(--font-mono); fill:${topoTheme.textMain};`
         }, wanG);
         tWanTitle.textContent = "WAN (USB0)";
 
+        // WAN IP directly below label
+        const tWanIp = mk("text", {
+          x: wanX + 10,
+          y: wanY + 25.5,
+          style: `font-size:7.5px; font-weight:600; font-family:var(--font-mono); fill:${topoTheme.textMuted};`
+        }, wanG);
+        tWanIp.textContent = liveWanIpStr;
+
         // Draw Hotspot Tethering Icon & Android ADB Icon in WAN card
         const iconTetherX = wanX + 78;
         const iconAdbX = wanX + 94;
-        const iconCenterY = wanY + wanH / 2;
+        const iconCenterY = wanY + 13.5;
         drawTetheringIconSmall(iconTetherX, iconCenterY, "#10b981", wanG);
         drawAdbIconSmall(iconAdbX, iconCenterY, "#38bdf8", wanG);
 
-        // Live measured speed
-        const liveSpeedStr = (window._currentRxMbps > 0 || window._currentTxMbps > 0) ?
-          `${(window._currentRxMbps + window._currentTxMbps).toFixed(1)} Mbps` :
-          ((bwLinks && bwLinks[0] && bwLinks[0].v > 0) ? `${bwLinks[0].v} Mbps` : "0.0 Mbps");
+        // Live measured speed in 0.000 Mbps decimal with soft dark font color
+        const liveSpeedStr = `${liveWanTotalSpeed.toFixed(3)} Mbps`;
+        const softDarkSpeedColor = isLight ? "#334155" : "#94a3b8";
 
         const tWanSpd = mk("text", {
           x: wanX + wanW - 12,
-          y: wanY + wanH / 2 + 3.5,
+          y: wanY + 20.5,
           "text-anchor": "end",
-          style: `font-size:8.5px; font-weight:700; font-family:var(--font-mono); fill:${isLight ? '#0284c7' : '#38bdf8'};`
+          style: `font-size:9.5px; font-weight:800; font-family:var(--font-mono); fill:${softDarkSpeedColor};`
         }, wanG);
         tWanSpd.textContent = liveSpeedStr;
 
@@ -14308,27 +14351,37 @@
           drawRouterApIcon(rtrIconBoxX + 16, rtrIconBoxY + 16, nodeLayerColor, chassisG);
         }
 
-        // Title only (Clean router title, no layer info or IP)
+        // Router Name on top row
         const tTitle = mk("text", {
           x: rtrX + 46,
-          y: l.y + 24,
-          style: `font-size:10.5px; font-weight:800; font-family:var(--font-mono); fill:${topoTheme.textMain};`
+          y: l.y + 16.5,
+          style: `font-size:10px; font-weight:800; font-family:var(--font-mono); fill:${topoTheme.textMain};`
         }, chassisG);
         let apTitle = isRoot ? ((window._lastDataCache && window._lastDataCache.router && window._lastDataCache.router.hostname) || node.name || "MAXNET") : (node.name || "Access Point");
-        if (apTitle.length > 12) apTitle = apTitle.substring(0, 11) + "…";
+        if (apTitle.length > 14) apTitle = apTitle.substring(0, 13) + "…";
         tTitle.textContent = apTitle;
 
-        // Combined Live Speed in Router Header (WAN + Multi-USB + LAN) - Prominent, clean text without background box
+        // Router IP on bottom row directly under router label
+        const tIp = mk("text", {
+          x: rtrX + 46,
+          y: l.y + 28.5,
+          style: `font-size:8px; font-weight:600; font-family:var(--font-mono); fill:${topoTheme.textMuted};`
+        }, chassisG);
+        const rtrIp = node.ip || (isRoot ? ((window._lastDataCache && window._lastDataCache.network && window._lastDataCache.network.lan_ip) || "10.0.0.1") : "10.0.0.2");
+        tIp.textContent = rtrIp;
+
+        // Combined Live Speed in Router Header - Soft Dark font color, 0.000 Mbps format, no background box
         if (isRoot) {
           const spdG = mk("g", { class: "topo-router-combined-speed" }, chassisG);
+          const softDarkSpeedColor = isLight ? "#334155" : "#94a3b8";
           const tSpdVal = mk("text", {
             id: "rtrCombinedSpeed",
             x: rtrX + rtrW - 12,
-            y: l.y + 24.5,
+            y: l.y + 23.5,
             "text-anchor": "end",
-            style: `font-size:12px; font-weight:900; font-family:var(--font-mono); fill:#10b981; letter-spacing:-0.2px; filter:${isLight ? "drop-shadow(0 1px 2px rgba(16,185,129,0.15))" : "drop-shadow(0 1px 3px rgba(16,185,129,0.3))"};`
+            style: `font-size:11px; font-weight:800; font-family:var(--font-mono); fill:${softDarkSpeedColor}; letter-spacing:-0.2px;`
           }, spdG);
-          const curSpd = (typeof getCombinedRouterSpeed === "function") ? getCombinedRouterSpeed() : "0.0 Mbps";
+          const curSpd = (typeof getCombinedRouterSpeed === "function") ? getCombinedRouterSpeed() : "0.000 Mbps";
           tSpdVal.textContent = "⇄ " + curSpd;
         }
 
@@ -14341,46 +14394,7 @@
           fill: isNodeOnline ? "#10b981" : (isLight ? "#94a3b8" : "#52525b")
         }, chassisG);
 
-        // Why? evidence moved to detail sheet (tap card)
-
-
-        // Collapse / Expand toggle for sub-routers
-        if (!isRoot) {
-          const hasChildren = (l.children && l.children.length > 0) || isCollapsed;
-          if (hasChildren) {
-            const btnG = mk("g", { style: "cursor:pointer;" }, chassisG);
-            btnG.onclick = (e) => {
-              e.stopPropagation();
-              if (!window._topoManualToggleNodes) window._topoManualToggleNodes = new Set();
-              window._topoManualToggleNodes.add(node.id);
-              if (window._topoCollapsed.has(node.id)) {
-                window._topoCollapsed.delete(node.id);
-              } else {
-                window._topoCollapsed.add(node.id);
-              }
-              buildUsbBwSvg();
-              setTimeout(fitTopologyToScreen, 60);
-            };
-            mk("rect", {
-              x: rtrX + rtrW - 24,
-              y: l.y + 14,
-              width: 16,
-              height: 16,
-              rx: 3,
-              ry: 3,
-              fill: isLight ? "#f1f5f9" : "rgba(255,255,255,0.06)",
-              stroke: topoTheme.cardBorder,
-              "stroke-width": 0.8
-            }, btnG);
-            const tBtn = mk("text", {
-              x: rtrX + rtrW - 16,
-              y: l.y + 25.5,
-              "text-anchor": "middle",
-              style: `font-size:9px; font-weight:900; font-family:var(--font-mono); fill:${topoTheme.textMain};`
-            }, btnG);
-            tBtn.textContent = isCollapsed ? "+" : "-";
-          }
-        }
+        // Fold/unfold toggle button removed completely per user instruction
 
         // Chassis Divider Line
         mk("line", {
@@ -14570,9 +14584,12 @@
               style: (c.type === 'wifi_cluster' ? "stroke-dasharray:3 2.5; " : "") + ((prefs.animMode === 'glow' || prefs.animMode === 'flowing') ? `filter:drop-shadow(0 0 3px ${conduitColor});` : '')
             }, edgesLayer);
 
-            if (prefs.animMode === 'flowing') {
-              const dur = prefs.animSpeed === 'fast' ? '1.2s' : (prefs.animSpeed === 'slow' ? '3.5s' : '2.2s');
-              const cCirc = mk("circle", { class: "pt", r: 1.8, fill: conduitColor, style: `fill:${conduitColor} !important;` }, edgesLayer);
+            if (prefs.animMode === "flowing") {
+              const linkChildIp = (c.child && c.child.ip) || (c.clients && c.clients[0] && c.clients[0].ip);
+              const edgeSpeed = getDeviceSpeedMbps(linkChildIp);
+              const dur = calcSpeedFlowDuration(edgeSpeed);
+              const ptRadius = calcSpeedFlowWidth(edgeSpeed);
+              const cCirc = mk("circle", { class: "pt", r: ptRadius, fill: conduitColor, style: `fill:${conduitColor} !important;` }, edgesLayer);
               const m = mk("animateMotion", { dur: dur, repeatCount: "indefinite" }, cCirc);
               const mp = mk("mpath", { href: "#" + cId }, m);
               try { mp.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#" + cId); } catch (e) {}
@@ -14631,17 +14648,17 @@
             }, edgesLayer);
 
             c.clients.forEach((wc, wIdx) => {
-              const wcY = startListY + wIdx * 32;
+              const wcY = startListY + wIdx * 38;
               const wcW = clientCardW;
-              const wcH = clientCardH;
+              const wcH = 30;
               const wcX = trunkX + 12;
-              const isWcOnline = (wc.status !== 'offline');
+              const isWcOnline = (wc.status !== "offline");
               const wcNodeId = wc.id || wc.ip || wc.mac || `wc-${wIdx}`;
 
               globalMaxX = Math.max(globalMaxX, wcX + wcW + 10);
               globalMaxY = Math.max(globalMaxY, wcY + wcH + 10);
 
-              const isWcBlocked = (typeof blockedIps !== 'undefined' && blockedIps.has(wc.ip)) || !!wc.blocked;
+              const isWcBlocked = (typeof blockedIps !== "undefined" && blockedIps.has(wc.ip)) || !!wc.blocked;
               const wcStatusCol = isWcBlocked ? "#ef4444" : (isWcOnline ? "#10b981" : (isLight ? "#94a3b8" : "#52525b"));
               const wcBorderCol = isWcBlocked ? "#ef4444" : (isWcOnline ? wifiCol : topoTheme.cardBorderIdle);
 
@@ -14655,30 +14672,31 @@
                 style: "opacity:0.4; stroke-dasharray:3 2.5;"
               }, edgesLayer);
 
-              if (isWcOnline && (prefs.animMode === 'flowing' || !prefs.animMode)) {
+              const clientSpeed = getDeviceSpeedMbps(wc.ip);
+              if (isWcOnline && (prefs.animMode === "flowing" || !prefs.animMode)) {
                 const branchFlowId = `topoWifiBranch_${nodeId}_${wIdx}`;
                 mk("path", {
                   id: branchFlowId,
                   class: "flow",
                   d: branchPathD,
                   stroke: wifiCol,
-                  "stroke-width": 1.5,
+                  "stroke-width": calcSpeedFlowWidth(clientSpeed),
                   fill: "none",
-                  style: (prefs.animMode === 'glow' || prefs.animMode === 'flowing') ? `filter:drop-shadow(0 0 3px ${wifiCol});` : ''
+                  style: (prefs.animMode === "glow" || prefs.animMode === "flowing") ? `filter:drop-shadow(0 0 3px ${wifiCol});` : ""
                 }, edgesLayer);
 
-                const cCirc = mk("circle", { class: "pt", r: 1.4, fill: wifiCol, style: `fill:${wifiCol} !important;` }, edgesLayer);
-                const m = mk("animateMotion", { dur: "2.4s", repeatCount: "indefinite" }, cCirc);
+                const cCirc = mk("circle", { class: "pt", r: calcSpeedFlowWidth(clientSpeed), fill: wifiCol, style: `fill:${wifiCol} !important;` }, edgesLayer);
+                const m = mk("animateMotion", { dur: calcSpeedFlowDuration(clientSpeed), repeatCount: "indefinite" }, cCirc);
                 const mp = mk("mpath", { href: "#" + branchFlowId }, m);
                 try { mp.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#" + branchFlowId); } catch (e) {}
               }
 
               // Client Device Card in NODES LAYER
               const wcG = mk("g", {
-                class: `topo-lan-device-node ${isWcOnline ? '' : 'topo-offline-node'}`,
+                class: `topo-lan-device-node ${isWcOnline ? "" : "topo-offline-node"}`,
                 "data-node-id": wcNodeId,
                 role: "treeitem",
-                "aria-label": `${wc.name || 'Wireless Device'} ${wc.ip || ''}`,
+                "aria-label": `${wc.name || "Wireless Device"} ${wc.ip || ""}`,
                 tabindex: "0",
                 style: "cursor:pointer;"
               }, nodesLayer);
@@ -14693,18 +14711,18 @@
                 y: wcY,
                 width: wcW,
                 height: wcH,
-                rx: 5,
-                ry: 5,
+                rx: 6,
+                ry: 6,
                 fill: topoTheme.cardBg,
                 stroke: wcBorderCol,
                 "stroke-width": 1.0,
-                style: `filter:${isLight ? 'drop-shadow(0 1px 3px rgba(0,0,0,0.04))' : 'drop-shadow(0 2px 6px rgba(0,0,0,0.4))'};`
+                style: `filter:${isLight ? "drop-shadow(0 1px 3px rgba(0,0,0,0.04))" : "drop-shadow(0 2px 6px rgba(0,0,0,0.4))"};`
               }, wcG);
 
               const wcIconBoxX = wcX + 4;
-              const wcIconBoxY = wcY + 3;
-              const wcIconBoxW = 20;
-              const wcIconBoxH = 20;
+              const wcIconBoxY = wcY + 4;
+              const wcIconBoxW = 22;
+              const wcIconBoxH = 22;
               mk("rect", {
                 x: wcIconBoxX,
                 y: wcIconBoxY,
@@ -14714,25 +14732,32 @@
                 ry: 4,
                 fill: isLight ? "rgba(0,0,0,0.025)" : "rgba(255,255,255,0.025)"
               }, wcG);
-              const wcClass = (typeof classifyLanDevice === 'function') ? classifyLanDevice(wc) : { type: 'phone', color: wifiCol };
+              const wcClass = (typeof classifyLanDevice === "function") ? classifyLanDevice(wc) : { type: "phone", color: wifiCol };
               drawLanClientDeviceIcon(wcIconBoxX + wcIconBoxW / 2, wcIconBoxY + wcIconBoxH / 2, { ...wcClass, color: isWcOnline ? wifiCol : topoTheme.textDim }, wcG);
 
-              // ONLY label/name (fallback to 'Unknown Device', NO IP, NO 2.4GHz)
+              // Two-row layout: Device name on top, IP directly below
               let wcName = resolveDeviceDisplayName(wc);
               if (wcName.length > 13) wcName = wcName.substring(0, 12) + "…";
 
               const tWcName = mk("text", {
-                x: wcX + 28,
-                y: wcY + 16.5,
+                x: wcX + 30,
+                y: wcY + 13.5,
                 style: `font-size:8px; font-weight:800; font-family:var(--font-mono); fill:${isWcOnline ? topoTheme.textMain : topoTheme.textDim};`
               }, wcG);
               tWcName.textContent = wcName;
 
+              const tWcIp = mk("text", {
+                x: wcX + 30,
+                y: wcY + 23.5,
+                style: `font-size:7.2px; font-weight:600; font-family:var(--font-mono); fill:${topoTheme.textMuted};`
+              }, wcG);
+              tWcIp.textContent = wc.ip || "--";
+
               // Status dot at top-left
               mk("circle", {
-                cx: wcX + 5,
-                cy: wcY + 5,
-                r: 1.8,
+                cx: wcX + 4.5,
+                cy: wcY + 4.5,
+                r: 1.6,
                 class: (isWcOnline && !isWcBlocked) ? "topo-pulse-dot" : "",
                 fill: wcStatusCol
               }, wcG);
@@ -14749,7 +14774,7 @@
       const finalMinX = Math.min(0, globalMinX - pad);
       const finalMaxX = Math.max(initialW, globalMaxX + pad);
       // Offset viewBox upwards so the top elements appear clearly below the floating header
-      const finalMinY = (prefs.showWan ? Math.min(0, rootY - 82) : 0) - 28;
+      const finalMinY = (prefs.showWan ? Math.min(0, rootY - 96) : 0) - 36;
       const finalMaxY = Math.max(isPhone ? 540 : 560, globalMaxY + 50);
 
       const finalW = finalMaxX - finalMinX;
@@ -14807,13 +14832,14 @@
       const displayTotal = total >= 10 ? Math.round(total) : (total > 0 ? (total >= 10 ? Math.round(total) : total.toFixed(1)) : "0.0");
       if (bwUi.cv) bwUi.cv.textContent = displayTotal;
 
-      // Update WAN chip live speed dynamically (strictly measured live speed ONLY)
+      // Update WAN chip live speed dynamically in 0.000 Mbps format with soft dark color
       const wanSpdEl = document.querySelector('.topo-wan-chip text:last-of-type');
       if (wanSpdEl) {
-        const liveSpeedStr = (window._currentRxMbps > 0 || window._currentTxMbps > 0) ?
-          `${(window._currentRxMbps + window._currentTxMbps).toFixed(1)} Mbps` :
-          ((bwLinks && bwLinks[0] && bwLinks[0].v > 0) ? `${bwLinks[0].v} Mbps` : "0.0 Mbps");
-        wanSpdEl.textContent = liveSpeedStr;
+        const liveWanTotalSpeed = (window._currentRxMbps > 0 || window._currentTxMbps > 0) ?
+          (window._currentRxMbps + window._currentTxMbps) :
+          ((bwLinks && bwLinks[0] && bwLinks[0].v > 0) ? Number(bwLinks[0].v) : 0);
+        wanSpdEl.textContent = `${liveWanTotalSpeed.toFixed(3)} Mbps`;
+        wanSpdEl.style.fill = (document.documentElement.getAttribute("data-theme") === "light") ? "#334155" : "#94a3b8";
       }
 
       // Update router chassis combined speed badge dynamically
@@ -15211,6 +15237,27 @@
       window._lastRxBytes = liveRx;
       window._lastTxBytes = liveTx;
       window._lastTs = now;
+
+      // Compute per-client live rates for dynamic animation speeds
+      if (!window._clientRatePrev) window._clientRatePrev = new Map();
+      if (!window._clientLiveRateMap) window._clientLiveRateMap = new Map();
+      if (d.clients && Array.isArray(d.clients)) {
+        d.clients.forEach(c => {
+          if (!c || !c.ip) return;
+          const curBytes = (Number(c.rx_bytes) || 0) + (Number(c.tx_bytes) || 0) || (((parseFloat(c.rx_mb) || 0) + (parseFloat(c.tx_mb) || 0)) * 1048576);
+          const prev = window._clientRatePrev.get(c.ip);
+          if (prev && curBytes >= prev.bytes) {
+            const dtSec = (now - prev.ts) / 1000;
+            if (dtSec > 0.3) {
+              const rate = ((curBytes - prev.bytes) * 8) / (dtSec * 1000000);
+              window._clientLiveRateMap.set(c.ip, rate);
+              window._clientRatePrev.set(c.ip, { bytes: curBytes, ts: now });
+            }
+          } else {
+            window._clientRatePrev.set(c.ip, { bytes: curBytes, ts: now });
+          }
+        });
+      }
 
       // Update Realtime Speed in Top Banner
       const bannerLiveRx = document.getElementById('bannerLiveRxSpeed');
@@ -22753,30 +22800,60 @@ function onRemoveWifiClient(nodeId, clientIdent) {
           healthBorder = 'rgba(239,68,68,0.25)';
         }
 
-        // Update Unified 5-Item Device Telemetry Strip (CPU, RAM, TEMP, UPTIME, HEALTH)
-        const badgeDot = document.getElementById('deviceHealthStatusDot');
-        const badgeText = document.getElementById('deviceHealthStatusText');
-        const statusValWrap = document.getElementById('deviceHealthStatusValWrap');
-        const circleCpuVal = document.getElementById('deviceHealthCpuVal');
-        const circleRamVal = document.getElementById('deviceHealthRamVal');
-        const circleTempVal = document.getElementById('deviceHealthTempVal');
-        const circleUptimeVal = document.getElementById('deviceHealthUptimeVal');
+        // Update Unified Device Health Card dynamically from CPU, RAM, and Thermals
+        const cpuPct = parseFloat(cpu.usage_pct) || 0;
+        const ramPct = parseFloat(mem.used_pct) || 0;
+        const healthCard = document.getElementById("deviceHealthCard");
+        const healthIcon = document.getElementById("deviceHealthIconBox");
+        const healthBadge = document.getElementById("deviceHealthStatusBadge");
+        const healthSub = document.getElementById("deviceHealthSummarySub");
+        const healthPulse = document.getElementById("deviceHealthPulse");
 
-        if (badgeText) badgeText.textContent = healthState;
-        if (badgeDot) badgeDot.style.background = healthColor;
-        if (statusValWrap) statusValWrap.style.color = healthColor;
+        const healthIssues = [];
+        if (cpuPct > 85) healthIssues.push(`High CPU load (${cpuPct}%)`);
+        if (ramPct > 90) healthIssues.push(`High memory usage (${ramPct}%)`);
+        if (maxTemp > 75) healthIssues.push(`Elevated thermal temperature (${maxTemp.toFixed(1)}°C)`);
 
-        if (circleCpuVal) circleCpuVal.textContent = `${cpu.usage_pct ?? 0}%`;
-        if (circleRamVal) circleRamVal.textContent = `${mem.used_pct ?? 0}%`;
-        if (circleTempVal) {
-          circleTempVal.textContent = `${maxTemp.toFixed(1)}°C`;
-          circleTempVal.style.color = healthColor;
+        let overallHealth = "HEALTHY";
+        let overallCol = "#10b981";
+        let overallBg = "rgba(16,185,129,0.06)";
+        let overallBorder = "rgba(16,185,129,0.22)";
+        let overallSub = `All Systems Nominal • CPU (${cpuPct}%), RAM (${ramPct}%), Temp (${maxTemp > 0 ? maxTemp.toFixed(1) + "°C" : "Optimal"})`;
+
+        if (healthIssues.length > 0) {
+          if (cpuPct > 95 || ramPct > 95 || maxTemp > 85) {
+            overallHealth = "CRITICAL";
+            overallCol = "#ef4444";
+            overallBg = "rgba(239,68,68,0.08)";
+            overallBorder = "rgba(239,68,68,0.3)";
+            overallSub = `Critical Anomaly • ${healthIssues.join(", ")}`;
+          } else {
+            overallHealth = "WARNING";
+            overallCol = "#f59e0b";
+            overallBg = "rgba(245,158,11,0.08)";
+            overallBorder = "rgba(245,158,11,0.3)";
+            overallSub = `Suboptimal State • ${healthIssues.join(", ")}`;
+          }
         }
-        if (circleUptimeVal) {
-          const rawUptime = sys.uptime_str || '--';
-          circleUptimeVal.textContent = rawUptime.replace(/^0d\s*/, '');
-        }
 
+        if (healthCard) {
+          healthCard.style.background = overallBg;
+          healthCard.style.borderColor = overallBorder;
+        }
+        if (healthIcon) {
+          healthIcon.style.color = overallCol;
+          healthIcon.style.background = overallCol === "#10b981" ? "rgba(16,185,129,0.15)" : (overallCol === "#f59e0b" ? "rgba(245,158,11,0.15)" : "rgba(239,68,68,0.15)");
+        }
+        if (healthBadge) {
+          healthBadge.textContent = overallHealth;
+          healthBadge.style.color = overallCol;
+          healthBadge.style.background = overallCol === "#10b981" ? "rgba(16,185,129,0.15)" : (overallCol === "#f59e0b" ? "rgba(245,158,11,0.15)" : "rgba(239,68,68,0.15)");
+        }
+        if (healthSub) healthSub.textContent = overallSub;
+        if (healthPulse) {
+          healthPulse.style.background = overallCol;
+          healthPulse.style.boxShadow = `0 0 8px ${overallCol}`;
+        }
         // Thermals
         renderDeviceInfoThermals(data.thermals || []);
 
