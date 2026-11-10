@@ -8563,21 +8563,15 @@
           </div>
           <div class="accordion-content">
             <div class="settings-card-body">
-              <!-- DEVICE HEALTH SUMMARY CARD (DERIVED FROM CPU, RAM, AND ALL THERMALS) -->
-              <div class="device-health-summary-card" id="deviceHealthCard" style="background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.22); border-radius:10px; padding:12px 14px; margin-bottom:14px; display:flex; align-items:center; justify-content:space-between; gap:12px; transition:all 0.2s ease;">
-                <div style="display:flex; align-items:center; gap:10px;">
-                  <div id="deviceHealthIconBox" style="width:36px; height:36px; border-radius:8px; background:rgba(16,185,129,0.15); display:flex; align-items:center; justify-content:center; color:#10b981; flex-shrink:0;">
-                    <svg viewBox="0 0 24 24" style="width:20px; height:20px; stroke:currentColor; fill:none; stroke-width:2;"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-                  </div>
-                  <div>
-                    <div style="display:flex; align-items:center; gap:6px;">
-                      <span style="font-size:10px; font-weight:800; font-family:var(--font-mono); color:var(--text-dim); text-transform:uppercase; letter-spacing:0.5px;">DEVICE HEALTH</span>
-                      <span id="deviceHealthStatusBadge" style="font-size:10px; font-weight:900; font-family:var(--font-mono); padding:2px 8px; border-radius:10px; background:rgba(16,185,129,0.15); color:#10b981;">HEALTHY</span>
-                    </div>
-                    <div id="deviceHealthSummarySub" style="font-size:11px; color:var(--text-main); font-family:var(--font-mono); margin-top:3px; font-weight:600;">All Systems Nominal &bull; CPU, RAM, and Thermals in Optimal Range</div>
-                  </div>
+              <!-- DEVICE HEALTH ROW: STANDARD SETTING ROW WITH STATUS CAPSULE ON RIGHT -->
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Device Health</span>
+                  <span class="setting-label-sub" id="deviceHealthSummarySub">All Systems Nominal &bull; CPU, RAM, and Thermals in Optimal Range</span>
                 </div>
-                <div id="deviceHealthPulse" style="width:9px; height:9px; border-radius:50%; background:#10b981; box-shadow:0 0 8px #10b981; flex-shrink:0;"></div>
+                <div class="setting-control-col">
+                  <span class="setting-status-badge badge-active" id="deviceHealthStatusBadge">HEALTHY</span>
+                </div>
               </div>
 
               <!-- SECTION 1: PROCESSOR & SOC -->
@@ -13147,7 +13141,25 @@
       return g;
     }
 
-    function drawStorageIconSmall(x, y, color, parent) {
+        function drawMobilePhoneIcon(x, y, color, parent) {
+      const g = mk("g", { class: "wan-icon-mobile", style: `color:${color || "#38bdf8"}; pointer-events:none;` }, parent);
+      mk("rect", { x: x - 4.5, y: y - 7.5, width: 9, height: 15, rx: 2, fill: "none", stroke: "currentColor", "stroke-width": 1.2 }, g);
+      mk("line", { x1: x - 2, y1: y - 5, x2: x + 2, y2: y - 5, stroke: "currentColor", "stroke-width": 0.9, "stroke-linecap": "round" }, g);
+      mk("circle", { cx: x, cy: y + 5, r: 0.8, fill: "currentColor" }, g);
+      return g;
+    }
+
+    function drawPendriveIcon(x, y, color, parent) {
+      const g = mk("g", { class: "wan-icon-pendrive", style: `color:${color || "#c084fc"}; pointer-events:none;` }, parent);
+      mk("rect", { x: x - 2.5, y: y - 7.5, width: 5, height: 3.5, rx: 0.5, fill: "none", stroke: "currentColor", "stroke-width": 1.0 }, g);
+      mk("line", { x1: x - 1, y1: y - 6.5, x2: x - 1, y2: y - 5, stroke: "currentColor", "stroke-width": 0.8 }, g);
+      mk("line", { x1: x + 1, y1: y - 6.5, x2: x + 1, y2: y - 5, stroke: "currentColor", "stroke-width": 0.8 }, g);
+      mk("rect", { x: x - 4, y: y - 4, width: 8, height: 11, rx: 1.5, fill: "none", stroke: "currentColor", "stroke-width": 1.2 }, g);
+      mk("line", { x1: x - 2, y1: y + 4, x2: x + 2, y2: y + 4, stroke: "currentColor", "stroke-width": 0.9, "stroke-linecap": "round" }, g);
+      return g;
+    }
+
+function drawStorageIconSmall(x, y, color, parent) {
       const g = mk("g", { class: "dev-icon-storage", style: `color:${color || '#c084fc'}; cursor:help;` }, parent);
       mk("title", {}, g).textContent = "USB Storage (SMB)";
       mk("rect", { x: x - 2, y: y - 4.5, width: 4, height: 2.5, fill: "none", stroke: "currentColor", "stroke-width": 0.9 }, g);
@@ -14144,9 +14156,37 @@
           style: `filter:${topoTheme.cardShadow};`
         }, wanG);
 
+        // Detect connected USB device type: mobile phone vs storage/pendrive
+        const uDev = (window._lastDataCache && Array.isArray(window._lastDataCache.usb_devices) && window._lastDataCache.usb_devices[0]) || {};
+        const isStorageDev = (uDev.device_type === "storage" || uDev.device_type === "ssd" || uDev.device_type === "pendrive" || uDev.has_storage);
+        const isMobileDev = !isStorageDev && (uDev.device_type === "phone" || uDev.has_tethering || !!(window._lastDataCache && window._lastDataCache.mobile && window._lastDataCache.mobile.connected));
+
+        // Fixed icon container box on the left side of WAN card
+        const wanIconBoxX = wanX + 6;
+        const wanIconBoxY = wanY + 6;
+        const wanIconBoxW = 24;
+        const wanIconBoxH = 24;
+        mk("rect", {
+          x: wanIconBoxX,
+          y: wanIconBoxY,
+          width: wanIconBoxW,
+          height: wanIconBoxH,
+          rx: 5,
+          ry: 5,
+          fill: isLight ? "rgba(0,0,0,0.025)" : "rgba(255,255,255,0.025)"
+        }, wanG);
+
+        if (isStorageDev) {
+          drawPendriveIcon(wanIconBoxX + wanIconBoxW / 2, wanIconBoxY + wanIconBoxH / 2, "#c084fc", wanG);
+        } else {
+          drawMobilePhoneIcon(wanIconBoxX + wanIconBoxW / 2, wanIconBoxY + wanIconBoxH / 2, "#38bdf8", wanG);
+        }
+
+        const textStartX = wanX + 36;
+
         // WAN Title on top row
         const tWanTitle = mk("text", {
-          x: wanX + 10,
+          x: textStartX,
           y: wanY + 14.5,
           style: `font-size:8.5px; font-weight:800; font-family:var(--font-mono); fill:${topoTheme.textMain};`
         }, wanG);
@@ -14154,18 +14194,20 @@
 
         // WAN IP directly below label
         const tWanIp = mk("text", {
-          x: wanX + 10,
+          x: textStartX,
           y: wanY + 25.5,
           style: `font-size:7.5px; font-weight:600; font-family:var(--font-mono); fill:${topoTheme.textMuted};`
         }, wanG);
         tWanIp.textContent = liveWanIpStr;
 
-        // Draw Hotspot Tethering Icon & Android ADB Icon in WAN card
-        const iconTetherX = wanX + 78;
-        const iconAdbX = wanX + 94;
-        const iconCenterY = wanY + 13.5;
-        drawTetheringIconSmall(iconTetherX, iconCenterY, "#10b981", wanG);
-        drawAdbIconSmall(iconAdbX, iconCenterY, "#38bdf8", wanG);
+        // Draw Hotspot Tethering Icon & Android ADB Icon in WAN card if mobile
+        if (!isStorageDev) {
+          const iconTetherX = textStartX + 66;
+          const iconAdbX = textStartX + 80;
+          const iconCenterY = wanY + 13.5;
+          drawTetheringIconSmall(iconTetherX, iconCenterY, "#10b981", wanG);
+          drawAdbIconSmall(iconAdbX, iconCenterY, "#38bdf8", wanG);
+        }
 
         // Live measured speed in 0.000 Mbps decimal with soft dark font color
         const liveSpeedStr = `${liveWanTotalSpeed.toFixed(3)} Mbps`;
@@ -22798,14 +22840,11 @@ function onRemoveWifiClient(nodeId, clientIdent) {
           healthBorder = 'rgba(239,68,68,0.25)';
         }
 
-        // Update Unified Device Health Card dynamically from CPU, RAM, and Thermals
+        // Update Device Health row dynamically from CPU, RAM, and Thermals
         const cpuPct = parseFloat(cpu.usage_pct) || 0;
         const ramPct = parseFloat(mem.used_pct) || 0;
-        const healthCard = document.getElementById("deviceHealthCard");
-        const healthIcon = document.getElementById("deviceHealthIconBox");
         const healthBadge = document.getElementById("deviceHealthStatusBadge");
         const healthSub = document.getElementById("deviceHealthSummarySub");
-        const healthPulse = document.getElementById("deviceHealthPulse");
 
         const healthIssues = [];
         if (cpuPct > 85) healthIssues.push(`High CPU load (${cpuPct}%)`);
@@ -22813,45 +22852,35 @@ function onRemoveWifiClient(nodeId, clientIdent) {
         if (maxTemp > 75) healthIssues.push(`Elevated thermal temperature (${maxTemp.toFixed(1)}°C)`);
 
         let overallHealth = "HEALTHY";
-        let overallCol = "#10b981";
-        let overallBg = "rgba(16,185,129,0.06)";
-        let overallBorder = "rgba(16,185,129,0.22)";
         let overallSub = `All Systems Nominal • CPU (${cpuPct}%), RAM (${ramPct}%), Temp (${maxTemp > 0 ? maxTemp.toFixed(1) + "°C" : "Optimal"})`;
 
-        if (healthIssues.length > 0) {
-          if (cpuPct > 95 || ramPct > 95 || maxTemp > 85) {
-            overallHealth = "CRITICAL";
-            overallCol = "#ef4444";
-            overallBg = "rgba(239,68,68,0.08)";
-            overallBorder = "rgba(239,68,68,0.3)";
-            overallSub = `Critical Anomaly • ${healthIssues.join(", ")}`;
-          } else {
-            overallHealth = "WARNING";
-            overallCol = "#f59e0b";
-            overallBg = "rgba(245,158,11,0.08)";
-            overallBorder = "rgba(245,158,11,0.3)";
-            overallSub = `Suboptimal State • ${healthIssues.join(", ")}`;
-          }
-        }
-
-        if (healthCard) {
-          healthCard.style.background = overallBg;
-          healthCard.style.borderColor = overallBorder;
-        }
-        if (healthIcon) {
-          healthIcon.style.color = overallCol;
-          healthIcon.style.background = overallCol === "#10b981" ? "rgba(16,185,129,0.15)" : (overallCol === "#f59e0b" ? "rgba(245,158,11,0.15)" : "rgba(239,68,68,0.15)");
-        }
         if (healthBadge) {
+          if (healthIssues.length > 0) {
+            if (cpuPct > 95 || ramPct > 95 || maxTemp > 85) {
+              overallHealth = "CRITICAL";
+              overallSub = `Critical Anomaly • ${healthIssues.join(", ")}`;
+              healthBadge.className = "setting-status-badge";
+              healthBadge.style.background = "rgba(239,68,68,0.12)";
+              healthBadge.style.color = "#ef4444";
+              healthBadge.style.border = "1px solid rgba(239,68,68,0.3)";
+            } else {
+              overallHealth = "WARNING";
+              overallSub = `Suboptimal State • ${healthIssues.join(", ")}`;
+              healthBadge.className = "setting-status-badge";
+              healthBadge.style.background = "rgba(245,158,11,0.12)";
+              healthBadge.style.color = "#f59e0b";
+              healthBadge.style.border = "1px solid rgba(245,158,11,0.3)";
+            }
+          } else {
+            overallHealth = "HEALTHY";
+            healthBadge.className = "setting-status-badge badge-active";
+            healthBadge.style.background = "";
+            healthBadge.style.color = "";
+            healthBadge.style.border = "";
+          }
           healthBadge.textContent = overallHealth;
-          healthBadge.style.color = overallCol;
-          healthBadge.style.background = overallCol === "#10b981" ? "rgba(16,185,129,0.15)" : (overallCol === "#f59e0b" ? "rgba(245,158,11,0.15)" : "rgba(239,68,68,0.15)");
         }
         if (healthSub) healthSub.textContent = overallSub;
-        if (healthPulse) {
-          healthPulse.style.background = overallCol;
-          healthPulse.style.boxShadow = `0 0 8px ${overallCol}`;
-        }
         // Thermals
         renderDeviceInfoThermals(data.thermals || []);
 
