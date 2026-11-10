@@ -402,15 +402,25 @@
     }
 
     /* APP VIEWPORT CONTAINER */
+    #tabOverview {
+      width: 100% !important;
+      max-width: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
     .app-viewport {
       position: relative;
       width: 100%;
       min-height: 100vh;
+      padding: 0 !important;
+      box-sizing: border-box;
+    }
+    #tabSettings {
       padding: 14px 20px 20px 20px !important;
       box-sizing: border-box;
     }
     @media (max-width: 600px) {
-      .app-viewport { padding: 10px 8px 16px 8px !important; }
+      #tabSettings { padding: 10px 8px 16px 8px !important; }
     }
 
     .maxnet-header {
@@ -3555,7 +3565,7 @@
       inset: 0;
       pointer-events: none;
       background-image: radial-gradient(var(--grid-dot) 1.85px, transparent 1.85px);
-      background-size: 26px 26px;
+      background-size: 16px 16px;
       background-position: 0 0;
       z-index: 0;
     }
@@ -3632,7 +3642,7 @@
       position: relative;
       flex: 1;
       width: 100%;
-      min-height: calc(100vh - 65px);
+      min-height: calc(100vh - 56px);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -3641,6 +3651,9 @@
       user-select: none;
       -webkit-user-select: none;
       background: transparent;
+    }
+    .bw-box svg {
+      overflow: visible !important;
     }
     [data-theme="light"] .bw-box {
       background: transparent;
@@ -12066,6 +12079,7 @@
 
     // INTERACTIVE PAN & DRAG FOR TOPOLOGY CANVAS WITH TOUCH INERTIA, PINCH-ZOOM & KEYBOARD NAV
     let _isTopoDragging = false;
+    let _topoHasMoved = false;
     let _dragStartX = 0;
     let _dragStartY = 0;
     let _dragInitPanX = 0;
@@ -12097,6 +12111,7 @@
         if (e.target.closest('button') || e.target.closest('.topo-toolbar') || e.target.closest('select') || e.target.closest('.round-action-btn') || e.target.closest('#topoMinimapContainer')) return;
         if (_inertiaAnimId) { cancelAnimationFrame(_inertiaAnimId); _inertiaAnimId = null; }
         _isTopoDragging = true;
+        _topoHasMoved = false;
         _dragStartX = e.clientX;
         _dragStartY = e.clientY;
         _dragInitPanX = _topoPanX;
@@ -12111,10 +12126,13 @@
 
       window.addEventListener('mousemove', (e) => {
         if (!_isTopoDragging) return;
-        const now = performance.now();
-        const dt = Math.max(1, now - _lastTouchTime);
         const dx = e.clientX - _dragStartX;
         const dy = e.clientY - _dragStartY;
+        if (!_topoHasMoved && Math.hypot(dx, dy) > 5) {
+          _topoHasMoved = true;
+        }
+        const now = performance.now();
+        const dt = Math.max(1, now - _lastTouchTime);
         _touchVelX = (e.clientX - _lastTouchX) / dt;
         _touchVelY = (e.clientY - _lastTouchY) / dt;
         _lastTouchX = e.clientX;
@@ -12130,6 +12148,9 @@
           _isTopoDragging = false;
           if (box) box.style.cursor = '';
           applyTopoTransform(true);
+          if (_topoHasMoved) {
+            setTimeout(() => { _topoHasMoved = false; }, 80);
+          }
         }
       });
 
@@ -12143,6 +12164,7 @@
 
         if (e.touches.length === 1) {
           _isTopoDragging = true;
+          _topoHasMoved = false;
           _dragStartX = e.touches[0].clientX;
           _dragStartY = e.touches[0].clientY;
           _dragInitPanX = _topoPanX;
@@ -12165,18 +12187,21 @@
       box.addEventListener('touchmove', (e) => {
         if (e.touches.length === 1 && _isTopoDragging) {
           e.preventDefault();
-          const now = performance.now();
-          const dt = Math.max(1, now - _lastTouchTime);
           const tX = e.touches[0].clientX;
           const tY = e.touches[0].clientY;
+          const dx = tX - _dragStartX;
+          const dy = tY - _dragStartY;
+          if (!_topoHasMoved && Math.hypot(dx, dy) > 5) {
+            _topoHasMoved = true;
+          }
+          const now = performance.now();
+          const dt = Math.max(1, now - _lastTouchTime);
           _touchVelX = (tX - _lastTouchX) / dt;
           _touchVelY = (tY - _lastTouchY) / dt;
           _lastTouchX = tX;
           _lastTouchY = tY;
           _lastTouchTime = now;
 
-          const dx = tX - _dragStartX;
-          const dy = tY - _dragStartY;
           _topoPanX = _dragInitPanX + dx;
           _topoPanY = _dragInitPanY + dy;
           applyTopoTransform(false);
@@ -12196,6 +12221,9 @@
         if (e.touches.length === 0) {
           _isTopoDragging = false;
           _touchPinchDist = 0;
+          if (_topoHasMoved) {
+            setTimeout(() => { _topoHasMoved = false; }, 80);
+          }
 
           // Double tap to toggle zoom between 1.0 and 1.45
           const now = performance.now();
@@ -12340,6 +12368,7 @@
 
     function showTopoNodeDetail(target, isPort, e) {
       if (e && e.stopPropagation) e.stopPropagation();
+      if (_topoHasMoved || _isTopoDragging) return;
       _activeDetailTarget = target;
       _activeDetailIsPort = !!isPort;
 
@@ -13661,6 +13690,7 @@
     }
 
     function highlightPathToRoot(targetNode) {
+      if (_topoHasMoved || _isTopoDragging) return;
       const svg = document.getElementById('usbBwSvg');
       if (!svg) return;
       svg.querySelectorAll('.topo-selected-box, .topo-path-highlight, .topo-dimmed').forEach(el => {
