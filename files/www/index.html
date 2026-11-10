@@ -3639,6 +3639,15 @@
       touch-action: none;
       user-select: none;
       -webkit-user-select: none;
+      background-size: 36px 36px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+    }
+    [data-theme="light"] .bw-box {
+      background-image: 
+        linear-gradient(to right, rgba(15, 25, 40, 0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(15, 25, 40, 0.05) 1px, transparent 1px);
     }
     .bw-box svg {
       width: 100% !important;
@@ -5639,14 +5648,6 @@
       color: #09090b;
       border-color: rgba(0, 0, 0, 0.12);
     }
-    .topo-tool-btn-text {
-      width: auto;
-      padding: 0 6px;
-      font-size: 10px;
-      font-weight: 700;
-      font-family: var(--font-mono);
-      letter-spacing: 0.2px;
-    }
     .topo-tool-icon {
       width: 15px;
       height: 15px;
@@ -5721,40 +5722,6 @@
       box-shadow: 0 0 14px rgba(56, 189, 248, 0.4) !important;
     }
 
-    /* TOPOLOGY LAYER FILTER BUTTONS & TOOLBAR CONTROLS */
-    .topo-layer-toggles {
-      display: inline-flex;
-      align-items: center;
-      gap: 2px;
-      background: rgba(255, 255, 255, 0.04);
-      border-radius: 6px;
-      padding: 1px;
-    }
-    [data-theme="light"] .topo-layer-toggles {
-      background: rgba(0, 0, 0, 0.04);
-    }
-    .topo-layer-btn {
-      width: auto !important;
-      padding: 0 7px !important;
-      font-size: 9.5px !important;
-      font-weight: 800 !important;
-      font-family: var(--font-mono) !important;
-      letter-spacing: 0.3px;
-      border-radius: 4px !important;
-      height: 24px !important;
-      color: var(--text-dim, #94a3b8);
-      border: 1px solid transparent;
-    }
-    .topo-layer-btn.active {
-      background: rgba(56, 189, 248, 0.18) !important;
-      color: #38bdf8 !important;
-      border-color: rgba(56, 189, 248, 0.4) !important;
-    }
-    [data-theme="light"] .topo-layer-btn.active {
-      background: rgba(2, 132, 199, 0.15) !important;
-      color: #0284c7 !important;
-      border-color: rgba(2, 132, 199, 0.35) !important;
-    }
 
     /* TOPOLOGY GPU-ONLY ANIMATIONS (TRANSFORM & OPACITY 60FPS) */
     @keyframes topoNodeSlideIn {
@@ -7315,35 +7282,15 @@
             <span class="topo-brand-subtitle" id="headerVer">v2.2.20</span>
           </div>
 
-          <!-- TOPOLOGY CANVAS CONTROLS (TOP-RIGHT: ZOOM IN, ZOOM OUT, RESET, FIT, EXPAND/COLLAPSE, LAYERS, FULLSCREEN, MENU) -->
-          <div class="topo-toolbar" role="toolbar" aria-label="Topology Canvas Controls">
-            <button class="topo-tool-btn" onclick="zoomTopology(0.15)" title="Zoom In (+)" aria-label="Zoom In">
-              <svg viewBox="0 0 24 24" class="topo-tool-icon"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
-            </button>
-            <button class="topo-tool-btn" onclick="zoomTopology(-0.15)" title="Zoom Out (-)" aria-label="Zoom Out">
-              <svg viewBox="0 0 24 24" class="topo-tool-icon"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
-            </button>
-            <button class="topo-tool-btn topo-tool-btn-text" id="topoZoomResetBtn" onclick="resetTopologyZoom()" title="Reset Zoom" aria-label="Reset Zoom to 100%">
-              100%
-            </button>
-            <button class="topo-tool-btn" onclick="fitTopologyToScreen()" title="Fit to Screen" id="topoFitBtn" aria-label="Fit Diagram to Screen">
+          <!-- TOPOLOGY CANVAS CONTROLS (MINIMAL: FIT, FULLSCREEN, MENU) -->
+          <div class="topo-toolbar" role="toolbar" aria-label="Topology Controls">
+            <button class="topo-tool-btn" onclick="fitTopologyToScreen()" title="Fit" id="topoFitBtn" aria-label="Fit to Screen">
               <svg viewBox="0 0 24 24" class="topo-tool-icon"><path d="M15 3h6v6m0-6L14 10M9 21H3v-6m0 6l7-7"/></svg>
             </button>
-            <button class="topo-tool-btn" onclick="toggleExpandCollapseAll()" title="Expand / Collapse All" id="topoExpandAllBtn" aria-label="Toggle Expand or Collapse All Subtrees">
-              <svg viewBox="0 0 24 24" class="topo-tool-icon"><polyline points="7 13 12 18 17 13"/><polyline points="7 6 12 11 17 6"/></svg>
-            </button>
-            <div class="topo-tool-sep"></div>
-            <div class="topo-layer-toggles" role="group" aria-label="Layer Filters">
-              <button class="topo-tool-btn topo-layer-btn active" id="topoLayerBtn_all" onclick="setTopologyLayerFilter('all')" title="All Layers" aria-label="Show All Layers">ALL</button>
-              <button class="topo-tool-btn topo-layer-btn" id="topoLayerBtn_L1" onclick="setTopologyLayerFilter('L1')" title="L1 Physical Ports" aria-label="Filter Layer 1">L1</button>
-              <button class="topo-tool-btn topo-layer-btn" id="topoLayerBtn_L2" onclick="setTopologyLayerFilter('L2')" title="L2 Switches and APs" aria-label="Filter Layer 2">L2</button>
-              <button class="topo-tool-btn topo-layer-btn" id="topoLayerBtn_L3" onclick="setTopologyLayerFilter('L3')" title="L3 End Devices" aria-label="Filter Layer 3">L3</button>
-            </div>
-            <div class="topo-tool-sep"></div>
-            <button class="topo-tool-btn" onclick="toggleTopologyFullscreen()" title="Toggle Fullscreen" aria-label="Toggle Fullscreen">
+            <button class="topo-tool-btn" onclick="toggleTopologyFullscreen()" title="Fullscreen" aria-label="Toggle Fullscreen">
               <svg id="topoFsIcon" viewBox="0 0 24 24" class="topo-tool-icon"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
             </button>
-            <button class="topo-tool-btn topo-menu-btn" onclick="toggleSettingsMenu()" id="btnTopoMenu" title="Settings Menu" aria-label="Settings Menu">
+            <button class="topo-tool-btn topo-menu-btn" onclick="toggleSettingsMenu()" id="btnTopoMenu" title="Settings" aria-label="Settings">
               <svg viewBox="0 0 24 24" class="topo-tool-icon"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
             </button>
           </div>
@@ -12519,7 +12466,7 @@
         else if (isSwitch) typeLabel = 'ETHERNET SWITCH';
 
         if (titleEl) titleEl.textContent = node.name || node.ip || 'Network Node';
-        if (subEl) subEl.textContent = `${typeLabel} &bull; ${node.ip || '--'}`;
+        if (subEl) subEl.textContent = `${typeLabel} • ${node.ip || '--'}`;
         if (badgeEl) {
           badgeEl.textContent = isOnline ? 'ONLINE' : 'OFFLINE';
           badgeEl.className = 'card-badge ' + (isOnline ? 'emerald' : '');
@@ -12694,24 +12641,7 @@
     }
 
     function fitTopologyToScreen() {
-      const svg = document.getElementById('usbBwSvg');
-      const box = document.querySelector('#tabOverview .bw-box');
-      if (!svg || !box) return;
-      const boxW = box.clientWidth || window.innerWidth;
-      const boxH = box.clientHeight || window.innerHeight;
-      const vb = (svg.getAttribute('viewBox') || '').split(' ').map(Number);
-      if (vb.length === 4 && vb[2] > 0 && vb[3] > 0) {
-        const scaleX = (boxW - 40) / vb[2];
-        const scaleY = (boxH - 40) / vb[3];
-        const bestScale = Math.min(1.4, Math.max(0.35, Math.min(scaleX, scaleY)));
-        _topoZoom = Math.round(bestScale * 100) / 100;
-        _topoPanX = 0;
-        _topoPanY = 0;
-        svg.style.transition = 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
-        svg.style.transform = `translate(0px, 0px) scale(${_topoZoom})`;
-        const btn = document.getElementById('topoZoomResetBtn');
-        if (btn) btn.textContent = `${Math.round(_topoZoom * 100)}%`;
-      }
+      resetTopologyZoom();
     }
 
     function openTopoNodeSettings() {
@@ -13552,12 +13482,12 @@
       const isSwitch = node.type === 'switch';
 
       if (node.type === 'device') {
-        const w = isPhone ? 154 : (isTablet ? 170 : 186);
-        const h = 38;
+        const w = isPhone ? 160 : (isTablet ? 180 : 200);
+        const h = 36;
         node._layout = {
           w: w,
           h: h,
-          subtreeW: w + 24,
+          subtreeW: w + 20,
           subtreeH: h,
           children: []
         };
@@ -13565,10 +13495,10 @@
       }
 
       // Router / AP / Switch
-      const rtrW = isPhone ? 250 : (isTablet ? 270 : 286);
-      const headerH = 44;
+      const rtrW = isPhone ? 220 : (isTablet ? 250 : 280);
+      const headerH = 40;
       const portBayH = 32;
-      const rtrH = headerH + portBayH; // 76px
+      const rtrH = headerH + portBayH; // 72px
 
       // Auto-collapse if >8 descendants and not manually toggled
       const clientCount = computeSubtreeClientCount(node);
@@ -13612,11 +13542,11 @@
           window._topoWifiExpanded[node.id] = false;
         }
         const isExpanded = !!window._topoWifiExpanded[node.id];
-        const clW = isPhone ? 154 : (isTablet ? 170 : 186);
-        const clH = 38;
+        const clW = isPhone ? 160 : (isTablet ? 180 : 200);
+        const clH = 36;
         let totalH = clH;
         if (isExpanded) {
-          totalH += 16 + wClients.length * (34 + 8);
+          totalH += 12 + wClients.length * (32 + 6);
         }
         wClients.forEach(wc => { wc._parentRouter = node; });
         children.push({
@@ -13627,12 +13557,12 @@
           w: clW,
           h: clH,
           totalH: totalH,
-          subtreeW: clW + 24,
+          subtreeW: clW + 20,
           subtreeH: totalH
         });
       }
 
-      const gapX = isPhone ? 24 : (isTablet ? 32 : 40);
+      const gapX = isPhone ? 20 : (isTablet ? 30 : 40);
       let sumChildW = 0;
       let maxChildH = 0;
       children.forEach((c, i) => {
@@ -13641,8 +13571,8 @@
         if (c.subtreeH > maxChildH) maxChildH = c.subtreeH;
       });
 
-      const subtreeW = Math.max(rtrW + 30, sumChildW);
-      const layerGapY = isPhone ? 60 : (isTablet ? 68 : 76);
+      const subtreeW = Math.max(rtrW + 20, sumChildW);
+      const layerGapY = isPhone ? 50 : (isTablet ? 60 : 70);
       const subtreeH = rtrH + (children.length > 0 ? (layerGapY + maxChildH) : 0);
 
       node._layout = {
@@ -13740,11 +13670,7 @@
     }
 
     function setTopologyActiveLayer(layer) {
-      window._topoActiveLayer = layer;
-      document.querySelectorAll('.topo-layer-btn').forEach(b => {
-        b.classList.toggle('active', b.getAttribute('data-layer') === layer);
-      });
-      buildUsbBwSvg();
+      setTopologyLayerFilter(layer);
     }
 
     function highlightPathToRoot(targetNode) {
@@ -13840,6 +13766,7 @@
       const svg = document.getElementById("usbBwSvg");
       if (!svg) return;
       svg.innerHTML = "";
+      svg.setAttribute("preserveAspectRatio", "xMidYMin meet");
 
       const box = svg.parentElement;
       const boxW = (box ? box.clientWidth : 0);
@@ -13906,10 +13833,10 @@
         "stroke-width": "0.75"
       }, pat);
       mk("rect", {
-        x: "0",
-        y: "0",
-        width: "100%",
-        height: "100%",
+        x: "-50000",
+        y: "-50000",
+        width: "100000",
+        height: "100000",
         fill: "url(#topoGridPat)"
       }, svg);
 
@@ -13922,12 +13849,12 @@
       let globalMaxX = rtrCenterX + 100;
       let globalMaxY = rootY + 100;
 
-      // 1. WAN UPLINK CHIP ON TOP OF GATEWAY (Measured live speed ONLY, NO "Max 5 Gbps")
+      // 1. WAN UPLINK CHIP ON TOP OF GATEWAY (Clean pill, measured speed only)
       if (prefs.showWan) {
-        const wanW = isPhone ? 154 : (isTablet ? 170 : 186);
-        const wanH = 36;
+        const wanW = isPhone ? 180 : (isTablet ? 200 : 220);
+        const wanH = 32;
         const wanX = rtrCenterX - wanW / 2;
-        const wanY = rootY - 54;
+        const wanY = rootY - 46;
         const usbStyle = getUsbThemeStyle("usb3", isLight);
 
         globalMinX = Math.min(globalMinX, wanX);
@@ -13991,45 +13918,32 @@
           y: wanY,
           width: wanW,
           height: wanH,
-          rx: 6,
-          ry: 6,
+          rx: 14,
+          ry: 14,
           fill: topoTheme.cardBg,
           stroke: usbStyle.cardBorder || "#0284c7",
           "stroke-width": 1.3,
           style: `filter:${topoTheme.cardShadow};`
         }, wanG);
 
-        // Fixed 32px icon container box
-        const iconBoxX = wanX + 5;
-        const iconBoxY = wanY + 4;
-        mk("rect", {
-          x: iconBoxX,
-          y: iconBoxY,
-          width: 28,
-          height: 28,
-          rx: 4,
-          ry: 4,
-          fill: isLight ? "rgba(2,132,199,0.06)" : "rgba(56,189,248,0.08)"
-        }, wanG);
-        drawDeviceIcon(iconBoxX + 14, iconBoxY + 14, isLight ? "#0284c7" : "#38bdf8", "phone", wanG);
-
-        // 8px gap before text -> text starts at wanX + 41
+        // WAN pill: label left, speed right (no icon box)
         const tWanTitle = mk("text", {
-          x: wanX + 41,
-          y: wanY + 14,
-          style: `font-size:8.5px; font-weight:800; font-family:var(--font-mono); fill:${topoTheme.textMain};`
+          x: wanX + 12,
+          y: wanY + wanH / 2 + 3.5,
+          style: `font-size:9px; font-weight:800; font-family:var(--font-mono); fill:${topoTheme.textMain};`
         }, wanG);
         tWanTitle.textContent = "WAN (5G USB0)";
 
-        // Live measured speed ONLY (strictly no "Max 5 Gbps")
+        // Live measured speed ONLY
         const liveSpeedStr = (window._currentRxMbps > 0 || window._currentTxMbps > 0) ?
           `${(window._currentRxMbps + window._currentTxMbps).toFixed(1)} Mbps` :
           ((bwLinks && bwLinks[0] && bwLinks[0].v > 0) ? `${bwLinks[0].v} Mbps` : "0.0 Mbps");
 
         const tWanSpd = mk("text", {
-          x: wanX + 41,
-          y: wanY + 25,
-          style: `font-size:8px; font-weight:700; font-family:var(--font-mono); fill:${isLight ? '#0284c7' : '#38bdf8'};`
+          x: wanX + wanW - 12,
+          y: wanY + wanH / 2 + 3.5,
+          "text-anchor": "end",
+          style: `font-size:9px; font-weight:700; font-family:var(--font-mono); fill:${isLight ? '#0284c7' : '#38bdf8'};`
         }, wanG);
         tWanSpd.textContent = liveSpeedStr;
 
@@ -14068,7 +13982,7 @@
         if (activeLayer === 'l3' && !isLeaf && depth !== 1) isLayerDimmed = true;
 
         if (isLeaf) {
-          // Leaf Device Card (e.g. Synology NAS on LAN 1, maxos on LAN 2)
+          // Leaf Device Card -- clean single row: [icon] name IP [dot]
           const dev = node;
           const devClass = (typeof classifyLanDevice === 'function') ? classifyLanDevice(dev) : { type: 'client', title: 'Device', color: '#10b981', badge: 'DEVICE' };
           const devW = l.w;
@@ -14082,11 +13996,10 @@
             role: "treeitem",
             "aria-label": `${resolveDeviceDisplayName(dev)} ${dev.ip || ''}`,
             tabindex: "0",
-            style: `cursor:pointer; animation: topoNodeSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: ${depth * 40}ms;`
+            style: `cursor:pointer; animation: topoNodeSlideIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: ${depth * 40}ms;`
           }, nodesLayer);
 
           devG.onclick = (e) => {
-            highlightPathToRoot(dev);
             showTopoNodeDetail(dev, false, e);
           };
 
@@ -14103,75 +14016,44 @@
             style: `filter:${topoTheme.cardShadow};` + (isNodeOnline ? "" : "opacity:0.75;")
           }, devG);
 
-          // Fixed 32px icon container box
-          const iconBoxX = devBoxX + 5;
-          const iconBoxY = l.y + 4;
-          const iconBoxW = 30;
-          const iconBoxH = 30;
+          // 20px icon box with 8px gap
+          const iconBoxX = devBoxX + 6;
+          const iconBoxY = l.y + (devH - 24) / 2;
           mk("rect", {
             x: iconBoxX,
             y: iconBoxY,
-            width: iconBoxW,
-            height: iconBoxH,
+            width: 24,
+            height: 24,
             rx: 4,
             ry: 4,
             fill: isLight ? "rgba(0,0,0,0.025)" : "rgba(255,255,255,0.025)"
           }, devG);
-          drawLanClientDeviceIcon(iconBoxX + iconBoxW / 2, iconBoxY + iconBoxH / 2, devClass, devG);
+          drawLanClientDeviceIcon(iconBoxX + 12, iconBoxY + 12, devClass, devG);
 
-          // 8px gap before text -> starts at iconBoxX + iconBoxW + 8 = devBoxX + 43
-          const textStartX = devBoxX + 43;
+          const textStartX = devBoxX + 38;
           let devName = resolveDeviceDisplayName(dev);
-          if (devName.length > 13) devName = devName.substring(0, 12) + "…";
+          const maxChars = isPhone ? 12 : 16;
+          if (devName.length > maxChars) devName = devName.substring(0, maxChars - 1) + "\u2026";
 
-          const tDevName = mk("text", {
+          mk("text", {
             x: textStartX,
-            y: l.y + 15,
-            style: `font-size:8px; font-weight:800; font-family:var(--font-mono); fill:${isNodeOnline ? topoTheme.textMain : topoTheme.textDim};`
-          }, devG);
-          tDevName.textContent = devName;
+            y: l.y + 14,
+            style: `font-size:9px; font-weight:800; font-family:var(--font-mono); fill:${isNodeOnline ? topoTheme.textMain : topoTheme.textDim};`
+          }, devG).textContent = devName;
 
-          const tDevIp = mk("text", {
+          mk("text", {
             x: textStartX,
-            y: l.y + 27,
-            style: `font-size:7px; font-weight:700; font-family:var(--font-mono); fill:${topoTheme.textDim};`
-          }, devG);
-          tDevIp.textContent = dev.ip || "";
+            y: l.y + 26,
+            style: `font-size:8px; font-weight:600; font-family:var(--font-mono); fill:${topoTheme.textMuted};`
+          }, devG).textContent = dev.ip || "";
 
-          // Micro "Why?" Button strictly inside Device Card
-          const whyBtnW = 24;
-          const whyBtnX = devBoxX + devW - whyBtnW - 6;
-          const btnWhy = mk("g", { class: "topo-why-btn", style: "cursor:pointer;" }, devG);
-          btnWhy.onclick = (e) => {
-            e.stopPropagation();
-            showTopoEvidenceModal(dev, e);
-          };
-          mk("rect", {
-            x: whyBtnX,
-            y: l.y + 12,
-            width: whyBtnW,
-            height: 14,
-            rx: 3,
-            ry: 3,
-            fill: isLight ? "#f1f5f9" : "rgba(255,255,255,0.06)",
-            stroke: topoTheme.cardBorder,
-            "stroke-width": 0.8
-          }, btnWhy);
-          const tWhy = mk("text", {
-            x: whyBtnX + whyBtnW / 2,
-            y: l.y + 22,
-            "text-anchor": "middle",
-            style: `font-size:7px; font-weight:800; font-family:var(--font-mono); fill:${topoTheme.textDim};`
-          }, btnWhy);
-          tWhy.textContent = "Why?";
-
-          // Online status dot with soft pulse
+          // Online dot
           mk("circle", {
-            cx: devBoxX + devW - 5,
-            cy: l.y + 6,
-            r: 1.8,
+            cx: devBoxX + devW - 8,
+            cy: l.y + devH / 2,
+            r: 2.5,
             class: isNodeOnline ? "topo-pulse-dot" : "",
-            fill: isNodeOnline ? "#10b981" : (isLight ? "#94a3b8" : "#52525b")
+            fill: isNodeOnline ? "#22c55e" : (isLight ? "#94a3b8" : "#52525b")
           }, devG);
 
           return;
@@ -14181,7 +14063,7 @@
         const rtrW = l.w;
         const rtrH = l.h;
         const rtrX = l.x;
-        const headerH = 44;
+        const headerH = 40;
 
         const chassisG = mk("g", {
           class: `${isRoot ? "topo-root-chassis" : "topo-ap-node"} ${isNodeOnline ? '' : 'topo-offline-node'} ${isLayerDimmed ? 'topo-dimmed' : ''}`,
@@ -14260,32 +14142,8 @@
           fill: isNodeOnline ? "#10b981" : (isLight ? "#94a3b8" : "#52525b")
         }, chassisG);
 
-        // "Why?" Micro-Button on Chassis Header (strictly inside card)
-        const btnWhy = mk("g", { class: "topo-why-btn", style: "cursor:pointer;" }, chassisG);
-        btnWhy.onclick = (e) => {
-          e.stopPropagation();
-          showTopoEvidenceModal(node, e);
-        };
-        const whyBtnW = 28;
-        const whyBtnX = isRoot ? (rtrX + rtrW - whyBtnW - 14) : (rtrX + rtrW - whyBtnW - 30);
-        mk("rect", {
-          x: whyBtnX,
-          y: l.y + 14,
-          width: whyBtnW,
-          height: 16,
-          rx: 3,
-          ry: 3,
-          fill: isLight ? "#f1f5f9" : "rgba(255,255,255,0.06)",
-          stroke: topoTheme.cardBorder,
-          "stroke-width": 0.8
-        }, btnWhy);
-        const tWhy = mk("text", {
-          x: whyBtnX + whyBtnW / 2,
-          y: l.y + 25.5,
-          "text-anchor": "middle",
-          style: `font-size:7.5px; font-weight:800; font-family:var(--font-mono); fill:${nodeLayerColor};`
-        }, btnWhy);
-        tWhy.textContent = "Why?";
+        // Why? evidence moved to detail sheet (tap card)
+
 
         // Collapse / Expand toggle for sub-routers
         if (!isRoot) {
@@ -14393,41 +14251,16 @@
             style: `font-size:7px; font-weight:800; font-family:var(--font-mono); fill:${isConnected ? nodeLayerColor : topoTheme.textDim};`
           }, sockG);
           let sLbl = slot.label || (isLan ? `LAN ${slot.idx + 1}` : 'Wi-Fi');
-          if (sLbl.length > 5) sLbl = sLbl.substring(0, 4) + '…';
           tSockLbl.textContent = sLbl;
 
+          // Show count inline on port label
           if (childCount > 0) {
-            const countStr = String(childCount);
-            const numDigits = countStr.length;
-            const badgeW = (numDigits > 1 ? 21 : 17);
-            const badgeH = 10.5;
-            const badgeX = socketX + socketW - badgeW - 3;
-            const badgeY = socketY + socketH - badgeH - 2.5;
-
-            const badgeG = mk("g", { class: "topo-socket-badge", style: "pointer-events:none;" }, sockG);
-
-            mk("rect", {
-              x: badgeX,
-              y: badgeY,
-              width: badgeW,
-              height: badgeH,
-              rx: 3,
-              ry: 3,
-              fill: isConnected ? (isLight ? 'rgba(2,132,199,0.09)' : 'rgba(56,189,248,0.12)') : (isLight ? '#f1f5f9' : 'rgba(255,255,255,0.04)'),
-              stroke: isConnected ? (isLan ? nodeLayerColor : themeColors.wifi) : topoTheme.cardBorderIdle,
-              "stroke-width": 0.6
-            }, badgeG);
-
-            const iconCol = isConnected ? (isLan ? nodeLayerColor : themeColors.wifi) : topoTheme.textDim;
-            drawPeopleIcon(badgeX + 2.5, badgeY + 1.8, iconCol, badgeG);
-
-            const tCnt = mk("text", {
-              x: badgeX + badgeW - 2.5,
-              y: badgeY + 7.8,
+            mk("text", {
+              x: socketX + socketW - 4,
+              y: socketY + 17,
               "text-anchor": "end",
-              style: `font-size:7px; font-weight:800; font-family:var(--font-mono); fill:${isConnected ? topoTheme.textMain : topoTheme.textDim};`
-            }, badgeG);
-            tCnt.textContent = countStr;
+              style: `font-size:8px; font-weight:800; font-family:var(--font-mono); fill:${isConnected ? topoTheme.textMain : topoTheme.textDim};`
+            }, sockG).textContent = `(${childCount})`;
           }
         });
 
@@ -14638,7 +14471,7 @@
               const trunkX = clX + 10;
 
               // Vertical bracket trunk line in EDGES LAYER
-              const lastClientY = startListY + (c.clients.length - 1) * 42 + 17;
+              const lastClientY = startListY + (c.clients.length - 1) * 38 + 16;
               mk("path", {
                 d: `M ${clX + clW / 2} ${clY + clH} L ${trunkX} ${clY + clH + 8} L ${trunkX} ${lastClientY}`,
                 stroke: wifiCol,
@@ -14648,9 +14481,9 @@
               }, edgesLayer);
 
               c.clients.forEach((wc, wIdx) => {
-                const wcY = startListY + wIdx * 42;
+                const wcY = startListY + wIdx * 38;
                 const wcW = clW;
-                const wcH = 34;
+                const wcH = 32;
                 const wcX = clX + 20;
                 const isWcOnline = (wc.status !== 'offline');
                 const wcNodeId = wc.id || wc.ip || wc.mac || `wc-${wIdx}`;
@@ -14697,8 +14530,8 @@
                 // Fixed 28px icon box
                 const wcIconBoxX = wcX + 5;
                 const wcIconBoxY = wcY + 4;
-                const wcIconBoxW = 26;
-                const wcIconBoxH = 26;
+                const wcIconBoxW = 24;
+                const wcIconBoxH = 24;
                 mk("rect", {
                   x: wcIconBoxX,
                   y: wcIconBoxY,
@@ -14727,32 +14560,7 @@
                 }, wcG);
                 tWcIp.textContent = `${wc.ip || ''} • ${wc.linkSpeed || 'WiFi'}`;
 
-                // Micro "Why?" Button on WiFi Client
-                const wcWhyBtn = mk("g", { class: "topo-why-btn", style: "cursor:pointer;" }, wcG);
-                wcWhyBtn.onclick = (e) => {
-                  e.stopPropagation();
-                  showTopoEvidenceModal(wc, e);
-                };
-                const wcWhyW = 24;
-                const wcWhyX = wcX + wcW - wcWhyW - 6;
-                mk("rect", {
-                  x: wcWhyX,
-                  y: wcY + 10,
-                  width: wcWhyW,
-                  height: 14,
-                  rx: 3,
-                  ry: 3,
-                  fill: isLight ? "#f1f5f9" : "rgba(255,255,255,0.06)",
-                  stroke: topoTheme.cardBorder,
-                  "stroke-width": 0.8
-                }, wcWhyBtn);
-                const tWcWhy = mk("text", {
-                  x: wcWhyX + wcWhyW / 2,
-                  y: wcY + 20,
-                  "text-anchor": "middle",
-                  style: `font-size:7px; font-weight:800; font-family:var(--font-mono); fill:${wifiCol};`
-                }, wcWhyBtn);
-                tWcWhy.textContent = "Why?";
+
 
                 // Online status dot
                 mk("circle", {
@@ -14772,7 +14580,7 @@
       renderLayeredNode(tree);
 
       // 3. DYNAMIC VIEWBOX CALCULATION (ZERO TRIMMING, RESPONSIVE CANVAS)
-      const pad = 36;
+      const pad = 40;
       const finalMinX = Math.min(0, globalMinX - pad);
       const finalMaxX = Math.max(initialW, globalMaxX + pad);
       const finalMinY = prefs.showWan ? Math.min(0, rootY - 70) : 0;
@@ -16863,6 +16671,20 @@
         </div>
 
         <div id="topoPrefsBody" style="display:${window._topoPrefsOpen ? 'flex' : 'none'}; flex-direction:column; gap:8px;">
+          <!-- 0. Layer Filters -->
+          <div class="setting-row-item" style="flex-direction:column; align-items:stretch; gap:6px;">
+            <div class="setting-label-col">
+              <span class="setting-label-bold">Layer Visibility Filter</span>
+              <span class="setting-label-sub">Highlight specific network layers or show full end-to-end tree</span>
+            </div>
+            <div class="topo-layer-group" style="display:inline-flex; width:100%; box-sizing:border-box;">
+              <button type="button" class="topo-layer-btn ${(!window._topoActiveLayer || window._topoActiveLayer === 'all') ? 'active' : ''}" data-layer="all" onclick="setTopologyLayerFilter('all')" style="flex:1;">ALL</button>
+              <button type="button" class="topo-layer-btn ${window._topoActiveLayer === 'L1' ? 'active' : ''}" data-layer="L1" onclick="setTopologyLayerFilter('L1')" style="flex:1;">L1 Physical</button>
+              <button type="button" class="topo-layer-btn ${window._topoActiveLayer === 'L2' ? 'active' : ''}" data-layer="L2" onclick="setTopologyLayerFilter('L2')" style="flex:1;">L2 Switches/APs</button>
+              <button type="button" class="topo-layer-btn ${window._topoActiveLayer === 'L3' ? 'active' : ''}" data-layer="L3" onclick="setTopologyLayerFilter('L3')" style="flex:1;">L3 Clients</button>
+            </div>
+          </div>
+
           <!-- 1. Color Palette -->
           <div class="setting-row-item" style="flex-direction:column; align-items:stretch; gap:6px;">
             <div class="setting-label-col">
