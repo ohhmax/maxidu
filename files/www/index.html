@@ -3552,11 +3552,7 @@
       position: absolute;
       inset: 0;
       pointer-events: none;
-      background:
-        radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--c) 8%, transparent), transparent 75%),
-        linear-gradient(var(--grid) 1px, transparent 1px) 0 0/36px 36px,
-        linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0/36px 36px;
-      border-radius: 0;
+      background: transparent;
     }
     /* Full Page Topology Viewer Mode */
     .usb-bw-container.topo-fullpage-mode {
@@ -3639,15 +3635,10 @@
       touch-action: none;
       user-select: none;
       -webkit-user-select: none;
-      background-size: 36px 36px;
-      background-image: 
-        linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+      background: var(--bg, #090a0f);
     }
     [data-theme="light"] .bw-box {
-      background-image: 
-        linear-gradient(to right, rgba(15, 25, 40, 0.05) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(15, 25, 40, 0.05) 1px, transparent 1px);
+      background: var(--bg, #f4f4f5);
     }
     .bw-box svg {
       width: 100% !important;
@@ -5745,19 +5736,16 @@
     @keyframes topoDotPulse {
       0%, 100% {
         opacity: 1;
-        transform: scale(1);
       }
       50% {
-        opacity: 0.35;
-        transform: scale(0.8);
+        opacity: 0.45;
       }
     }
     .topo-node-enter {
       animation: topoNodeSlideIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
     .topo-pulse-dot {
-      transform-origin: center;
-      animation: topoDotPulse 2s ease-in-out infinite;
+      animation: topoDotPulse 2.4s ease-in-out infinite;
     }
     .topo-offline-node {
       opacity: 0.55;
@@ -13818,27 +13806,6 @@
       assignLayeredPositions(tree, rtrCenterX, rootY, 0, screenW);
 
       const defs = mk("defs", {}, svg);
-
-      // FULL PAGE TOPOLOGY BACKGROUND GRID (Zero edge trimming, complete canvas blueprint)
-      const pat = mk("pattern", {
-        id: "topoGridPat",
-        width: "36",
-        height: "36",
-        patternUnits: "userSpaceOnUse"
-      }, defs);
-      mk("path", {
-        d: "M 36 0 L 0 0 0 36",
-        fill: "none",
-        stroke: isLight ? "rgba(15, 25, 40, 0.05)" : "rgba(255, 255, 255, 0.035)",
-        "stroke-width": "0.75"
-      }, pat);
-      mk("rect", {
-        x: "-50000",
-        y: "-50000",
-        width: "100000",
-        height: "100000",
-        fill: "url(#topoGridPat)"
-      }, svg);
 
       // LAYER GROUPS: EDGES LAYER (BEHIND), NODES LAYER (MIDDLE), LABELS LAYER (FOREGROUND)
       const edgesLayer = mk("g", { id: "topoEdgesLayer" }, svg);
