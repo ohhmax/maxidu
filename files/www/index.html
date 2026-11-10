@@ -3602,6 +3602,10 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      overflow: hidden;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
     }
     .bw-box svg {
       width: 100% !important;
@@ -6819,10 +6823,64 @@
       margin-top: 10px;
     }
     .topo-nested-branch {
-      margin-left: 12px;
-      padding-left: 14px;
-      border-left: 2px solid rgba(56, 189, 248, 0.35);
+      margin-left: 0;
+      padding: 12px;
+      border: 1px solid var(--border-sub, rgba(255, 255, 255, 0.08));
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.02);
       margin-top: 10px;
+    }
+    .topo-wifi-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 6px;
+      padding: 3px 8px;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      transition: all 0.15s ease;
+    }
+    .topo-wifi-chip.band-24 {
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.28);
+      color: var(--text-main, #ffffff);
+    }
+    .topo-wifi-chip.band-50 {
+      background: rgba(6, 182, 212, 0.12);
+      border: 1px solid rgba(6, 182, 212, 0.28);
+      color: var(--text-main, #ffffff);
+    }
+    .topo-chip-rm {
+      background: transparent;
+      border: none;
+      color: #ef4444;
+      cursor: pointer;
+      font-weight: 800;
+      font-size: 12px;
+      line-height: 1;
+      padding: 0 2px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.8;
+      transition: opacity 0.15s ease;
+    }
+    .topo-chip-rm:hover {
+      opacity: 1;
+      transform: scale(1.15);
+    }
+    @media (max-width: 768px) {
+      .topo-settings-toolbar button {
+        flex: 1 1 calc(50% - 6px);
+        font-size: 10.5px !important;
+        padding: 7px 10px !important;
+      }
+      .topo-tree-card {
+        padding: 10px !important;
+      }
+      .topo-port-row {
+        padding: 10px !important;
+      }
     }
     .topo-wifi-table {
       width: 100%;
@@ -6921,15 +6979,8 @@
           <span class="topo-brand-subtitle" id="headerVer">v2.2.20</span>
         </div>
 
-        <!-- TOPOLOGY CANVAS CONTROLS (TOP-RIGHT: LAYER TOGGLE, ZOOM IN, ZOOM OUT, RESET, FULLSCREEN, MENU) -->
+        <!-- TOPOLOGY CANVAS CONTROLS (TOP-RIGHT: ZOOM IN, ZOOM OUT, RESET, FULLSCREEN, MENU) -->
         <div class="topo-toolbar">
-          <div class="topo-layer-group" id="topoLayerToggleGroup" title="Topology Layer Filter">
-            <button type="button" class="topo-layer-btn active" id="topoLayerBtn_all" onclick="setTopologyLayerFilter('all')" title="All Layers (Overview)">ALL</button>
-            <button type="button" class="topo-layer-btn" id="topoLayerBtn_L1" onclick="setTopologyLayerFilter('L1')" title="L1: Physical Ports, Cables & Media">L1</button>
-            <button type="button" class="topo-layer-btn" id="topoLayerBtn_L2" onclick="setTopologyLayerFilter('L2')" title="L2: Routers, APs & Switches">L2</button>
-            <button type="button" class="topo-layer-btn" id="topoLayerBtn_L3" onclick="setTopologyLayerFilter('L3')" title="L3: Devices & Endpoints">L3</button>
-          </div>
-          <div class="topo-tool-sep"></div>
           <button class="topo-tool-btn" onclick="zoomTopology(0.15)" title="Zoom In (+)">
             <svg viewBox="0 0 24 24" class="topo-tool-icon"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
           </button>
@@ -11665,6 +11716,7 @@
       if (!box || box._panInitialized) return;
       box._panInitialized = true;
 
+      // Mouse drag pan
       box.addEventListener('mousedown', (e) => {
         if (e.target.closest('button') || e.target.closest('.topo-toolbar') || e.target.closest('select') || e.target.closest('.round-action-btn')) return;
         _isTopoDragging = true;
@@ -11694,6 +11746,74 @@
           if (box) box.style.cursor = '';
           const svg = document.getElementById('usbBwSvg');
           if (svg) svg.style.transition = 'transform 0.18s cubic-bezier(0.16, 1, 0.3, 1)';
+        }
+      });
+
+      // Mobile Touch Gesture Pan & 2-Finger Pinch Zoom
+      let _touchPinchDist = 0;
+      let _touchInitZoom = 1.0;
+
+      box.addEventListener('touchstart', (e) => {
+        if (e.target.closest('button') || e.target.closest('.topo-toolbar') || e.target.closest('select') || e.target.closest('.round-action-btn')) return;
+        if (e.touches.length === 1) {
+          _isTopoDragging = true;
+          _dragStartX = e.touches[0].clientX;
+          _dragStartY = e.touches[0].clientY;
+          _dragInitPanX = _topoPanX;
+          _dragInitPanY = _topoPanY;
+        } else if (e.touches.length === 2) {
+          _isTopoDragging = false;
+          _touchPinchDist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+          );
+          _touchInitZoom = _topoZoom;
+        }
+      }, { passive: false });
+
+      box.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 1 && _isTopoDragging) {
+          e.preventDefault();
+          const dx = e.touches[0].clientX - _dragStartX;
+          const dy = e.touches[0].clientY - _dragStartY;
+          _topoPanX = _dragInitPanX + dx;
+          _topoPanY = _dragInitPanY + dy;
+          const svg = document.getElementById('usbBwSvg');
+          if (svg) {
+            svg.style.transition = 'none';
+            svg.style.transform = `translate(${_topoPanX}px, ${_topoPanY}px) scale(${_topoZoom})`;
+          }
+        } else if (e.touches.length === 2 && _touchPinchDist > 0) {
+          e.preventDefault();
+          const curDist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+          );
+          const factor = curDist / _touchPinchDist;
+          _topoZoom = Math.min(3.0, Math.max(0.35, Math.round(_touchInitZoom * factor * 100) / 100));
+          const svg = document.getElementById('usbBwSvg');
+          const btn = document.getElementById('topoZoomResetBtn');
+          if (svg) {
+            svg.style.transition = 'none';
+            svg.style.transform = `translate(${_topoPanX}px, ${_topoPanY}px) scale(${_topoZoom})`;
+          }
+          if (btn) btn.textContent = `${Math.round(_topoZoom * 100)}%`;
+        }
+      }, { passive: false });
+
+      box.addEventListener('touchend', (e) => {
+        if (e.touches.length === 0) {
+          _isTopoDragging = false;
+          _touchPinchDist = 0;
+          const svg = document.getElementById('usbBwSvg');
+          if (svg) svg.style.transition = 'transform 0.18s cubic-bezier(0.16, 1, 0.3, 1)';
+        } else if (e.touches.length === 1) {
+          _isTopoDragging = true;
+          _dragStartX = e.touches[0].clientX;
+          _dragStartY = e.touches[0].clientY;
+          _dragInitPanX = _topoPanX;
+          _dragInitPanY = _topoPanY;
+          _touchPinchDist = 0;
         }
       });
 
@@ -12401,52 +12521,84 @@
       return { portIndex: portIndex, mode: "empty", device: null };
     }
 
-    function computeSubtreeBounds(item, isMobile) {
-      if (!item) return { width: isMobile ? 64 : 76, height: isMobile ? 32 : 38 };
-      if (item.label && item.role !== undefined) {
-        if (item.role === 'empty' || !item.child) return { width: isMobile ? 64 : 76, height: isMobile ? 32 : 38 };
-        if (item.role === 'device') return { width: isMobile ? 86 : 108, height: isMobile ? 32 : 38 };
-        if (item.role === 'node') {
-          return computeSubtreeBounds(item.child, isMobile);
+    // =========================================================================
+    // MULTI-INTERFACE SLOTS & ZERO-OVERLAP TREE ENGINE
+    // =========================================================================
+    function computeNodeInterfaceSlots(node, isMobile) {
+      if (!node) return [];
+      const lanPorts = node.ports || [];
+      const wClients24 = (node.wireless_clients || []).filter(c => c && c.band === '2.4G');
+      const wClients50 = (node.wireless_clients || []).filter(c => c && c.band !== '2.4G');
+      const isRouterOrAp = (node.type === 'router' || node.type === 'ap');
+
+      const portBoxW = isMobile ? 54 : 66;
+      const clientCardW = isMobile ? 80 : 94;
+      const gap = isMobile ? 8 : 12;
+
+      const slots = [];
+      lanPorts.forEach((p, idx) => {
+        let subW = portBoxW;
+        if (p.role === 'device' && p.child) {
+          subW = Math.max(portBoxW, isMobile ? 86 : 104);
+        } else if (p.role === 'node' && p.child) {
+          subW = Math.max(portBoxW, computeSubtreeBounds(p.child, isMobile).width);
         }
-      }
-      const node = item;
-      if (node.type === 'device') return { width: isMobile ? 86 : 108, height: isMobile ? 32 : 38 };
-      if (window._topoCollapsed && window._topoCollapsed.has(node.id)) {
-        return { width: isMobile ? 96 : 120, height: isMobile ? 34 : 40 };
-      }
-
-      const numPorts = (node.ports && node.ports.length) || 4;
-      let portsTotalW = 0;
-      const gap = isMobile ? 12 : 18;
-      (node.ports || []).forEach(p => {
-        portsTotalW += computeSubtreeBounds(p, isMobile).width + gap;
+        slots.push({ type: 'lan', port: p, idx: idx, label: p.label || ('LAN ' + (idx + 1)), role: p.role, child: p.child, width: subW });
       });
-      portsTotalW = Math.max(portsTotalW, numPorts * (isMobile ? 64 : 76));
 
-      const numWifi = (node.wireless_clients && node.wireless_clients.length) || 0;
-      const wifiW = numWifi > 0 ? Math.min(numWifi, 4) * (isMobile ? 82 : 98) : 0;
+      if (isRouterOrAp) {
+        const w24Count = wClients24.length;
+        const w24SubW = w24Count > 0 ? (w24Count * clientCardW + (w24Count - 1) * gap) : portBoxW;
+        slots.push({
+          type: 'wifi24',
+          label: '2.4G WiFi',
+          band: '2.4G',
+          color: '#f59e0b',
+          clients: wClients24,
+          count: w24Count,
+          width: Math.max(portBoxW, w24SubW)
+        });
 
-      const totalW = Math.max(portsTotalW, wifiW, isMobile ? 120 : 140);
-      return { width: totalW, portsWidth: portsTotalW };
+        const w50Count = wClients50.length;
+        const w50SubW = w50Count > 0 ? (w50Count * clientCardW + (w50Count - 1) * gap) : portBoxW;
+        slots.push({
+          type: 'wifi50',
+          label: '5G WiFi',
+          band: '5G',
+          color: '#06b6d4',
+          clients: wClients50,
+          count: w50Count,
+          width: Math.max(portBoxW, w50SubW)
+        });
+      }
+
+      return slots;
+    }
+
+    function computeSubtreeBounds(node, isMobile) {
+      if (!node) return { width: isMobile ? 54 : 66, height: 40 };
+      if (node.type === 'device') {
+        return { width: isMobile ? 86 : 104, height: isMobile ? 26 : 30 };
+      }
+      if (window._topoCollapsed && window._topoCollapsed.has(node.id)) {
+        return { width: isMobile ? 120 : 136, height: isMobile ? 44 : 48 };
+      }
+      const slots = computeNodeInterfaceSlots(node, isMobile);
+      const gap = isMobile ? 8 : 14;
+      const totalSlotsW = slots.reduce((sum, s) => sum + s.width, 0) + (slots.length - 1) * gap;
+      const minNodeW = isMobile ? 120 : 136;
+      return { width: Math.max(minNodeW, totalSlotsW), height: 180 };
     }
 
     function computeTreeMaxDepth(node) {
       if (!node || node.type === 'device') return 1;
-      if (window._topoCollapsed && window._topoCollapsed.has(node.id)) return 1;
       let maxChild = 1;
       if (Array.isArray(node.ports)) {
         node.ports.forEach(p => {
-          if (p.role === 'node' && p.child) {
-            const d = 1 + computeTreeMaxDepth(p.child);
-            if (d > maxChild) maxChild = d;
-          } else if (p.role === 'device') {
-            if (2 > maxChild) maxChild = 2;
+          if (p.child) {
+            maxChild = Math.max(maxChild, 1 + computeTreeMaxDepth(p.child));
           }
         });
-      }
-      if (Array.isArray(node.wireless_clients) && node.wireless_clients.length > 0) {
-        if (2 > maxChild) maxChild = 2;
       }
       return maxChild;
     }
@@ -12464,6 +12616,9 @@
       return count;
     }
 
+    // =========================================================================
+    // SVG DIAGRAM BUILDER (MOBILE RESPONSIVE, UNIFIED INTERFACES, ZERO LINE OVERLAPS)
+    // =========================================================================
     function buildUsbBwSvg() {
       const svg = document.getElementById("usbBwSvg");
       if (!svg) return;
@@ -12545,7 +12700,7 @@
       const rootBounds = computeSubtreeBounds(tree, isMobile);
       const treeDepth = computeTreeMaxDepth(tree);
 
-      const W = Math.max(isMobile ? 520 : 920, rootBounds.width + (isMobile ? 60 : 120));
+      const W = Math.max(isMobile ? 560 : 960, rootBounds.width + (isMobile ? 60 : 120));
       const H = Math.max(isMobile ? 540 : 580, 240 + treeDepth * (isMobile ? 140 : 170));
 
       svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
@@ -12557,15 +12712,6 @@
       const rtrBoxX = rtrCenterX - rtrBoxW / 2;
       const rtrBoxY = isMobile ? 120 : 130;
 
-      // Layer Filter Opacity Resolver
-      const curLayer = window._topoActiveLayer || 'all';
-      function getLayerStyle(layerCode) {
-        if (curLayer === 'all' || curLayer === layerCode) {
-          return "transition:opacity 0.2s ease;";
-        }
-        return "opacity: 0.14; filter: grayscale(80%); pointer-events:none; transition:opacity 0.2s ease;";
-      }
-
       // 1. INGRESS DEVICES & CONDUITS (Top of Diagram)
       const ingressY0 = isMobile ? 46 : 50;
       const dyIngress = 52;
@@ -12574,7 +12720,7 @@
         const dotX = rtrCenterX - 110;
         const usbStyle = getUsbThemeStyle(l.usbStd || l.type || l.cls, isLight);
 
-        const infoG = mk("g", { class: `ingress-info-card ${l.cls}`, style: `cursor:pointer; ${getLayerStyle('L1')}` }, svg);
+        const infoG = mk("g", { class: `ingress-info-card ${l.cls}`, style: `cursor:pointer;` }, svg);
         mk("rect", {
           x: dotX - 200,
           y: y - 22,
@@ -12598,37 +12744,24 @@
         const tSp = mk("text", { class: "sp", x: dotX - 168, y: y + 13, style: `font-size:12.5px; ${l.connected ? '' : 'opacity:0.4;'}` }, infoG);
         l.sv = mk("tspan", { id: "bwDevSpeedVal_" + i }, tSp);
         l.su = mk("tspan", { id: "bwDevSpeedUnit_" + i, class: "un", dx: 3, style: "font-size:8.5px;" }, tSp);
-        l.sm = mk("tspan", { id: "bwDevSpeedMax_" + i, class: "max-tag", dx: 4, style: "font-size:8.5px; font-weight:500; fill:var(--text-dim); opacity:0.8;" }, tSp);
-        if (l.connected) {
-          l.sv.textContent = (l.v > 0 ? (l.v >= 10 ? Math.round(l.v) : l.v.toFixed(1)) : "0.0");
-          l.su.textContent = "Mbps";
-          l.sm.textContent = calcMaxLinkSpeedTag(l);
-        } else {
-          l.sv.textContent = "--";
-          l.su.textContent = "";
-          l.sm.textContent = "";
-        }
+        l.sm = mk("tspan", { id: "bwDevSpeedMax_" + i, class: "sm", dx: 5, style: "font-size:8.5px;" }, tSp);
 
-        infoG.onclick = (e) => {
-          showBadaTooltip(e, l.nodeKey, l.subIndex);
-        };
+        // Trunk Conduit to Router
+        const dTrunk = `M${dotX} ${y} C${dotX + 50} ${y}, ${rtrCenterX - 30} ${rtrBoxY - 24}, ${rtrCenterX} ${rtrBoxY}`;
+        mk("path", { class: "base", d: dTrunk, stroke: usbStyle.lineStroke, "stroke-width": 2.2, fill: "none", style: "opacity:0.35;" }, svg);
 
-        // Conduit from Ingress to Router
-        const d = `M${dotX} ${y} C${dotX + 50} ${y} ${rtrCenterX - 40} ${rtrBoxY - 20} ${rtrCenterX} ${rtrBoxY}`;
-        mk("path", { class: "base", d, stroke: l.connected ? usbStyle.lineStroke : "var(--border)", "stroke-width": 2, fill: "none", style: getLayerStyle('L1') }, svg);
         if (l.connected) {
-          l.flow = mk("path", { class: "flow", id: "bwP" + i, d, stroke: usbStyle.flowStroke, "stroke-width": 2.2, fill: "none", style: getLayerStyle('L1') }, svg);
-          [0, 1].forEach(n => {
-            const c = mk("circle", { class: "pt", r: 2.2, fill: usbStyle.particleFill, style: `fill:${usbStyle.particleFill} !important; ${getLayerStyle('L1')}` }, svg);
-            const m = mk("animateMotion", { dur: "2.4s", begin: `-${(n * 1.2 + i * 0.4).toFixed(2)}s`, repeatCount: "indefinite" }, c);
-            const mp = mk("mpath", { href: "#bwP" + i }, m);
-            try { mp.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#bwP" + i); } catch (e) {}
-          });
+          const cId = "bwIngressFlow_" + i;
+          mk("path", { id: cId, class: "flow", d: dTrunk, stroke: usbStyle.lineStroke, "stroke-width": 2.6, fill: "none", style: `filter:drop-shadow(0 0 4px ${usbStyle.glowColor});` }, svg);
+          const circ = mk("circle", { class: "pt", r: 2.4, fill: usbStyle.lineStroke, style: `fill:${usbStyle.lineStroke} !important;` }, svg);
+          const m = mk("animateMotion", { dur: "1.8s", repeatCount: "indefinite" }, circ);
+          const mp = mk("mpath", { href: "#" + cId }, m);
+          try { mp.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#" + cId); } catch (e) {}
         }
       });
 
-      // 2. ROOT ROUTER STADIUM BOX
-      const rtrG = mk("g", { style: `cursor:pointer; ${getLayerStyle('L2')}` }, svg);
+      // 2. MAIN ROUTER CARD
+      const rtrG = mk("g", { style: "cursor:pointer;" }, svg);
       rtrG.onclick = (e) => showTopoNodeDetail(tree, false, e);
 
       mk("rect", {
@@ -12636,149 +12769,238 @@
         y: rtrBoxY,
         width: rtrBoxW,
         height: rtrBoxH,
-        rx: 22,
-        ry: 22,
+        rx: 8,
+        ry: 8,
         fill: "var(--card-inner, #161822)",
         stroke: "#38bdf8",
-        "stroke-width": 1.5,
+        "stroke-width": 1.4,
         style: "filter: drop-shadow(0 4px 12px rgba(56,189,248,0.22));"
       }, rtrG);
 
-      drawRouterBoxIcon(rtrCenterX - 28, rtrBoxY + 14, "#38bdf8", rtrG);
+      drawRouterBoxIcon(rtrBoxX + 14, rtrBoxY + rtrBoxH / 2, "#38bdf8", rtrG);
 
-      mk("text", {
-        x: rtrCenterX - 14,
+      const tRtrName = mk("text", {
+        x: rtrBoxX + 30,
         y: rtrBoxY + 16,
-        style: "font-size:9px; font-weight:800; font-family:var(--font-mono); fill:var(--text-dim, #71717a); letter-spacing:0.8px;"
-      }, rtrG).textContent = "ROUTER";
-
-      // Online status dot on router
-      mk("circle", { cx: rtrBoxX + rtrBoxW - 14, cy: rtrBoxY + 14, r: 3, fill: "#10b981", style: "filter:drop-shadow(0 0 4px #10b981);" }, rtrG);
-
-      const cSp = mk("text", {
-        x: rtrCenterX,
-        y: rtrBoxY + 34,
-        "text-anchor": "middle",
-        style: "font-size:14px; font-weight:800; font-family:var(--font-mono); fill:var(--text-main, #ffffff);"
+        style: "font-size:10px; font-weight:800; font-family:var(--font-mono); fill:var(--text-main, #ffffff);"
       }, rtrG);
-      bwUi.cv = mk("tspan", {}, cSp);
-      const cUn = mk("tspan", { style: "font-size:9px; fill:var(--text-dim, #71717a); font-weight:600;", dx: 3 }, cSp);
-      cUn.textContent = "Mbps";
+      tRtrName.textContent = "ROUTER";
 
-      // 3. RECURSIVE SUBTREE BRANCH RENDERING (UNLIMITED DEPTH)
-      const rootPorts = tree.ports || [];
-      const numRootPorts = rootPorts.length;
-      const portBoxW = isMobile ? 66 : 76;
-      const portBoxH = isMobile ? 40 : 44;
-      const portGap = isMobile ? 12 : 20;
+      const tRtrSpd = mk("text", {
+        id: "bwRouterThroughput",
+        x: rtrBoxX + 30,
+        y: rtrBoxY + 34,
+        style: "font-size:12px; font-weight:800; font-family:var(--font-mono); fill:#38bdf8;"
+      }, rtrG);
+      tRtrSpd.textContent = "0.0Mbps";
 
-      // Allocate widths based on subtree bounds
-      const portWidths = rootPorts.map(p => Math.max(portBoxW, computeSubtreeBounds(p, isMobile).width));
-      const totalAllocatedW = portWidths.reduce((a, b) => a + b, 0) + (numRootPorts - 1) * portGap;
-      const rowStartX = rtrCenterX - totalAllocatedW / 2;
-      const rootPortsY = rtrBoxY + rtrBoxH + (isMobile ? 36 : 42);
+      // 3. UNIFIED INTERFACES ROW (LAN 1..N, 2.4G WiFi, 5G WiFi)
+      const slots = computeNodeInterfaceSlots(tree, isMobile);
+      const numSlots = slots.length;
+      const portBoxW = isMobile ? 54 : 66;
+      const portBoxH = isMobile ? 38 : 42;
+      const clientCardW = isMobile ? 80 : 94;
+      const clientCardH = isMobile ? 24 : 26;
+      const slotGap = isMobile ? 8 : 14;
 
-      let curX = rowStartX;
+      const totalSlotsW = slots.reduce((sum, s) => sum + s.width, 0) + (numSlots - 1) * slotGap;
+      const slotsStartX = rtrCenterX - totalSlotsW / 2;
+      const rootPortsY = rtrBoxY + rtrBoxH + (isMobile ? 32 : 38);
 
-      rootPorts.forEach((port, idx) => {
-        const slotW = portWidths[idx];
-        const portCenterX = curX + slotW / 2;
-        const portBoxX = portCenterX - portBoxW / 2;
-        curX += slotW + portGap;
+      let curSlotX = slotsStartX;
 
-        const isUp = port.role !== 'empty';
-        const clientCount = computeSubtreeClientCount(port.child);
+      slots.forEach((slot, sIdx) => {
+        const slotW = slot.width;
+        const slotCenterX = curSlotX + slotW / 2;
+        const slotBoxX = slotCenterX - portBoxW / 2;
+        const slotLeftX = curSlotX;
+        curSlotX += slotW + slotGap;
 
-        // Solid conduit from Router bottom to Port top
-        const dPortConduit = `M${rtrCenterX} ${rtrBoxY + rtrBoxH} L${portCenterX} ${rootPortsY}`;
+        // Draw conduit from Router bottom to Interface box top
+        const dConduit = `M${rtrCenterX} ${rtrBoxY + rtrBoxH} L${slotCenterX} ${rootPortsY}`;
+        const isLan = slot.type === 'lan';
+        const isUp = isLan ? (slot.role !== 'empty') : (slot.count > 0);
+        const slotColor = isLan ? '#38bdf8' : (slot.band === '5G' ? '#06b6d4' : '#f59e0b');
+
         mk("path", {
           class: "base",
-          d: dPortConduit,
-          stroke: isUp ? "#38bdf8" : "var(--border)",
+          d: dConduit,
+          stroke: isUp ? slotColor : "var(--border)",
           "stroke-width": 1.4,
           fill: "none",
-          style: `${getLayerStyle('L1')}; opacity: ${isUp ? 0.45 : 0.2};`
+          style: `opacity: ${isUp ? 0.45 : 0.2};`
         }, svg);
 
         if (isUp) {
-          const conduitId = "bwConduitRoot_" + idx;
+          const conduitId = "bwConduitRoot_" + sIdx;
           mk("path", {
             id: conduitId,
             class: "flow",
-            d: dPortConduit,
-            stroke: "#38bdf8",
+            d: dConduit,
+            stroke: slotColor,
             "stroke-width": 1.6,
             fill: "none",
-            style: `${getLayerStyle('L1')}; filter:drop-shadow(0 0 3px #38bdf8);`
+            style: `filter:drop-shadow(0 0 3px ${slotColor});`
           }, svg);
-          const cCirc = mk("circle", { class: "pt", r: 1.8, fill: "#38bdf8", style: `fill:#38bdf8 !important; ${getLayerStyle('L1')}` }, svg);
-          const m = mk("animateMotion", { dur: "2.2s", begin: `-${(idx * 0.4).toFixed(2)}s`, repeatCount: "indefinite" }, cCirc);
+          const cCirc = mk("circle", { class: "pt", r: 1.8, fill: slotColor, style: `fill:${slotColor} !important;` }, svg);
+          const m = mk("animateMotion", { dur: "2.2s", begin: `-${(sIdx * 0.35).toFixed(2)}s`, repeatCount: "indefinite" }, cCirc);
           const mp = mk("mpath", { href: "#" + conduitId }, m);
           try { mp.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#" + conduitId); } catch (e) {}
         }
 
-        // Physical Port Box
-        const portG = mk("g", { class: `compact-lan-box ${isUp ? 'is-up' : 'is-down'}`, style: `cursor:pointer; ${getLayerStyle('L1')}` }, svg);
-        portG.onclick = (e) => showTopoNodeDetail(port, true, e);
+        // Draw Interface Box
+        if (isLan) {
+          const port = slot.port;
+          const clientCount = computeSubtreeClientCount(port.child);
+          const portG = mk("g", { class: `compact-lan-box ${isUp ? 'is-up' : 'is-down'}`, style: `cursor:pointer;` }, svg);
+          portG.onclick = (e) => showTopoNodeDetail(port, true, e);
 
-        mk("rect", {
-          x: portBoxX,
-          y: rootPortsY,
-          width: portBoxW,
-          height: portBoxH,
-          rx: 8,
-          ry: 8,
-          fill: "var(--card-inner, #161822)",
-          stroke: isUp ? "#38bdf8" : "var(--border)",
-          "stroke-width": 1.2,
-          style: isUp ? "filter: drop-shadow(0 2px 6px rgba(56,189,248,0.18));" : "opacity:0.75;"
-        }, portG);
+          mk("rect", {
+            x: slotBoxX,
+            y: rootPortsY,
+            width: portBoxW,
+            height: portBoxH,
+            rx: 7,
+            ry: 7,
+            fill: "var(--card-inner, #161822)",
+            stroke: isUp ? "#38bdf8" : "var(--border)",
+            "stroke-width": 1.2,
+            style: isUp ? "filter: drop-shadow(0 2px 6px rgba(56,189,248,0.18));" : "opacity:0.75;"
+          }, portG);
 
-        // Status dot on port box
-        mk("circle", {
-          cx: portBoxX + 10,
-          cy: rootPortsY + 11,
-          r: 2.2,
-          fill: isUp ? "#10b981" : "#52525b",
-          style: isUp ? "filter:drop-shadow(0 0 3px #10b981);" : ""
-        }, portG);
+          mk("circle", {
+            cx: slotBoxX + 9,
+            cy: rootPortsY + 11,
+            r: 2.0,
+            fill: isUp ? "#10b981" : "#52525b"
+          }, portG);
 
-        mk("text", {
-          x: portBoxX + 18,
-          y: rootPortsY + 14,
-          style: `font-size:9.5px; font-weight:800; font-family:var(--font-mono); fill:${isUp ? 'var(--text-main, #ffffff)' : 'var(--text-dim, #71717a)'};`
-        }, portG).textContent = port.label || `LAN ${idx + 1}`;
+          mk("text", {
+            x: slotBoxX + 17,
+            y: rootPortsY + 14,
+            style: `font-size:9px; font-weight:800; font-family:var(--font-mono); fill:${isUp ? 'var(--text-main, #ffffff)' : 'var(--text-dim, #71717a)'};`
+          }, portG).textContent = port.label || `LAN ${slot.idx + 1}`;
 
-        // People icon and count inside port box
-        drawPeopleIcon(portBoxX + 14, rootPortsY + 22, isUp && clientCount > 0 ? "var(--text-main, #ffffff)" : "var(--text-dim, #71717a)", portG);
+          drawPeopleIcon(slotBoxX + 12, rootPortsY + 23, isUp && clientCount > 0 ? "var(--text-main)" : "var(--text-dim)", portG);
 
-        mk("text", {
-          x: portBoxX + 36,
-          y: rootPortsY + 33,
-          style: `font-size:11px; font-weight:800; font-family:var(--font-mono); fill:${clientCount > 0 ? 'var(--text-main, #ffffff)' : 'var(--text-dim, #71717a)'};`
-        }, portG).textContent = clientCount;
+          mk("text", {
+            x: slotBoxX + 32,
+            y: rootPortsY + 33,
+            style: `font-size:10.5px; font-weight:800; font-family:var(--font-mono); fill:${clientCount > 0 ? 'var(--text-main)' : 'var(--text-dim)'};`
+          }, portG).textContent = clientCount;
 
-        // Render Downstream Entities under Port
-        if (isUp && port.child) {
-          renderSubtreeBranchSvg(port, portCenterX, rootPortsY + portBoxH, defs, svg, isMobile, isLight, 1, allClientsList);
+          // Render Downstream Entities strictly under this LAN Port
+          if (isUp && port.child) {
+            renderSubtreeBranchSvg(port, slotCenterX, rootPortsY + portBoxH, defs, svg, isMobile, isLight, 1, allClientsList);
+          }
+
+        } else {
+          // Wireless Interface Box (2.4G or 5G WiFi)
+          const wifiG = mk("g", { class: "compact-lan-box is-wifi", style: `cursor:pointer;` }, svg);
+          wifiG.onclick = (e) => showTopoNodeDetail({ label: slot.label, count: slot.count, clients: slot.clients, band: slot.band }, true, e);
+
+          mk("rect", {
+            x: slotBoxX,
+            y: rootPortsY,
+            width: portBoxW,
+            height: portBoxH,
+            rx: 7,
+            ry: 7,
+            fill: "var(--card-inner, #161822)",
+            stroke: isUp ? slot.color : "var(--border)",
+            "stroke-width": 1.2,
+            style: isUp ? `filter: drop-shadow(0 2px 6px ${slot.color}33);` : "opacity:0.75;"
+          }, wifiG);
+
+          drawWifiAntennaIcon(slotBoxX + 10, rootPortsY + 11, isUp ? slot.color : "var(--text-dim)", wifiG);
+
+          mk("text", {
+            x: slotBoxX + 19,
+            y: rootPortsY + 14,
+            style: `font-size:8.5px; font-weight:800; font-family:var(--font-mono); fill:${isUp ? slot.color : 'var(--text-dim, #71717a)'};`
+          }, wifiG).textContent = slot.band;
+
+          drawPeopleIcon(slotBoxX + 12, rootPortsY + 23, isUp ? slot.color : "var(--text-dim)", wifiG);
+
+          mk("text", {
+            x: slotBoxX + 32,
+            y: rootPortsY + 33,
+            style: `font-size:10.5px; font-weight:800; font-family:var(--font-mono); fill:${isUp ? slot.color : 'var(--text-dim)'};`
+          }, wifiG).textContent = slot.count;
+
+          // Render Wireless Clients strictly under this WiFi Port Box
+          if (slot.count > 0) {
+            const wifiStartY = rootPortsY + portBoxH + (isMobile ? 36 : 42);
+            const clients = slot.clients;
+            const numWc = clients.length;
+            const wGap = isMobile ? 6 : 8;
+            const totalW = numWc * clientCardW + (numWc - 1) * wGap;
+            const startWcX = slotCenterX - totalW / 2;
+
+            clients.forEach((wc, wcIdx) => {
+              const wcX = startWcX + wcIdx * (clientCardW + wGap);
+              const wcCenterX = wcX + clientCardW / 2;
+
+              // Dashed WiFi link from WiFi box bottom to wireless client card top
+              const dWifiLink = `M${slotCenterX} ${rootPortsY + portBoxH} C${slotCenterX} ${rootPortsY + portBoxH + 20}, ${wcCenterX} ${wifiStartY - 18}, ${wcCenterX} ${wifiStartY}`;
+              mk("path", {
+                d: dWifiLink,
+                stroke: slot.color,
+                "stroke-width": 1.2,
+                "stroke-dasharray": "3 2.5",
+                fill: "none",
+                style: "opacity:0.75;"
+              }, svg);
+
+              // Client Card
+              const wcG = mk("g", { class: "topo-wifi-client", style: `cursor:pointer;` }, svg);
+              wcG.onclick = (e) => showTopoNodeDetail(wc, false, e);
+
+              mk("rect", {
+                x: wcX,
+                y: wifiStartY,
+                width: clientCardW,
+                height: clientCardH,
+                rx: 5,
+                ry: 5,
+                fill: "var(--card-inner, #161822)",
+                stroke: slot.color,
+                "stroke-width": 1.0,
+                style: "filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));"
+              }, wcG);
+
+              drawWifiAntennaIcon(wcX + 9, wifiStartY + clientCardH / 2, slot.color, wcG);
+
+              let wcName = wc.name || wc.ip || "WiFi";
+              if (wcName.length > 9) wcName = wcName.substring(0, 8) + "…";
+
+              const tWcName = mk("text", {
+                x: wcX + 18,
+                y: wifiStartY + 9,
+                style: "font-size:7.5px; font-weight:700; font-family:var(--font-mono); fill:var(--text-main, #ffffff);"
+              }, wcG);
+              tWcName.textContent = wcName;
+
+              const tWcBand = mk("text", {
+                x: wcX + 18,
+                y: wifiStartY + 17,
+                style: `font-size:6.5px; font-weight:800; font-family:var(--font-mono); fill:${slot.color};`
+              }, wcG);
+              tWcBand.textContent = `[${slot.band}] ${wc.ip ? wc.ip.split('.').slice(2).join('.') : ''}`;
+            });
+          }
         }
       });
 
       renderBwValues();
     }
 
-    // RECURSIVE SUBTREE BRANCH SVG BUILDER
+    // =========================================================================
+    // RECURSIVE SUBTREE BRANCH BUILDER (ZERO-OVERLAP LAN & WIFI LANES)
+    // =========================================================================
     function renderSubtreeBranchSvg(parentPort, parentX, parentY, defs, svg, isMobile, isLight, depth, allClientsList) {
       if (!parentPort || !parentPort.child) return;
       const child = parentPort.child;
-
-      const activeLayer = window._topoActiveLayer || 'all';
-      function getLayerStyle(layerCode) {
-        if (activeLayer === 'all' || activeLayer === layerCode) {
-          return "transition:opacity 0.2s ease;";
-        }
-        return "opacity: 0.14; filter: grayscale(80%); pointer-events:none; transition:opacity 0.2s ease;";
-      }
 
       // BRANCH TYPE 1: DIRECT LEAF DEVICE
       if (parentPort.role === 'device') {
@@ -12792,14 +13014,14 @@
         const conduitId = `bwCableDev_${depth}_${Math.random().toString(36).substr(2, 5)}`;
         const dCable = `M${parentX} ${parentY} L${parentX} ${devY}`;
 
-        // Solid wired cable from port to device
+        // Straight vertical wired cable from port to device
         mk("path", {
           class: "base",
           d: dCable,
           stroke: devClass.color,
           "stroke-width": 1.4,
           fill: "none",
-          style: `${getLayerStyle('L1')}; opacity:0.35;`
+          style: "opacity:0.35;"
         }, svg);
 
         mk("path", {
@@ -12809,11 +13031,11 @@
           stroke: devClass.color,
           "stroke-width": 1.6,
           fill: "none",
-          style: `${getLayerStyle('L1')}; filter:drop-shadow(0 0 3px ${devClass.color});`
+          style: `filter:drop-shadow(0 0 3px ${devClass.color});`
         }, svg);
 
         [0, 1].forEach(n => {
-          const cCirc = mk("circle", { class: "pt", r: 1.8, fill: devClass.color, style: `fill:${devClass.color} !important; ${getLayerStyle('L1')}` }, svg);
+          const cCirc = mk("circle", { class: "pt", r: 1.8, fill: devClass.color, style: `fill:${devClass.color} !important;` }, svg);
           const m = mk("animateMotion", { dur: "2.0s", begin: `-${(n * 1.0).toFixed(2)}s`, repeatCount: "indefinite" }, cCirc);
           const mp = mk("mpath", { href: "#" + conduitId }, m);
           try { mp.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#" + conduitId); } catch (e) {}
@@ -12823,12 +13045,12 @@
         const tSpeed = mk("text", {
           x: parentX + 4,
           y: parentY + (devY - parentY) / 2 + 3,
-          style: `font-size:7px; font-weight:800; font-family:var(--font-mono); fill:${devClass.color}; opacity:0.8; ${getLayerStyle('L1')}`
+          style: `font-size:7px; font-weight:800; font-family:var(--font-mono); fill:${devClass.color}; opacity:0.8;`
         }, svg);
         tSpeed.textContent = "1Gbps";
 
         // Device Box Card
-        const devG = mk("g", { class: "topo-client-node", style: `cursor:pointer; ${getLayerStyle('L3')}` }, svg);
+        const devG = mk("g", { class: "topo-client-node", style: `cursor:pointer;` }, svg);
         devG.onclick = (e) => showTopoNodeDetail(dev, false, e);
 
         mk("rect", {
@@ -12851,57 +13073,44 @@
 
         const tDevName = mk("text", {
           x: devBoxX + 22,
-          y: devY + (isMobile ? 10 : 11),
-          style: "font-size:8px; font-weight:700; font-family:var(--font-mono); fill:var(--text-main, #ffffff);"
+          y: devY + 11,
+          style: "font-size:8px; font-weight:800; font-family:var(--font-mono); fill:var(--text-main, #ffffff);"
         }, devG);
         tDevName.textContent = devName;
 
         const tDevIp = mk("text", {
           x: devBoxX + 22,
-          y: devY + (isMobile ? 20 : 22),
-          style: `font-size:7px; font-weight:700; font-family:var(--font-mono); fill:${devClass.color}; opacity:0.9;`
+          y: devY + 20,
+          style: "font-size:7px; font-weight:700; font-family:var(--font-mono); fill:var(--text-dim, #71717a);"
         }, devG);
-        tDevIp.textContent = dev.ip || '';
-
-        // Live status dot
-        const isOnline = allClientsList.some(c => c && c.ip === dev.ip);
-        mk("circle", {
-          cx: devBoxX + devW - 7,
-          cy: devY + 7,
-          r: 2,
-          fill: isOnline ? "#10b981" : "#52525b",
-          style: isOnline ? "filter:drop-shadow(0 0 2px #10b981);" : ""
-        }, devG);
-
+        tDevIp.textContent = dev.ip || "";
         return;
       }
 
       // BRANCH TYPE 2: INTERMEDIATE NODE (ROUTER / AP / SWITCH)
       if (parentPort.role === 'node') {
         const node = child;
-        const isAp = node.type === 'ap';
         const isSwitch = node.type === 'switch';
         const isRouter = node.type === 'router';
-        const nodeColor = isSwitch ? '#f59e0b' : '#38bdf8';
-
-        const nodeW = isMobile ? 116 : 130;
-        const nodeH = isMobile ? 36 : 40;
-        const nodeY = parentY + (isMobile ? 40 : 50);
-        const nodeBoxX = parentX - nodeW / 2;
+        const nodeColor = isSwitch ? '#10b981' : (isRouter ? '#38bdf8' : '#f59e0b');
 
         const isCollapsed = window._topoCollapsed && window._topoCollapsed.has(node.id);
+        const nodeW = isMobile ? 120 : 136;
+        const nodeH = isMobile ? 38 : 42;
+        const nodeY = parentY + (isMobile ? 36 : 46);
+        const nodeBoxX = parentX - nodeW / 2;
 
-        const conduitId = `bwCableNode_${depth}_${Math.random().toString(36).substr(2, 5)}`;
+        const conduitId = `bwTrunkNode_${depth}_${Math.random().toString(36).substr(2, 5)}`;
         const dCable = `M${parentX} ${parentY} L${parentX} ${nodeY}`;
 
-        // Solid wired trunk cable
+        // Straight vertical trunk cable from parent port down to node box
         mk("path", {
           class: "base",
           d: dCable,
           stroke: nodeColor,
           "stroke-width": 1.6,
           fill: "none",
-          style: `${getLayerStyle('L1')}; opacity:0.4;`
+          style: "opacity:0.4;"
         }, svg);
 
         mk("path", {
@@ -12911,11 +13120,11 @@
           stroke: nodeColor,
           "stroke-width": 1.8,
           fill: "none",
-          style: `${getLayerStyle('L1')}; filter:drop-shadow(0 0 4px ${nodeColor});`
+          style: `filter:drop-shadow(0 0 4px ${nodeColor});`
         }, svg);
 
         [0, 1].forEach(n => {
-          const cCirc = mk("circle", { class: "pt", r: 2.0, fill: nodeColor, style: `fill:${nodeColor} !important; ${getLayerStyle('L1')}` }, svg);
+          const cCirc = mk("circle", { class: "pt", r: 2.0, fill: nodeColor, style: `fill:${nodeColor} !important;` }, svg);
           const m = mk("animateMotion", { dur: "2.0s", begin: `-${(n * 1.0).toFixed(2)}s`, repeatCount: "indefinite" }, cCirc);
           const mp = mk("mpath", { href: "#" + conduitId }, m);
           try { mp.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#" + conduitId); } catch (e) {}
@@ -12925,12 +13134,12 @@
         const tTrunkSpeed = mk("text", {
           x: parentX + 4,
           y: parentY + (nodeY - parentY) / 2 + 3,
-          style: `font-size:7px; font-weight:800; font-family:var(--font-mono); fill:${nodeColor}; opacity:0.85; ${getLayerStyle('L1')}`
+          style: `font-size:7px; font-weight:800; font-family:var(--font-mono); fill:${nodeColor}; opacity:0.85;`
         }, svg);
         tTrunkSpeed.textContent = "1Gbps";
 
         // Node Box Card
-        const nodeG = mk("g", { class: "topo-ap-node", style: `cursor:pointer; ${getLayerStyle('L2')}` }, svg);
+        const nodeG = mk("g", { class: "topo-ap-node", style: `cursor:pointer;` }, svg);
         nodeG.onclick = (e) => showTopoNodeDetail(node, false, e);
 
         mk("rect", {
@@ -13005,148 +13214,187 @@
           tBtn.textContent = isCollapsed ? "+" : "-";
         }
 
-        // IF NOT COLLAPSED: RENDER CHILD PORTS & WIRELESS CLIENTS
+        // IF NOT COLLAPSED: RENDER CHILD INTERFACES ROW (LAN 1..N, 2.4G WiFi, 5G WiFi)
         if (!isCollapsed) {
-          const cPorts = node.ports || [];
-          const numCPorts = cPorts.length;
-          const cPortBoxW = isMobile ? 58 : 68;
+          const cSlots = computeNodeInterfaceSlots(node, isMobile);
+          const numCSlots = cSlots.length;
+          const cPortBoxW = isMobile ? 54 : 66;
           const cPortBoxH = isMobile ? 36 : 40;
-          const cPortGap = isMobile ? 10 : 16;
+          const clientCardW = isMobile ? 80 : 94;
+          const clientCardH = isMobile ? 22 : 24;
+          const cSlotGap = isMobile ? 8 : 14;
 
-          const cPortWidths = cPorts.map(p => Math.max(cPortBoxW, computeSubtreeBounds(p, isMobile).width));
-          const totalChildPortsW = cPortWidths.reduce((a, b) => a + b, 0) + (numCPorts - 1) * cPortGap;
-          const childRowStartX = parentX - totalChildPortsW / 2;
-          const childPortsY = nodeY + nodeH + (isMobile ? 34 : 40);
+          const totalChildSlotsW = cSlots.reduce((a, b) => a + b.width, 0) + (numCSlots - 1) * cSlotGap;
+          const childRowStartX = parentX - totalChildSlotsW / 2;
+          const childPortsY = nodeY + nodeH + (isMobile ? 32 : 38);
 
-          let curChildX = childRowStartX;
+          let curChildSlotX = childRowStartX;
 
-          cPorts.forEach((cp, cpIdx) => {
-            const cpSlotW = cPortWidths[cpIdx];
-            const cpCenterX = curChildX + cpSlotW / 2;
-            const cpBoxX = cpCenterX - cPortBoxW / 2;
-            curChildX += cpSlotW + cPortGap;
+          cSlots.forEach((cSlot, csIdx) => {
+            const csW = cSlot.width;
+            const csCenterX = curChildSlotX + csW / 2;
+            const csBoxX = csCenterX - cPortBoxW / 2;
+            curChildSlotX += csW + cSlotGap;
 
-            const isCpUp = cp.role !== 'empty';
-            const cpClientCount = computeSubtreeClientCount(cp.child);
+            const isLan = cSlot.type === 'lan';
+            const isCsUp = isLan ? (cSlot.role !== 'empty') : (cSlot.count > 0);
+            const csColor = isLan ? nodeColor : (cSlot.band === '5G' ? '#06b6d4' : '#f59e0b');
 
-            // Conduit from Node bottom to Port top
-            const dCpConduit = `M${parentX} ${nodeY + nodeH} L${cpCenterX} ${childPortsY}`;
+            // Conduit from Node bottom to Child Interface box top
+            const dCpConduit = `M${parentX} ${nodeY + nodeH} L${csCenterX} ${childPortsY}`;
             mk("path", {
               class: "base",
               d: dCpConduit,
-              stroke: isCpUp ? nodeColor : "var(--border)",
+              stroke: isCsUp ? csColor : "var(--border)",
               "stroke-width": 1.2,
               fill: "none",
-              style: `${getLayerStyle('L1')}; opacity:${isCpUp ? 0.35 : 0.18};`
+              style: `opacity:${isCsUp ? 0.35 : 0.18};`
             }, svg);
 
-            // Child Port Box
-            const cpG = mk("g", { class: `compact-lan-box ${isCpUp ? 'is-up' : 'is-down'}`, style: `cursor:pointer; ${getLayerStyle('L1')}` }, svg);
-            cpG.onclick = (e) => showTopoNodeDetail(cp, true, e);
+            if (isLan) {
+              const cp = cSlot.port;
+              const cpClientCount = computeSubtreeClientCount(cp.child);
 
-            mk("rect", {
-              x: cpBoxX,
-              y: childPortsY,
-              width: cPortBoxW,
-              height: cPortBoxH,
-              rx: 6,
-              ry: 6,
-              fill: "var(--card-inner, #161822)",
-              stroke: isCpUp ? nodeColor : "var(--border)",
-              "stroke-width": 1.1,
-              style: isCpUp ? "filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));" : "opacity:0.75;"
-            }, cpG);
-
-            mk("circle", {
-              cx: cpBoxX + 8,
-              cy: childPortsY + 10,
-              r: 1.8,
-              fill: isCpUp ? "#10b981" : "#52525b"
-            }, cpG);
-
-            mk("text", {
-              x: cpBoxX + 15,
-              y: childPortsY + 12,
-              style: `font-size:8.5px; font-weight:800; font-family:var(--font-mono); fill:${isCpUp ? 'var(--text-main, #ffffff)' : 'var(--text-dim, #71717a)'};`
-            }, cpG).textContent = cp.label || `LAN ${cpIdx + 1}`;
-
-            drawPeopleIcon(cpBoxX + 10, childPortsY + 18, isCpUp && cpClientCount > 0 ? "var(--text-main)" : "var(--text-dim)", cpG);
-
-            mk("text", {
-              x: cpBoxX + 30,
-              y: childPortsY + 28,
-              style: `font-size:9.5px; font-weight:800; font-family:var(--font-mono); fill:${cpClientCount > 0 ? 'var(--text-main)' : 'var(--text-dim)'};`
-            }, cpG).textContent = cpClientCount;
-
-            // Recursively render whatever is plugged into this child port!
-            if (isCpUp && cp.child) {
-              renderSubtreeBranchSvg(cp, cpCenterX, childPortsY + cPortBoxH, defs, svg, isMobile, isLight, depth + 1, allClientsList);
-            }
-          });
-
-          // WIRELESS CLIENTS (WIFI) ATTACHED TO THIS AP/ROUTER (DASHED WIFI LINES)
-          const wClients = node.wireless_clients || [];
-          if (wClients.length > 0) {
-            const wifiStartY = childPortsY + cPortBoxH + 42;
-            const wifiPillW = isMobile ? 80 : 94;
-            const wifiPillH = isMobile ? 22 : 24;
-            const wifiGap = isMobile ? 8 : 12;
-            const totalWifiW = wClients.length * wifiPillW + (wClients.length - 1) * wifiGap;
-            const wifiStartX = parentX - totalWifiW / 2;
-
-            wClients.forEach((wc, wIdx) => {
-              const wifiX = wifiStartX + wIdx * (wifiPillW + wifiGap);
-              const wifiCenter = wifiX + wifiPillW / 2;
-              const bandColor = wc.band === '6G' ? '#a855f7' : (wc.band === '5G' ? '#06b6d4' : '#f59e0b');
-
-              // Dashed WiFi link line from AP bottom to wireless client
-              const dWifi = `M${parentX} ${nodeY + nodeH} C${parentX} ${nodeY + nodeH + 30} ${wifiCenter} ${wifiStartY - 20} ${wifiCenter} ${wifiStartY}`;
-              mk("path", {
-                d: dWifi,
-                stroke: bandColor,
-                "stroke-width": 1.2,
-                "stroke-dasharray": "3 2.5",
-                fill: "none",
-                style: `${getLayerStyle('L3')}; opacity:0.75;`
-              }, svg);
-
-              // Wireless Device Pill
-              const wcG = mk("g", { class: "topo-wifi-client", style: `cursor:pointer; ${getLayerStyle('L3')}` }, svg);
-              wcG.onclick = (e) => showTopoNodeDetail(wc, false, e);
+              // Child LAN Port Box
+              const cpG = mk("g", { class: `compact-lan-box ${isCsUp ? 'is-up' : 'is-down'}`, style: `cursor:pointer;` }, svg);
+              cpG.onclick = (e) => showTopoNodeDetail(cp, true, e);
 
               mk("rect", {
-                x: wifiX,
-                y: wifiStartY,
-                width: wifiPillW,
-                height: wifiPillH,
-                rx: 5,
-                ry: 5,
+                x: csBoxX,
+                y: childPortsY,
+                width: cPortBoxW,
+                height: cPortBoxH,
+                rx: 6,
+                ry: 6,
                 fill: "var(--card-inner, #161822)",
-                stroke: bandColor,
-                "stroke-width": 1.0,
-                style: "filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));"
-              }, wcG);
+                stroke: isCsUp ? nodeColor : "var(--border)",
+                "stroke-width": 1.1,
+                style: isCsUp ? "filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));" : "opacity:0.75;"
+              }, cpG);
 
-              drawWifiAntennaIcon(wifiX + 9, wifiStartY + wifiPillH / 2, bandColor, wcG);
+              mk("circle", {
+                cx: csBoxX + 8,
+                cy: childPortsY + 10,
+                r: 1.8,
+                fill: isCsUp ? "#10b981" : "#52525b"
+              }, cpG);
 
-              let wcName = wc.name || wc.ip || "WiFi";
-              if (wcName.length > 9) wcName = wcName.substring(0, 8) + "…";
+              mk("text", {
+                x: csBoxX + 15,
+                y: childPortsY + 12,
+                style: `font-size:8.5px; font-weight:800; font-family:var(--font-mono); fill:${isCsUp ? 'var(--text-main, #ffffff)' : 'var(--text-dim, #71717a)'};`
+              }, cpG).textContent = cp.label || `LAN ${csIdx + 1}`;
 
-              const tWcName = mk("text", {
-                x: wifiX + 18,
-                y: wifiStartY + 9,
-                style: "font-size:7.5px; font-weight:700; font-family:var(--font-mono); fill:var(--text-main, #ffffff);"
-              }, wcG);
-              tWcName.textContent = wcName;
+              drawPeopleIcon(csBoxX + 10, childPortsY + 18, isCsUp && cpClientCount > 0 ? "var(--text-main)" : "var(--text-dim)", cpG);
 
-              const tWcBand = mk("text", {
-                x: wifiX + 18,
-                y: wifiStartY + 17,
-                style: `font-size:6.5px; font-weight:800; font-family:var(--font-mono); fill:${bandColor};`
-              }, wcG);
-              tWcBand.textContent = `[${wc.band || '2.4G'}] ${wc.ip ? wc.ip.split('.').slice(2).join('.') : ''}`;
-            });
-          }
+              mk("text", {
+                x: csBoxX + 30,
+                y: childPortsY + 28,
+                style: `font-size:9.5px; font-weight:800; font-family:var(--font-mono); fill:${cpClientCount > 0 ? 'var(--text-main)' : 'var(--text-dim)'};`
+              }, cpG).textContent = cpClientCount;
+
+              // Recursively render whatever is plugged into this child LAN port!
+              if (isCsUp && cp.child) {
+                renderSubtreeBranchSvg(cp, csCenterX, childPortsY + cPortBoxH, defs, svg, isMobile, isLight, depth + 1, allClientsList);
+              }
+
+            } else {
+              // Wireless Radio Interface Box on child AP/Router
+              const wifiG = mk("g", { class: "compact-lan-box is-wifi", style: `cursor:pointer;` }, svg);
+              wifiG.onclick = (e) => showTopoNodeDetail({ label: cSlot.label, count: cSlot.count, clients: cSlot.clients, band: cSlot.band }, true, e);
+
+              mk("rect", {
+                x: csBoxX,
+                y: childPortsY,
+                width: cPortBoxW,
+                height: cPortBoxH,
+                rx: 6,
+                ry: 6,
+                fill: "var(--card-inner, #161822)",
+                stroke: isCsUp ? csColor : "var(--border)",
+                "stroke-width": 1.1,
+                style: isCsUp ? `filter: drop-shadow(0 2px 4px ${csColor}33);` : "opacity:0.75;"
+              }, wifiG);
+
+              drawWifiAntennaIcon(csBoxX + 9, childPortsY + 10, isCsUp ? csColor : "var(--text-dim)", wifiG);
+
+              mk("text", {
+                x: csBoxX + 17,
+                y: childPortsY + 12,
+                style: `font-size:8px; font-weight:800; font-family:var(--font-mono); fill:${isCsUp ? csColor : 'var(--text-dim, #71717a)'};`
+              }, wifiG).textContent = cSlot.band;
+
+              drawPeopleIcon(csBoxX + 10, childPortsY + 18, isCsUp ? csColor : "var(--text-dim)", wifiG);
+
+              mk("text", {
+                x: csBoxX + 30,
+                y: childPortsY + 28,
+                style: `font-size:9.5px; font-weight:800; font-family:var(--font-mono); fill:${isCsUp ? csColor : 'var(--text-dim)'};`
+              }, wifiG).textContent = cSlot.count;
+
+              // Render Wireless Clients strictly under this WiFi Box
+              if (cSlot.count > 0) {
+                const wifiStartY = childPortsY + cPortBoxH + (isMobile ? 34 : 38);
+                const clients = cSlot.clients;
+                const numWc = clients.length;
+                const wGap = isMobile ? 6 : 8;
+                const totalW = numWc * clientCardW + (numWc - 1) * wGap;
+                const startWcX = csCenterX - totalW / 2;
+
+                clients.forEach((wc, wcIdx) => {
+                  const wcX = startWcX + wcIdx * (clientCardW + wGap);
+                  const wcCenterX = wcX + clientCardW / 2;
+
+                  // Dashed WiFi link line from WiFi interface box to client
+                  const dWifi = `M${csCenterX} ${childPortsY + cPortBoxH} C${csCenterX} ${childPortsY + cPortBoxH + 18}, ${wcCenterX} ${wifiStartY - 16}, ${wcCenterX} ${wifiStartY}`;
+                  mk("path", {
+                    d: dWifi,
+                    stroke: csColor,
+                    "stroke-width": 1.2,
+                    "stroke-dasharray": "3 2.5",
+                    fill: "none",
+                    style: "opacity:0.75;"
+                  }, svg);
+
+                  // Wireless Device Pill
+                  const wcG = mk("g", { class: "topo-wifi-client", style: `cursor:pointer;` }, svg);
+                  wcG.onclick = (e) => showTopoNodeDetail(wc, false, e);
+
+                  mk("rect", {
+                    x: wcX,
+                    y: wifiStartY,
+                    width: clientCardW,
+                    height: clientCardH,
+                    rx: 5,
+                    ry: 5,
+                    fill: "var(--card-inner, #161822)",
+                    stroke: csColor,
+                    "stroke-width": 1.0,
+                    style: "filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));"
+                  }, wcG);
+
+                  drawWifiAntennaIcon(wcX + 9, wifiStartY + clientCardH / 2, csColor, wcG);
+
+                  let wcName = wc.name || wc.ip || "WiFi";
+                  if (wcName.length > 9) wcName = wcName.substring(0, 8) + "…";
+
+                  const tWcName = mk("text", {
+                    x: wcX + 18,
+                    y: wifiStartY + 9,
+                    style: "font-size:7.5px; font-weight:700; font-family:var(--font-mono); fill:var(--text-main, #ffffff);"
+                  }, wcG);
+                  tWcName.textContent = wcName;
+
+                  const tWcBand = mk("text", {
+                    x: wcX + 18,
+                    y: wifiStartY + 17,
+                    style: `font-size:6.5px; font-weight:800; font-family:var(--font-mono); fill:${csColor};`
+                  }, wcG);
+                  tWcBand.textContent = `[${cSlot.band}] ${wc.ip ? wc.ip.split('.').slice(2).join('.') : ''}`;
+                });
+              }
+            }
+          });
         }
       }
     }
@@ -14967,191 +15215,336 @@
     // =========================================================================
     // RENDER TOPOLOGY LAYERS SETTINGS UI (RECURSIVE, NO OVERLAPS, COMPACT DROPDOWNS)
     // =========================================================================
-    function renderTopologyLayersUI(topoData) {
-      const container = document.getElementById('topoLayerPortsContainer');
-      if (!container) return;
+// =========================================================================
+// RENDER TOPOLOGY LAYERS SETTINGS UI (UNIFIED WAN, LAN, 2.4G & 5G WIFI)
+// =========================================================================
+function renderTopologyLayersUI(topoData) {
+  const container = document.getElementById('topoLayerPortsContainer');
+  if (!container) return;
 
-      const currentLanIp = (window._lastDataCache && window._lastDataCache.network && window._lastDataCache.network.lan_ip) || '10.0.0.1';
-      const currentMac = (window._lastDataCache && window._lastDataCache.network && window._lastDataCache.network.lan_mac) || '2e:dd:4c:b2:8c:fa';
+  const currentLanIp = (window._lastDataCache && window._lastDataCache.network && window._lastDataCache.network.lan_ip) || '10.0.0.1';
+  const currentMac = (window._lastDataCache && window._lastDataCache.network && window._lastDataCache.network.lan_mac) || '2e:dd:4c:b2:8c:fa';
 
-      if (!window._topoTree || topoData) {
-        window._topoTree = normalizeTopologyTree(topoData || window._topologyLayers, currentLanIp, currentMac);
-      }
-      const tree = window._topoTree;
-      const availClients = getAvailableNetworkClients();
+  if (!window._topoTree || topoData) {
+    window._topoTree = normalizeTopologyTree(topoData || window._topologyLayers, currentLanIp, currentMac);
+  }
+  const tree = window._topoTree;
+  const availClients = getAvailableNetworkClients();
+  const usedIps = collectUsedIps(tree);
 
-      updateValidationNotice();
+  updateValidationNotice();
 
-      // Root Router Card
-      let html = `
-        <div class="topo-tree-card" id="topoNodeCard_root" style="border-left: 3px solid #38bdf8;">
-          <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.08);">
-            <div style="display:flex; align-items:center; gap:10px;">
-              <div style="width:32px; height:32px; border-radius:8px; background:rgba(56,189,248,0.15); color:#38bdf8; display:flex; align-items:center; justify-content:center;">
-                <svg viewBox="0 0 24 24" style="width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2;"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
-              </div>
-              <div>
-                <span style="font-size:13px; font-weight:800; font-family:var(--font-mono); color:var(--text-main);">${escapeHtml(tree.name || 'MAXNET GATEWAY')}</span>
-                <span style="font-size:11px; font-family:var(--font-mono); color:#38bdf8; margin-left:8px;">[HOST GATEWAY &bull; ${escapeHtml(tree.ip || '10.0.0.1')}]</span>
-              </div>
-            </div>
-            <div style="display:flex; align-items:center; gap:8px;">
-              <label style="font-size:11px; font-family:var(--font-mono); color:var(--text-dim);">LAN Ports:</label>
-              <input type="number" min="1" max="48" class="mh-input" value="${tree.numPorts || 4}" onchange="onNodePortCountChange('root', parseInt(this.value, 10))" style="width:65px; padding:4px 8px; font-size:11.5px; font-family:var(--font-mono); text-align:center;">
-              <span class="card-badge emerald" style="padding:2px 8px; font-size:10px;">${(tree.ports || []).filter(p => p.role !== 'empty').length} CONNECTED</span>
-            </div>
+  container.innerHTML = renderNodeCard(tree, 0, availClients, usedIps, true);
+}
+
+function renderNodeCard(node, depth, availClients, usedIps, isRoot) {
+  if (!node) return '';
+  const numPorts = Array.isArray(node.ports) ? node.ports.length : (node.numPorts || 4);
+  const isRouter = node.type === 'router';
+  const isAp = node.type === 'ap';
+  const isSwitch = node.type === 'switch';
+  const hasWifi = (isRouter || isAp);
+
+  const wClients24 = (node.wireless_clients || []).filter(c => c && c.band === '2.4G');
+  const wClients50 = (node.wireless_clients || []).filter(c => c && c.band !== '2.4G');
+
+  let typeBadge = isRoot ? 'HOST GATEWAY' : (isSwitch ? 'SWITCH' : (isRouter ? 'ROUTER' : 'ACCESS POINT'));
+  let typeColor = isSwitch ? '#10b981' : (isRoot ? '#38bdf8' : '#f59e0b');
+
+  let html = `
+    <div class="topo-tree-card ${isRoot ? '' : 'topo-nested-branch'}" id="topoNodeCard_${escapeHtml(node.id)}">
+      <!-- Node Header -->
+      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.06);">
+        <div style="display:flex; align-items:center; gap:10px; flex:1; min-width:220px;">
+          <div style="width:32px; height:32px; border-radius:8px; background:rgba(255,255,255,0.04); color:${typeColor}; display:flex; align-items:center; justify-content:center; border:1px solid rgba(255,255,255,0.08);">
+            ${isSwitch ?
+              '<svg viewBox="0 0 24 24" style="width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2;"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="6" y1="12" x2="6.01" y2="12"/><line x1="12" y1="12" x2="12.01" y2="12"/><line x1="18" y1="12" x2="18.01" y2="12"/></svg>' :
+              '<svg viewBox="0 0 24 24" style="width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2;"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>'
+            }
           </div>
-
-          <!-- Root Ports List (Recursive) -->
-          <div style="display:flex; flex-direction:column; gap:10px;">
-            ${renderNodePortsTree(tree, 0, availClients)}
+          <div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size:13px; font-weight:800; font-family:var(--font-mono); color:var(--text-main);">${escapeHtml(node.name || 'Node')}</span>
+              <span class="card-badge" style="padding:1px 6px; font-size:9.5px; color:${typeColor}; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);">${typeBadge}</span>
+            </div>
+            <div style="font-size:11px; font-family:var(--font-mono); color:var(--text-dim); margin-top:2px;">${escapeHtml(node.ip || '--')} &bull; MAC: ${escapeHtml(node.mac || '--')}</div>
           </div>
         </div>
-      `;
 
-      container.innerHTML = html;
-    }
-
-    function renderNodePortsTree(node, depth, availClients) {
-      if (!node || !Array.isArray(node.ports)) return '';
-      const usedIps = collectUsedIps(window._topoTree);
-
-      return node.ports.map((port, pIdx) => {
-        const isConnected = port.role !== 'empty';
-        const isDevice = port.role === 'device';
-        const isNode = port.role === 'node';
-        const child = port.child || {};
-        const devIp = child.ip || '';
-        const devName = child.name || '';
-        const devMac = child.mac || '';
-
-        return `
-          <div class="topo-port-row" id="topoPortRow_${escapeHtml(port.id)}" style="margin-left:${depth * 14}px;">
-            <!-- Port Header Bar -->
-            <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:${isConnected ? '12px' : '0'}; padding-bottom:${isConnected ? '10px' : '0'}; border-bottom:${isConnected ? '1px solid rgba(255,255,255,0.06)' : 'none'};">
-              <div style="display:flex; align-items:center; gap:8px;">
-                <span style="font-size:11px; font-weight:800; font-family:var(--font-mono); background:rgba(255,255,255,0.06); padding:3px 8px; border-radius:5px; color:var(--text-main);">${escapeHtml(port.label || ('LAN ' + (pIdx + 1)))}</span>
-                <span class="card-badge ${isConnected ? (isNode ? 'amber' : 'emerald') : ''}" style="font-size:9.5px; padding:1px 6px;">
-                  ${isConnected ? (isNode ? 'ROUTER / AP / SWITCH' : 'DEVICE') : 'EMPTY'}
-                </span>
-              </div>
-              <div style="display:flex; align-items:center; gap:8px;">
-                <label style="font-size:10.5px; font-family:var(--font-mono); color:var(--text-dim);">Role:</label>
-                <select class="mh-input" onchange="onPortRoleChange('${escapeHtml(port.id)}', this.value)" style="padding:4px 8px; font-size:11px; font-family:var(--font-mono); width:160px;">
-                  <option value="empty" ${port.role === 'empty' ? 'selected' : ''}>Empty</option>
-                  <option value="device" ${port.role === 'device' ? 'selected' : ''}>Device</option>
-                  <option value="node" ${port.role === 'node' ? 'selected' : ''}>Router / AP / Switch</option>
-                </select>
-              </div>
-            </div>
-
-            <!-- Role 1: DEVICE (End Client) -->
-            ${isDevice ? `
-              <div style="display:flex; flex-direction:column; gap:8px;">
-                <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-                  <label style="font-size:10.5px; font-family:var(--font-mono); color:var(--text-dim); min-width:90px;">Pick Client:</label>
-                  <select class="mh-input" onchange="onSelectPortDevice('${escapeHtml(port.id)}', this.value)" style="flex:1; min-width:240px; padding:5px 10px; font-size:11px; font-family:var(--font-mono);">
-                    <option value="">-- Select from Network Scan --</option>
-                    ${availClients.map(c => {
-                      const isUsedElsewhere = usedIps.has(c.ip) && c.ip !== devIp;
-                      const disabledAttr = isUsedElsewhere ? 'disabled style="color:var(--text-dim); opacity:0.45;"' : '';
-                      const usedTag = isUsedElsewhere ? ' [Already in use]' : '';
-                      return `<option value="${escapeHtml(c.ip)}" ${devIp === c.ip ? 'selected' : ''} ${disabledAttr}>${escapeHtml(c.name || 'Device')} &bull; ${escapeHtml(c.ip)} [${escapeHtml(c.mac || '--')}]${usedTag}</option>`;
-                    }).join('')}
-                    <option value="__manual__" ${(!availClients.some(c => c.ip === devIp) && devIp) ? 'selected' : ''}>+ Add Manually...</option>
-                  </select>
-                </div>
-                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding-left:100px;">
-                  <input type="text" class="mh-input" placeholder="Device Name" value="${escapeHtml(devName)}" oninput="onCustomPortDeviceChange('${escapeHtml(port.id)}', 'name', this.value)" style="flex:1; min-width:140px; padding:4px 8px; font-size:11px;">
-                  <input type="text" class="mh-input" placeholder="IP Address" value="${escapeHtml(devIp)}" oninput="onCustomPortDeviceChange('${escapeHtml(port.id)}', 'ip', this.value)" style="width:120px; padding:4px 8px; font-size:11px; font-family:var(--font-mono);">
-                  <input type="text" class="mh-input" placeholder="MAC (Optional)" value="${escapeHtml(devMac)}" oninput="onCustomPortDeviceChange('${escapeHtml(port.id)}', 'mac', this.value)" style="width:140px; padding:4px 8px; font-size:11px; font-family:var(--font-mono);">
-                </div>
-              </div>
-            ` : ''}
-
-            <!-- Role 2: INTERMEDIATE NODE (ROUTER / AP / SWITCH) -->
-            ${isNode && child ? `
-              <div class="topo-tree-card topo-nested-branch" id="topoNodeCard_${escapeHtml(child.id)}">
-                <!-- Node Header & Configuration -->
-                <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.06);">
-                  <div style="display:flex; align-items:center; gap:8px; flex:1; min-width:260px;">
-                    <select class="mh-input" onchange="onNodeFieldChange('${escapeHtml(child.id)}', 'type', this.value)" style="padding:4px 8px; font-size:11px; font-family:var(--font-mono); width:145px; font-weight:700; color:#38bdf8;">
-                      <option value="ap" ${child.type === 'ap' ? 'selected' : ''}>Access Point (AP)</option>
-                      <option value="router" ${child.type === 'router' ? 'selected' : ''}>Secondary Router</option>
-                      <option value="switch" ${child.type === 'switch' ? 'selected' : ''}>Ethernet Switch</option>
-                    </select>
-                    <select class="mh-input" onchange="onSelectPortNodeClient('${escapeHtml(port.id)}', this.value)" style="flex:1; min-width:180px; padding:4px 8px; font-size:11px; font-family:var(--font-mono);">
-                      <option value="">-- Auto-fill from Scan --</option>
-                      ${availClients.map(c => {
-                        const isUsedElsewhere = usedIps.has(c.ip) && c.ip !== child.ip;
-                        const disabledAttr = isUsedElsewhere ? 'disabled style="color:var(--text-dim); opacity:0.45;"' : '';
-                        const usedTag = isUsedElsewhere ? ' [Already in use]' : '';
-                        return `<option value="${escapeHtml(c.ip)}" ${child.ip === c.ip ? 'selected' : ''} ${disabledAttr}>${escapeHtml(c.name || 'Router')} &bull; ${escapeHtml(c.ip)} [${escapeHtml(c.mac || '--')}]${usedTag}</option>`;
-                      }).join('')}
-                    </select>
-                  </div>
-                  <div style="display:flex; align-items:center; gap:6px;">
-                    <label style="font-size:10.5px; font-family:var(--font-mono); color:var(--text-dim);">LAN Ports:</label>
-                    <input type="number" min="1" max="48" class="mh-input" value="${child.numPorts || 4}" onchange="onNodePortCountChange('${escapeHtml(child.id)}', parseInt(this.value, 10))" style="width:60px; padding:3px 6px; font-size:11px; text-align:center; font-family:var(--font-mono);">
-                  </div>
-                </div>
-
-                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
-                  <input type="text" class="mh-input" placeholder="Node Name (e.g. maxnet-b)" value="${escapeHtml(child.name || '')}" oninput="onNodeFieldChange('${escapeHtml(child.id)}', 'name', this.value)" style="flex:1; min-width:140px; padding:4px 8px; font-size:11px; font-weight:700;">
-                  <input type="text" class="mh-input" placeholder="Node IP Address" value="${escapeHtml(child.ip || '')}" oninput="onNodeFieldChange('${escapeHtml(child.id)}', 'ip', this.value)" style="width:120px; padding:4px 8px; font-size:11px; font-family:var(--font-mono);">
-                  <input type="text" class="mh-input" placeholder="Node MAC (Optional)" value="${escapeHtml(child.mac || '')}" oninput="onNodeFieldChange('${escapeHtml(child.id)}', 'mac', this.value)" style="width:140px; padding:4px 8px; font-size:11px; font-family:var(--font-mono);">
-                </div>
-
-                <!-- Wireless Clients Management (for AP / Router) -->
-                ${(child.type === 'ap' || child.type === 'router') ? `
-                  <div style="background:rgba(0,0,0,0.22); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:10px 12px; margin-bottom:12px;">
-                    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px; margin-bottom:8px;">
-                      <span style="font-size:10.5px; font-weight:800; font-family:var(--font-mono); color:#f59e0b;">WIRELESS CLIENTS ON ${escapeHtml(child.name || 'AP')} (${(child.wireless_clients || []).length})</span>
-                      <button type="button" class="mh-btn" onclick="onAddWirelessClient('${escapeHtml(child.id)}')" style="padding:3px 8px; font-size:10px; font-weight:700;">+ ADD WIFI CLIENT</button>
-                    </div>
-                    ${(!child.wireless_clients || child.wireless_clients.length === 0) ? `
-                      <div style="font-size:10.5px; color:var(--text-dim); text-align:center; padding:6px; font-family:var(--font-mono);">No wireless clients attached to this AP. Click + ADD WIFI CLIENT to connect devices.</div>
-                    ` : `
-                      <div style="display:flex; flex-direction:column; gap:6px;">
-                        ${child.wireless_clients.map((wc, wIdx) => `
-                          <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; background:rgba(255,255,255,0.02); padding:4px 8px; border-radius:6px; border:1px solid rgba(255,255,255,0.04);">
-                            <span class="topo-band-badge topo-band-${wc.band === '6G' ? '60' : (wc.band === '5G' ? '50' : '24')}">${escapeHtml(wc.band || '2.4G')}</span>
-                            <input type="text" class="mh-input" placeholder="Client Name" value="${escapeHtml(wc.name || '')}" oninput="onWirelessClientChange('${escapeHtml(child.id)}', ${wIdx}, 'name', this.value)" style="flex:1; min-width:120px; padding:3px 6px; font-size:10.5px;">
-                            <input type="text" class="mh-input" placeholder="IP Address" value="${escapeHtml(wc.ip || '')}" oninput="onWirelessClientChange('${escapeHtml(child.id)}', ${wIdx}, 'ip', this.value)" style="width:105px; padding:3px 6px; font-size:10.5px; font-family:var(--font-mono);">
-                            <select class="mh-input" onchange="onWirelessClientChange('${escapeHtml(child.id)}', ${wIdx}, 'band', this.value)" style="width:75px; padding:3px 6px; font-size:10px; font-family:var(--font-mono);">
-                              <option value="2.4G" ${wc.band === '2.4G' ? 'selected' : ''}>2.4G</option>
-                              <option value="5G" ${wc.band === '5G' ? 'selected' : ''}>5G</option>
-                              <option value="6G" ${wc.band === '6G' ? 'selected' : ''}>6G</option>
-                            </select>
-                            <button type="button" class="round-action-btn btn-danger-action" title="Remove Client" onclick="onRemoveWirelessClient('${escapeHtml(child.id)}', ${wIdx})" style="width:24px; height:24px; min-width:24px;">
-                              <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                            </button>
-                          </div>
-                        `).join('')}
-                      </div>
-                    `}
-                  </div>
-                ` : ''}
-
-                <!-- Nested Child Ports List (RECURSIVE CALL) -->
-                <div>
-                  <div style="font-size:10.5px; font-weight:800; font-family:var(--font-mono); color:var(--text-main); margin-bottom:8px;">
-                    PORTS ON ${escapeHtml(child.name || 'NODE')} (${child.ports ? child.ports.length : 0} PORTS)
-                  </div>
-                  <div style="display:flex; flex-direction:column; gap:8px;">
-                    ${renderNodePortsTree(child, depth + 1, availClients)}
-                  </div>
-                </div>
-              </div>
-            ` : ''}
+        <!-- Node Controls: Type & Port Count -->
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+          ${!isRoot ? `
+            <select class="mh-input" onchange="onNodeFieldChange('${escapeHtml(node.id)}', 'type', this.value)" style="padding:4px 8px; font-size:11px; font-family:var(--font-mono); font-weight:700;">
+              <option value="ap" ${node.type === 'ap' ? 'selected' : ''}>Access Point (AP)</option>
+              <option value="router" ${node.type === 'router' ? 'selected' : ''}>Router</option>
+              <option value="switch" ${node.type === 'switch' ? 'selected' : ''}>Switch</option>
+            </select>
+          ` : ''}
+          <div style="display:flex; align-items:center; gap:6px;">
+            <label style="font-size:11px; font-family:var(--font-mono); color:var(--text-dim);">LAN Ports:</label>
+            <input type="number" min="1" max="48" class="mh-input" value="${numPorts}" onchange="onNodePortCountChange('${escapeHtml(node.id)}', parseInt(this.value, 10))" style="width:54px; padding:3px 6px; font-size:11px; font-family:var(--font-mono); text-align:center;">
           </div>
-        `;
-      }).join('');
-    }
+        </div>
+      </div>
 
-    // =========================================================================
-    // SAVING, RESETTING, AUTO-MAPPING & JSON EXPORT/IMPORT
-    // =========================================================================
+      <!-- WAN / UPLINK INTERFACE ROW -->
+      <div class="topo-port-row" style="background:rgba(56,189,248,0.03); border:1px solid rgba(56,189,248,0.16); margin-bottom:10px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="card-badge sky" style="font-size:9.5px; font-weight:800; padding:2px 6px;">${isRoot ? 'WAN INTERFACE' : 'UPLINK PORT'}</span>
+            <span style="font-size:11.5px; font-weight:700; color:var(--text-main); font-family:var(--font-mono);">
+              ${isRoot ? 'Internet Gateway Link (10.0.0.1)' : `Connected to: ${escapeHtml(node.uplinkPort || 'Upstream')}`}
+            </span>
+          </div>
+          <span style="font-size:10.5px; font-family:var(--font-mono); color:#10b981; font-weight:700;">&bull; LINK UP (1 Gbps)</span>
+        </div>
+      </div>
+
+      <!-- ETHERNET LAN PORTS -->
+      <div style="margin-bottom:12px;">
+        <div style="font-size:10.5px; font-weight:800; font-family:var(--font-mono); color:var(--text-dim); margin-bottom:8px; letter-spacing:0.5px;">
+          ETHERNET LAN PORTS (${(node.ports || []).length})
+        </div>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          ${(node.ports || []).map((port, pIdx) => renderSinglePortRow(node, port, pIdx, depth, availClients, usedIps)).join('')}
+        </div>
+      </div>
+
+      <!-- WIRELESS RADIOS SECTION (WIFI 2.4G & 5G) - AVAILABLE FOR ALL ROUTERS & APs -->
+      ${hasWifi ? `
+        <div style="margin-top:14px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.06);">
+          <div style="font-size:10.5px; font-weight:800; font-family:var(--font-mono); color:var(--text-dim); margin-bottom:10px; letter-spacing:0.5px;">
+            WIRELESS RADIOS (WIFI)
+          </div>
+
+          <!-- 2.4 GHz WiFi Section -->
+          <div class="topo-port-row" style="background:rgba(245,158,11,0.02); border:1px solid rgba(245,158,11,0.18); margin-bottom:8px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="topo-band-badge topo-band-24">2.4 GHz</span>
+                <span style="font-size:11.5px; font-weight:700; color:var(--text-main);">2.4G WiFi Clients</span>
+                <span style="font-size:11px; font-family:var(--font-mono); color:#f59e0b; font-weight:700;">(${wClients24.length})</span>
+              </div>
+              <select class="mh-input" onchange="onQuickAddWifiClient('${escapeHtml(node.id)}', '2.4G', this.value); this.value='';" style="font-size:11px; padding:4px 8px; max-width:280px; flex:1; min-width:180px;">
+                <option value="">+ Connect Device to 2.4G WiFi...</option>
+                <option value="__manual__">+ Add Custom IP Device...</option>
+                ${availClients.map(c => {
+                  const isUsed = usedIps.has(c.ip);
+                  const disAttr = isUsed ? 'disabled style="color:var(--text-dim); opacity:0.45;"' : '';
+                  const disTag = isUsed ? ' [In use]' : '';
+                  return `<option value="${escapeHtml(c.ip)}" ${disAttr}>${escapeHtml(c.name || 'Device')} &bull; ${escapeHtml(c.ip)}${disTag}</option>`;
+                }).join('')}
+              </select>
+            </div>
+            <!-- 2.4G Client Chips -->
+            <div style="display:flex; flex-wrap:wrap; gap:6px; min-height:24px; align-items:center;">
+              ${wClients24.length > 0 ? wClients24.map(wc => `
+                <span class="topo-wifi-chip band-24">
+                  <span class="topo-band-badge topo-band-24" style="font-size:8.5px; padding:1px 4px;">2.4G</span>
+                  <span style="font-weight:700;">${escapeHtml(wc.name || 'Device')}</span>
+                  <span style="color:var(--text-dim); font-size:10px;">${escapeHtml(wc.ip || '')}</span>
+                  <button type="button" class="topo-chip-rm" onclick="onRemoveWifiClient('${escapeHtml(node.id)}', '${escapeHtml(wc.id || wc.ip)}')" title="Disconnect Client">✕</button>
+                </span>
+              `).join('') : '<span style="font-size:10.5px; color:var(--text-dim); font-family:var(--font-mono);">No devices connected to 2.4GHz WiFi</span>'}
+            </div>
+          </div>
+
+          <!-- 5 GHz WiFi Section -->
+          <div class="topo-port-row" style="background:rgba(6,182,212,0.02); border:1px solid rgba(6,182,212,0.18);">
+            <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="topo-band-badge topo-band-50">5 GHz</span>
+                <span style="font-size:11.5px; font-weight:700; color:var(--text-main);">5G WiFi Clients</span>
+                <span style="font-size:11px; font-family:var(--font-mono); color:#06b6d4; font-weight:700;">(${wClients50.length})</span>
+              </div>
+              <select class="mh-input" onchange="onQuickAddWifiClient('${escapeHtml(node.id)}', '5G', this.value); this.value='';" style="font-size:11px; padding:4px 8px; max-width:280px; flex:1; min-width:180px;">
+                <option value="">+ Connect Device to 5G WiFi...</option>
+                <option value="__manual__">+ Add Custom IP Device...</option>
+                ${availClients.map(c => {
+                  const isUsed = usedIps.has(c.ip);
+                  const disAttr = isUsed ? 'disabled style="color:var(--text-dim); opacity:0.45;"' : '';
+                  const disTag = isUsed ? ' [In use]' : '';
+                  return `<option value="${escapeHtml(c.ip)}" ${disAttr}>${escapeHtml(c.name || 'Device')} &bull; ${escapeHtml(c.ip)}${disTag}</option>`;
+                }).join('')}
+              </select>
+            </div>
+            <!-- 5G Client Chips -->
+            <div style="display:flex; flex-wrap:wrap; gap:6px; min-height:24px; align-items:center;">
+              ${wClients50.length > 0 ? wClients50.map(wc => `
+                <span class="topo-wifi-chip band-50">
+                  <span class="topo-band-badge topo-band-50" style="font-size:8.5px; padding:1px 4px;">5G</span>
+                  <span style="font-weight:700;">${escapeHtml(wc.name || 'Device')}</span>
+                  <span style="color:var(--text-dim); font-size:10px;">${escapeHtml(wc.ip || '')}</span>
+                  <button type="button" class="topo-chip-rm" onclick="onRemoveWifiClient('${escapeHtml(node.id)}', '${escapeHtml(wc.id || wc.ip)}')" title="Disconnect Client">✕</button>
+                </span>
+              `).join('') : '<span style="font-size:10.5px; color:var(--text-dim); font-family:var(--font-mono);">No devices connected to 5GHz WiFi</span>'}
+            </div>
+          </div>
+        </div>
+      ` : ''}
+    </div>
+  `;
+
+  return html;
+}
+
+function renderSinglePortRow(parentNode, port, pIdx, depth, availClients, usedIps) {
+  const isConnected = port.role !== 'empty';
+  const isDevice = port.role === 'device';
+  const isNode = port.role === 'node';
+  const child = port.child || {};
+  const devIp = child.ip || '';
+  const devName = child.name || '';
+  const devMac = child.mac || '';
+
+  return `
+    <div class="topo-port-row" id="topoPortRow_${escapeHtml(port.id)}">
+      <!-- Port Header Bar -->
+      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:${isConnected ? '10px' : '0'}; padding-bottom:${isConnected ? '8px' : '0'}; border-bottom:${isConnected ? '1px solid rgba(255,255,255,0.06)' : 'none'};">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:11px; font-weight:800; font-family:var(--font-mono); background:rgba(255,255,255,0.06); padding:3px 8px; border-radius:5px; color:var(--text-main);">${escapeHtml(port.label || ('LAN ' + (pIdx + 1)))}</span>
+          <span class="card-badge ${isConnected ? (isNode ? 'amber' : 'emerald') : ''}" style="font-size:9.5px; padding:1px 6px;">
+            ${isConnected ? (isNode ? 'ROUTER / AP / SWITCH' : 'DEVICE') : 'EMPTY'}
+          </span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <label style="font-size:10.5px; font-family:var(--font-mono); color:var(--text-dim);">Role:</label>
+          <select class="mh-input" onchange="onPortRoleChange('${escapeHtml(port.id)}', this.value)" style="padding:4px 8px; font-size:11px; font-family:var(--font-mono); width:160px;">
+            <option value="empty" ${port.role === 'empty' ? 'selected' : ''}>Empty</option>
+            <option value="device" ${port.role === 'device' ? 'selected' : ''}>Device</option>
+            <option value="node" ${port.role === 'node' ? 'selected' : ''}>Router / AP / Switch</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Role 1: DEVICE (End Client) -->
+      ${isDevice ? `
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <label style="font-size:10.5px; font-family:var(--font-mono); color:var(--text-dim); min-width:80px;">Pick Client:</label>
+            <select class="mh-input" onchange="onSelectPortDevice('${escapeHtml(port.id)}', this.value)" style="flex:1; min-width:220px; padding:5px 8px; font-size:11px; font-family:var(--font-mono);">
+              <option value="">-- Select from Network Scan --</option>
+              ${availClients.map(c => {
+                const isUsedElsewhere = usedIps.has(c.ip) && c.ip !== devIp;
+                const disabledAttr = isUsedElsewhere ? 'disabled style="color:var(--text-dim); opacity:0.45;"' : '';
+                const usedTag = isUsedElsewhere ? ' [In use]' : '';
+                return `<option value="${escapeHtml(c.ip)}" ${devIp === c.ip ? 'selected' : ''} ${disabledAttr}>${escapeHtml(c.name || 'Device')} &bull; ${escapeHtml(c.ip)}${usedTag}</option>`;
+              }).join('')}
+              <option value="__manual__" ${(!availClients.some(c => c.ip === devIp) && devIp) ? 'selected' : ''}>+ Add Manually...</option>
+            </select>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <input type="text" class="mh-input" placeholder="Device Name" value="${escapeHtml(devName)}" oninput="onCustomPortDeviceChange('${escapeHtml(port.id)}', 'name', this.value)" style="flex:1; min-width:130px; padding:4px 8px; font-size:11px;">
+            <input type="text" class="mh-input" placeholder="IP Address" value="${escapeHtml(devIp)}" oninput="onCustomPortDeviceChange('${escapeHtml(port.id)}', 'ip', this.value)" style="width:115px; padding:4px 8px; font-size:11px; font-family:var(--font-mono);">
+            <input type="text" class="mh-input" placeholder="MAC (Optional)" value="${escapeHtml(devMac)}" oninput="onCustomPortDeviceChange('${escapeHtml(port.id)}', 'mac', this.value)" style="width:130px; padding:4px 8px; font-size:11px; font-family:var(--font-mono);">
+          </div>
+        </div>
+      ` : ''}
+
+      <!-- Role 2: INTERMEDIATE NODE (ROUTER / AP / SWITCH) -->
+      ${isNode && child ? `
+        <div style="margin-top:10px;">
+          <!-- Node Quick Select from Scan -->
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
+            <label style="font-size:10.5px; font-family:var(--font-mono); color:var(--text-dim); min-width:80px;">Auto-fill:</label>
+            <select class="mh-input" onchange="onSelectPortNodeClient('${escapeHtml(port.id)}', this.value)" style="flex:1; min-width:200px; padding:4px 8px; font-size:11px; font-family:var(--font-mono);">
+              <option value="">-- Choose AP/Router from Scan --</option>
+              ${availClients.map(c => {
+                const isUsedElsewhere = usedIps.has(c.ip) && c.ip !== child.ip;
+                const disabledAttr = isUsedElsewhere ? 'disabled style="color:var(--text-dim); opacity:0.45;"' : '';
+                const usedTag = isUsedElsewhere ? ' [In use]' : '';
+                return `<option value="${escapeHtml(c.ip)}" ${child.ip === c.ip ? 'selected' : ''} ${disabledAttr}>${escapeHtml(c.name || 'Node')} &bull; ${escapeHtml(c.ip)}${usedTag}</option>`;
+              }).join('')}
+            </select>
+          </div>
+
+          <!-- Recursively Render Child Card (NO BLUE LINE) -->
+          ${renderNodeCard(child, depth + 1, availClients, usedIps, false)}
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+
+// Helpers for quick WiFi client add/remove
+function onQuickAddWifiClient(nodeId, band, clientIp) {
+  if (!clientIp) return;
+  if (!window._topoTree) return;
+
+  function findNode(root, id) {
+    if (!root) return null;
+    if (root.id === id) return root;
+    if (Array.isArray(root.ports)) {
+      for (const p of root.ports) {
+        if (p.role === 'node' && p.child) {
+          const res = findNode(p.child, id);
+          if (res) return res;
+        }
+      }
+    }
+    return null;
+  }
+
+  const target = findNode(window._topoTree, nodeId);
+  if (!target) return;
+  target.wireless_clients = target.wireless_clients || [];
+
+  if (clientIp === '__manual__') {
+    const ip = prompt('Enter device IP address:');
+    if (!ip) return;
+    const name = prompt('Enter device name (optional):') || ('Device ' + ip.split('.').pop());
+    target.wireless_clients.push({
+      id: 'wc-' + Date.now() + Math.random().toString(36).substr(2, 4),
+      name: name,
+      ip: ip.trim(),
+      band: band
+    });
+  } else {
+    const all = (window._lastDataCache && Array.isArray(window._lastDataCache.clients)) ? window._lastDataCache.clients : [];
+    const found = all.find(c => c && c.ip === clientIp);
+    const name = (found && found.name) || ('Device ' + clientIp.split('.').pop());
+    const mac = (found && found.mac) || '';
+
+    // Check duplicate
+    if (!target.wireless_clients.some(wc => wc.ip === clientIp)) {
+      target.wireless_clients.push({
+        id: 'wc-' + Date.now() + Math.random().toString(36).substr(2, 4),
+        name: name,
+        ip: clientIp,
+        mac: mac,
+        band: band
+      });
+    }
+  }
+
+  renderTopologyLayersUI(window._topoTree);
+  if (typeof buildUsbBwSvg === 'function') buildUsbBwSvg();
+}
+
+function onRemoveWifiClient(nodeId, clientIdent) {
+  if (!window._topoTree) return;
+  function findNode(root, id) {
+    if (!root) return null;
+    if (root.id === id) return root;
+    if (Array.isArray(root.ports)) {
+      for (const p of root.ports) {
+        if (p.role === 'node' && p.child) {
+          const res = findNode(p.child, id);
+          if (res) return res;
+        }
+      }
+    }
+    return null;
+  }
+
+  const target = findNode(window._topoTree, nodeId);
+  if (!target || !Array.isArray(target.wireless_clients)) return;
+  target.wireless_clients = target.wireless_clients.filter(wc => wc.id !== clientIdent && wc.ip !== clientIdent);
+
+  renderTopologyLayersUI(window._topoTree);
+  if (typeof buildUsbBwSvg === 'function') buildUsbBwSvg();
+}
+
     async function saveTopologyLayersConfig() {
       if (!window._topoTree) return;
       const val = validateTopologyTree(window._topoTree);
