@@ -6776,13 +6776,175 @@
       color: #09090b;
     }
 
-    /* TOPOLOGY RECURSIVE TREE EDITOR STYLES */
-    .topo-settings-toolbar {
+    /* TOPOLOGY RECURSIVE TREE EDITOR & SETTINGS STYLES */
+    .topo-header-row {
       display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
       align-items: center;
-      margin-bottom: 14px;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border-sub, rgba(255, 255, 255, 0.06));
+    }
+    .topo-round-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .topo-round-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-main, #ffffff);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      padding: 0;
+      flex-shrink: 0;
+    }
+    .topo-round-btn svg {
+      width: 15px;
+      height: 15px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .topo-round-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      transform: translateY(-1px);
+    }
+    .topo-round-btn:active {
+      transform: translateY(0);
+    }
+    .topo-round-btn.btn-save {
+      color: #38bdf8;
+      border-color: rgba(56, 189, 248, 0.35);
+      background: rgba(56, 189, 248, 0.08);
+    }
+    .topo-round-btn.btn-save:hover {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: #38bdf8;
+    }
+    .topo-round-btn.btn-auto {
+      color: #10b981;
+      border-color: rgba(16, 185, 129, 0.35);
+      background: rgba(16, 185, 129, 0.08);
+    }
+    .topo-round-btn.btn-auto:hover {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: #10b981;
+    }
+    .topo-round-btn.btn-reset {
+      color: #f59e0b;
+      border-color: rgba(245, 158, 11, 0.35);
+      background: rgba(245, 158, 11, 0.08);
+    }
+    .topo-round-btn.btn-reset:hover {
+      background: rgba(245, 158, 11, 0.2);
+      border-color: #f59e0b;
+    }
+    .topo-round-btn.btn-export {
+      color: #a855f7;
+      border-color: rgba(168, 85, 247, 0.35);
+      background: rgba(168, 85, 247, 0.08);
+    }
+    .topo-round-btn.btn-export:hover {
+      background: rgba(168, 85, 247, 0.2);
+      border-color: #a855f7;
+    }
+    .topo-round-btn.btn-import {
+      color: #06b6d4;
+      border-color: rgba(6, 182, 212, 0.35);
+      background: rgba(6, 182, 212, 0.08);
+    }
+    .topo-round-btn.btn-import:hover {
+      background: rgba(6, 182, 212, 0.2);
+      border-color: #06b6d4;
+    }
+    [data-theme="light"] .topo-round-btn {
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      background: rgba(0, 0, 0, 0.04);
+      color: #0f172a;
+    }
+    [data-theme="light"] .topo-round-btn:hover {
+      background: rgba(0, 0, 0, 0.08);
+    }
+    [data-theme="light"] .topo-round-btn.btn-save {
+      color: #0284c7;
+      border-color: rgba(2, 132, 199, 0.4);
+      background: rgba(2, 132, 199, 0.08);
+    }
+    [data-theme="light"] .topo-round-btn.btn-auto {
+      color: #059669;
+      border-color: rgba(5, 150, 105, 0.4);
+      background: rgba(5, 150, 105, 0.08);
+    }
+    [data-theme="light"] .topo-round-btn.btn-reset {
+      color: #d97706;
+      border-color: rgba(217, 119, 6, 0.4);
+      background: rgba(217, 119, 6, 0.08);
+    }
+    [data-theme="light"] .topo-round-btn.btn-export {
+      color: #7c3aed;
+      border-color: rgba(124, 58, 237, 0.4);
+      background: rgba(124, 58, 237, 0.08);
+    }
+    [data-theme="light"] .topo-round-btn.btn-import {
+      color: #0891b2;
+      border-color: rgba(8, 145, 178, 0.4);
+      background: rgba(8, 145, 178, 0.08);
+    }
+    .topo-remove-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.22);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+    }
+    .topo-remove-btn:hover {
+      background: rgba(239, 68, 68, 0.18);
+      border-color: rgba(239, 68, 68, 0.45);
+    }
+    .topo-remove-btn svg {
+      width: 13px;
+      height: 13px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.2;
+    }
+    [data-theme="light"] .topo-remove-btn {
+      background: rgba(239, 68, 68, 0.07);
+      border-color: rgba(239, 68, 68, 0.25);
+      color: #dc2626;
+    }
+    [data-theme="light"] .topo-remove-btn:hover {
+      background: rgba(239, 68, 68, 0.14);
+    }
+    @media (max-width: 480px) {
+      .topo-header-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 10px 12px;
+      }
+      .topo-round-actions {
+        width: 100%;
+        justify-content: flex-end;
+      }
     }
     .topo-validation-box {
       padding: 10px 14px;
@@ -6794,11 +6956,6 @@
       align-items: center;
       gap: 8px;
       line-height: 1.4;
-    }
-    .topo-validation-box.valid {
-      background: rgba(16, 185, 129, 0.1);
-      border: 1px solid rgba(16, 185, 129, 0.35);
-      color: #10b981;
     }
     .topo-validation-box.invalid {
       background: rgba(239, 68, 68, 0.1);
@@ -7933,26 +8090,38 @@
           </div>
           <div class="accordion-content">
             <div class="settings-card-body">
-              <div class="topo-settings-toolbar">
-                <button type="button" class="mh-btn" onclick="saveTopologyLayersConfig()" id="btnSaveTopo">
-                  SAVE TOPOLOGY
-                </button>
-                <button type="button" class="mh-btn btn-ghost" onclick="autoMapNetworkTopology()" style="color:#38bdf8; border-color:rgba(56,189,248,0.4);">
-                  AUTO-MAP FROM CLIENTS
-                </button>
-                <button type="button" class="mh-btn btn-ghost" onclick="resetTopologyLayersConfig()">
-                  RESET DEFAULTS
-                </button>
-                <button type="button" class="mh-btn btn-ghost" onclick="openExportTopologyModal()">
-                  EXPORT JSON
-                </button>
-                <button type="button" class="mh-btn btn-ghost" onclick="openImportTopologyModal()">
-                  IMPORT JSON
-                </button>
+              <!-- TOP HEADER ROW: Label & Sub on left, Round Action Icons on right -->
+              <div class="topo-header-row">
+                <div class="setting-label-col" style="flex:1; min-width:0;">
+                  <span class="setting-label-bold" style="font-size:14px;">Network Topology</span>
+                  <span class="setting-label-sub" style="font-size:11.5px;">Port mapping, hierarchical layers, and device layout</span>
+                </div>
+                <div class="topo-round-actions">
+                  <button type="button" class="topo-round-btn btn-save" onclick="saveTopologyLayersConfig()" id="btnSaveTopo" title="Save Topology" aria-label="Save Topology">
+                    <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                  </button>
+                  <button type="button" class="topo-round-btn btn-auto" onclick="autoMapNetworkTopology()" id="btnAutoMapTopo" title="Auto-Map from Clients" aria-label="Auto-Map from Clients">
+                    <svg viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                  </button>
+                  <button type="button" class="topo-round-btn btn-reset" onclick="resetTopologyLayersConfig()" id="btnResetTopo" title="Reset Defaults" aria-label="Reset Defaults">
+                    <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><polyline points="3 3 3 8 8 8"/></svg>
+                  </button>
+                  <button type="button" class="topo-round-btn btn-export" onclick="openExportTopologyModal()" id="btnExportTopo" title="Export Topology JSON" aria-label="Export JSON">
+                    <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  </button>
+                  <button type="button" class="topo-round-btn btn-import" onclick="openImportTopologyModal()" id="btnImportTopo" title="Import Topology JSON" aria-label="Import JSON">
+                    <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  </button>
+                </div>
               </div>
 
-              <!-- Inline validation notification bar -->
-              <div id="topoValidationNotice" class="topo-validation-box valid" style="display:none;"></div>
+              <!-- Inline validation notification bar (Shown ONLY on warning/invalid, NEVER valid green box) -->
+              <div id="topoValidationNotice" class="topo-validation-box invalid" style="display:none; margin:10px 14px;"></div>
+
+              <!-- TOPOLOGY DISPLAY & ANIMATION PREFERENCES (CLEAN, NATIVE SECTION) -->
+              <div id="topoPreferencesSection" style="display:flex; flex-direction:column; gap:8px; margin:10px 0;">
+                <!-- Dynamically populated via renderTopologyPreferencesUI -->
+              </div>
 
               <!-- RECURSIVE TOPOLOGY TREE CONTAINER -->
               <div id="topoLayerPortsContainer" style="display:flex; flex-direction:column; gap:14px;">
@@ -12666,6 +12835,121 @@
     }
 
     // =========================================================================
+    // NETWORK TOPOLOGY PREFERENCES & PALETTE THEMES
+    // =========================================================================
+    const DEFAULT_TOPO_PREFS = {
+      theme: 'cyan',          // 'cyan' | 'emerald' | 'purple' | 'blue' | 'amber' | 'monochrome'
+      animMode: 'flowing',    // 'flowing' | 'glow' | 'off'
+      animSpeed: 'normal',    // 'fast' (1.2s) | 'normal' (2.2s) | 'slow' (3.5s)
+      lineStyle: 'bezier',    // 'bezier' (S-curve) | 'orthogonal' (90-degree)
+      showWan: true,          // boolean: show/hide ingress WAN modems
+      showSpeeds: true,       // boolean: show/hide link speeds (1Gbps, etc.)
+      infoDensity: 'full',    // 'full' (IP/MAC/Band) | 'compact' (Name only)
+      refreshRate: '10s'      // '5s' | '10s' | '30s' | 'off'
+    };
+
+    function getTopologyPrefs() {
+      try {
+        const raw = localStorage.getItem('maxnet_topo_prefs');
+        if (raw) return Object.assign({}, DEFAULT_TOPO_PREFS, JSON.parse(raw));
+      } catch (e) {}
+      return Object.assign({}, DEFAULT_TOPO_PREFS);
+    }
+
+    function updateTopologyPref(key, value) {
+      const prefs = getTopologyPrefs();
+      prefs[key] = value;
+      try {
+        localStorage.setItem('maxnet_topo_prefs', JSON.stringify(prefs));
+      } catch (e) {}
+      window._topoPrefs = prefs;
+      if (key === 'refreshRate') {
+        setupTopologyAutoRefresh();
+      }
+      if (typeof buildUsbBwSvg === 'function') buildUsbBwSvg();
+      if (key === 'theme') {
+        renderTopologyLayersUI(window._topoTree);
+      }
+    }
+
+    function getTopologyThemeColors(isLight, themeName = 'cyan') {
+      const themes = {
+        cyan: {
+          accent: isLight ? "#0284c7" : "#38bdf8",
+          l1: isLight ? "#0284c7" : "#38bdf8",
+          l2: isLight ? "#d97706" : "#f59e0b",
+          l3: isLight ? "#059669" : "#10b981",
+          l4: isLight ? "#7c3aed" : "#a855f7",
+          wifi: isLight ? "#0284c7" : "#38bdf8"
+        },
+        emerald: {
+          accent: isLight ? "#059669" : "#10b981",
+          l1: isLight ? "#059669" : "#10b981",
+          l2: isLight ? "#0284c7" : "#38bdf8",
+          l3: isLight ? "#d97706" : "#f59e0b",
+          l4: isLight ? "#7c3aed" : "#a855f7",
+          wifi: isLight ? "#059669" : "#10b981"
+        },
+        purple: {
+          accent: isLight ? "#7c3aed" : "#a855f7",
+          l1: isLight ? "#7c3aed" : "#a855f7",
+          l2: isLight ? "#0284c7" : "#38bdf8",
+          l3: isLight ? "#d97706" : "#f59e0b",
+          l4: isLight ? "#059669" : "#10b981",
+          wifi: isLight ? "#7c3aed" : "#a855f7"
+        },
+        blue: {
+          accent: isLight ? "#2563eb" : "#3b82f6",
+          l1: isLight ? "#2563eb" : "#3b82f6",
+          l2: isLight ? "#d97706" : "#f59e0b",
+          l3: isLight ? "#059669" : "#10b981",
+          l4: isLight ? "#7c3aed" : "#a855f7",
+          wifi: isLight ? "#2563eb" : "#3b82f6"
+        },
+        amber: {
+          accent: isLight ? "#d97706" : "#f59e0b",
+          l1: isLight ? "#d97706" : "#f59e0b",
+          l2: isLight ? "#0284c7" : "#38bdf8",
+          l3: isLight ? "#059669" : "#10b981",
+          l4: isLight ? "#7c3aed" : "#a855f7",
+          wifi: isLight ? "#d97706" : "#f59e0b"
+        },
+        monochrome: {
+          accent: isLight ? "#334155" : "#e4e4e7",
+          l1: isLight ? "#0284c7" : "#38bdf8",
+          l2: isLight ? "#d97706" : "#f59e0b",
+          l3: isLight ? "#059669" : "#10b981",
+          l4: isLight ? "#7c3aed" : "#a855f7",
+          wifi: isLight ? "#0284c7" : "#38bdf8"
+        }
+      };
+      return themes[themeName] || themes.cyan;
+    }
+
+    function setupTopologyAutoRefresh() {
+      if (window._topoRefreshTimer) {
+        clearInterval(window._topoRefreshTimer);
+        window._topoRefreshTimer = null;
+      }
+      const prefs = getTopologyPrefs();
+      let ms = 0;
+      if (prefs.refreshRate === '5s') ms = 5000;
+      else if (prefs.refreshRate === '10s') ms = 10000;
+      else if (prefs.refreshRate === '30s') ms = 30000;
+
+      if (ms > 0) {
+        window._topoRefreshTimer = setInterval(() => {
+          const topoAcc = document.getElementById('acc-topo-layers');
+          const tabDash = document.getElementById('tabDashboard');
+          const isVisible = (tabDash && tabDash.style.display !== 'none') || (topoAcc && topoAcc.classList.contains('active'));
+          if (isVisible && typeof fetchTopologyLayers === 'function') {
+            fetchTopologyLayers(true);
+          }
+        }, ms);
+      }
+    }
+
+    // =========================================================================
     // SVG DIAGRAM BUILDER (MOBILE RESPONSIVE, UNIFIED INTERFACES, ZERO LINE OVERLAPS)
     // =========================================================================
     function buildUsbBwSvg() {
@@ -12680,18 +12964,21 @@
       bwMode = isMobile ? "m" : "w";
       const isLight = document.documentElement.getAttribute("data-theme") === "light";
 
+      const prefs = getTopologyPrefs();
+      const themeColors = getTopologyThemeColors(isLight, prefs.theme);
+
       // Explicit Monochrome Theme Palette (zero transparent fills, high contrast black & gray)
       const topoTheme = {
         cardBg: isLight ? "#ffffff" : "#13151f",
         cardBgAlt: isLight ? "#f8fafc" : "#181a26",
         cardBorder: isLight ? "#cbd5e1" : "rgba(255, 255, 255, 0.16)",
         cardBorderIdle: isLight ? "#e2e8f0" : "rgba(255, 255, 255, 0.08)",
-        borderActive: isLight ? "#0284c7" : "#38bdf8",
-        borderLan: isLight ? "#0284c7" : "#38bdf8",
-        borderSwitch: isLight ? "#059669" : "#10b981",
-        borderAp: isLight ? "#d97706" : "#f59e0b",
-        borderDev: isLight ? "#059669" : "#10b981",
-        borderWifi: isLight ? "#0284c7" : "#38bdf8",
+        borderActive: themeColors.accent,
+        borderLan: themeColors.accent,
+        borderSwitch: themeColors.l3,
+        borderAp: themeColors.l2,
+        borderDev: themeColors.l3,
+        borderWifi: themeColors.wifi,
         textMain: isLight ? "#09090b" : "#f4f4f5",
         textDim: isLight ? "#475569" : "#a1a1aa",
         textMuted: isLight ? "#64748b" : "#71717a",
@@ -12769,7 +13056,7 @@
       const treeDepth = computeTreeMaxDepth(tree);
 
       const W = Math.max(isMobile ? 640 : 960, rootBounds.width + (isMobile ? 60 : 120));
-      const H = Math.max(isMobile ? 480 : 540, 220 + treeDepth * (isMobile ? 135 : 165));
+      const H = Math.max(isMobile ? 480 : 540, (prefs.showWan ? 220 : 130) + treeDepth * (isMobile ? 135 : 165));
 
       svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
       const defs = mk("defs", {}, svg);
@@ -12778,56 +13065,65 @@
       const rtrBoxW = isMobile ? 124 : 136;
       const rtrBoxH = isMobile ? 44 : 48;
       const rtrBoxX = rtrCenterX - rtrBoxW / 2;
-      const rtrBoxY = isMobile ? 120 : 130;
+      const rtrBoxY = prefs.showWan ? (isMobile ? 120 : 130) : (isMobile ? 36 : 42);
 
-      // 1. INGRESS DEVICES & CONDUITS (Top of Diagram)
-      const ingressY0 = isMobile ? 46 : 50;
-      const dyIngress = 52;
-      ingressLinks.forEach((l, i) => {
-        const y = ingressY0 + i * dyIngress;
-        const dotX = rtrCenterX - 110;
-        const usbStyle = getUsbThemeStyle(l.usbStd || l.type || l.cls, isLight);
+      // 1. INGRESS DEVICES & CONDUITS (Top of Diagram - if enabled)
+      if (prefs.showWan) {
+        const ingressY0 = isMobile ? 46 : 50;
+        const dyIngress = 52;
+        ingressLinks.forEach((l, i) => {
+          const y = ingressY0 + i * dyIngress;
+          const dotX = rtrCenterX - 110;
+          const usbStyle = getUsbThemeStyle(l.usbStd || l.type || l.cls, isLight);
 
-        const infoG = mk("g", { class: `ingress-info-card ${l.cls}`, style: `cursor:pointer;` }, svg);
-        infoG.onclick = (e) => showTopoNodeDetail(l, false, e);
-        mk("rect", {
-          x: dotX - 200,
-          y: y - 22,
-          width: 190,
-          height: 44,
-          rx: 9,
-          ry: 9,
-          fill: topoTheme.cardBg,
-          stroke: l.connected ? (usbStyle.cardBorder || topoTheme.borderLan) : topoTheme.cardBorderIdle,
-          "stroke-width": 1.3,
-          style: (l.connected ? "" : "stroke-dasharray:4 4; opacity:0.6;") + `filter:${topoTheme.cardShadow};`
-        }, infoG);
+          const infoG = mk("g", { class: `ingress-info-card ${l.cls}`, style: `cursor:pointer;` }, svg);
+          infoG.onclick = (e) => showTopoNodeDetail(l, false, e);
+          mk("rect", {
+            x: dotX - 200,
+            y: y - 22,
+            width: 190,
+            height: 44,
+            rx: 9,
+            ry: 9,
+            fill: topoTheme.cardBg,
+            stroke: l.connected ? (usbStyle.cardBorder || topoTheme.borderLan) : topoTheme.cardBorderIdle,
+            "stroke-width": 1.3,
+            style: (l.connected ? "" : "stroke-dasharray:4 4; opacity:0.6;") + `filter:${topoTheme.cardShadow};`
+          }, infoG);
 
-        const iconCol = l.connected ? (isLight ? (usbStyle.cardBorder || "#09090b") : (l.usbStd === "usb2" ? "#a1a1aa" : (usbStyle.cardBorder || "#e4e4e7"))) : topoTheme.textDim;
-        drawDeviceIcon(dotX - 188, y, iconCol, l.device_type, infoG);
+          const iconCol = l.connected ? (isLight ? (usbStyle.cardBorder || "#09090b") : (l.usbStd === "usb2" ? "#a1a1aa" : (usbStyle.cardBorder || "#e4e4e7"))) : topoTheme.textDim;
+          drawDeviceIcon(dotX - 188, y, iconCol, l.device_type, infoG);
 
-        const tModel = mk("text", { class: "md", x: dotX - 168, y: y - 3, style: `font-size:11px; font-weight:700; fill:${l.connected ? topoTheme.textMain : topoTheme.textDim};` }, infoG);
-        let dispName = l.model || l.name || "WAN Modem";
-        tModel.textContent = dispName.length > 17 ? dispName.substring(0, 16) + "…" : dispName;
+          const tModel = mk("text", { class: "md", x: dotX - 168, y: y - 3, style: `font-size:11px; font-weight:700; fill:${l.connected ? topoTheme.textMain : topoTheme.textDim};` }, infoG);
+          let dispName = l.model || l.name || "WAN Modem";
+          tModel.textContent = dispName.length > 17 ? dispName.substring(0, 16) + "…" : dispName;
 
-        const tSp = mk("text", { class: "sp", x: dotX - 168, y: y + 13, style: `font-size:12.5px; fill:${l.connected ? (isLight ? '#0284c7' : '#38bdf8') : topoTheme.textDim};` }, infoG);
-        l.sv = mk("tspan", { id: "bwDevSpeedVal_" + i, style: `fill:${l.connected ? (isLight ? '#0284c7' : '#38bdf8') : topoTheme.textDim}; font-weight:800;` }, tSp);
-        l.su = mk("tspan", { id: "bwDevSpeedUnit_" + i, class: "un", dx: 3, style: `font-size:8.5px; fill:${topoTheme.textDim};` }, tSp);
-        l.sm = mk("tspan", { id: "bwDevSpeedMax_" + i, class: "sm", dx: 5, style: `font-size:8.5px; fill:${topoTheme.textMuted};` }, tSp);
+          const tSp = mk("text", { class: "sp", x: dotX - 168, y: y + 13, style: `font-size:12.5px; fill:${l.connected ? (isLight ? '#0284c7' : '#38bdf8') : topoTheme.textDim};` }, infoG);
+          l.sv = mk("tspan", { id: "bwDevSpeedVal_" + i, style: `fill:${l.connected ? (isLight ? '#0284c7' : '#38bdf8') : topoTheme.textDim}; font-weight:800;` }, tSp);
+          l.su = mk("tspan", { id: "bwDevSpeedUnit_" + i, class: "un", dx: 3, style: `font-size:8.5px; fill:${topoTheme.textDim};` }, tSp);
+          l.sm = mk("tspan", { id: "bwDevSpeedMax_" + i, class: "sm", dx: 5, style: `font-size:8.5px; fill:${topoTheme.textMuted};` }, tSp);
 
-        // Trunk Conduit to Router
-        const dTrunk = `M${dotX} ${y} C${dotX + 50} ${y}, ${rtrCenterX - 30} ${rtrBoxY - 24}, ${rtrCenterX} ${rtrBoxY}`;
-        mk("path", { class: "base", d: dTrunk, stroke: usbStyle.lineStroke, "stroke-width": 2.2, fill: "none", style: "opacity:0.35;" }, svg);
+          // Trunk Conduit to Router
+          const dTrunk = (prefs.lineStyle === 'orthogonal') ?
+            `M${dotX} ${y} L${dotX + 60} ${y} L${dotX + 60} ${rtrBoxY} L${rtrCenterX} ${rtrBoxY}` :
+            `M${dotX} ${y} C${dotX + 50} ${y}, ${rtrCenterX - 30} ${rtrBoxY - 24}, ${rtrCenterX} ${rtrBoxY}`;
+          mk("path", { class: "base", d: dTrunk, stroke: usbStyle.lineStroke, "stroke-width": 2.2, fill: "none", style: "opacity:0.35;" }, svg);
 
-        if (l.connected) {
-          const cId = "bwIngressFlow_" + i;
-          mk("path", { id: cId, class: "flow", d: dTrunk, stroke: usbStyle.lineStroke, "stroke-width": 2.6, fill: "none", style: `filter:drop-shadow(0 0 4px ${usbStyle.glowColor});` }, svg);
-          const circ = mk("circle", { class: "pt", r: 2.4, fill: usbStyle.lineStroke, style: `fill:${usbStyle.lineStroke} !important;` }, svg);
-          const m = mk("animateMotion", { dur: "1.8s", repeatCount: "indefinite" }, circ);
-          const mp = mk("mpath", { href: "#" + cId }, m);
-          try { mp.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#" + cId); } catch (e) {}
-        }
-      });
+          if (l.connected) {
+            const cId = "bwIngressFlow_" + i;
+            const isAnim = (prefs.animMode === 'flowing');
+            const isGlow = (prefs.animMode === 'glow');
+            mk("path", { id: cId, class: "flow", d: dTrunk, stroke: usbStyle.lineStroke, "stroke-width": 2.6, fill: "none", style: (isGlow || isAnim) ? `filter:drop-shadow(0 0 4px ${usbStyle.glowColor});` : '' }, svg);
+            if (isAnim) {
+              const dur = prefs.animSpeed === 'fast' ? '1.0s' : (prefs.animSpeed === 'slow' ? '2.8s' : '1.8s');
+              const circ = mk("circle", { class: "pt", r: 2.4, fill: usbStyle.lineStroke, style: `fill:${usbStyle.lineStroke} !important;` }, svg);
+              const m = mk("animateMotion", { dur: dur, repeatCount: "indefinite" }, circ);
+              const mp = mk("mpath", { href: "#" + cId }, m);
+              try { mp.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#" + cId); } catch (e) {}
+            }
+          }
+        });
+      }
 
       // 2. MAIN ROUTER CARD
       const rtrG = mk("g", { style: "cursor:pointer;" }, svg);
@@ -12863,7 +13159,7 @@
       }, rtrG);
       tRtrSpd.textContent = "0.0Mbps";
 
-      // 3. UNIFIED INTERFACES ROW (LAN 1..N, 2.4G WiFi, 5G WiFi)
+      // 3. UNIFIED INTERFACES ROW (LAN 1..N, Wi-Fi)
       const slots = computeNodeInterfaceSlots(tree, isMobile);
       const numSlots = slots.length;
       const portBoxW = isMobile ? 54 : 66;
@@ -12885,11 +13181,13 @@
         const slotLeftX = curSlotX;
         curSlotX += slotW + slotGap;
 
-        // Draw conduit from Router bottom to Interface box top (Cubic Bezier Hybrid Flow S-Curve)
+        // Draw conduit from Router bottom to Interface box top (Bezier or Orthogonal)
         const yStart = rtrBoxY + rtrBoxH;
         const yEnd = rootPortsY;
         const midY = (yStart + yEnd) / 2;
-        const dConduit = `M${rtrCenterX} ${yStart} C${rtrCenterX} ${midY}, ${slotCenterX} ${midY}, ${slotCenterX} ${yEnd}`;
+        const dConduit = (prefs.lineStyle === 'orthogonal') ?
+          `M${rtrCenterX} ${yStart} L${rtrCenterX} ${midY} L${slotCenterX} ${midY} L${slotCenterX} ${yEnd}` :
+          `M${rtrCenterX} ${yStart} C${rtrCenterX} ${midY}, ${slotCenterX} ${midY}, ${slotCenterX} ${yEnd}`;
         const isLan = slot.type === 'lan';
         const isUp = isLan ? (slot.role !== 'empty') : (slot.count > 0);
         const slotColor = isLan ? topoTheme.borderLan : topoTheme.borderWifi;
@@ -12905,6 +13203,8 @@
 
         if (isUp) {
           const conduitId = "bwConduitRoot_" + sIdx;
+          const isAnim = (prefs.animMode === 'flowing');
+          const isGlow = (prefs.animMode === 'glow');
           mk("path", {
             id: conduitId,
             class: "flow",
@@ -12912,12 +13212,15 @@
             stroke: slotColor,
             "stroke-width": 1.6,
             fill: "none",
-            style: `filter:drop-shadow(0 0 3px ${slotColor});`
+            style: (isGlow || isAnim) ? `filter:drop-shadow(0 0 3px ${slotColor});` : ''
           }, svg);
-          const cCirc = mk("circle", { class: "pt", r: 1.8, fill: slotColor, style: `fill:${slotColor} !important;` }, svg);
-          const m = mk("animateMotion", { dur: "2.2s", begin: `-${(sIdx * 0.35).toFixed(2)}s`, repeatCount: "indefinite" }, cCirc);
-          const mp = mk("mpath", { href: "#" + conduitId }, m);
-          try { mp.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#" + conduitId); } catch (e) {}
+          if (isAnim) {
+            const dur = prefs.animSpeed === 'fast' ? '1.2s' : (prefs.animSpeed === 'slow' ? '3.5s' : '2.2s');
+            const cCirc = mk("circle", { class: "pt", r: 1.8, fill: slotColor, style: `fill:${slotColor} !important;` }, svg);
+            const m = mk("animateMotion", { dur: dur, begin: `-${(sIdx * 0.35).toFixed(2)}s`, repeatCount: "indefinite" }, cCirc);
+            const mp = mk("mpath", { href: "#" + conduitId }, m);
+            try { mp.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#" + conduitId); } catch (e) {}
+          }
         }
 
         // Draw Interface Box
@@ -12947,10 +13250,11 @@
             fill: isUp ? "#10b981" : (isLight ? "#94a3b8" : "#52525b")
           }, portG);
 
+          // ONLY the label text itself has layer color!
           mk("text", {
             x: slotBoxX + 17,
             y: rootPortsY + 14,
-            style: `font-size:9px; font-weight:800; font-family:var(--font-mono); fill:${isUp ? topoTheme.textMain : topoTheme.textDim};`
+            style: `font-size:9px; font-weight:800; font-family:var(--font-mono); fill:${isUp ? themeColors.l1 : topoTheme.textDim};`
           }, portG).textContent = port.label || `LAN ${slot.idx + 1}`;
 
           drawPeopleIcon(slotBoxX + 12, rootPortsY + 23, isUp && clientCount > 0 ? topoTheme.textMain : topoTheme.textDim, portG);
@@ -12963,7 +13267,7 @@
 
           // Render Downstream Entities strictly under this LAN Port
           if (isUp && port.child) {
-            renderSubtreeBranchSvg(port, slotCenterX, rootPortsY + portBoxH, defs, svg, isMobile, isLight, 1, allClientsList);
+            renderSubtreeBranchSvg(port, slotCenterX, rootPortsY + portBoxH, defs, svg, isMobile, isLight, 1, allClientsList, prefs, themeColors);
           }
 
         } else {
@@ -12985,12 +13289,13 @@
             style: isUp ? `filter:${topoTheme.cardShadow};` : "opacity:0.85;"
           }, wifiG);
 
-          drawWifiAntennaIcon(slotBoxX + 10, rootPortsY + 11, isUp ? wifiColor : topoTheme.textDim, wifiG);
+          drawWifiAntennaIcon(slotBoxX + 10, rootPortsY + 11, isUp ? themeColors.l1 : topoTheme.textDim, wifiG);
 
+          // ONLY the label text itself has layer color!
           mk("text", {
             x: slotBoxX + 19,
             y: rootPortsY + 14,
-            style: `font-size:8.5px; font-weight:800; font-family:var(--font-mono); fill:${isUp ? wifiColor : topoTheme.textDim};`
+            style: `font-size:8.5px; font-weight:800; font-family:var(--font-mono); fill:${isUp ? themeColors.l1 : topoTheme.textDim};`
           }, wifiG).textContent = "Wi-Fi";
 
           drawPeopleIcon(slotBoxX + 12, rootPortsY + 23, isUp ? wifiColor : topoTheme.textDim, wifiG);
@@ -13014,8 +13319,10 @@
               const wcX = startWcX + wcIdx * (clientCardW + wGap);
               const wcCenterX = wcX + clientCardW / 2;
 
-              // Dashed WiFi link from WiFi box bottom to wireless client card top (smooth S-curve)
-              const dWifiLink = `M${slotCenterX} ${rootPortsY + portBoxH} C${slotCenterX} ${rootPortsY + portBoxH + 20}, ${wcCenterX} ${wifiStartY - 18}, ${wcCenterX} ${wifiStartY}`;
+              // Dashed WiFi link from WiFi box bottom to wireless client card top (smooth S-curve or orthogonal)
+              const dWifiLink = (prefs.lineStyle === 'orthogonal') ?
+                `M${slotCenterX} ${rootPortsY + portBoxH} L${slotCenterX} ${(rootPortsY + portBoxH + wifiStartY) / 2} L${wcCenterX} ${(rootPortsY + portBoxH + wifiStartY) / 2} L${wcCenterX} ${wifiStartY}` :
+                `M${slotCenterX} ${rootPortsY + portBoxH} C${slotCenterX} ${rootPortsY + portBoxH + 20}, ${wcCenterX} ${wifiStartY - 18}, ${wcCenterX} ${wifiStartY}`;
               mk("path", {
                 d: dWifiLink,
                 stroke: wifiColor,
@@ -13029,11 +13336,14 @@
               const wcG = mk("g", { class: "topo-wifi-client", style: `cursor:pointer;` }, svg);
               wcG.onclick = (e) => showTopoNodeDetail(wc, false, e);
 
+              const isCompact = (prefs.infoDensity === 'compact');
+              const finalH = isCompact ? 20 : clientCardH;
+
               mk("rect", {
                 x: wcX,
                 y: wifiStartY,
                 width: clientCardW,
-                height: clientCardH,
+                height: finalH,
                 rx: 5,
                 ry: 5,
                 fill: topoTheme.cardBg,
@@ -13042,24 +13352,26 @@
                 style: `filter:${topoTheme.cardShadow};`
               }, wcG);
 
-              drawWifiAntennaIcon(wcX + 9, wifiStartY + clientCardH / 2, wifiColor, wcG);
+              drawWifiAntennaIcon(wcX + 9, wifiStartY + finalH / 2, wifiColor, wcG);
 
               let wcName = wc.name || wc.ip || "WiFi";
               if (wcName.length > 9) wcName = wcName.substring(0, 8) + "…";
 
               const tWcName = mk("text", {
                 x: wcX + 18,
-                y: wifiStartY + 9,
+                y: isCompact ? (wifiStartY + 13) : (wifiStartY + 9),
                 style: `font-size:7.5px; font-weight:700; font-family:var(--font-mono); fill:${topoTheme.textMain};`
               }, wcG);
               tWcName.textContent = wcName;
 
-              const tWcBand = mk("text", {
-                x: wcX + 18,
-                y: wifiStartY + 17,
-                style: `font-size:6.5px; font-weight:800; font-family:var(--font-mono); fill:${wifiColor};`
-              }, wcG);
-              tWcBand.textContent = `[Wi-Fi] ${wc.ip ? wc.ip.split('.').slice(2).join('.') : ''}`;
+              if (!isCompact) {
+                const tWcBand = mk("text", {
+                  x: wcX + 18,
+                  y: wifiStartY + 17,
+                  style: `font-size:6.5px; font-weight:800; font-family:var(--font-mono); fill:${wifiColor};`
+                }, wcG);
+                tWcBand.textContent = `[Wi-Fi] ${wc.ip ? wc.ip.split('.').slice(2).join('.') : ''}`;
+              }
             });
           }
         }
@@ -13071,21 +13383,27 @@
     // =========================================================================
     // RECURSIVE SUBTREE BRANCH BUILDER (ZERO-OVERLAP LAN & WIFI LANES)
     // =========================================================================
-    function renderSubtreeBranchSvg(parentPort, parentX, parentY, defs, svg, isMobile, isLight, depth, allClientsList) {
+    function renderSubtreeBranchSvg(parentPort, parentX, parentY, defs, svg, isMobile, isLight, depth, allClientsList, prefs, themeColors) {
       if (!parentPort || !parentPort.child) return;
       const child = parentPort.child;
+
+      prefs = prefs || getTopologyPrefs();
+      themeColors = themeColors || getTopologyThemeColors(isLight, prefs.theme);
+
+      // Distinct layer color for this tier: Layer 2, Layer 3, etc.
+      const nodeLayerColor = (depth === 1) ? themeColors.l2 : ((depth === 2) ? themeColors.l3 : themeColors.l4);
 
       const topoTheme = {
         cardBg: isLight ? "#ffffff" : "#13151f",
         cardBgAlt: isLight ? "#f8fafc" : "#181a26",
         cardBorder: isLight ? "#cbd5e1" : "rgba(255, 255, 255, 0.16)",
         cardBorderIdle: isLight ? "#e2e8f0" : "rgba(255, 255, 255, 0.08)",
-        borderActive: isLight ? "#0284c7" : "#38bdf8",
-        borderLan: isLight ? "#0284c7" : "#38bdf8",
-        borderSwitch: isLight ? "#059669" : "#10b981",
-        borderAp: isLight ? "#d97706" : "#f59e0b",
-        borderDev: isLight ? "#059669" : "#10b981",
-        borderWifi: isLight ? "#0284c7" : "#38bdf8",
+        borderActive: themeColors.accent,
+        borderLan: themeColors.accent,
+        borderSwitch: themeColors.l3,
+        borderAp: themeColors.l2,
+        borderDev: themeColors.l3,
+        borderWifi: themeColors.wifi,
         textMain: isLight ? "#09090b" : "#f4f4f5",
         textDim: isLight ? "#475569" : "#a1a1aa",
         textMuted: isLight ? "#64748b" : "#71717a",
@@ -13116,40 +13434,50 @@
           style: "opacity:0.35;"
         }, svg);
 
-        mk("path", {
-          id: conduitId,
-          class: "flow",
-          d: dCable,
-          stroke: devColor,
-          "stroke-width": 1.6,
-          fill: "none",
-          style: `filter:drop-shadow(0 0 3px ${devColor});`
-        }, svg);
+        if (prefs.animMode !== 'off') {
+          mk("path", {
+            id: conduitId,
+            class: "flow",
+            d: dCable,
+            stroke: devColor,
+            "stroke-width": 1.6,
+            fill: "none",
+            style: `filter:drop-shadow(0 0 3px ${devColor});`
+          }, svg);
 
-        [0, 1].forEach(n => {
-          const cCirc = mk("circle", { class: "pt", r: 1.8, fill: devColor, style: `fill:${devColor} !important;` }, svg);
-          const m = mk("animateMotion", { dur: "2.0s", begin: `-${(n * 1.0).toFixed(2)}s`, repeatCount: "indefinite" }, cCirc);
-          const mp = mk("mpath", { href: "#" + conduitId }, m);
-          try { mp.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#" + conduitId); } catch (e) {}
-        });
+          if (prefs.animMode === 'flowing') {
+            const dur = prefs.animSpeed === 'fast' ? '1.2s' : (prefs.animSpeed === 'slow' ? '3.5s' : '2.0s');
+            [0, 1].forEach(n => {
+              const cCirc = mk("circle", { class: "pt", r: 1.8, fill: devColor, style: `fill:${devColor} !important;` }, svg);
+              const m = mk("animateMotion", { dur: dur, begin: `-${(n * 1.0).toFixed(2)}s`, repeatCount: "indefinite" }, cCirc);
+              const mp = mk("mpath", { href: "#" + conduitId }, m);
+              try { mp.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#" + conduitId); } catch (e) {}
+            });
+          }
+        }
 
-        // Speed tag on cable
-        const tSpeed = mk("text", {
-          x: parentX + 4,
-          y: parentY + (devY - parentY) / 2 + 3,
-          style: `font-size:7px; font-weight:800; font-family:var(--font-mono); fill:${devColor}; opacity:0.85;`
-        }, svg);
-        tSpeed.textContent = "1Gbps";
+        // Speed tag on cable (if enabled)
+        if (prefs.showSpeeds) {
+          const tSpeed = mk("text", {
+            x: parentX + 4,
+            y: parentY + (devY - parentY) / 2 + 3,
+            style: `font-size:7px; font-weight:800; font-family:var(--font-mono); fill:${devColor}; opacity:0.85;`
+          }, svg);
+          tSpeed.textContent = "1Gbps";
+        }
 
         // Device Box Card
         const devG = mk("g", { class: "topo-client-node", style: `cursor:pointer;` }, svg);
         devG.onclick = (e) => showTopoNodeDetail(dev, false, e);
 
+        const isCompact = (prefs.infoDensity === 'compact');
+        const finalDevH = isCompact ? (isMobile ? 22 : 24) : devH;
+
         mk("rect", {
           x: devBoxX,
           y: devY,
           width: devW,
-          height: devH,
+          height: finalDevH,
           rx: 6,
           ry: 6,
           fill: topoTheme.cardBg,
@@ -13158,24 +13486,26 @@
           style: `filter:${topoTheme.cardShadow};`
         }, devG);
 
-        drawLanClientDeviceIcon(devBoxX + 11, devY + devH / 2, devClass, devG);
+        drawLanClientDeviceIcon(devBoxX + 11, devY + finalDevH / 2, devClass, devG);
 
         let devName = dev.name || dev.ip || "Device";
         if (devName.length > 11) devName = devName.substring(0, 10) + "…";
 
         const tDevName = mk("text", {
           x: devBoxX + 22,
-          y: devY + 11,
+          y: isCompact ? (devY + finalDevH / 2 + 3) : (devY + 11),
           style: `font-size:8px; font-weight:800; font-family:var(--font-mono); fill:${topoTheme.textMain};`
         }, devG);
         tDevName.textContent = devName;
 
-        const tDevIp = mk("text", {
-          x: devBoxX + 22,
-          y: devY + 20,
-          style: `font-size:7px; font-weight:700; font-family:var(--font-mono); fill:${topoTheme.textDim};`
-        }, devG);
-        tDevIp.textContent = dev.ip || "";
+        if (!isCompact) {
+          const tDevIp = mk("text", {
+            x: devBoxX + 22,
+            y: devY + 20,
+            style: `font-size:7px; font-weight:700; font-family:var(--font-mono); fill:${topoTheme.textDim};`
+          }, devG);
+          tDevIp.textContent = dev.ip || "";
+        }
         return;
       }
 
@@ -13184,7 +13514,7 @@
         const node = child;
         const isSwitch = node.type === 'switch';
         const isRouter = node.type === 'router';
-        const nodeColor = isSwitch ? (isLight ? '#059669' : '#10b981') : (isRouter ? (isLight ? '#0284c7' : '#38bdf8') : (isLight ? '#d97706' : '#f59e0b'));
+        const nodeColor = isSwitch ? (isLight ? '#059669' : '#10b981') : nodeLayerColor;
 
         const isCollapsed = window._topoCollapsed && window._topoCollapsed.has(node.id);
         const nodeW = isMobile ? 120 : 136;
@@ -13193,7 +13523,9 @@
         const nodeBoxX = parentX - nodeW / 2;
 
         const conduitId = `bwTrunkNode_${depth}_${Math.random().toString(36).substr(2, 5)}`;
-        const dCable = `M${parentX} ${parentY} L${parentX} ${nodeY}`;
+        const dCable = (prefs.lineStyle === 'orthogonal') ?
+          `M${parentX} ${parentY} L${parentX} ${nodeY}` :
+          `M${parentX} ${parentY} C${parentX} ${parentY + 20}, ${parentX} ${nodeY - 20}, ${parentX} ${nodeY}`;
 
         // Straight vertical trunk cable from parent port down to node box
         mk("path", {
@@ -13205,30 +13537,37 @@
           style: "opacity:0.4;"
         }, svg);
 
-        mk("path", {
-          id: conduitId,
-          class: "flow",
-          d: dCable,
-          stroke: nodeColor,
-          "stroke-width": 1.8,
-          fill: "none",
-          style: `filter:drop-shadow(0 0 4px ${nodeColor});`
-        }, svg);
+        if (prefs.animMode !== 'off') {
+          mk("path", {
+            id: conduitId,
+            class: "flow",
+            d: dCable,
+            stroke: nodeColor,
+            "stroke-width": 1.8,
+            fill: "none",
+            style: `filter:drop-shadow(0 0 4px ${nodeColor});`
+          }, svg);
 
-        [0, 1].forEach(n => {
-          const cCirc = mk("circle", { class: "pt", r: 2.0, fill: nodeColor, style: `fill:${nodeColor} !important;` }, svg);
-          const m = mk("animateMotion", { dur: "2.0s", begin: `-${(n * 1.0).toFixed(2)}s`, repeatCount: "indefinite" }, cCirc);
-          const mp = mk("mpath", { href: "#" + conduitId }, m);
-          try { mp.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#" + conduitId); } catch (e) {}
-        });
+          if (prefs.animMode === 'flowing') {
+            const dur = prefs.animSpeed === 'fast' ? '1.2s' : (prefs.animSpeed === 'slow' ? '3.5s' : '2.0s');
+            [0, 1].forEach(n => {
+              const cCirc = mk("circle", { class: "pt", r: 2.0, fill: nodeColor, style: `fill:${nodeColor} !important;` }, svg);
+              const m = mk("animateMotion", { dur: dur, begin: `-${(n * 1.0).toFixed(2)}s`, repeatCount: "indefinite" }, cCirc);
+              const mp = mk("mpath", { href: "#" + conduitId }, m);
+              try { mp.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#" + conduitId); } catch (e) {}
+            });
+          }
+        }
 
         // Speed tag
-        const tTrunkSpeed = mk("text", {
-          x: parentX + 4,
-          y: parentY + (nodeY - parentY) / 2 + 3,
-          style: `font-size:7px; font-weight:800; font-family:var(--font-mono); fill:${nodeColor}; opacity:0.85;`
-        }, svg);
-        tTrunkSpeed.textContent = "1Gbps";
+        if (prefs.showSpeeds) {
+          const tTrunkSpeed = mk("text", {
+            x: parentX + 4,
+            y: parentY + (nodeY - parentY) / 2 + 3,
+            style: `font-size:7px; font-weight:800; font-family:var(--font-mono); fill:${nodeColor}; opacity:0.85;`
+          }, svg);
+          tTrunkSpeed.textContent = "1Gbps";
+        }
 
         // Node Box Card
         const nodeG = mk("g", { class: "topo-ap-node", style: `cursor:pointer;` }, svg);
@@ -13269,7 +13608,7 @@
           y: nodeY + 23,
           style: `font-size:7px; font-weight:700; font-family:var(--font-mono); fill:${nodeColor};`
         }, nodeG);
-        tNodeSub.textContent = `[L2 ${badgeTag}] ${node.ip || ''}`;
+        tNodeSub.textContent = `[L${depth + 1} ${badgeTag}] ${node.ip || ''}`;
 
         // Collapse / Expand Toggle Button
         const hasChildren = (Array.isArray(node.ports) && node.ports.some(p => p.role !== 'empty')) ||
@@ -13306,7 +13645,7 @@
           tBtn.textContent = isCollapsed ? "+" : "-";
         }
 
-        // IF NOT COLLAPSED: RENDER CHILD INTERFACES ROW (LAN 1..N, 2.4G WiFi, 5G WiFi)
+        // IF NOT COLLAPSED: RENDER CHILD INTERFACES ROW (LAN 1..N, Wi-Fi)
         if (!isCollapsed) {
           const cSlots = computeNodeInterfaceSlots(node, isMobile);
           const numCSlots = cSlots.length;
@@ -13332,11 +13671,13 @@
             const isCsUp = isLan ? (cSlot.role !== 'empty') : (cSlot.count > 0);
             const csColor = isLan ? nodeColor : topoTheme.borderWifi;
 
-            // Conduit from Node bottom to Child Interface box top (Cubic Bezier S-Curve)
+            // Conduit from Node bottom to Child Interface box top (Bezier or Orthogonal)
             const cYStart = nodeY + nodeH;
             const cYEnd = childPortsY;
             const cMidY = (cYStart + cYEnd) / 2;
-            const dCpConduit = `M${parentX} ${cYStart} C${parentX} ${cMidY}, ${csCenterX} ${cMidY}, ${csCenterX} ${cYEnd}`;
+            const dCpConduit = (prefs.lineStyle === 'orthogonal') ?
+              `M${parentX} ${cYStart} L${parentX} ${cMidY} L${csCenterX} ${cMidY} L${csCenterX} ${cYEnd}` :
+              `M${parentX} ${cYStart} C${parentX} ${cMidY}, ${csCenterX} ${cMidY}, ${csCenterX} ${cYEnd}`;
             mk("path", {
               class: "base",
               d: dCpConduit,
@@ -13346,7 +13687,7 @@
               style: `opacity:${isCsUp ? 0.35 : 0.2};`
             }, svg);
 
-            if (isCsUp) {
+            if (isCsUp && prefs.animMode !== 'off') {
               const cpConduitId = `bwConduitChild_${depth}_${csIdx}_${Math.random().toString(36).substr(2, 5)}`;
               mk("path", {
                 id: cpConduitId,
@@ -13357,10 +13698,13 @@
                 fill: "none",
                 style: `filter:drop-shadow(0 0 3px ${csColor});`
               }, svg);
-              const cCirc = mk("circle", { class: "pt", r: 1.6, fill: csColor, style: `fill:${csColor} !important;` }, svg);
-              const m = mk("animateMotion", { dur: "2.2s", begin: `-${(csIdx * 0.35).toFixed(2)}s`, repeatCount: "indefinite" }, cCirc);
-              const mp = mk("mpath", { href: "#" + cpConduitId }, m);
-              try { mp.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#" + cpConduitId); } catch (e) {}
+              if (prefs.animMode === 'flowing') {
+                const dur = prefs.animSpeed === 'fast' ? '1.2s' : (prefs.animSpeed === 'slow' ? '3.5s' : '2.2s');
+                const cCirc = mk("circle", { class: "pt", r: 1.6, fill: csColor, style: `fill:${csColor} !important;` }, svg);
+                const m = mk("animateMotion", { dur: dur, begin: `-${(csIdx * 0.35).toFixed(2)}s`, repeatCount: "indefinite" }, cCirc);
+                const mp = mk("mpath", { href: "#" + cpConduitId }, m);
+                try { mp.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#" + cpConduitId); } catch (e) {}
+              }
             }
 
             if (isLan) {
@@ -13391,10 +13735,11 @@
                 fill: isCsUp ? "#10b981" : (isLight ? "#94a3b8" : "#52525b")
               }, cpG);
 
+              // ONLY the label text itself has layer color!
               mk("text", {
                 x: csBoxX + 15,
                 y: childPortsY + 12,
-                style: `font-size:8.5px; font-weight:800; font-family:var(--font-mono); fill:${isCsUp ? topoTheme.textMain : topoTheme.textDim};`
+                style: `font-size:8.5px; font-weight:800; font-family:var(--font-mono); fill:${isCsUp ? nodeLayerColor : topoTheme.textDim};`
               }, cpG).textContent = cp.label || `LAN ${csIdx + 1}`;
 
               drawPeopleIcon(csBoxX + 10, childPortsY + 18, isCsUp && cpClientCount > 0 ? topoTheme.textMain : topoTheme.textDim, cpG);
@@ -13407,7 +13752,7 @@
 
               // Recursively render whatever is plugged into this child LAN port!
               if (isCsUp && cp.child) {
-                renderSubtreeBranchSvg(cp, csCenterX, childPortsY + cPortBoxH, defs, svg, isMobile, isLight, depth + 1, allClientsList);
+                renderSubtreeBranchSvg(cp, csCenterX, childPortsY + cPortBoxH, defs, svg, isMobile, isLight, depth + 1, allClientsList, prefs, themeColors);
               }
 
             } else {
@@ -13429,12 +13774,13 @@
                 style: isCsUp ? `filter:${topoTheme.cardShadow};` : "opacity:0.85;"
               }, wifiG);
 
-              drawWifiAntennaIcon(csBoxX + 9, childPortsY + 10, isCsUp ? wifiColor : topoTheme.textDim, wifiG);
+              drawWifiAntennaIcon(csBoxX + 9, childPortsY + 10, isCsUp ? nodeLayerColor : topoTheme.textDim, wifiG);
 
+              // ONLY the label text itself has layer color!
               mk("text", {
                 x: csBoxX + 17,
                 y: childPortsY + 12,
-                style: `font-size:8px; font-weight:800; font-family:var(--font-mono); fill:${isCsUp ? wifiColor : topoTheme.textDim};`
+                style: `font-size:8px; font-weight:800; font-family:var(--font-mono); fill:${isCsUp ? nodeLayerColor : topoTheme.textDim};`
               }, wifiG).textContent = "Wi-Fi";
 
               drawPeopleIcon(csBoxX + 10, childPortsY + 18, isCsUp ? csColor : topoTheme.textDim, wifiG);
@@ -13459,7 +13805,9 @@
                   const wcCenterX = wcX + clientCardW / 2;
 
                   // Dashed WiFi link line from WiFi interface box to client
-                  const dWifi = `M${csCenterX} ${childPortsY + cPortBoxH} C${csCenterX} ${childPortsY + cPortBoxH + 18}, ${wcCenterX} ${wifiStartY - 16}, ${wcCenterX} ${wifiStartY}`;
+                  const dWifi = (prefs.lineStyle === 'orthogonal') ?
+                    `M${csCenterX} ${childPortsY + cPortBoxH} L${csCenterX} ${(childPortsY + cPortBoxH + wifiStartY) / 2} L${wcCenterX} ${(childPortsY + cPortBoxH + wifiStartY) / 2} L${wcCenterX} ${wifiStartY}` :
+                    `M${csCenterX} ${childPortsY + cPortBoxH} C${csCenterX} ${childPortsY + cPortBoxH + 18}, ${wcCenterX} ${wifiStartY - 16}, ${wcCenterX} ${wifiStartY}`;
                   mk("path", {
                     d: dWifi,
                     stroke: csColor,
@@ -13473,11 +13821,14 @@
                   const wcG = mk("g", { class: "topo-wifi-client", style: `cursor:pointer;` }, svg);
                   wcG.onclick = (e) => showTopoNodeDetail(wc, false, e);
 
+                  const isCompact = (prefs.infoDensity === 'compact');
+                  const finalClientH = isCompact ? 18 : clientCardH;
+
                   mk("rect", {
                     x: wcX,
                     y: wifiStartY,
                     width: clientCardW,
-                    height: clientCardH,
+                    height: finalClientH,
                     rx: 5,
                     ry: 5,
                     fill: topoTheme.cardBg,
@@ -13486,24 +13837,26 @@
                     style: `filter:${topoTheme.cardShadow};`
                   }, wcG);
 
-                  drawWifiAntennaIcon(wcX + 9, wifiStartY + clientCardH / 2, csColor, wcG);
+                  drawWifiAntennaIcon(wcX + 9, wifiStartY + finalClientH / 2, csColor, wcG);
 
                   let wcName = wc.name || wc.ip || "WiFi";
                   if (wcName.length > 9) wcName = wcName.substring(0, 8) + "…";
 
                   const tWcName = mk("text", {
                     x: wcX + 18,
-                    y: wifiStartY + 9,
+                    y: isCompact ? (wifiStartY + 12) : (wifiStartY + 9),
                     style: `font-size:7.5px; font-weight:700; font-family:var(--font-mono); fill:${topoTheme.textMain};`
                   }, wcG);
                   tWcName.textContent = wcName;
 
-                  const tWcBand = mk("text", {
-                    x: wcX + 18,
-                    y: wifiStartY + 17,
-                    style: `font-size:6.5px; font-weight:800; font-family:var(--font-mono); fill:${csColor};`
-                  }, wcG);
-                  tWcBand.textContent = `[${cSlot.band}] ${wc.ip ? wc.ip.split('.').slice(2).join('.') : ''}`;
+                  if (!isCompact) {
+                    const tWcBand = mk("text", {
+                      x: wcX + 18,
+                      y: wifiStartY + 17,
+                      style: `font-size:6.5px; font-weight:800; font-family:var(--font-mono); fill:${csColor};`
+                    }, wcG);
+                    tWcBand.textContent = `[${cSlot.band}] ${wc.ip ? wc.ip.split('.').slice(2).join('.') : ''}`;
+                  }
                 });
               }
             }
@@ -15315,226 +15668,413 @@
         `;
         if (btn) btn.disabled = true;
       } else {
-        el.style.display = 'flex';
-        el.className = 'topo-validation-box valid';
-        el.innerHTML = `
-          <svg class="svg-icon" viewBox="0 0 24 24" style="width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:2;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-          <span><strong>Valid Topology:</strong> All nodes and ports are uniquely mapped with zero IP conflicts.</span>
-        `;
+        // DO NOT ADD VALID TOPOLOGY GREEN BOX!
+        el.style.display = 'none';
+        el.innerHTML = '';
         if (btn) btn.disabled = false;
       }
     }
 
-    // =========================================================================
-    // RENDER TOPOLOGY LAYERS SETTINGS UI (RECURSIVE, NO OVERLAPS, COMPACT DROPDOWNS)
-    // =========================================================================
-// =========================================================================
-// RENDER TOPOLOGY LAYERS SETTINGS UI (UNIFIED WAN, LAN, 2.4G & 5G WIFI)
-// =========================================================================
-function renderTopologyLayersUI(topoData) {
-  const container = document.getElementById('topoLayerPortsContainer');
-  if (!container) return;
+    function renderTopologyPreferencesUI() {
+      const container = document.getElementById('topoPreferencesSection');
+      if (!container) return;
+      const prefs = getTopologyPrefs();
 
-  const currentLanIp = (window._lastDataCache && window._lastDataCache.network && window._lastDataCache.network.lan_ip) || '10.0.0.1';
-  const currentMac = (window._lastDataCache && window._lastDataCache.network && window._lastDataCache.network.lan_mac) || '2e:dd:4c:b2:8c:fa';
-
-  if (!window._topoTree || topoData) {
-    window._topoTree = normalizeTopologyTree(topoData || window._topologyLayers, currentLanIp, currentMac);
-  }
-  const tree = window._topoTree;
-  const availClients = getAvailableNetworkClients();
-  const usedIps = collectUsedIps(tree);
-
-  updateValidationNotice();
-
-  container.innerHTML = renderNodeSettingGroups(tree, 0, availClients, usedIps, true);
-}
-
-function renderNodeCard(node, depth, availClients, usedIps, isRoot) {
-  return renderNodeSettingGroups(node, depth, availClients, usedIps, isRoot);
-}
-
-function renderNodeSettingGroups(node, depth, availClients, usedIps, isRoot) {
-  if (!node) return '';
-  const numPorts = Array.isArray(node.ports) ? node.ports.length : (node.numPorts || 4);
-  const isRouter = node.type === 'router';
-  const isAp = node.type === 'ap';
-  const isSwitch = node.type === 'switch';
-  const hasWifi = (isRouter || isAp);
-
-  const wClients = node.wireless_clients || [];
-
-  let html = `
-    <!-- NODE IDENTITY & HARDWARE -->
-    <div class="setting-section-header" style="margin-top:${isRoot ? '0' : '10px'};">
-      <span>${isRoot ? 'Host Gateway' : `${escapeHtml(node.name || 'Subordinate Node')}`} (${escapeHtml(node.ip || '--')})</span>
-    </div>
-
-    <!-- Row: Node Name -->
-    <div class="setting-row-item" style="flex-direction:column; align-items:stretch; gap:6px;">
-      <div class="setting-label-col">
-        <span class="setting-label-bold">Device Name</span>
-        <span class="setting-label-sub">Network host identifier label</span>
-      </div>
-      <div>
-        <input type="text" class="mh-input" value="${escapeHtml(node.name || '')}" oninput="onNodeFieldChange('${escapeHtml(node.id)}', 'name', this.value)" style="width:100%; box-sizing:border-box; font-size:12px;">
-      </div>
-    </div>
-
-    <!-- Row: Node Role / Type -->
-    ${!isRoot ? `
-      <div class="setting-row-item" style="flex-direction:column; align-items:stretch; gap:6px;">
-        <div class="setting-label-col">
-          <span class="setting-label-bold">Node Role</span>
-          <span class="setting-label-sub">Infrastructure hardware tier</span>
-        </div>
-        <div>
-          <select class="mh-input" onchange="onNodeFieldChange('${escapeHtml(node.id)}', 'type', this.value)" style="width:100%; box-sizing:border-box; font-size:12px;">
-            <option value="ap" ${node.type === 'ap' ? 'selected' : ''}>Access Point (AP)</option>
-            <option value="router" ${node.type === 'router' ? 'selected' : ''}>Router</option>
-            <option value="switch" ${node.type === 'switch' ? 'selected' : ''}>Ethernet Switch</option>
-          </select>
-        </div>
-      </div>
-    ` : ''}
-
-    <!-- Row: Physical LAN Ports Count -->
-    <div class="setting-row-item" style="flex-direction:column; align-items:stretch; gap:6px;">
-      <div class="setting-label-col">
-        <span class="setting-label-bold">LAN Ports Count</span>
-        <span class="setting-label-sub">Number of physical Ethernet ports on this hardware (1 to 48)</span>
-      </div>
-      <div>
-        <input type="number" min="1" max="48" class="mh-input" value="${numPorts}" onchange="onNodePortCountChange('${escapeHtml(node.id)}', parseInt(this.value, 10))" style="width:100%; box-sizing:border-box; font-size:12px;">
-      </div>
-    </div>
-
-    <!-- GROUP 3: ETHERNET LAN PORTS -->
-    <div class="setting-section-divider"></div>
-    <div class="setting-section-header">Physical Ethernet Ports (${(node.ports || []).length})</div>
-
-    ${(node.ports || []).map((port, pIdx) => {
-      const isConnected = port.role !== 'empty';
-      const isDevice = port.role === 'device';
-      const isNode = port.role === 'node';
-      const child = port.child || {};
-      const devIp = child.ip || '';
-      const devName = child.name || '';
-      const devMac = child.mac || '';
-
-      let infoText = 'Status: Disconnected / Empty';
-      if (isDevice) {
-        infoText = `Connected Client: ${devName || 'Device'} &bull; IP: ${devIp || '--'} &bull; MAC: ${devMac || '--'}`;
-      } else if (isNode) {
-        infoText = `Downstream Node: ${child.name || 'Router/AP'} &bull; IP: ${child.ip || '--'} &bull; Uplink: ${port.label || ('LAN ' + (pIdx + 1))}`;
-      }
-
-      return `
-        <div class="setting-row-item" style="flex-direction:column; align-items:stretch; gap:8px; border-bottom:1px solid rgba(255,255,255,0.035); padding:10px 14px;">
-          <div class="setting-label-col">
-            <span class="setting-label-bold">${escapeHtml(port.label || ('LAN Port ' + (pIdx + 1)))}</span>
-            <span class="setting-label-sub">${infoText}</span>
+      container.innerHTML = `
+        <div class="setting-section-header" style="cursor:pointer; display:flex; justify-content:space-between; align-items:center;" onclick="toggleTopoPreferences()">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <svg viewBox="0 0 24 24" style="width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2;"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <span>Topology Preferences</span>
           </div>
-          <div style="display:flex; flex-direction:column; gap:8px; width:100%;">
-            <select class="mh-input" onchange="onPortRoleChange('${escapeHtml(port.id)}', this.value)" style="width:100%; box-sizing:border-box; font-size:12px;">
-              <option value="empty" ${port.role === 'empty' ? 'selected' : ''}>Empty (Disconnected)</option>
-              <option value="device" ${port.role === 'device' ? 'selected' : ''}>Direct End-Device</option>
-              <option value="node" ${port.role === 'node' ? 'selected' : ''}>Subordinate Router / AP / Switch</option>
-            </select>
+          <svg id="topoPrefsChevron" class="svg-icon acc-chevron" viewBox="0 0 24 24" style="width:14px; height:14px; transition:transform 0.2s; ${window._topoPrefsOpen ? 'transform:rotate(180deg);' : ''}"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
 
-            ${isDevice ? `
-              <select class="mh-input" onchange="onSelectPortDevice('${escapeHtml(port.id)}', this.value)" style="width:100%; box-sizing:border-box; font-size:12px;">
-                <option value="">-- Choose Device from Network Scan --</option>
-                ${availClients.map(c => {
-                  const isUsedElsewhere = usedIps.has(c.ip) && c.ip !== devIp;
-                  const disAttr = isUsedElsewhere ? 'disabled style="color:var(--text-dim); opacity:0.45;"' : '';
-                  const disTag = isUsedElsewhere ? ' [In use]' : '';
-                  return `<option value="${escapeHtml(c.ip)}" ${devIp === c.ip ? 'selected' : ''} ${disAttr}>${escapeHtml(c.name || 'Device')} &bull; ${escapeHtml(c.ip)}${disTag}</option>`;
-                }).join('')}
-                <option value="__manual__" ${(!availClients.some(c => c.ip === devIp) && devIp) ? 'selected' : ''}>+ Custom IP Device...</option>
+        <div id="topoPrefsBody" style="display:${window._topoPrefsOpen ? 'flex' : 'none'}; flex-direction:column; gap:8px;">
+          <!-- 1. Color Palette -->
+          <div class="setting-row-item" style="flex-direction:column; align-items:stretch; gap:6px;">
+            <div class="setting-label-col">
+              <span class="setting-label-bold">Color Theme Palette</span>
+              <span class="setting-label-sub">Accent color for topology diagram links, badges and active highlights</span>
+            </div>
+            <div>
+              <select class="mh-input" onchange="updateTopologyPref('theme', this.value)" style="width:100%; box-sizing:border-box; font-size:12px;">
+                <option value="cyan" ${prefs.theme === 'cyan' ? 'selected' : ''}>Modern Cyan (Default)</option>
+                <option value="emerald" ${prefs.theme === 'emerald' ? 'selected' : ''}>Emerald Green</option>
+                <option value="purple" ${prefs.theme === 'purple' ? 'selected' : ''}>Violet / Purple Neon</option>
+                <option value="blue" ${prefs.theme === 'blue' ? 'selected' : ''}>Electric Blue</option>
+                <option value="amber" ${prefs.theme === 'amber' ? 'selected' : ''}>Warm Amber</option>
+                <option value="monochrome" ${prefs.theme === 'monochrome' ? 'selected' : ''}>Monochrome Dark Slate</option>
               </select>
-              ${(!availClients.some(c => c.ip === devIp) && devIp) ? `
-                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; width:100%;">
-                  <input type="text" class="mh-input" placeholder="Device Name" value="${escapeHtml(devName)}" oninput="onCustomPortDeviceChange('${escapeHtml(port.id)}', 'name', this.value)" style="width:100%; box-sizing:border-box; font-size:11px;">
-                  <input type="text" class="mh-input" placeholder="IPv4 Address" value="${escapeHtml(devIp)}" oninput="onCustomPortDeviceChange('${escapeHtml(port.id)}', 'ip', this.value)" style="width:100%; box-sizing:border-box; font-size:11px; font-family:var(--font-mono);">
-                  <input type="text" class="mh-input" placeholder="MAC (optional)" value="${escapeHtml(devMac)}" oninput="onCustomPortDeviceChange('${escapeHtml(port.id)}', 'mac', this.value)" style="width:100%; box-sizing:border-box; font-size:11px; font-family:var(--font-mono);">
-                </div>
-              ` : ''}
-            ` : ''}
+            </div>
+          </div>
 
-            ${isNode ? `
-              <select class="mh-input" onchange="onSelectPortNodeClient('${escapeHtml(port.id)}', this.value)" style="width:100%; box-sizing:border-box; font-size:12px;">
-                <option value="">-- Choose AP/Router from Network Scan --</option>
-                ${availClients.map(c => {
-                  const isUsedElsewhere = usedIps.has(c.ip) && c.ip !== child.ip;
-                  const disAttr = isUsedElsewhere ? 'disabled style="color:var(--text-dim); opacity:0.45;"' : '';
-                  const disTag = isUsedElsewhere ? ' [In use]' : '';
-                  return `<option value="${escapeHtml(c.ip)}" ${child.ip === c.ip ? 'selected' : ''} ${disAttr}>${escapeHtml(c.name || 'Router')} &bull; ${escapeHtml(c.ip)}${disTag}</option>`;
-                }).join('')}
+          <!-- 2. Animation Mode -->
+          <div class="setting-row-item" style="flex-direction:column; align-items:stretch; gap:6px;">
+            <div class="setting-label-col">
+              <span class="setting-label-bold">Packet Flow Animation</span>
+              <span class="setting-label-sub">Real-time particle motion across active physical and wireless links</span>
+            </div>
+            <div>
+              <select class="mh-input" onchange="updateTopologyPref('animMode', this.value)" style="width:100%; box-sizing:border-box; font-size:12px;">
+                <option value="flowing" ${prefs.animMode === 'flowing' ? 'selected' : ''}>Flowing Particles (Animated)</option>
+                <option value="glow" ${prefs.animMode === 'glow' ? 'selected' : ''}>Subtle Static Glow (No Motion)</option>
+                <option value="off" ${prefs.animMode === 'off' ? 'selected' : ''}>Minimal Static (Zero Motion / Low CPU)</option>
               </select>
-            ` : ''}
+            </div>
+          </div>
+
+          <!-- 3. Animation Speed -->
+          <div class="setting-row-item" style="flex-direction:column; align-items:stretch; gap:6px;">
+            <div class="setting-label-col">
+              <span class="setting-label-bold">Animation Pulse Speed</span>
+              <span class="setting-label-sub">Cycle speed of moving particle pulses on active conduits</span>
+            </div>
+            <div>
+              <select class="mh-input" onchange="updateTopologyPref('animSpeed', this.value)" style="width:100%; box-sizing:border-box; font-size:12px;">
+                <option value="fast" ${prefs.animSpeed === 'fast' ? 'selected' : ''}>Fast (1.2s)</option>
+                <option value="normal" ${prefs.animSpeed === 'normal' ? 'selected' : ''}>Normal (2.2s)</option>
+                <option value="slow" ${prefs.animSpeed === 'slow' ? 'selected' : ''}>Smooth Slow (3.5s)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- 4. Line Curvature Style -->
+          <div class="setting-row-item" style="flex-direction:column; align-items:stretch; gap:6px;">
+            <div class="setting-label-col">
+              <span class="setting-label-bold">Link Cable Curvature</span>
+              <span class="setting-label-sub">Geometric curvature of physical and wireless conduit paths</span>
+            </div>
+            <div>
+              <select class="mh-input" onchange="updateTopologyPref('lineStyle', this.value)" style="width:100%; box-sizing:border-box; font-size:12px;">
+                <option value="bezier" ${prefs.lineStyle === 'bezier' ? 'selected' : ''}>S-Curve Smooth Bezier (Hybrid Flow)</option>
+                <option value="orthogonal" ${prefs.lineStyle === 'orthogonal' ? 'selected' : ''}>Geometric Orthogonal (Right-Angle)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- 5. Show Ingress WAN Modems -->
+          <div class="setting-row-item">
+            <div class="setting-label-col">
+              <span class="setting-label-bold">Show WAN Ingress Modems</span>
+              <span class="setting-label-sub">Display USB modems and upstream gateway cards at top of diagram</span>
+            </div>
+            <div class="toggle-wrap-cell">
+              <label class="toggle-switch">
+                <input type="checkbox" id="topoPrefShowWan" ${prefs.showWan ? 'checked' : ''} onchange="updateTopologyPref('showWan', this.checked)">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- 6. Show Link Speeds -->
+          <div class="setting-row-item">
+            <div class="setting-label-col">
+              <span class="setting-label-bold">Show Trunk Link Speeds</span>
+              <span class="setting-label-sub">Display 1Gbps / 100Mbps speed labels on trunk conduits</span>
+            </div>
+            <div class="toggle-wrap-cell">
+              <label class="toggle-switch">
+                <input type="checkbox" id="topoPrefShowSpeeds" ${prefs.showSpeeds ? 'checked' : ''} onchange="updateTopologyPref('showSpeeds', this.checked)">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- 7. Device Details Density -->
+          <div class="setting-row-item" style="flex-direction:column; align-items:stretch; gap:6px;">
+            <div class="setting-label-col">
+              <span class="setting-label-bold">Device Details Level</span>
+              <span class="setting-label-sub">Information density shown on client node cards in the diagram</span>
+            </div>
+            <div>
+              <select class="mh-input" onchange="updateTopologyPref('infoDensity', this.value)" style="width:100%; box-sizing:border-box; font-size:12px;">
+                <option value="full" ${prefs.infoDensity === 'full' ? 'selected' : ''}>Full Details (Hostname, IP, MAC & Band)</option>
+                <option value="compact" ${prefs.infoDensity === 'compact' ? 'selected' : ''}>Compact (Hostname & Interface Only)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- 8. Live Auto-Refresh Rate -->
+          <div class="setting-row-item" style="flex-direction:column; align-items:stretch; gap:6px;">
+            <div class="setting-label-col">
+              <span class="setting-label-bold">Live Diagram Refresh</span>
+              <span class="setting-label-sub">Auto-sync frequency for connected clients and topology states</span>
+            </div>
+            <div>
+              <select class="mh-input" onchange="updateTopologyPref('refreshRate', this.value)" style="width:100%; box-sizing:border-box; font-size:12px;">
+                <option value="10s" ${prefs.refreshRate === '10s' ? 'selected' : ''}>Every 10 Seconds (Default)</option>
+                <option value="5s" ${prefs.refreshRate === '5s' ? 'selected' : ''}>Every 5 Seconds</option>
+                <option value="30s" ${prefs.refreshRate === '30s' ? 'selected' : ''}>Every 30 Seconds</option>
+                <option value="off" ${prefs.refreshRate === 'off' ? 'selected' : ''}>Manual Refresh Only</option>
+              </select>
+            </div>
           </div>
         </div>
-
-        <!-- If port has downstream node: render child node groups directly below it -->
-        ${isNode && child ? `
-          <div style="margin:8px 0 14px 14px; padding:0 0 0 12px; border-left:1px solid rgba(255,255,255,0.08);">
-            ${renderNodeSettingGroups(child, depth + 1, availClients, usedIps, false)}
-          </div>
-        ` : ''}
       `;
-    }).join('')}
+    }
 
-    <!-- UNIFIED WI-FI CLIENTS SECTION (AVAILABLE FOR ROUTERS & APs) -->
-    ${hasWifi ? `
-      <div class="setting-section-divider"></div>
-      <div class="setting-section-header">
-        <span>Wi-Fi Clients (${wClients.length})</span>
-      </div>
+    function toggleTopoPreferences() {
+      window._topoPrefsOpen = !window._topoPrefsOpen;
+      const body = document.getElementById('topoPrefsBody');
+      const chev = document.getElementById('topoPrefsChevron');
+      if (body) body.style.display = window._topoPrefsOpen ? 'flex' : 'none';
+      if (chev) chev.style.transform = window._topoPrefsOpen ? 'rotate(180deg)' : '';
+    }
 
-      <div class="setting-row-item" style="flex-direction:column; align-items:stretch; gap:6px;">
-        <div class="setting-label-col">
-          <span class="setting-label-bold">Add Wi-Fi Client</span>
-          <span class="setting-label-sub">Connect a wireless client to Wi-Fi</span>
-        </div>
-        <div>
-          <select class="mh-input" onchange="onQuickAddWifiClient('${escapeHtml(node.id)}', 'WiFi', this.value); this.value='';" style="width:100%; box-sizing:border-box; font-size:12px;">
-            <option value="">+ Connect Device to Wi-Fi...</option>
-            <option value="__manual__">+ Add Custom IP Device...</option>
-            ${availClients.map(c => {
-              const isUsed = usedIps.has(c.ip);
-              const disAttr = isUsed ? 'disabled style="color:var(--text-dim); opacity:0.45;"' : '';
-              const disTag = isUsed ? ' [In use]' : '';
-              return `<option value="${escapeHtml(c.ip)}" ${disAttr}>${escapeHtml(c.name || 'Device')} &bull; ${escapeHtml(c.ip)}${disTag}</option>`;
-            }).join('')}
-          </select>
-        </div>
-      </div>
+    // Flatten recursive tree nodes into sequential list (sabko ek hi line me rakho)
+    function flattenTopologyNodes(rootNode, depth = 1, parentNode = null, uplinkPort = null) {
+      if (!rootNode) return [];
+      const result = [{ node: rootNode, depth, parentNode, uplinkPort }];
+      if (Array.isArray(rootNode.ports)) {
+        rootNode.ports.forEach(port => {
+          if (port.role === 'node' && port.child) {
+            result.push(...flattenTopologyNodes(port.child, depth + 1, rootNode, port));
+          }
+        });
+      }
+      return result;
+    }
 
-      ${wClients.length > 0 ? wClients.map(wc => `
-        <div class="setting-row-item" style="flex-direction:column; align-items:stretch; gap:8px;">
-          <div class="setting-label-col">
-            <span class="setting-label-bold">${escapeHtml(wc.name || 'Wireless Device')}</span>
-            <span class="setting-label-sub">IP: ${escapeHtml(wc.ip || '--')} &bull; MAC: ${escapeHtml(wc.mac || '--')} &bull; Interface: Wi-Fi</span>
+    // =========================================================================
+    // RENDER TOPOLOGY LAYERS SETTINGS UI (SEQUENTIAL FULL-WIDTH CARDS, PER-LAYER COLORS)
+    // =========================================================================
+    function renderTopologyLayersUI(topoData) {
+      const container = document.getElementById('topoLayerPortsContainer');
+      if (!container) return;
+
+      const currentLanIp = (window._lastDataCache && window._lastDataCache.network && window._lastDataCache.network.lan_ip) || '10.0.0.1';
+      const currentMac = (window._lastDataCache && window._lastDataCache.network && window._lastDataCache.network.lan_mac) || '2e:dd:4c:b2:8c:fa';
+
+      if (!window._topoTree || topoData) {
+        window._topoTree = normalizeTopologyTree(topoData || window._topologyLayers, currentLanIp, currentMac);
+      }
+      const tree = window._topoTree;
+      const availClients = getAvailableNetworkClients();
+      const usedIps = collectUsedIps(tree);
+
+      updateValidationNotice();
+
+      // Render Display & Animation Preferences Section
+      renderTopologyPreferencesUI();
+
+      // Render all nodes sequentially in one line (no nested margin shrinkage)
+      const flatNodes = flattenTopologyNodes(tree);
+
+      container.innerHTML = flatNodes.map(item => {
+        return renderSingleNodeSettingCard(item.node, item.depth, item.parentNode, item.uplinkPort, availClients, usedIps);
+      }).join('');
+    }
+
+    function renderNodeCard(node, depth, availClients, usedIps, isRoot) {
+      return renderSingleNodeSettingCard(node, depth || 1, null, null, availClients, usedIps);
+    }
+
+    function renderNodeSettingGroups(node, depth, availClients, usedIps, isRoot) {
+      return renderSingleNodeSettingCard(node, depth || 1, null, null, availClients, usedIps);
+    }
+
+    function renderSingleNodeSettingCard(node, depth, parentNode, uplinkPort, availClients, usedIps) {
+      if (!node) return '';
+      const isRoot = (depth === 1);
+      const numPorts = Array.isArray(node.ports) ? node.ports.length : (node.numPorts || 4);
+      const isRouter = node.type === 'router';
+      const isAp = node.type === 'ap';
+      const isSwitch = node.type === 'switch';
+      const hasWifi = (isRouter || isAp);
+      const wClients = node.wireless_clients || [];
+
+      const isLight = document.documentElement.getAttribute("data-theme") === "light";
+      const prefs = getTopologyPrefs();
+      const colors = getTopologyThemeColors(isLight, prefs.theme);
+      // Layer distinct color: Layer 1, Layer 2, Layer 3, Layer 4
+      const layerColor = (depth === 1) ? colors.l1 : ((depth === 2) ? colors.l2 : ((depth === 3) ? colors.l3 : colors.l4));
+
+      const uplinkDesc = uplinkPort ? ` (via ${escapeHtml(parentNode.name || 'Host')} &rarr; ${escapeHtml(uplinkPort.label || 'Port')})` : '';
+
+      let html = `
+        <div class="topo-node-setting-block" id="topoNodeCard_${escapeHtml(node.id)}" style="display:flex; flex-direction:column; gap:8px;">
+          <!-- NODE IDENTITY & HARDWARE HEADER -->
+          <div class="setting-section-header" style="display:flex; justify-content:space-between; align-items:center; margin-top:${isRoot ? '4px' : '18px'};">
+            <span>${isRoot ? 'Host Gateway' : escapeHtml(node.name || 'Subordinate Node')} (${escapeHtml(node.ip || '--')})</span>
+            <span class="card-badge" style="color:${layerColor}; border-color:${layerColor}; font-size:10px;">
+              LAYER ${depth} &bull; ${isRoot ? 'ROOT ROUTER' : (node.type || 'AP').toUpperCase()}${uplinkDesc}
+            </span>
           </div>
-          <div>
-            <button type="button" class="mh-btn btn-ghost" onclick="onRemoveWifiClient('${escapeHtml(node.id)}', '${escapeHtml(wc.id || wc.ip)}')" style="width:100%; padding:6px 12px; font-size:11px; color:#ef4444; border-color:rgba(239,68,68,0.25);">
-              DISCONNECT
-            </button>
-          </div>
-        </div>
-      `).join('') : `
-        <div class="setting-row-item">
-          <div class="setting-label-col">
-            <span class="setting-label-sub" style="font-style:italic;">No devices connected to Wi-Fi</span>
-          </div>
-        </div>
-      `}
-    ` : ''}
-  `;
 
-  return html;
-}
+          <!-- Row: Node Name -->
+          <div class="setting-row-item" style="flex-direction:column; align-items:stretch; gap:6px;">
+            <div class="setting-label-col">
+              <span class="setting-label-bold">Device Name</span>
+              <span class="setting-label-sub">Network host identifier label for Layer ${depth} node</span>
+            </div>
+            <div>
+              <input type="text" class="mh-input" value="${escapeHtml(node.name || '')}" oninput="onNodeFieldChange('${escapeHtml(node.id)}', 'name', this.value)" style="width:100%; box-sizing:border-box; font-size:12px;">
+            </div>
+          </div>
+
+          <!-- Row: Node Role / Type (Only for non-root nodes) -->
+          ${!isRoot ? `
+            <div class="setting-row-item" style="flex-direction:column; align-items:stretch; gap:6px;">
+              <div class="setting-label-col">
+                <span class="setting-label-bold">Node Role</span>
+                <span class="setting-label-sub">Infrastructure hardware tier</span>
+              </div>
+              <div>
+                <select class="mh-input" onchange="onNodeFieldChange('${escapeHtml(node.id)}', 'type', this.value)" style="width:100%; box-sizing:border-box; font-size:12px;">
+                  <option value="ap" ${node.type === 'ap' ? 'selected' : ''}>Access Point (AP)</option>
+                  <option value="router" ${node.type === 'router' ? 'selected' : ''}>Router</option>
+                  <option value="switch" ${node.type === 'switch' ? 'selected' : ''}>Ethernet Switch</option>
+                </select>
+              </div>
+            </div>
+          ` : ''}
+
+          <!-- Row: Physical LAN Ports Count -->
+          <div class="setting-row-item" style="flex-direction:column; align-items:stretch; gap:6px;">
+            <div class="setting-label-col">
+              <span class="setting-label-bold">LAN Ports Count</span>
+              <span class="setting-label-sub">Number of physical Ethernet ports on this hardware (1 to 48)</span>
+            </div>
+            <div>
+              <input type="number" min="1" max="48" class="mh-input" value="${numPorts}" onchange="onNodePortCountChange('${escapeHtml(node.id)}', parseInt(this.value, 10))" style="width:100%; box-sizing:border-box; font-size:12px;">
+            </div>
+          </div>
+
+          <!-- PHYSICAL ETHERNET PORTS LIST -->
+          <div class="setting-section-divider"></div>
+          <div class="setting-section-header" style="display:flex; justify-content:space-between; align-items:center;">
+            <span>${isRoot ? 'Host Gateway' : escapeHtml(node.name || 'Node')} Ethernet Ports (${(node.ports || []).length})</span>
+            <span class="card-badge" style="color:${layerColor}; border-color:${layerColor}; font-size:9.5px;">LAYER ${depth} PORTS</span>
+          </div>
+
+          ${(node.ports || []).map((port, pIdx) => {
+            const isConnected = port.role !== 'empty';
+            const isDevice = port.role === 'device';
+            const isNode = port.role === 'node';
+            const child = port.child || {};
+            const devIp = child.ip || '';
+            const devName = child.name || '';
+            const devMac = child.mac || '';
+
+            let infoText = `${node.name || (isRoot ? 'Host Gateway' : 'Router')} &bull; Port ${pIdx + 1}: Disconnected / Empty`;
+            if (isDevice) {
+              infoText = `${node.name || 'Router'} &bull; Connected Client: ${devName || 'Device'} (${devIp || '--'})`;
+            } else if (isNode) {
+              infoText = `${node.name || 'Router'} &bull; Downstream Node: ${child.name || 'Subordinate Node'} (${child.ip || '--'}) &bull; Managed below as Layer ${depth + 1}`;
+            }
+
+            return `
+              <div class="setting-row-item" id="topoPortRow_${escapeHtml(port.id)}" style="flex-direction:column; align-items:stretch; gap:8px; border-bottom:1px solid rgba(255,255,255,0.035); padding:10px 14px;">
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                  <div class="setting-label-col" style="flex:1; min-width:0;">
+                    <span class="setting-label-bold" style="color:${layerColor}; font-weight:700;">${escapeHtml(port.label || ('LAN ' + (pIdx + 1)))}</span>
+                    <span class="setting-label-sub">${infoText}</span>
+                  </div>
+                  ${(isDevice && devIp) ? `
+                    <button type="button" class="topo-remove-btn" onclick="onPortRoleChange('${escapeHtml(port.id)}', 'empty')" title="Remove device from ${escapeHtml(port.label || 'this port')}">
+                      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                      <span>Remove</span>
+                    </button>
+                  ` : ''}
+                </div>
+
+                <div style="display:flex; flex-direction:column; gap:8px; width:100%;">
+                  <select class="mh-input" onchange="onPortRoleChange('${escapeHtml(port.id)}', this.value)" style="width:100%; box-sizing:border-box; font-size:12px;">
+                    <option value="empty" ${port.role === 'empty' ? 'selected' : ''}>Empty (Disconnected)</option>
+                    <option value="device" ${port.role === 'device' ? 'selected' : ''}>Direct End-Device</option>
+                    <option value="node" ${port.role === 'node' ? 'selected' : ''}>Subordinate Router / AP / Switch</option>
+                  </select>
+
+                  ${isDevice ? `
+                    <select class="mh-input" onchange="onSelectPortDevice('${escapeHtml(port.id)}', this.value)" style="width:100%; box-sizing:border-box; font-size:12px;">
+                      <option value="">-- Choose Device from Network Scan --</option>
+                      ${availClients.map(c => {
+                        const isUsedElsewhere = usedIps.has(c.ip) && c.ip !== devIp;
+                        const disAttr = isUsedElsewhere ? 'disabled style="color:var(--text-dim); opacity:0.45;"' : '';
+                        const disTag = isUsedElsewhere ? ' [In use]' : '';
+                        return `<option value="${escapeHtml(c.ip)}" ${devIp === c.ip ? 'selected' : ''} ${disAttr}>${escapeHtml(c.name || 'Device')} &bull; ${escapeHtml(c.ip)}${disTag}</option>`;
+                      }).join('')}
+                      <option value="__manual__" ${(!availClients.some(c => c.ip === devIp) && devIp) ? 'selected' : ''}>+ Custom IP Device...</option>
+                    </select>
+                    ${(!availClients.some(c => c.ip === devIp) && devIp) ? `
+                      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; width:100%;">
+                        <input type="text" class="mh-input" placeholder="Device Name" value="${escapeHtml(devName)}" oninput="onCustomPortDeviceChange('${escapeHtml(port.id)}', 'name', this.value)" style="width:100%; box-sizing:border-box; font-size:11px;">
+                        <input type="text" class="mh-input" placeholder="IPv4 Address" value="${escapeHtml(devIp)}" oninput="onCustomPortDeviceChange('${escapeHtml(port.id)}', 'ip', this.value)" style="width:100%; box-sizing:border-box; font-size:11px; font-family:var(--font-mono);">
+                        <input type="text" class="mh-input" placeholder="MAC (optional)" value="${escapeHtml(devMac)}" oninput="onCustomPortDeviceChange('${escapeHtml(port.id)}', 'mac', this.value)" style="width:100%; box-sizing:border-box; font-size:11px; font-family:var(--font-mono);">
+                      </div>
+                    ` : ''}
+                  ` : ''}
+
+                  ${isNode ? `
+                    <select class="mh-input" onchange="onSelectPortNodeClient('${escapeHtml(port.id)}', this.value)" style="width:100%; box-sizing:border-box; font-size:12px;">
+                      <option value="">-- Choose AP/Router from Network Scan --</option>
+                      ${availClients.map(c => {
+                        const isUsedElsewhere = usedIps.has(c.ip) && c.ip !== child.ip;
+                        const disAttr = isUsedElsewhere ? 'disabled style="color:var(--text-dim); opacity:0.45;"' : '';
+                        const disTag = isUsedElsewhere ? ' [In use]' : '';
+                        return `<option value="${escapeHtml(c.ip)}" ${child.ip === c.ip ? 'selected' : ''} ${disAttr}>${escapeHtml(c.name || 'Router')} &bull; ${escapeHtml(c.ip)}${disTag}</option>`;
+                      }).join('')}
+                    </select>
+                  ` : ''}
+                </div>
+              </div>
+            `;
+          }).join('')}
+
+          <!-- WI-FI CLIENTS SECTION -->
+          ${hasWifi ? `
+            <div class="setting-section-divider"></div>
+            <div class="setting-section-header" style="display:flex; justify-content:space-between; align-items:center;">
+              <span>${isRoot ? 'Host Gateway' : escapeHtml(node.name || 'AP')} <span style="color:${layerColor}; font-weight:700;">Wi-Fi</span> Clients (${wClients.length})</span>
+              <span class="card-badge" style="color:${layerColor}; border-color:${layerColor}; font-size:9.5px;">LAYER ${depth} WI-FI</span>
+            </div>
+
+            <div class="setting-row-item" style="flex-direction:column; align-items:stretch; gap:6px;">
+              <div class="setting-label-col">
+                <span class="setting-label-bold" style="color:${layerColor};">Add Wi-Fi Client</span>
+                <span class="setting-label-sub">Connect a wireless client to ${escapeHtml(node.name || (isRoot ? 'Host Router' : 'AP'))} Wi-Fi</span>
+              </div>
+              <div>
+                <select class="mh-input" onchange="onQuickAddWifiClient('${escapeHtml(node.id)}', 'WiFi', this.value); this.value='';" style="width:100%; box-sizing:border-box; font-size:12px;">
+                  <option value="">+ Connect Device to Wi-Fi...</option>
+                  <option value="__manual__">+ Add Custom IP Device...</option>
+                  ${availClients.map(c => {
+                    const isUsed = usedIps.has(c.ip);
+                    const disAttr = isUsed ? 'disabled style="color:var(--text-dim); opacity:0.45;"' : '';
+                    const disTag = isUsed ? ' [In use]' : '';
+                    return `<option value="${escapeHtml(c.ip)}" ${disAttr}>${escapeHtml(c.name || 'Device')} &bull; ${escapeHtml(c.ip)}${disTag}</option>`;
+                  }).join('')}
+                </select>
+              </div>
+            </div>
+
+            ${wClients.length > 0 ? wClients.map(wc => `
+              <div class="setting-row-item" style="align-items:center; justify-content:space-between; gap:12px; padding:10px 14px;">
+                <div class="setting-label-col" style="flex:1; min-width:0;">
+                  <div style="display:flex; align-items:center; gap:6px;">
+                    <span class="setting-label-bold" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(wc.name || 'Wireless Device')}</span>
+                    <span class="csc-dot connected" style="width:6px; height:6px; border-radius:50%; flex-shrink:0;"></span>
+                  </div>
+                  <span class="setting-label-sub" style="font-family:var(--font-mono); font-size:11px;">IP: ${escapeHtml(wc.ip || '--')} &bull; MAC: ${escapeHtml(wc.mac || '--')} &bull; <span style="color:${layerColor}; font-weight:700;">Wi-Fi</span></span>
+                </div>
+                <button type="button" class="topo-remove-btn" onclick="onRemoveWifiClient('${escapeHtml(node.id)}', '${escapeHtml(wc.id || wc.ip)}')" title="Remove device from Wi-Fi">
+                  <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  <span>Remove</span>
+                </button>
+              </div>
+            `).join('') : `
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-sub" style="font-style:italic;">No devices connected to ${escapeHtml(node.name || (isRoot ? 'Host Router' : 'AP'))} Wi-Fi</span>
+                </div>
+              </div>
+            `}
+          ` : ''}
+        </div>
+      `;
+
+      return html;
+    }
 
 // Helpers for quick WiFi client add/remove
 function onQuickAddWifiClient(nodeId, band, clientIp) {
