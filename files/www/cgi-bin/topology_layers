@@ -21,6 +21,19 @@ init_default() {
     "mac": "2e:dd:4c:b2:8c:fa",
     "uplinkPort": null,
     "numPorts": 4,
+    "wan_mode": "standard",
+    "wan_speed": "1000",
+    "usb_config": {
+      "mode": "hub",
+      "num_ports": 4,
+      "speed_std": "usb3",
+      "ports": [
+        { "id": "usb-1", "label": "USB 1", "role": "phone", "name": "Samsung Galaxy S21 FE 5G", "speed": "usb3" },
+        { "id": "usb-2", "label": "USB 2", "role": "phone", "name": "Xiaomi POCO X6 5G", "speed": "usb2" },
+        { "id": "usb-3", "label": "USB 3", "role": "storage", "name": "NVMe SSD Storage", "speed": "usb3" },
+        { "id": "usb-4", "label": "USB 4", "role": "empty", "name": "", "speed": "usb3" }
+      ]
+    },
     "ports": [
       {
         "id": "root-lan1",
@@ -244,6 +257,19 @@ case "$QS" in
             mac: (.network.lan_mac // "2e:dd:4c:b2:8c:fa"),
             uplinkPort: null,
             numPorts: 4,
+            wan_mode: "standard",
+            wan_speed: "1000",
+            usb_config: {
+              mode: "hub",
+              num_ports: 4,
+              speed_std: "usb3",
+              ports: [
+                { id: "usb-1", label: "USB 1", role: "phone", name: "Samsung Galaxy S21 FE 5G", speed: "usb3" },
+                { id: "usb-2", label: "USB 2", role: "phone", name: "Xiaomi POCO X6 5G", speed: "usb2" },
+                { id: "usb-3", label: "USB 3", role: "storage", name: "NVMe SSD Storage", speed: "usb3" },
+                { id: "usb-4", label: "USB 4", role: "empty", name: "", speed: "usb3" }
+              ]
+            },
             ports: [
               { id: "root-lan1", label: "LAN 1", role: "empty", child: null },
               {

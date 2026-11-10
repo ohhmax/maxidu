@@ -3538,11 +3538,12 @@
     .usb-bw-container {
       position: relative;
       width: 100%;
-      max-width: 1240px;
-      margin: 12px auto 30px auto;
+      max-width: 100%;
+      min-height: 100vh;
+      margin: 0;
       display: flex;
       flex-direction: column;
-      padding: 10px 14px 20px 14px;
+      padding: 0;
       box-sizing: border-box;
       transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
@@ -3555,7 +3556,7 @@
         radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--c) 8%, transparent), transparent 75%),
         linear-gradient(var(--grid) 1px, transparent 1px) 0 0/36px 36px,
         linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0/36px 36px;
-      border-radius: var(--radius-lg);
+      border-radius: 0;
     }
     /* Full Page Topology Viewer Mode */
     .usb-bw-container.topo-fullpage-mode {
@@ -3629,7 +3630,8 @@
     .bw-box {
       position: relative;
       flex: 1;
-      min-height: 480px;
+      width: 100%;
+      min-height: calc(100vh - 65px);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -3640,14 +3642,15 @@
     }
     .bw-box svg {
       width: 100% !important;
-      height: auto !important;
+      height: 100% !important;
       max-width: 100% !important;
       display: block;
     }
     @media (max-width: 768px) {
       .usb-bw-container {
-        padding: 6px 4px 20px 4px !important;
-        margin-top: 4px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        min-height: 100vh !important;
       }
       .bw-head {
         padding: 0 4px !important;
@@ -3657,7 +3660,7 @@
         font-size: 11px !important;
       }
       .bw-box {
-        min-height: 480px !important;
+        min-height: calc(100vh - 55px) !important;
       }
     }
     .u3 { --k: #00d2ff; }
@@ -5573,12 +5576,27 @@
       box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05) !important;
     }
 
+    /* TOPOLOGY TOP BAR (CLEAN DEDICATED HEADER ROW, ZERO CANVAS OVERLAP) */
+    .topo-top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 12px 18px 4px 18px;
+      box-sizing: border-box;
+      z-index: 50;
+      position: relative;
+      flex-shrink: 0;
+    }
+    /* TOPOLOGY CANVAS BRAND META */
+    .topo-brand-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      pointer-events: auto;
+    }
     /* TOPOLOGY CANVAS CONTROLS (ZOOM & FULLSCREEN TOOLBAR) */
     .topo-toolbar {
-      position: absolute;
-      top: 14px;
-      right: 18px;
-      z-index: 50;
       display: flex;
       align-items: center;
       gap: 5px;
@@ -5589,6 +5607,7 @@
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+      z-index: 50;
     }
     [data-theme="light"] .topo-toolbar {
       background: rgba(255, 255, 255, 0.92);
@@ -5636,7 +5655,7 @@
     }
     #tabOverview:fullscreen, #tabOverview:-webkit-full-screen {
       background: var(--bg, #0b0d13);
-      padding: 24px;
+      padding: 0;
       overflow: auto;
       display: flex;
       flex-direction: column;
@@ -5658,18 +5677,6 @@
     }
     .dot-node:hover {
       transform: scale(1.15);
-    }
-
-    /* TOPOLOGY CANVAS BRAND META (TOP-LEFT) */
-    .topo-brand-meta {
-      position: absolute;
-      top: 14px;
-      left: 18px;
-      z-index: 50;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      pointer-events: auto;
     }
     .topo-brand-title {
       font-size: 13.5px;
@@ -5762,20 +5769,17 @@
       }
     }
     @media (max-width: 600px) {
-      .topo-brand-meta {
-        top: 10px;
-        left: 12px;
+      .topo-top-bar {
+        padding: 8px 12px 2px 12px;
       }
       .topo-brand-title {
-        font-size: 12px;
-        letter-spacing: 1px;
+        font-size: 11.5px;
+        letter-spacing: 0.8px;
       }
       .topo-brand-subtitle {
-        font-size: 10px;
+        font-size: 9.5px;
       }
       .topo-toolbar {
-        top: 10px;
-        right: 12px;
         padding: 3px;
         gap: 3px;
       }
@@ -6811,33 +6815,35 @@
     .topo-header-row {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 12px 14px;
+      justify-content: center;
+      padding: 14px 16px 16px 16px;
       border-bottom: 1px solid var(--border-sub, rgba(255, 255, 255, 0.06));
     }
     .topo-round-actions {
       display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      flex-shrink: 0;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+      width: 100%;
+      flex-wrap: nowrap;
     }
     .topo-action-item {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 3.5px;
+      gap: 7px;
     }
     .topo-action-label {
-      font-size: 8px;
+      font-size: 8.5px;
       font-weight: 700;
       font-family: var(--font-mono);
-      letter-spacing: 0.4px;
+      letter-spacing: 0.5px;
       color: var(--text-dim, #71717a);
       text-transform: uppercase;
       line-height: 1;
       text-align: center;
       user-select: none;
+      margin-top: 3px;
     }
     .topo-round-btn {
       width: 28px;
@@ -6987,18 +6993,15 @@
     }
     @media (max-width: 480px) {
       .topo-header-row {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-        padding: 10px 12px;
+        padding: 12px 10px;
       }
       .topo-round-actions {
-        width: 100%;
-        justify-content: space-between;
-        gap: 4px;
+        justify-content: space-around;
+        gap: 10px;
       }
       .topo-action-label {
-        font-size: 7.5px;
+        font-size: 8px;
+        margin-top: 2px;
       }
     }
     .topo-validation-box {
@@ -7185,30 +7188,32 @@
     <div id="tabOverview" class="tab-page">
       <div class="usb-bw-container">
 
-        <!-- TOPOLOGY BRAND META (TOP-LEFT) -->
-        <div class="topo-brand-meta">
-          <span class="topo-brand-title" id="dashBrandTitle">MAXNET GATEWAY</span>
-          <span class="topo-brand-subtitle" id="headerVer">v2.2.20</span>
-        </div>
+        <!-- TOP BAR: Host Brand Meta on Left, Canvas Controls on Right (Zero Canvas Overlap) -->
+        <div class="topo-top-bar">
+          <div class="topo-brand-meta">
+            <span class="topo-brand-title" id="dashBrandTitle">MAXNET GATEWAY</span>
+            <span class="topo-brand-subtitle" id="headerVer">v2.2.20</span>
+          </div>
 
-        <!-- TOPOLOGY CANVAS CONTROLS (TOP-RIGHT: ZOOM IN, ZOOM OUT, RESET, FULLSCREEN, MENU) -->
-        <div class="topo-toolbar">
-          <button class="topo-tool-btn" onclick="zoomTopology(0.15)" title="Zoom In (+)">
-            <svg viewBox="0 0 24 24" class="topo-tool-icon"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
-          </button>
-          <button class="topo-tool-btn" onclick="zoomTopology(-0.15)" title="Zoom Out (-)">
-            <svg viewBox="0 0 24 24" class="topo-tool-icon"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
-          </button>
-          <button class="topo-tool-btn topo-tool-btn-text" id="topoZoomResetBtn" onclick="resetTopologyZoom()" title="Reset Zoom">
-            100%
-          </button>
-          <button class="topo-tool-btn" onclick="toggleTopologyFullscreen()" title="Toggle Fullscreen">
-            <svg id="topoFsIcon" viewBox="0 0 24 24" class="topo-tool-icon"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
-          </button>
-          <div class="topo-tool-sep"></div>
-          <button class="topo-tool-btn topo-menu-btn" onclick="toggleSettingsMenu()" id="btnTopoMenu" title="Settings Menu">
-            <svg viewBox="0 0 24 24" class="topo-tool-icon"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-          </button>
+          <!-- TOPOLOGY CANVAS CONTROLS (TOP-RIGHT: ZOOM IN, ZOOM OUT, RESET, FULLSCREEN, MENU) -->
+          <div class="topo-toolbar">
+            <button class="topo-tool-btn" onclick="zoomTopology(0.15)" title="Zoom In (+)">
+              <svg viewBox="0 0 24 24" class="topo-tool-icon"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+            </button>
+            <button class="topo-tool-btn" onclick="zoomTopology(-0.15)" title="Zoom Out (-)">
+              <svg viewBox="0 0 24 24" class="topo-tool-icon"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+            </button>
+            <button class="topo-tool-btn topo-tool-btn-text" id="topoZoomResetBtn" onclick="resetTopologyZoom()" title="Reset Zoom">
+              100%
+            </button>
+            <button class="topo-tool-btn" onclick="toggleTopologyFullscreen()" title="Toggle Fullscreen">
+              <svg id="topoFsIcon" viewBox="0 0 24 24" class="topo-tool-icon"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+            </button>
+            <div class="topo-tool-sep"></div>
+            <button class="topo-tool-btn topo-menu-btn" onclick="toggleSettingsMenu()" id="btnTopoMenu" title="Settings Menu">
+              <svg viewBox="0 0 24 24" class="topo-tool-icon"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+          </div>
         </div>
 
         <div class="bw-box">
@@ -7879,7 +7884,7 @@
                 <div class="setting-row-item">
                   <div class="setting-label-col">
                     <span class="setting-label-bold">Tethered Modem Details</span>
-                    <span class="setting-label-sub" id="dispUsbTetherDetails">Samsung Galaxy S21 FE 5G &bull; USB 3.0 (5000 Mbps) &bull; IP: 10.228.157.164</span>
+                    <span class="setting-label-sub" id="dispUsbTetherDetails">Samsung Galaxy S21 FE 5G &bull; USB 3.0 (5 Gbps) &bull; IP: 10.228.157.164</span>
                   </div>
                   <div class="setting-control-col">
                     <span class="setting-status-badge badge-active" id="dispUsbTetherBadge">5G SA ONLINE</span>
@@ -8145,19 +8150,9 @@
           </div>
           <div class="accordion-content">
             <div class="settings-card-body">
-              <!-- TOP HEADER ROW: Label & Sub on left, Round Action Icons on right -->
+              <!-- TOP ACTION BUTTONS ROW (SORTED IN A BALANCED ROW, NO TITLE, NO SAVE BUTTON) -->
               <div class="topo-header-row">
-                <div class="setting-label-col" style="flex:1; min-width:0;">
-                  <span class="setting-label-bold" style="font-size:14px;">Network Topology</span>
-                  <span class="setting-label-sub" style="font-size:11.5px;">Port mapping, hierarchical layers, and device layout</span>
-                </div>
                 <div class="topo-round-actions">
-                  <div class="topo-action-item">
-                    <button type="button" class="topo-round-btn btn-save" onclick="saveTopologyLayersConfig()" id="btnSaveTopo" title="Save Topology" aria-label="Save Topology">
-                      <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                    </button>
-                    <span class="topo-action-label">Save</span>
-                  </div>
                   <div class="topo-action-item">
                     <button type="button" class="topo-round-btn btn-auto" onclick="autoMapNetworkTopology()" id="btnAutoMapTopo" title="Auto-Map from Clients" aria-label="Auto-Map from Clients">
                       <svg viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
@@ -12816,11 +12811,7 @@
       const isUsb1 = (l.usbStd === "usb1" || (dData.speed_mbps && dData.speed_mbps <= 12));
 
       if (isUsb3) {
-        // USB 3.0 SuperSpeed (5 Gbps bus): 5G modems achieve up to 1 Gbps cellular speed
-        if (l.model && /5g|nr/i.test(l.model)) {
-          return "(Max 1 Gbps)";
-        }
-        return "(Max 480 Mbps)";
+        return "(Max 5 Gbps)";
       } else if (l.type === "wan") {
         return "(Max 1 Gbps)";
       } else if (isUsb1) {
@@ -12885,6 +12876,18 @@
       const gap = isMobile ? 8 : 12;
 
       const slots = [];
+      if (node.id === 'root' && node.wan_mode === 'wan_as_lan') {
+        slots.push({
+          type: 'lan',
+          port: { id: 'root-wan5', label: 'WAN [LAN 5]', role: 'empty', child: null },
+          idx: -1,
+          label: 'WAN [LAN 5]',
+          role: 'empty',
+          child: null,
+          width: portBoxW
+        });
+      }
+
       lanPorts.forEach((p, idx) => {
         let subW = portBoxW;
         if (p.role === 'device' && p.child) {
@@ -12892,7 +12895,12 @@
         } else if (p.role === 'node' && p.child) {
           subW = Math.max(portBoxW, computeSubtreeBounds(p.child, isMobile).width);
         }
-        slots.push({ type: 'lan', port: p, idx: idx, label: p.label || ('LAN ' + (idx + 1)), role: p.role, child: p.child, width: subW });
+        let portLabel = p.label || ('LAN ' + (idx + 1));
+        if (node.id === 'root') {
+          if (node.wan_mode === 'lan_as_wan_1' && idx === 0) portLabel = 'LAN 1 [WAN 2]';
+          else if (node.wan_mode === 'lan_as_wan_4' && idx === 3) portLabel = 'LAN 4 [WAN 2]';
+        }
+        slots.push({ type: 'lan', port: p, idx: idx, label: portLabel, role: p.role, child: p.child, width: subW });
       });
 
       if (isRouterOrAp) {
@@ -13128,7 +13136,7 @@
       if (!bwLinks || bwLinks.length === 0) {
         if (!hasHub) {
           bwLinks = [
-            { cls: "u3", type: "USB 3.0", usbStd: "usb3", connected: true, brand: "SAMSUNG", model: "Galaxy S21 FE 5G", name: "Samsung Galaxy S21 FE 5G", hostname: "usb0-Galaxy-S21-FE-5G", virtual_ip: "", status: "online", status_color: "green", v: 0, max: 1000, nodeKey: "modem", subIndex: 0, device_type: "phone", has_tethering: true, has_adb: true, has_mtp: false, has_storage: false, has_internet: true, internet_status: "Online (5G)" }
+            { cls: "u3", type: "USB 3.0", usbStd: "usb3", connected: true, brand: "SAMSUNG", model: "Galaxy S21 FE 5G", name: "Samsung Galaxy S21 FE 5G", hostname: "usb0-Galaxy-S21-FE-5G", virtual_ip: "", status: "online", status_color: "green", v: 0, max: 5000, nodeKey: "modem", subIndex: 0, device_type: "phone", has_tethering: true, has_adb: true, has_mtp: false, has_storage: false, has_internet: true, internet_status: "Online (5G)" }
           ];
         } else {
           const usbDevs = (window._lastDataCache && Array.isArray(window._lastDataCache.usb_devices)) ? window._lastDataCache.usb_devices : [];
@@ -13161,7 +13169,7 @@
                 has_internet: dev.has_internet !== undefined ? dev.has_internet : true,
                 internet_status: dev.internet_status || (dev.has_internet === false ? "No Internet" : "Online"),
                 v: 0,
-                max: isU3 ? 1000 : 480,
+                max: isU3 ? 5000 : 480,
                 nodeKey: "modem",
                 subIndex: i,
                 deviceData: dev
@@ -13170,7 +13178,7 @@
           }
           if (bwLinks.length === 0) {
             bwLinks = [
-              { cls: "u3", type: "USB 3.0", usbStd: "usb3", connected: true, brand: "SAMSUNG", model: "Galaxy S21 FE 5G", name: "Samsung Galaxy S21 FE 5G", hostname: "usb0-Galaxy-S21-FE-5G", virtual_ip: "", status: "online", status_color: "green", v: 0, max: 1000, nodeKey: "modem", subIndex: 0, device_type: "phone", has_tethering: true, has_adb: true, has_mtp: false, has_storage: false, has_internet: true, internet_status: "Online (5G)" },
+              { cls: "u3", type: "USB 3.0", usbStd: "usb3", connected: true, brand: "SAMSUNG", model: "Galaxy S21 FE 5G", name: "Samsung Galaxy S21 FE 5G", hostname: "usb0-Galaxy-S21-FE-5G", virtual_ip: "", status: "online", status_color: "green", v: 0, max: 5000, nodeKey: "modem", subIndex: 0, device_type: "phone", has_tethering: true, has_adb: true, has_mtp: false, has_storage: false, has_internet: true, internet_status: "Online (5G)" },
               { cls: "u2", type: "USB 2.0", usbStd: "usb2", connected: true, brand: "XIAOMI", model: "POCO X6 5G", name: "POCO X6 5G", hostname: "usb1-POCO-X6-5G", virtual_ip: "", status: "online", status_color: "green", v: 0, max: 480, nodeKey: "modem", subIndex: 1, device_type: "phone", has_tethering: true, has_adb: false, has_mtp: false, has_storage: false, has_internet: true, internet_status: "Online" }
             ];
           }
@@ -13183,8 +13191,8 @@
       const rootBounds = computeSubtreeBounds(tree, isMobile);
       const treeDepth = computeTreeMaxDepth(tree);
 
-      const W = Math.max(isMobile ? 580 : 960, rootBounds.width + (isMobile ? 60 : 120));
-      const H = Math.max(isMobile ? 540 : 560, (prefs.showWan ? 240 : 140) + treeDepth * (isMobile ? 165 : 185) + 40);
+      const W = Math.max(isMobile ? 640 : 980, rootBounds.width + (isMobile ? 80 : 140));
+      const H = Math.max(isMobile ? 540 : 560, (prefs.showWan ? 220 : 130) + treeDepth * (isMobile ? 165 : 185) + 40);
 
       svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
       const defs = mk("defs", {}, svg);
@@ -13218,19 +13226,21 @@
 
       // 1. INGRESS DEVICES & CONDUITS (Top of Diagram - if enabled)
       if (prefs.showWan) {
-        const ingressY0 = isMobile ? 46 : 50;
+        const ingressY0 = isMobile ? 38 : 44;
         const dyIngress = 52;
+        const ingressCardW = isMobile ? 165 : 190;
         ingressLinks.forEach((l, i) => {
           const y = ingressY0 + i * dyIngress;
-          const dotX = rtrCenterX - 110;
+          const dotX = rtrCenterX - (isMobile ? 65 : 110);
+          const cardX = dotX - ingressCardW - 10;
           const usbStyle = getUsbThemeStyle(l.usbStd || l.type || l.cls, isLight);
 
           const infoG = mk("g", { class: `ingress-info-card ${l.cls}`, style: `cursor:pointer;` }, svg);
           infoG.onclick = (e) => showTopoNodeDetail(l, false, e);
           mk("rect", {
-            x: dotX - 200,
+            x: cardX,
             y: y - 22,
-            width: 190,
+            width: ingressCardW,
             height: 44,
             rx: 9,
             ry: 9,
@@ -13241,13 +13251,13 @@
           }, infoG);
 
           const iconCol = l.connected ? (isLight ? (usbStyle.cardBorder || "#09090b") : (l.usbStd === "usb2" ? "#a1a1aa" : (usbStyle.cardBorder || "#e4e4e7"))) : topoTheme.textDim;
-          drawDeviceIcon(dotX - 188, y, iconCol, l.device_type, infoG);
+          drawDeviceIcon(cardX + 12, y, iconCol, l.device_type, infoG);
 
-          const tModel = mk("text", { class: "md", x: dotX - 168, y: y - 3, style: `font-size:11px; font-weight:700; fill:${l.connected ? topoTheme.textMain : topoTheme.textDim};` }, infoG);
+          const tModel = mk("text", { class: "md", x: cardX + 32, y: y - 3, style: `font-size:11px; font-weight:700; fill:${l.connected ? topoTheme.textMain : topoTheme.textDim};` }, infoG);
           let dispName = l.model || l.name || "WAN Modem";
           tModel.textContent = dispName.length > 17 ? dispName.substring(0, 16) + "…" : dispName;
 
-          const tSp = mk("text", { class: "sp", x: dotX - 168, y: y + 13, style: `font-size:12.5px; fill:${l.connected ? (isLight ? '#0284c7' : '#38bdf8') : topoTheme.textDim};` }, infoG);
+          const tSp = mk("text", { class: "sp", x: cardX + 32, y: y + 13, style: `font-size:12.5px; fill:${l.connected ? (isLight ? '#0284c7' : '#38bdf8') : topoTheme.textDim};` }, infoG);
           l.sv = mk("tspan", { id: "bwDevSpeedVal_" + i, style: `fill:${l.connected ? (isLight ? '#0284c7' : '#38bdf8') : topoTheme.textDim}; font-weight:800;` }, tSp);
           l.su = mk("tspan", { id: "bwDevSpeedUnit_" + i, class: "un", dx: 3, style: `font-size:8.5px; fill:${topoTheme.textDim};` }, tSp);
           l.sm = mk("tspan", { id: "bwDevSpeedMax_" + i, class: "sm", dx: 5, style: `font-size:8.5px; fill:${topoTheme.textMuted};` }, tSp);
@@ -13344,10 +13354,10 @@
         mk("path", {
           class: "base",
           d: dConduit,
-          stroke: isUp ? slotColor : topoTheme.conduitIdle,
+          stroke: slotColor,
           "stroke-width": 1.4,
           fill: "none",
-          style: `opacity: ${isUp ? 0.45 : 0.25};`
+          style: `opacity: ${isUp ? 0.45 : 0.28};`
         }, svg);
 
         if (isUp) {
@@ -13483,7 +13493,7 @@
                 `M${slotCenterX} ${rootPortsY + portBoxH} C${slotCenterX} ${rootPortsY + portBoxH + 20}, ${wcCenterX} ${wcY - 18}, ${wcCenterX} ${wcY}`;
               mk("path", {
                 d: dWifiLink,
-                stroke: isClientOnline ? wifiColor : topoTheme.conduitIdle,
+                stroke: wifiColor,
                 "stroke-width": 1.2,
                 "stroke-dasharray": "3 2.5",
                 fill: "none",
@@ -13588,10 +13598,10 @@
         mk("path", {
           class: "base",
           d: dCable,
-          stroke: isDevOnline ? devColor : topoTheme.conduitIdle,
+          stroke: devColor,
           "stroke-width": 1.4,
           fill: "none",
-          style: isDevOnline ? "opacity:0.4;" : "opacity:0.25; stroke-dasharray:4 3;"
+          style: isDevOnline ? "opacity:0.45;" : "opacity:0.25; stroke-dasharray:4 3;"
         }, svg);
 
         // ONLY ANIMATE IF DEVICE IS ACTIVE / ONLINE!
@@ -13694,7 +13704,7 @@
         mk("path", {
           class: "base",
           d: dCable,
-          stroke: isNodeOnline ? nodeColor : topoTheme.conduitIdle,
+          stroke: nodeColor,
           "stroke-width": 1.6,
           fill: "none",
           style: isNodeOnline ? "opacity:0.45;" : "opacity:0.25; stroke-dasharray:4 3;"
@@ -13844,10 +13854,10 @@
             mk("path", {
               class: "base",
               d: dCpConduit,
-              stroke: isCsUp ? csColor : topoTheme.conduitIdle,
+              stroke: csColor,
               "stroke-width": 1.2,
               fill: "none",
-              style: `opacity:${isCsUp ? 0.35 : 0.2};`
+              style: `opacity:${isCsUp ? 0.4 : 0.24};`
             }, svg);
 
             if (isCsUp && prefs.animMode !== 'off') {
@@ -13984,7 +13994,7 @@
                     `M${csCenterX} ${childPortsY + cPortBoxH} C${csCenterX} ${childPortsY + cPortBoxH + 18}, ${wcCenterX} ${wcY - 16}, ${wcCenterX} ${wcY}`;
                   mk("path", {
                     d: dWifi,
-                    stroke: isClientOnline ? csColor : topoTheme.conduitIdle,
+                    stroke: csColor,
                     "stroke-width": 1.2,
                     "stroke-dasharray": "3 2.5",
                     fill: "none",
@@ -14182,7 +14192,7 @@
             has_internet: dev0.has_internet !== undefined ? dev0.has_internet : true,
             internet_status: dev0.internet_status || (isConn ? "Online" : "--"),
             v: isConn ? liveDev1Speed : 0,
-            max: detectedStd === "usb3" ? 1000 : (detectedStd === "usb2" ? 480 : 12),
+            max: detectedStd === "usb3" ? 5000 : (detectedStd === "usb2" ? 480 : 12),
             nodeKey: "modem",
             subIndex: 0,
             deviceData: dev0
@@ -14244,7 +14254,7 @@
           if (dev.speed_mbps >= 5000 || dev.standard === "USB 3.0") {
             pStd = "usb3";
             pType = "USB 3.0";
-            devMax = 1000;
+            devMax = 5000;
           } else if (dev.speed_mbps >= 480 || dev.standard === "USB 2.0") {
             pStd = "usb2";
             pType = "USB 2.0";
@@ -14320,7 +14330,7 @@
             has_internet: true,
             internet_status: "Online (5G)",
             v: liveDev1Speed,
-            max: 1000,
+            max: 5000,
             nodeKey: "modem",
             subIndex: 0
           });
@@ -15258,6 +15268,19 @@
         mac: mac,
         uplinkPort: null,
         numPorts: 4,
+        wan_mode: 'standard',
+        wan_speed: '1000',
+        usb_config: {
+          mode: 'hub',
+          num_ports: 4,
+          speed_std: 'usb3',
+          ports: [
+            { id: 'usb-1', label: 'USB 1', role: 'phone', name: 'Samsung Galaxy S21 FE 5G', speed: 'usb3' },
+            { id: 'usb-2', label: 'USB 2', role: 'phone', name: 'Xiaomi POCO X6 5G', speed: 'usb2' },
+            { id: 'usb-3', label: 'USB 3', role: 'storage', name: 'NVMe SSD Storage', speed: 'usb3' },
+            { id: 'usb-4', label: 'USB 4', role: 'empty', name: '', speed: 'usb3' }
+          ]
+        },
         ports: [
           { id: 'root-lan1', label: 'LAN 1', role: 'empty', child: null },
           {
@@ -15442,6 +15465,24 @@
       if (!node || typeof node !== 'object') return;
       if (!node.id) node.id = 'node-' + Math.random().toString(36).substr(2, 6);
       if (!node.type) node.type = (node.id === 'root' ? 'router' : 'device');
+
+      if (node.id === 'root') {
+        if (!node.wan_mode) node.wan_mode = 'standard';
+        if (!node.wan_speed) node.wan_speed = '1000';
+        if (!node.usb_config || typeof node.usb_config !== 'object') {
+          node.usb_config = {
+            mode: 'hub',
+            num_ports: 4,
+            speed_std: 'usb3',
+            ports: [
+              { id: 'usb-1', label: 'USB 1', role: 'phone', name: 'Samsung Galaxy S21 FE 5G', speed: 'usb3' },
+              { id: 'usb-2', label: 'USB 2', role: 'phone', name: 'Xiaomi POCO X6 5G', speed: 'usb2' },
+              { id: 'usb-3', label: 'USB 3', role: 'storage', name: 'NVMe SSD Storage', speed: 'usb3' },
+              { id: 'usb-4', label: 'USB 4', role: 'empty', name: '', speed: 'usb3' }
+            ]
+          };
+        }
+      }
 
       if (node.type !== 'device') {
         if (!node.numPorts || typeof node.numPorts !== 'number' || node.numPorts < 1) {
@@ -15654,6 +15695,147 @@
     }
 
     // Interactive tree update handlers
+    // =========================================================================
+    // USB ARCHITECTURE SETTINGS & PORTS RENDERER
+    // =========================================================================
+    function renderUsbPortsSettingList(node, layerColor) {
+      if (!node.usb_config || !Array.isArray(node.usb_config.ports)) return '';
+      const ports = node.usb_config.ports;
+      return ports.map((p, pIdx) => {
+        const isConn = p.role && p.role !== 'empty';
+        const isPhone = p.role === 'phone';
+        const isStorage = p.role === 'storage';
+        const isTailscale = p.role === 'tailscale';
+        const isUsb3 = (p.speed === 'usb3' || (!p.speed && pIdx !== 1));
+        const speedLabel = isUsb3 ? '5 Gbps (SuperSpeed)' : '480 Mbps (HighSpeed)';
+
+        let roleDesc = 'Empty / Disconnected Port';
+        if (isPhone) roleDesc = `Tethered Phone / 5G Modem &bull; ${escapeHtml(p.name || 'Cellular Modem')} &bull; ${speedLabel}`;
+        else if (isStorage) roleDesc = `External NVMe/SSD Storage &bull; ${escapeHtml(p.name || 'Storage Drive')} &bull; ${speedLabel}`;
+        else if (isTailscale) roleDesc = `Remote Tailscale / WireGuard Node &bull; ${escapeHtml(p.name || 'Mesh Peer')}`;
+        else if (isConn) roleDesc = `Connected USB Peripheral &bull; ${escapeHtml(p.name || 'USB Device')} &bull; ${speedLabel}`;
+
+        return `
+          <div class="setting-row-item" id="topoUsbRow_${escapeHtml(p.id || ('usb-' + (pIdx + 1)))}" style="flex-direction:column; align-items:stretch; gap:8px; border-bottom:1px solid rgba(255,255,255,0.035); padding:10px 14px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+              <div class="setting-label-col" style="flex:1; min-width:0;">
+                <div style="display:flex; align-items:center; gap:6px;">
+                  <span class="setting-label-bold" style="color:#38bdf8; font-weight:700;">${escapeHtml(p.label || ('USB ' + (pIdx + 1)))}</span>
+                  <span class="card-badge" style="font-size:8.5px; ${isUsb3 ? 'color:#38bdf8; border-color:#38bdf8;' : 'color:#a1a1aa; border-color:#a1a1aa;'}">${isUsb3 ? 'USB 3.0 (5 Gbps)' : 'USB 2.0 (480 Mbps)'}</span>
+                </div>
+                <span class="setting-label-sub">${roleDesc}</span>
+              </div>
+              ${isConn ? `
+                <button type="button" class="topo-remove-btn" onclick="onUsbPortChange(${pIdx}, 'role', 'empty')" title="Disconnect USB Port">
+                  <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  <span>Remove</span>
+                </button>
+              ` : ''}
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:8px; width:100%;">
+              <select class="mh-input" onchange="onUsbPortChange(${pIdx}, 'role', this.value)" style="width:100%; box-sizing:border-box; font-size:12px;">
+                <option value="empty" ${p.role === 'empty' ? 'selected' : ''}>Empty (Disconnected)</option>
+                <option value="phone" ${p.role === 'phone' ? 'selected' : ''}>Tethered Phone / 5G Modem (5 Gbps)</option>
+                <option value="storage" ${p.role === 'storage' ? 'selected' : ''}>External NVMe/SSD Storage (5 Gbps)</option>
+                <option value="tailscale" ${p.role === 'tailscale' ? 'selected' : ''}>Tailscale / WireGuard Remote Node</option>
+                <option value="device" ${(p.role === 'device' || p.role === 'custom') ? 'selected' : ''}>Custom USB Peripheral</option>
+              </select>
+
+              ${isConn ? `
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; width:100%;">
+                  <input type="text" class="mh-input" placeholder="Device Label" value="${escapeHtml(p.name || '')}" oninput="onUsbPortChange(${pIdx}, 'name', this.value)" style="width:100%; box-sizing:border-box; font-size:12px;">
+                  <select class="mh-input" onchange="onUsbPortChange(${pIdx}, 'speed', this.value)" style="width:100%; box-sizing:border-box; font-size:12px;">
+                    <option value="usb3" ${isUsb3 ? 'selected' : ''}>USB 3.0 (5 Gbps SuperSpeed)</option>
+                    <option value="usb2" ${!isUsb3 ? 'selected' : ''}>USB 2.0 (480 Mbps HighSpeed)</option>
+                  </select>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function onWanModeChange(newMode) {
+      if (!window._topoTree) return;
+      window._topoTree.wan_mode = newMode;
+      triggerTopologyAutoSave();
+      renderTopologyLayersUI(window._topoTree);
+      if (typeof buildUsbBwSvg === 'function') buildUsbBwSvg();
+    }
+
+    function onWanSpeedChange(newSpeed) {
+      if (!window._topoTree) return;
+      window._topoTree.wan_speed = newSpeed;
+      triggerTopologyAutoSave();
+      renderTopologyLayersUI(window._topoTree);
+      if (typeof buildUsbBwSvg === 'function') buildUsbBwSvg();
+    }
+
+    function onUsbModeChange(newMode) {
+      if (!window._topoTree) return;
+      if (!window._topoTree.usb_config) window._topoTree.usb_config = { mode: newMode, num_ports: 4, ports: [] };
+      window._topoTree.usb_config.mode = newMode;
+      triggerTopologyAutoSave();
+      renderTopologyLayersUI(window._topoTree);
+      if (typeof buildUsbBwSvg === 'function') buildUsbBwSvg();
+    }
+
+    function onUsbPortCountChange(count) {
+      if (!window._topoTree) return;
+      if (isNaN(count) || count < 1) count = 1;
+      if (count > 8) count = 8;
+      if (!window._topoTree.usb_config) window._topoTree.usb_config = { mode: 'hub', num_ports: count, ports: [] };
+      const usbCfg = window._topoTree.usb_config;
+      usbCfg.num_ports = count;
+      usbCfg.ports = usbCfg.ports || [];
+      while (usbCfg.ports.length < count) {
+        const idx = usbCfg.ports.length + 1;
+        usbCfg.ports.push({
+          id: 'usb-' + idx,
+          label: 'USB ' + idx,
+          role: 'empty',
+          name: '',
+          speed: 'usb3'
+        });
+      }
+      if (usbCfg.ports.length > count) {
+        usbCfg.ports = usbCfg.ports.slice(0, count);
+      }
+      triggerTopologyAutoSave();
+      renderTopologyLayersUI(window._topoTree);
+      if (typeof buildUsbBwSvg === 'function') buildUsbBwSvg();
+    }
+
+    function onUsbPortChange(pIdx, field, val) {
+      if (!window._topoTree || !window._topoTree.usb_config) return;
+      const usbCfg = window._topoTree.usb_config;
+      if (!Array.isArray(usbCfg.ports) || !usbCfg.ports[pIdx]) return;
+      usbCfg.ports[pIdx][field] = val;
+      if (field === 'role' && val === 'empty') {
+        usbCfg.ports[pIdx].name = '';
+      } else if (field === 'role' && val === 'phone' && !usbCfg.ports[pIdx].name) {
+        usbCfg.ports[pIdx].name = 'Samsung Galaxy S21 FE 5G';
+        usbCfg.ports[pIdx].speed = 'usb3';
+      } else if (field === 'role' && val === 'storage' && !usbCfg.ports[pIdx].name) {
+        usbCfg.ports[pIdx].name = 'NVMe SSD Storage';
+        usbCfg.ports[pIdx].speed = 'usb3';
+      }
+      triggerTopologyAutoSave();
+      renderTopologyLayersUI(window._topoTree);
+      if (typeof buildUsbBwSvg === 'function') buildUsbBwSvg();
+    }
+
+    // AUTO-SAVE ENGINE: PERSISTS ANY TOPOLOGY CONFIG INSTANTLY TO BACKEND
+    let _topoAutoSaveTimer = null;
+    function triggerTopologyAutoSave() {
+      clearTimeout(_topoAutoSaveTimer);
+      _topoAutoSaveTimer = setTimeout(() => {
+        saveTopologyLayersConfig(true);
+      }, 350);
+    }
+
     function onNodePortCountChange(nodeId, newCount) {
       if (!window._topoTree) return;
       const node = findNodeById(window._topoTree, nodeId);
@@ -15663,6 +15845,7 @@
       if (count > 48) count = 48;
       node.numPorts = count;
       validateAndFixNodeTree(node);
+      triggerTopologyAutoSave();
       renderTopologyLayersUI(window._topoTree);
       if (typeof buildUsbBwSvg === 'function') buildUsbBwSvg();
     }
@@ -15716,6 +15899,7 @@
         port.child = childNode;
       }
 
+      triggerTopologyAutoSave();
       renderTopologyLayersUI(window._topoTree);
       if (typeof buildUsbBwSvg === 'function') buildUsbBwSvg();
     }
@@ -15739,6 +15923,7 @@
       } else if (chosenIp) {
         child.ip = chosenIp;
       }
+      triggerTopologyAutoSave();
       renderTopologyLayersUI(window._topoTree);
       if (typeof buildUsbBwSvg === 'function') buildUsbBwSvg();
     }
@@ -15749,6 +15934,7 @@
       if (!res || !res.port.child) return;
       res.port.child[field] = value;
       updateValidationNotice();
+      triggerTopologyAutoSave();
       if (typeof buildUsbBwSvg === 'function') buildUsbBwSvg();
     }
 
@@ -15766,6 +15952,7 @@
       } else if (chosenIp) {
         child.ip = chosenIp;
       }
+      triggerTopologyAutoSave();
       renderTopologyLayersUI(window._topoTree);
       if (typeof buildUsbBwSvg === 'function') buildUsbBwSvg();
     }
@@ -15776,6 +15963,7 @@
       if (!node) return;
       node[field] = value;
       updateValidationNotice();
+      triggerTopologyAutoSave();
       if (typeof buildUsbBwSvg === 'function') buildUsbBwSvg();
     }
 
@@ -15794,6 +15982,7 @@
         band: '5G',
         linkSpeed: '433 Mbps'
       });
+      triggerTopologyAutoSave();
       renderTopologyLayersUI(window._topoTree);
       if (typeof buildUsbBwSvg === 'function') buildUsbBwSvg();
     }
@@ -15803,6 +15992,7 @@
       const node = findNodeById(window._topoTree, nodeId);
       if (!node || !Array.isArray(node.wireless_clients)) return;
       node.wireless_clients.splice(clientIdx, 1);
+      triggerTopologyAutoSave();
       renderTopologyLayersUI(window._topoTree);
       if (typeof buildUsbBwSvg === 'function') buildUsbBwSvg();
     }
@@ -15822,6 +16012,7 @@
         }
       }
       updateValidationNotice();
+      triggerTopologyAutoSave();
       if (typeof buildUsbBwSvg === 'function') buildUsbBwSvg();
     }
 
@@ -16111,6 +16302,77 @@
             </div>
           </div>
 
+          ${isRoot ? `
+            <!-- WAN UPLINK & PORT ASSIGNMENT (WAN AS LAN / LAN AS WAN) -->
+            <div class="setting-section-divider"></div>
+            <div class="setting-section-header" style="display:flex; justify-content:space-between; align-items:center;">
+              <span>Host Gateway WAN Interface & Port Mapping</span>
+              <span class="card-badge" style="color:${layerColor}; border-color:${layerColor}; font-size:9.5px;">LAYER 1 WAN</span>
+            </div>
+
+            <div class="setting-row-item" style="flex-direction:column; align-items:stretch; gap:6px;">
+              <div class="setting-label-col">
+                <span class="setting-label-bold">WAN Port Mode</span>
+                <span class="setting-label-sub">Configure physical WAN port uplink or remap port role (WAN as LAN / LAN as WAN)</span>
+              </div>
+              <div>
+                <select class="mh-input" onchange="onWanModeChange(this.value)" style="width:100%; box-sizing:border-box; font-size:12px;">
+                  <option value="standard" ${(node.wan_mode === 'standard' || !node.wan_mode) ? 'selected' : ''}>Standard WAN Uplink (ISP / ONT / Cable Gateway)</option>
+                  <option value="wan_as_lan" ${node.wan_mode === 'wan_as_lan' ? 'selected' : ''}>WAN as LAN (Remap WAN Port to 5th LAN Switch Port)</option>
+                  <option value="lan_as_wan_1" ${node.wan_mode === 'lan_as_wan_1' ? 'selected' : ''}>LAN as WAN (Remap LAN 1 as Secondary WAN Failover)</option>
+                  <option value="lan_as_wan_4" ${node.wan_mode === 'lan_as_wan_4' ? 'selected' : ''}>LAN as WAN (Remap LAN 4 as Secondary WAN Failover)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="setting-row-item" style="flex-direction:column; align-items:stretch; gap:6px;">
+              <div class="setting-label-col">
+                <span class="setting-label-bold">WAN Uplink Speed Standard</span>
+                <span class="setting-label-sub">Negotiated physical Ethernet interface throughput</span>
+              </div>
+              <div>
+                <select class="mh-input" onchange="onWanSpeedChange(this.value)" style="width:100%; box-sizing:border-box; font-size:12px;">
+                  <option value="1000" ${(node.wan_speed === '1000' || !node.wan_speed) ? 'selected' : ''}>1 Gbps Gigabit Ethernet</option>
+                  <option value="2500" ${node.wan_speed === '2500' ? 'selected' : ''}>2.5 Gbps Multi-Gigabit Ethernet</option>
+                  <option value="100" ${node.wan_speed === '100' ? 'selected' : ''}>100 Mbps Fast Ethernet</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- USB ARCHITECTURE & HUB PORTS EXPANSION -->
+            <div class="setting-section-divider"></div>
+            <div class="setting-section-header" style="display:flex; justify-content:space-between; align-items:center;">
+              <span>Host Gateway USB Architecture & Hub Ports</span>
+              <span class="card-badge" style="color:#38bdf8; border-color:#38bdf8; font-size:9.5px;">USB 3.0 (5 Gbps)</span>
+            </div>
+
+            <div class="setting-row-item" style="flex-direction:column; align-items:stretch; gap:6px;">
+              <div class="setting-label-col">
+                <span class="setting-label-bold">USB Hub Expansion Mode</span>
+                <span class="setting-label-sub">Configure external multi-port USB 3.0 SuperSpeed hub</span>
+              </div>
+              <div>
+                <select class="mh-input" onchange="onUsbModeChange(this.value)" style="width:100%; box-sizing:border-box; font-size:12px;">
+                  <option value="hub" ${(node.usb_config && node.usb_config.mode !== 'direct') ? 'selected' : ''}>Multi-Port USB 3.0 SuperSpeed Hub (5 Gbps)</option>
+                  <option value="direct" ${(node.usb_config && node.usb_config.mode === 'direct') ? 'selected' : ''}>Direct Host USB 3.0 Port (Single Device)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="setting-row-item" style="flex-direction:column; align-items:stretch; gap:6px;">
+              <div class="setting-label-col">
+                <span class="setting-label-bold">USB Hub Ports Count</span>
+                <span class="setting-label-sub">Number of physical USB ports on the hub (1 to 8)</span>
+              </div>
+              <div>
+                <input type="number" min="1" max="8" class="mh-input" value="${(node.usb_config && node.usb_config.ports) ? node.usb_config.ports.length : 4}" onchange="onUsbPortCountChange(parseInt(this.value, 10))" style="width:100%; box-sizing:border-box; font-size:12px;">
+              </div>
+            </div>
+
+            <!-- USB Hub Ports List -->
+            ${renderUsbPortsSettingList(node, layerColor)}
+          ` : ''}
+
           <!-- PHYSICAL ETHERNET PORTS LIST -->
           <div class="setting-section-divider"></div>
           <div class="setting-section-header" style="display:flex; justify-content:space-between; align-items:center;">
@@ -16127,7 +16389,13 @@
             const devName = child.name || '';
             const devMac = child.mac || '';
 
-            let infoText = `${node.name || (isRoot ? 'Host Gateway' : 'Router')} &bull; Port ${pIdx + 1}: Disconnected / Empty`;
+            let portLabel = port.label || ('LAN ' + (pIdx + 1));
+            if (isRoot) {
+              if (node.wan_mode === 'lan_as_wan_1' && pIdx === 0) portLabel = 'LAN 1 [WAN 2 Failover]';
+              else if (node.wan_mode === 'lan_as_wan_4' && pIdx === 3) portLabel = 'LAN 4 [WAN 2 Failover]';
+            }
+
+            let infoText = `${node.name || (isRoot ? 'Host Gateway' : 'Router')} &bull; ${portLabel}: Disconnected / Empty`;
             if (isDevice) {
               infoText = `${node.name || 'Router'} &bull; Connected Client: ${devName || 'Device'} (${devIp || '--'})`;
             } else if (isNode) {
@@ -16138,7 +16406,7 @@
               <div class="setting-row-item" id="topoPortRow_${escapeHtml(port.id)}" style="flex-direction:column; align-items:stretch; gap:8px; border-bottom:1px solid rgba(255,255,255,0.035); padding:10px 14px;">
                 <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
                   <div class="setting-label-col" style="flex:1; min-width:0;">
-                    <span class="setting-label-bold" style="color:${layerColor}; font-weight:700;">${escapeHtml(port.label || ('LAN ' + (pIdx + 1)))}</span>
+                    <span class="setting-label-bold" style="color:${layerColor}; font-weight:700;">${escapeHtml(portLabel)}</span>
                     <span class="setting-label-sub">${infoText}</span>
                   </div>
                   ${(isDevice && devIp) ? `
@@ -16298,6 +16566,7 @@ function onQuickAddWifiClient(nodeId, band, clientIp) {
     }
   }
 
+  triggerTopologyAutoSave();
   renderTopologyLayersUI(window._topoTree);
   if (typeof buildUsbBwSvg === 'function') buildUsbBwSvg();
 }
@@ -16322,15 +16591,16 @@ function onRemoveWifiClient(nodeId, clientIdent) {
   if (!target || !Array.isArray(target.wireless_clients)) return;
   target.wireless_clients = target.wireless_clients.filter(wc => wc.id !== clientIdent && wc.ip !== clientIdent);
 
+  triggerTopologyAutoSave();
   renderTopologyLayersUI(window._topoTree);
   if (typeof buildUsbBwSvg === 'function') buildUsbBwSvg();
 }
 
-    async function saveTopologyLayersConfig() {
+    async function saveTopologyLayersConfig(silent = false) {
       if (!window._topoTree) return;
       const val = validateTopologyTree(window._topoTree);
       if (!val.valid) {
-        alert('Cannot save topology: ' + val.error);
+        if (!silent) alert('Cannot save topology: ' + val.error);
         updateValidationNotice();
         return;
       }
@@ -16353,8 +16623,8 @@ function onRemoveWifiClient(nodeId, clientIdent) {
           window._topologyLayers = payload;
           window._topologyLayersSavedLocally = true;
           if (typeof buildUsbBwSvg === 'function') buildUsbBwSvg();
-          showSaveSuccessNotification('Topology configuration saved & verified successfully!');
-        } else {
+          if (!silent) showSaveSuccessNotification('Topology configuration saved & verified successfully!');
+        } else if (!silent) {
           alert('Error saving topology configuration: ' + (result ? result.message : 'Unknown error'));
         }
       } catch (err) {
