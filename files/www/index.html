@@ -3564,9 +3564,11 @@
       position: absolute;
       inset: 0;
       pointer-events: none;
-      background-image: radial-gradient(var(--grid-dot) 1.85px, transparent 1.85px);
+      background-image: radial-gradient(circle, var(--grid-dot) 1.5px, transparent 1.5px);
       background-size: 16px 16px;
       background-position: 0 0;
+      -webkit-mask-image: radial-gradient(ellipse 92% 88% at 50% 50%, #000 60%, transparent 100%);
+      mask-image: radial-gradient(ellipse 92% 88% at 50% 50%, #000 60%, transparent 100%);
       z-index: 0;
     }
     /* Full Page Topology Viewer Mode */
