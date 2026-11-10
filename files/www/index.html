@@ -5627,29 +5627,33 @@
       pointer-events: auto;
     }
     .topo-telemetry-dock {
-      position: absolute;
-      bottom: 12px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      align-items: center;
+      position: fixed !important;
+      bottom: max(14px, env(safe-area-inset-bottom, 14px)) !important;
+      left: 50% !important;
+      transform: translateX(-50%) !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
       gap: 12px;
       padding: 6px 14px;
       border-radius: 20px;
-      background: rgba(15, 17, 25, 0.75);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-      z-index: 90;
+      background: rgba(15, 17, 25, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+      z-index: 9999 !important;
       pointer-events: none;
       user-select: none;
       -webkit-user-select: none;
+      white-space: nowrap;
+      max-width: calc(100vw - 32px);
+      box-sizing: border-box;
     }
     [data-theme="light"] .topo-telemetry-dock {
-      background: rgba(255, 255, 255, 0.85);
-      border-color: rgba(0, 0, 0, 0.08);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+      background: rgba(255, 255, 255, 0.92);
+      border-color: rgba(0, 0, 0, 0.12);
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
     }
     .topo-tele-item {
       display: flex;
@@ -5673,6 +5677,17 @@
     }
     [data-theme="light"] .topo-tele-sep {
       background: rgba(0, 0, 0, 0.2);
+    }
+    @media (max-width: 600px) {
+      .topo-telemetry-dock {
+        gap: 8px;
+        padding: 5px 12px;
+        bottom: max(10px, env(safe-area-inset-bottom, 10px)) !important;
+      }
+      .topo-tele-item {
+        font-size: 10px;
+        gap: 3.5px;
+      }
     }
     /* TOPOLOGY CANVAS BRAND META */
     .topo-brand-meta {
@@ -13392,10 +13407,10 @@
       const isRouterOrAp = (node.type === 'router' || node.type === 'ap' || node.type === 'switch');
 
       const slots = [];
-      // Always include WAN port for root gateway
+      // Always include WAN port for root gateway as W1
       if (node.id === 'root') {
-        let wanPortLabel = 'WAN';
-        if (node.wan_mode === 'wan_as_lan') wanPortLabel = 'WAN [LAN 5]';
+        let wanPortLabel = 'W1';
+        if (node.wan_mode === 'wan_as_lan') wanPortLabel = 'W1 [L5]';
         slots.push({
           type: 'wan',
           port: { id: 'root-wan', label: wanPortLabel, role: 'uplink' },
@@ -13700,13 +13715,14 @@
           window._topoWifiExpanded[node.id] = false;
         }
         const isExpanded = !!window._topoWifiExpanded[node.id];
-        const clW = isPhone ? 160 : (isTablet ? 180 : 200);
-        const clH = 36;
+        const clW = 54;
+        const clH = 54;
         let totalH = clH;
         if (isExpanded) {
-          totalH += 12 + wClients.length * (32 + 6);
+          totalH += 16 + wClients.length * (30 + 6);
         }
         wClients.forEach(wc => { wc._parentRouter = node; });
+        const subW = isExpanded ? (isPhone ? 150 : 170) : (clW + 24);
         children.push({
           type: 'wifi_cluster',
           node: node,
@@ -13715,7 +13731,7 @@
           w: clW,
           h: clH,
           totalH: totalH,
-          subtreeW: clW + 20,
+          subtreeW: subW,
           subtreeH: totalH
         });
       }
@@ -14048,14 +14064,14 @@
           class: "topo-wan-chip",
           "data-node-id": "wan-uplink",
           role: "treeitem",
-          "aria-label": "WAN Uplink 5G USB0",
+          "aria-label": "WAN Uplink USB0",
           tabindex: "0",
           style: "cursor:pointer; animation: topoNodeSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;"
         }, nodesLayer);
 
         wanG.onclick = (e) => {
           showTopoNodeDetail({
-            name: "WAN (5G USB0)",
+            name: "WAN (USB0)",
             type: "wan",
             ip: (window._lastDataCache && window._lastDataCache.network && window._lastDataCache.network.wan_ip) || "Dynamic 5G",
             speed: (window._currentRxMbps > 0 || window._currentTxMbps > 0) ? `${(window._currentRxMbps + window._currentTxMbps).toFixed(1)} Mbps` : "0.0 Mbps",
@@ -14076,17 +14092,17 @@
           style: `filter:${topoTheme.cardShadow};`
         }, wanG);
 
-        // WAN Title
+        // WAN Title without '5G'
         const tWanTitle = mk("text", {
           x: wanX + 10,
           y: wanY + wanH / 2 + 3.5,
           style: `font-size:8.5px; font-weight:800; font-family:var(--font-mono); fill:${topoTheme.textMain};`
         }, wanG);
-        tWanTitle.textContent = "WAN (5G USB0)";
+        tWanTitle.textContent = "WAN (USB0)";
 
         // Draw Hotspot Tethering Icon & Android ADB Icon in WAN card
-        const iconTetherX = wanX + 90;
-        const iconAdbX = wanX + 106;
+        const iconTetherX = wanX + 78;
+        const iconAdbX = wanX + 94;
         const iconCenterY = wanY + wanH / 2;
         drawTetheringIconSmall(iconTetherX, iconCenterY, "#10b981", wanG);
         drawAdbIconSmall(iconAdbX, iconCenterY, "#38bdf8", wanG);
@@ -14409,7 +14425,7 @@
             fill: isSlotActive ? "#10b981" : (isLight ? "#94a3b8" : "#52525b")
           }, sockG);
 
-          let sLbl = slot.label || (isWan ? 'WAN' : (isLan ? `L${slot.idx + 1}` : 'Wi-Fi'));
+          let sLbl = slot.label || (isWan ? 'W1' : (isLan ? `L${slot.idx + 1}` : 'Wi-Fi'));
 
           // Perfect centered two-row layout: Top row centered label, Bottom row centered people icon + count
           if (childCount > 0) {
@@ -14555,17 +14571,16 @@
           if (c.type === 'lan') {
             renderLayeredNode(c.child);
           } else if (c.type === 'wifi_cluster') {
-            // Render Wi-Fi Cluster Node
-            const clW = c.w;
-            const clH = c.h;
-            const clX = c.x;
-            const clY = c.y;
+            // Render Wi-Fi Cluster: Round circle with Hotspot/Wi-Fi icon + people icon & count below
+            const clCenterX = c.centerX;
+            const clCenterY = c.topY + 22;
+            const clRadius = 20;
             const wifiCol = themeColors.wifi;
             const wifiNodeId = `${node.id}-wifi-cluster`;
 
-            globalMinX = Math.min(globalMinX, clX - 20);
-            globalMaxX = Math.max(globalMaxX, clX + clW + 20);
-            globalMaxY = Math.max(globalMaxY, clY + c.totalH);
+            globalMinX = Math.min(globalMinX, clCenterX - 70);
+            globalMaxX = Math.max(globalMaxX, clCenterX + 70);
+            globalMaxY = Math.max(globalMaxY, c.topY + c.totalH + 10);
 
             const clG = mk("g", {
               class: `topo-wifi-cluster-node ${isLayerDimmed ? 'topo-dimmed' : ''}`,
@@ -14583,78 +14598,70 @@
               setTimeout(fitTopologyToScreen, 60);
             };
 
-            mk("rect", {
-              x: clX,
-              y: clY,
-              width: clW,
-              height: clH,
-              rx: 6,
-              ry: 6,
+            // Main round circle for hotspot
+            mk("circle", {
+              cx: clCenterX,
+              cy: clCenterY,
+              r: clRadius,
               fill: topoTheme.cardBg,
               stroke: wifiCol,
-              "stroke-width": 1.2,
+              "stroke-width": 1.4,
               style: `filter:${topoTheme.cardShadow};`
             }, clG);
 
-            // Fixed 32px icon container box with 8px gap before text
-            const wifiIconBoxX = clX + 5;
-            const wifiIconBoxY = clY + 4;
-            const wifiIconBoxW = 30;
-            const wifiIconBoxH = 30;
+            // Inner subtle glow circle
+            mk("circle", {
+              cx: clCenterX,
+              cy: clCenterY,
+              r: clRadius - 3.5,
+              fill: isLight ? "rgba(168,85,247,0.06)" : "rgba(168,85,247,0.1)",
+              stroke: "none"
+            }, clG);
+
+            // Draw clean Hotspot / Wi-Fi vector icon at center
+            drawTetheringIconSmall(clCenterX, clCenterY, wifiCol, clG);
+
+            // People micro-icon + connected device count directly below the circle
+            const cntG = mk("g", { class: "topo-wifi-people-count", style: `fill:${wifiCol};` }, clG);
+            const cntPillW = 32;
+            const cntPillH = 13;
+            const cntPillY = clCenterY + clRadius + 3;
             mk("rect", {
-              x: wifiIconBoxX,
-              y: wifiIconBoxY,
-              width: wifiIconBoxW,
-              height: wifiIconBoxH,
+              x: clCenterX - cntPillW / 2,
+              y: cntPillY,
+              width: cntPillW,
+              height: cntPillH,
               rx: 4,
               ry: 4,
-              fill: isLight ? "rgba(168,85,247,0.06)" : "rgba(168,85,247,0.08)"
-            }, clG);
-            drawWifiAntennaIcon(wifiIconBoxX + wifiIconBoxW / 2, wifiIconBoxY + wifiIconBoxH / 2, wifiCol, clG);
+              fill: topoTheme.cardBg,
+              stroke: wifiCol,
+              "stroke-width": 0.8,
+              style: `filter:${isLight ? 'drop-shadow(0 1px 2px rgba(0,0,0,0.05))' : 'drop-shadow(0 2px 4px rgba(0,0,0,0.4))'};`
+            }, cntG);
 
-            const tClName = mk("text", {
-              x: clX + 43,
-              y: clY + 15,
-              style: `font-size:8px; font-weight:800; font-family:var(--font-mono); fill:${topoTheme.textMain};`
-            }, clG);
-            tClName.textContent = `WiFi clients (${c.clients.length})`;
+            // Mini vector people icon
+            const pX = clCenterX - 6;
+            const pY = cntPillY + 6.5;
+            mk("circle", { cx: pX - 3, cy: pY - 1.8, r: 1.4, fill: "currentColor" }, cntG);
+            mk("path", { d: `M ${pX - 5} ${pY + 2} a2 2 0 0 1 4 0 Z`, fill: "currentColor" }, cntG);
+            mk("text", {
+              x: pX + 3.5,
+              y: pY + 2.5,
+              "text-anchor": "start",
+              style: `font-size:7.5px; font-weight:800; font-family:var(--font-mono); fill:${topoTheme.textMain};`
+            }, cntG).textContent = `${c.clients.length}`;
 
-            const tClSub = mk("text", {
-              x: clX + 43,
-              y: clY + 27,
-              style: `font-size:7px; font-weight:700; font-family:var(--font-mono); fill:${wifiCol};`
-            }, clG);
-            tClSub.textContent = c.isExpanded ? "Tap to collapse" : "Tap to expand";
-
-            // Expand / Collapse Indicator
-            mk("rect", {
-              x: clX + clW - 22,
-              y: clY + 11,
-              width: 16,
-              height: 16,
-              rx: 3,
-              ry: 3,
-              fill: isLight ? "#f1f5f9" : "rgba(255,255,255,0.06)",
-              stroke: topoTheme.cardBorder,
-              "stroke-width": 0.8
-            }, clG);
-            const tTog = mk("text", {
-              x: clX + clW - 14,
-              y: clY + 22.5,
-              "text-anchor": "middle",
-              style: `font-size:9px; font-weight:900; font-family:var(--font-mono); fill:${topoTheme.textMain};`
-            }, clG);
-            tTog.textContent = c.isExpanded ? "-" : "+";
-
-            // If expanded: render vertical list with short bracket lines
+            // If expanded: render clean vertical client devices (ONLY label/hostname, no IP/2.4G)
             if (c.isExpanded) {
-              const startListY = clY + clH + 16;
-              const trunkX = clX + 10;
+              const startListY = cntPillY + cntPillH + 16;
+              const trunkX = clCenterX - 45;
+              const clientCardW = 120;
+              const clientCardH = 26;
 
               // Vertical bracket trunk line in EDGES LAYER
-              const lastClientY = startListY + (c.clients.length - 1) * 38 + 16;
+              const lastClientY = startListY + (c.clients.length - 1) * 34 + clientCardH / 2;
               mk("path", {
-                d: `M ${clX + clW / 2} ${clY + clH} L ${trunkX} ${clY + clH + 8} L ${trunkX} ${lastClientY}`,
+                d: `M ${clCenterX} ${cntPillY + cntPillH} L ${clCenterX} ${cntPillY + cntPillH + 8} L ${trunkX} ${cntPillY + cntPillH + 8} L ${trunkX} ${lastClientY}`,
                 stroke: wifiCol,
                 "stroke-width": 1.2,
                 fill: "none",
@@ -14662,22 +14669,21 @@
               }, edgesLayer);
 
               c.clients.forEach((wc, wIdx) => {
-                const wcY = startListY + wIdx * 38;
-                const wcW = clW;
-                const wcH = 32;
-                const wcX = clX + 20;
+                const wcY = startListY + wIdx * 34;
+                const wcW = clientCardW;
+                const wcH = clientCardH;
+                const wcX = trunkX + 10;
                 const isWcOnline = (wc.status !== 'offline');
                 const wcNodeId = wc.id || wc.ip || wc.mac || `wc-${wIdx}`;
 
                 globalMaxX = Math.max(globalMaxX, wcX + wcW + 10);
                 globalMaxY = Math.max(globalMaxY, wcY + wcH + 10);
 
-                // Status classification: online (green), offline (gray), blocked (red)
                 const isWcBlocked = (typeof blockedIps !== 'undefined' && blockedIps.has(wc.ip)) || !!wc.blocked;
                 const wcStatusCol = isWcBlocked ? "#ef4444" : (isWcOnline ? "#10b981" : (isLight ? "#94a3b8" : "#52525b"));
                 const wcBorderCol = isWcBlocked ? "#ef4444" : (isWcOnline ? wifiCol : topoTheme.cardBorderIdle);
 
-                // Horizontal bracket branch to card in EDGES LAYER with flowing animation
+                // Horizontal bracket branch to card in EDGES LAYER
                 const branchPathD = `M ${trunkX} ${wcY + wcH / 2} L ${wcX} ${wcY + wcH / 2}`;
                 mk("path", {
                   d: branchPathD,
@@ -14687,7 +14693,6 @@
                   style: "opacity:0.4; stroke-dasharray:3 2.5;"
                 }, edgesLayer);
 
-                // Flow animation along branch when client is active
                 if (isWcOnline && (prefs.animMode === 'flowing' || !prefs.animMode)) {
                   const branchFlowId = `topoWifiBranch_${nodeId}_${wIdx}`;
                   mk("path", {
@@ -14708,7 +14713,7 @@
                   class: `topo-wifi-client ${isWcOnline ? '' : 'topo-offline-node'} ${isLayerDimmed ? 'topo-dimmed' : ''}`,
                   "data-node-id": wcNodeId,
                   role: "treeitem",
-                  "aria-label": `${resolveDeviceDisplayName(wc)} ${wc.ip || ''}`,
+                  "aria-label": `${resolveDeviceDisplayName(wc)}`,
                   tabindex: "0",
                   style: "cursor:pointer;"
                 }, nodesLayer);
@@ -14723,19 +14728,19 @@
                   y: wcY,
                   width: wcW,
                   height: wcH,
-                  rx: 8,
-                  ry: 8,
+                  rx: 6,
+                  ry: 6,
                   fill: topoTheme.cardBg,
                   stroke: wcBorderCol,
                   "stroke-width": isWcBlocked ? 1.3 : 1.0,
                   style: `filter:${topoTheme.cardShadow};` + (isWcOnline ? "" : "opacity:0.75;")
                 }, wcG);
 
-                // Fixed 28px icon box
+                // Icon box
                 const wcIconBoxX = wcX + 5;
-                const wcIconBoxY = wcY + 4;
-                const wcIconBoxW = 24;
-                const wcIconBoxH = 24;
+                const wcIconBoxY = wcY + 3;
+                const wcIconBoxW = 20;
+                const wcIconBoxH = 20;
                 mk("rect", {
                   x: wcIconBoxX,
                   y: wcIconBoxY,
@@ -14748,32 +14753,22 @@
                 const wcClass = (typeof classifyLanDevice === 'function') ? classifyLanDevice(wc) : { type: 'phone', color: wifiCol };
                 drawLanClientDeviceIcon(wcIconBoxX + wcIconBoxW / 2, wcIconBoxY + wcIconBoxH / 2, { ...wcClass, color: isWcOnline ? wifiCol : topoTheme.textDim }, wcG);
 
+                // ONLY label/name (fallback to 'Unknown Device', NO IP, NO 2.4GHz)
                 let wcName = resolveDeviceDisplayName(wc);
-                if (wcName.length > 12) wcName = wcName.substring(0, 11) + "…";
+                if (wcName.length > 13) wcName = wcName.substring(0, 12) + "…";
 
                 const tWcName = mk("text", {
-                  x: wcX + 38,
-                  y: wcY + 14,
+                  x: wcX + 30,
+                  y: wcY + 16.5,
                   style: `font-size:8px; font-weight:800; font-family:var(--font-mono); fill:${isWcOnline ? topoTheme.textMain : topoTheme.textDim};`
                 }, wcG);
                 tWcName.textContent = wcName;
 
-                // Clean label only without 72Mbps
-                const tWcIp = mk("text", {
-                  x: wcX + 38,
-                  y: wcY + 25,
-                  style: `font-size:7px; font-weight:700; font-family:var(--font-mono); fill:${wifiCol};`
-                }, wcG);
-                const wcSubLabel = wc.band ? (wc.band.includes('5') ? '5 GHz' : '2.4 GHz') : 'Wi-Fi';
-                tWcIp.textContent = wc.ip ? `${wc.ip} • ${wcSubLabel}` : wcSubLabel;
-
-
-
-                // Status dot at top-left: online = green, offline = gray, blocked = red
+                // Status dot at top-left
                 mk("circle", {
-                  cx: wcX + 6,
-                  cy: wcY + 6,
-                  r: 2.0,
+                  cx: wcX + 5,
+                  cy: wcY + 5,
+                  r: 1.8,
                   class: (isWcOnline && !isWcBlocked) ? "topo-pulse-dot" : "",
                   fill: wcStatusCol
                 }, wcG);
@@ -14790,7 +14785,8 @@
       const pad = 40;
       const finalMinX = Math.min(0, globalMinX - pad);
       const finalMaxX = Math.max(initialW, globalMaxX + pad);
-      const finalMinY = prefs.showWan ? Math.min(0, rootY - 70) : 0;
+      // Offset viewBox upwards so the top elements appear clearly below the floating header
+      const finalMinY = (prefs.showWan ? Math.min(0, rootY - 82) : 0) - 28;
       const finalMaxY = Math.max(isPhone ? 540 : 560, globalMaxY + 50);
 
       const finalW = finalMaxX - finalMinX;
