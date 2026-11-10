@@ -11879,13 +11879,51 @@
       if (isPort) {
         const port = target;
         if (titleEl) titleEl.textContent = port.label || 'Port';
-        if (subEl) subEl.textContent = `Port Role: ${port.role ? port.role.toUpperCase() : 'EMPTY'}`;
+        if (subEl) subEl.textContent = port.band ? `Wireless Interface: ${port.band}` : `Port Role: ${port.role ? port.role.toUpperCase() : 'EMPTY'}`;
         if (badgeEl) {
-          badgeEl.textContent = port.role !== 'empty' ? 'LINK UP' : 'DISCONNECTED';
-          badgeEl.className = 'card-badge ' + (port.role !== 'empty' ? 'emerald' : '');
+          const isUp = port.band ? (port.count > 0) : (port.role !== 'empty');
+          badgeEl.textContent = isUp ? 'ACTIVE' : 'IDLE';
+          badgeEl.className = 'card-badge ' + (isUp ? 'emerald' : '');
         }
         if (iconBox) {
-          iconBox.innerHTML = '<svg viewBox="0 0 24 24" style="width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2;"><rect x="2" y="2" width="20" height="20" rx="4"/><circle cx="12" cy="12" r="3"/></svg>';
+          iconBox.innerHTML = port.band 
+            ? '<svg viewBox="0 0 24 24" style="width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2;"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>'
+            : '<svg viewBox="0 0 24 24" style="width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2;"><rect x="2" y="2" width="20" height="20" rx="4"/><circle cx="12" cy="12" r="3"/></svg>';
+        }
+
+        if (port.band) {
+          const clientList = Array.isArray(port.clients) ? port.clients : [];
+          if (bodyEl) {
+            bodyEl.innerHTML = `
+              <div style="display:flex; flex-direction:column; gap:8px; font-family:var(--font-mono); font-size:11.5px;">
+                <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); display:flex; justify-content:space-between; align-items:center;">
+                  <div>
+                    <div style="color:var(--text-dim); font-size:10px;">RADIO STATUS</div>
+                    <div style="color:#10b981; font-weight:700;">Wi-Fi Interface Active</div>
+                  </div>
+                  <div>
+                    <div style="color:var(--text-dim); font-size:10px; text-align:right;">CONNECTED</div>
+                    <div style="color:var(--text-main); font-weight:700; text-align:right;">${clientList.length} Clients</div>
+                  </div>
+                </div>
+                ${clientList.length > 0 ? clientList.map(c => `
+                  <div style="background:rgba(255,255,255,0.02); padding:8px 10px; border-radius:6px; border:1px solid rgba(255,255,255,0.04); display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                      <div style="font-weight:700; color:var(--text-main);">${escapeHtml(c.name || 'Device')}</div>
+                      <div style="font-size:10px; color:var(--text-dim);">${escapeHtml(c.ip || '--')} &bull; ${escapeHtml(c.mac || '--')}</div>
+                    </div>
+                    <span class="card-badge sky" style="font-size:9px;">Wi-Fi</span>
+                  </div>
+                `).join('') : `
+                  <div style="font-size:11px; color:var(--text-dim); text-align:center; padding:12px;">No wireless clients connected to this Wi-Fi interface.</div>
+                `}
+              </div>
+            `;
+          }
+          if (btnViewClient) btnViewClient.style.display = 'none';
+          overlay.style.display = 'flex';
+          overlay.classList.add('active');
+          return;
         }
 
         const childName = (port.child && (port.child.name || port.child.ip)) || 'None';
@@ -12551,8 +12589,6 @@
     function computeNodeInterfaceSlots(node, isMobile) {
       if (!node) return [];
       const lanPorts = node.ports || [];
-      const wClients24 = (node.wireless_clients || []).filter(c => c && c.band === '2.4G');
-      const wClients50 = (node.wireless_clients || []).filter(c => c && c.band !== '2.4G');
       const isRouterOrAp = (node.type === 'router' || node.type === 'ap');
 
       const portBoxW = isMobile ? 54 : 66;
@@ -12571,28 +12607,17 @@
       });
 
       if (isRouterOrAp) {
-        const w24Count = wClients24.length;
-        const w24SubW = w24Count > 0 ? (w24Count * clientCardW + (w24Count - 1) * gap) : portBoxW;
+        const wClients = node.wireless_clients || [];
+        const wCount = wClients.length;
+        const wSubW = wCount > 0 ? (wCount * clientCardW + (wCount - 1) * gap) : portBoxW;
         slots.push({
-          type: 'wifi24',
-          label: '2.4G WiFi',
-          band: '2.4G',
-          color: '#f59e0b',
-          clients: wClients24,
-          count: w24Count,
-          width: Math.max(portBoxW, w24SubW)
-        });
-
-        const w50Count = wClients50.length;
-        const w50SubW = w50Count > 0 ? (w50Count * clientCardW + (w50Count - 1) * gap) : portBoxW;
-        slots.push({
-          type: 'wifi50',
-          label: '5G WiFi',
-          band: '5G',
-          color: '#06b6d4',
-          clients: wClients50,
-          count: w50Count,
-          width: Math.max(portBoxW, w50SubW)
+          type: 'wifi',
+          label: 'Wi-Fi',
+          band: 'Wi-Fi',
+          color: '#38bdf8',
+          clients: wClients,
+          count: wCount,
+          width: Math.max(portBoxW, wSubW)
         });
       }
 
@@ -12666,8 +12691,7 @@
         borderSwitch: isLight ? "#059669" : "#10b981",
         borderAp: isLight ? "#d97706" : "#f59e0b",
         borderDev: isLight ? "#059669" : "#10b981",
-        borderWifi24: isLight ? "#d97706" : "#f59e0b",
-        borderWifi50: isLight ? "#0891b2" : "#06b6d4",
+        borderWifi: isLight ? "#0284c7" : "#38bdf8",
         textMain: isLight ? "#09090b" : "#f4f4f5",
         textDim: isLight ? "#475569" : "#a1a1aa",
         textMuted: isLight ? "#64748b" : "#71717a",
@@ -12744,8 +12768,8 @@
       const rootBounds = computeSubtreeBounds(tree, isMobile);
       const treeDepth = computeTreeMaxDepth(tree);
 
-      const W = Math.max(isMobile ? 560 : 960, rootBounds.width + (isMobile ? 60 : 120));
-      const H = Math.max(isMobile ? 540 : 580, 240 + treeDepth * (isMobile ? 140 : 170));
+      const W = Math.max(isMobile ? 640 : 960, rootBounds.width + (isMobile ? 60 : 120));
+      const H = Math.max(isMobile ? 480 : 540, 220 + treeDepth * (isMobile ? 135 : 165));
 
       svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
       const defs = mk("defs", {}, svg);
@@ -12868,7 +12892,7 @@
         const dConduit = `M${rtrCenterX} ${yStart} C${rtrCenterX} ${midY}, ${slotCenterX} ${midY}, ${slotCenterX} ${yEnd}`;
         const isLan = slot.type === 'lan';
         const isUp = isLan ? (slot.role !== 'empty') : (slot.count > 0);
-        const slotColor = isLan ? topoTheme.borderLan : (slot.band === '5G' ? topoTheme.borderWifi50 : topoTheme.borderWifi24);
+        const slotColor = isLan ? topoTheme.borderLan : topoTheme.borderWifi;
 
         mk("path", {
           class: "base",
@@ -12943,10 +12967,10 @@
           }
 
         } else {
-          // Wireless Interface Box (2.4G or 5G WiFi)
-          const wifiColor = slot.band === '5G' ? topoTheme.borderWifi50 : topoTheme.borderWifi24;
+          // Wireless Interface Box (Unified Wi-Fi)
+          const wifiColor = topoTheme.borderWifi;
           const wifiG = mk("g", { class: "compact-lan-box is-wifi", style: `cursor:pointer;` }, svg);
-          wifiG.onclick = (e) => showTopoNodeDetail({ label: slot.label, count: slot.count, clients: slot.clients, band: slot.band }, true, e);
+          wifiG.onclick = (e) => showTopoNodeDetail({ label: 'Wi-Fi Interface', count: slot.count, clients: slot.clients, band: 'Wi-Fi' }, true, e);
 
           mk("rect", {
             x: slotBoxX,
@@ -12967,7 +12991,7 @@
             x: slotBoxX + 19,
             y: rootPortsY + 14,
             style: `font-size:8.5px; font-weight:800; font-family:var(--font-mono); fill:${isUp ? wifiColor : topoTheme.textDim};`
-          }, wifiG).textContent = slot.band;
+          }, wifiG).textContent = "Wi-Fi";
 
           drawPeopleIcon(slotBoxX + 12, rootPortsY + 23, isUp ? wifiColor : topoTheme.textDim, wifiG);
 
@@ -12977,7 +13001,7 @@
             style: `font-size:10.5px; font-weight:800; font-family:var(--font-mono); fill:${isUp ? wifiColor : topoTheme.textDim};`
           }, wifiG).textContent = slot.count;
 
-          // Render Wireless Clients strictly under this WiFi Port Box
+          // Render Wireless Clients strictly under this Wi-Fi Port Box
           if (slot.count > 0) {
             const wifiStartY = rootPortsY + portBoxH + (isMobile ? 36 : 42);
             const clients = slot.clients;
@@ -12990,7 +13014,7 @@
               const wcX = startWcX + wcIdx * (clientCardW + wGap);
               const wcCenterX = wcX + clientCardW / 2;
 
-              // Dashed WiFi link from WiFi box bottom to wireless client card top
+              // Dashed WiFi link from WiFi box bottom to wireless client card top (smooth S-curve)
               const dWifiLink = `M${slotCenterX} ${rootPortsY + portBoxH} C${slotCenterX} ${rootPortsY + portBoxH + 20}, ${wcCenterX} ${wifiStartY - 18}, ${wcCenterX} ${wifiStartY}`;
               mk("path", {
                 d: dWifiLink,
@@ -13035,7 +13059,7 @@
                 y: wifiStartY + 17,
                 style: `font-size:6.5px; font-weight:800; font-family:var(--font-mono); fill:${wifiColor};`
               }, wcG);
-              tWcBand.textContent = `[${slot.band}] ${wc.ip ? wc.ip.split('.').slice(2).join('.') : ''}`;
+              tWcBand.textContent = `[Wi-Fi] ${wc.ip ? wc.ip.split('.').slice(2).join('.') : ''}`;
             });
           }
         }
@@ -13061,8 +13085,7 @@
         borderSwitch: isLight ? "#059669" : "#10b981",
         borderAp: isLight ? "#d97706" : "#f59e0b",
         borderDev: isLight ? "#059669" : "#10b981",
-        borderWifi24: isLight ? "#d97706" : "#f59e0b",
-        borderWifi50: isLight ? "#0891b2" : "#06b6d4",
+        borderWifi: isLight ? "#0284c7" : "#38bdf8",
         textMain: isLight ? "#09090b" : "#f4f4f5",
         textDim: isLight ? "#475569" : "#a1a1aa",
         textMuted: isLight ? "#64748b" : "#71717a",
@@ -13307,7 +13330,7 @@
 
             const isLan = cSlot.type === 'lan';
             const isCsUp = isLan ? (cSlot.role !== 'empty') : (cSlot.count > 0);
-            const csColor = isLan ? nodeColor : (cSlot.band === '5G' ? topoTheme.borderWifi50 : topoTheme.borderWifi24);
+            const csColor = isLan ? nodeColor : topoTheme.borderWifi;
 
             // Conduit from Node bottom to Child Interface box top (Cubic Bezier S-Curve)
             const cYStart = nodeY + nodeH;
@@ -13389,8 +13412,9 @@
 
             } else {
               // Wireless Radio Interface Box on child AP/Router
+              const wifiColor = topoTheme.borderWifi;
               const wifiG = mk("g", { class: "compact-lan-box is-wifi", style: `cursor:pointer;` }, svg);
-              wifiG.onclick = (e) => showTopoNodeDetail({ label: cSlot.label, count: cSlot.count, clients: cSlot.clients, band: cSlot.band }, true, e);
+              wifiG.onclick = (e) => showTopoNodeDetail({ label: 'Wi-Fi Interface', count: cSlot.count, clients: cSlot.clients, band: 'Wi-Fi' }, true, e);
 
               mk("rect", {
                 x: csBoxX,
@@ -13400,18 +13424,18 @@
                 rx: 6,
                 ry: 6,
                 fill: topoTheme.cardBg,
-                stroke: isCsUp ? csColor : topoTheme.cardBorderIdle,
+                stroke: isCsUp ? wifiColor : topoTheme.cardBorderIdle,
                 "stroke-width": 1.1,
                 style: isCsUp ? `filter:${topoTheme.cardShadow};` : "opacity:0.85;"
               }, wifiG);
 
-              drawWifiAntennaIcon(csBoxX + 9, childPortsY + 10, isCsUp ? csColor : topoTheme.textDim, wifiG);
+              drawWifiAntennaIcon(csBoxX + 9, childPortsY + 10, isCsUp ? wifiColor : topoTheme.textDim, wifiG);
 
               mk("text", {
                 x: csBoxX + 17,
                 y: childPortsY + 12,
-                style: `font-size:8px; font-weight:800; font-family:var(--font-mono); fill:${isCsUp ? csColor : topoTheme.textDim};`
-              }, wifiG).textContent = cSlot.band;
+                style: `font-size:8px; font-weight:800; font-family:var(--font-mono); fill:${isCsUp ? wifiColor : topoTheme.textDim};`
+              }, wifiG).textContent = "Wi-Fi";
 
               drawPeopleIcon(csBoxX + 10, childPortsY + 18, isCsUp ? csColor : topoTheme.textDim, wifiG);
 
@@ -14756,10 +14780,10 @@
                 { id: 'maxnet-b-lan4', label: 'LAN 4', role: 'empty', child: null }
               ],
               wireless_clients: [
-                { name: 'POCO-X6-5G', ip: '10.0.0.110', mac: '16:cb:1a:6a:a2:81', band: '2.4G', linkSpeed: '72 Mbps' },
-                { name: 'Vivo V2153', ip: '10.0.0.238', mac: 'f2:82:95:8f:db:29', band: '2.4G', linkSpeed: '72 Mbps' },
-                { name: 'V2111', ip: '10.0.0.232', mac: 'ee:e5:0b:24:d5:eb', band: '2.4G', linkSpeed: '65 Mbps' },
-                { name: 'realme-6', ip: '10.0.0.197', mac: '46:df:eb:aa:43:32', band: '2.4G', linkSpeed: '65 Mbps' }
+                { name: 'POCO-X6-5G', ip: '10.0.0.110', mac: '16:cb:1a:6a:a2:81', band: 'WiFi', linkSpeed: '72 Mbps' },
+                { name: 'Vivo V2153', ip: '10.0.0.238', mac: 'f2:82:95:8f:db:29', band: 'WiFi', linkSpeed: '72 Mbps' },
+                { name: 'V2111', ip: '10.0.0.232', mac: 'ee:e5:0b:24:d5:eb', band: 'WiFi', linkSpeed: '65 Mbps' },
+                { name: 'realme-6', ip: '10.0.0.197', mac: '46:df:eb:aa:43:32', band: 'WiFi', linkSpeed: '65 Mbps' }
               ]
             }
           },
@@ -15338,21 +15362,19 @@ function renderNodeSettingGroups(node, depth, availClients, usedIps, isRoot) {
   const isSwitch = node.type === 'switch';
   const hasWifi = (isRouter || isAp);
 
-  const wClients24 = (node.wireless_clients || []).filter(c => c && c.band === '2.4G');
-  const wClients50 = (node.wireless_clients || []).filter(c => c && c.band !== '2.4G');
+  const wClients = node.wireless_clients || [];
 
   let html = `
-    <!-- GROUP 1: NODE IDENTITY & HARDWARE -->
-    <div class="setting-section-header" style="display:flex; justify-content:space-between; align-items:center; margin-top:${isRoot ? '0' : '10px'};">
-      <span>${isRoot ? 'Host Gateway Configuration' : `${escapeHtml(node.name || 'Subordinate Node')} Configuration`}</span>
-      <span style="font-size:10px; font-weight:400; color:var(--text-dim); text-transform:none;">${escapeHtml(node.ip || '--')}</span>
+    <!-- NODE IDENTITY & HARDWARE -->
+    <div class="setting-section-header" style="margin-top:${isRoot ? '0' : '10px'};">
+      <span>${isRoot ? 'Host Gateway' : `${escapeHtml(node.name || 'Subordinate Node')}`} (${escapeHtml(node.ip || '--')})</span>
     </div>
 
     <!-- Row: Node Name -->
     <div class="setting-row-item" style="flex-direction:column; align-items:stretch; gap:6px;">
       <div class="setting-label-col">
         <span class="setting-label-bold">Device Name</span>
-        <span class="setting-label-sub">Network host identifier label &bull; IP: ${escapeHtml(node.ip || '--')}</span>
+        <span class="setting-label-sub">Network host identifier label</span>
       </div>
       <div>
         <input type="text" class="mh-input" value="${escapeHtml(node.name || '')}" oninput="onNodeFieldChange('${escapeHtml(node.id)}', 'name', this.value)" style="width:100%; box-sizing:border-box; font-size:12px;">
@@ -15363,8 +15385,8 @@ function renderNodeSettingGroups(node, depth, availClients, usedIps, isRoot) {
     ${!isRoot ? `
       <div class="setting-row-item" style="flex-direction:column; align-items:stretch; gap:6px;">
         <div class="setting-label-col">
-          <span class="setting-label-bold">Node Role / Type</span>
-          <span class="setting-label-sub">Infrastructure tier (Access Point, Secondary Router, or Ethernet Switch)</span>
+          <span class="setting-label-bold">Node Role</span>
+          <span class="setting-label-sub">Infrastructure hardware tier</span>
         </div>
         <div>
           <select class="mh-input" onchange="onNodeFieldChange('${escapeHtml(node.id)}', 'type', this.value)" style="width:100%; box-sizing:border-box; font-size:12px;">
@@ -15379,25 +15401,11 @@ function renderNodeSettingGroups(node, depth, availClients, usedIps, isRoot) {
     <!-- Row: Physical LAN Ports Count -->
     <div class="setting-row-item" style="flex-direction:column; align-items:stretch; gap:6px;">
       <div class="setting-label-col">
-        <span class="setting-label-bold">Configurable LAN Ports</span>
-        <span class="setting-label-sub">Total physical Ethernet interfaces on this hardware (1 to 48 ports)</span>
+        <span class="setting-label-bold">LAN Ports Count</span>
+        <span class="setting-label-sub">Number of physical Ethernet ports on this hardware (1 to 48)</span>
       </div>
       <div>
         <input type="number" min="1" max="48" class="mh-input" value="${numPorts}" onchange="onNodePortCountChange('${escapeHtml(node.id)}', parseInt(this.value, 10))" style="width:100%; box-sizing:border-box; font-size:12px;">
-      </div>
-    </div>
-
-    <!-- GROUP 2: UPLINK / WAN INTERFACE -->
-    <div class="setting-section-divider"></div>
-    <div class="setting-section-header">Uplink Interface</div>
-
-    <div class="setting-row-item" style="flex-direction:column; align-items:stretch; gap:6px;">
-      <div class="setting-label-col">
-        <span class="setting-label-bold">${isRoot ? 'WAN / Internet Gateway' : 'Uplink Connection'}</span>
-        <span class="setting-label-sub">${isRoot ? 'Primary upstream internet gateway link (10.0.0.1)' : `Plotted uplink to parent port: ${escapeHtml(node.uplinkPort || 'Upstream')}`}</span>
-      </div>
-      <div>
-        <span style="font-size:11px; font-family:var(--font-mono); color:#10b981; font-weight:700;">● LINK UP (1 Gbps Full-Duplex)</span>
       </div>
     </div>
 
@@ -15422,7 +15430,7 @@ function renderNodeSettingGroups(node, depth, availClients, usedIps, isRoot) {
       }
 
       return `
-        <div class="setting-row-item" style="flex-direction:column; align-items:stretch; gap:8px; border-bottom:1px solid rgba(255,255,255,0.035); padding:12px 14px;">
+        <div class="setting-row-item" style="flex-direction:column; align-items:stretch; gap:8px; border-bottom:1px solid rgba(255,255,255,0.035); padding:10px 14px;">
           <div class="setting-label-col">
             <span class="setting-label-bold">${escapeHtml(port.label || ('LAN Port ' + (pIdx + 1)))}</span>
             <span class="setting-label-sub">${infoText}</span>
@@ -15477,22 +15485,21 @@ function renderNodeSettingGroups(node, depth, availClients, usedIps, isRoot) {
       `;
     }).join('')}
 
-    <!-- WIRELESS RADIOS SECTION (WIFI 2.4G & 5G) - AVAILABLE FOR ALL ROUTERS & APs -->
+    <!-- UNIFIED WI-FI CLIENTS SECTION (AVAILABLE FOR ROUTERS & APs) -->
     ${hasWifi ? `
-      <!-- GROUP 4: 2.4 GHz WI-FI CLIENTS -->
       <div class="setting-section-divider"></div>
       <div class="setting-section-header">
-        <span>2.4 GHz Wi-Fi Radios (${wClients24.length})</span>
+        <span>Wi-Fi Clients (${wClients.length})</span>
       </div>
 
       <div class="setting-row-item" style="flex-direction:column; align-items:stretch; gap:6px;">
         <div class="setting-label-col">
-          <span class="setting-label-bold">Add 2.4 GHz Client</span>
-          <span class="setting-label-sub">Connect a wireless client to the 2.4 GHz radio</span>
+          <span class="setting-label-bold">Add Wi-Fi Client</span>
+          <span class="setting-label-sub">Connect a wireless client to Wi-Fi</span>
         </div>
         <div>
-          <select class="mh-input" onchange="onQuickAddWifiClient('${escapeHtml(node.id)}', '2.4G', this.value); this.value='';" style="width:100%; box-sizing:border-box; font-size:12px;">
-            <option value="">+ Connect Device to 2.4G...</option>
+          <select class="mh-input" onchange="onQuickAddWifiClient('${escapeHtml(node.id)}', 'WiFi', this.value); this.value='';" style="width:100%; box-sizing:border-box; font-size:12px;">
+            <option value="">+ Connect Device to Wi-Fi...</option>
             <option value="__manual__">+ Add Custom IP Device...</option>
             ${availClients.map(c => {
               const isUsed = usedIps.has(c.ip);
@@ -15504,11 +15511,11 @@ function renderNodeSettingGroups(node, depth, availClients, usedIps, isRoot) {
         </div>
       </div>
 
-      ${wClients24.length > 0 ? wClients24.map(wc => `
+      ${wClients.length > 0 ? wClients.map(wc => `
         <div class="setting-row-item" style="flex-direction:column; align-items:stretch; gap:8px;">
           <div class="setting-label-col">
             <span class="setting-label-bold">${escapeHtml(wc.name || 'Wireless Device')}</span>
-            <span class="setting-label-sub">IP: ${escapeHtml(wc.ip || '--')} &bull; MAC: ${escapeHtml(wc.mac || '--')} &bull; Interface: 2.4 GHz Wi-Fi</span>
+            <span class="setting-label-sub">IP: ${escapeHtml(wc.ip || '--')} &bull; MAC: ${escapeHtml(wc.mac || '--')} &bull; Interface: Wi-Fi</span>
           </div>
           <div>
             <button type="button" class="mh-btn btn-ghost" onclick="onRemoveWifiClient('${escapeHtml(node.id)}', '${escapeHtml(wc.id || wc.ip)}')" style="width:100%; padding:6px 12px; font-size:11px; color:#ef4444; border-color:rgba(239,68,68,0.25);">
@@ -15519,52 +15526,7 @@ function renderNodeSettingGroups(node, depth, availClients, usedIps, isRoot) {
       `).join('') : `
         <div class="setting-row-item">
           <div class="setting-label-col">
-            <span class="setting-label-sub" style="font-style:italic;">No devices connected to 2.4 GHz Wi-Fi</span>
-          </div>
-        </div>
-      `}
-
-      <!-- GROUP 5: 5 GHz WI-FI CLIENTS -->
-      <div class="setting-section-divider"></div>
-      <div class="setting-section-header">
-        <span>5 GHz Wi-Fi Radios (${wClients50.length})</span>
-      </div>
-
-      <div class="setting-row-item" style="flex-direction:column; align-items:stretch; gap:6px;">
-        <div class="setting-label-col">
-          <span class="setting-label-bold">Add 5 GHz Client</span>
-          <span class="setting-label-sub">Connect a wireless client to the 5 GHz radio</span>
-        </div>
-        <div>
-          <select class="mh-input" onchange="onQuickAddWifiClient('${escapeHtml(node.id)}', '5G', this.value); this.value='';" style="width:100%; box-sizing:border-box; font-size:12px;">
-            <option value="">+ Connect Device to 5G...</option>
-            <option value="__manual__">+ Add Custom IP Device...</option>
-            ${availClients.map(c => {
-              const isUsed = usedIps.has(c.ip);
-              const disAttr = isUsed ? 'disabled style="color:var(--text-dim); opacity:0.45;"' : '';
-              const disTag = isUsed ? ' [In use]' : '';
-              return `<option value="${escapeHtml(c.ip)}" ${disAttr}>${escapeHtml(c.name || 'Device')} &bull; ${escapeHtml(c.ip)}${disTag}</option>`;
-            }).join('')}
-          </select>
-        </div>
-      </div>
-
-      ${wClients50.length > 0 ? wClients50.map(wc => `
-        <div class="setting-row-item" style="flex-direction:column; align-items:stretch; gap:8px;">
-          <div class="setting-label-col">
-            <span class="setting-label-bold">${escapeHtml(wc.name || 'Wireless Device')}</span>
-            <span class="setting-label-sub">IP: ${escapeHtml(wc.ip || '--')} &bull; MAC: ${escapeHtml(wc.mac || '--')} &bull; Interface: 5 GHz Wi-Fi</span>
-          </div>
-          <div>
-            <button type="button" class="mh-btn btn-ghost" onclick="onRemoveWifiClient('${escapeHtml(node.id)}', '${escapeHtml(wc.id || wc.ip)}')" style="width:100%; padding:6px 12px; font-size:11px; color:#ef4444; border-color:rgba(239,68,68,0.25);">
-              DISCONNECT
-            </button>
-          </div>
-        </div>
-      `).join('') : `
-        <div class="setting-row-item">
-          <div class="setting-label-col">
-            <span class="setting-label-sub" style="font-style:italic;">No devices connected to 5 GHz Wi-Fi</span>
+            <span class="setting-label-sub" style="font-style:italic;">No devices connected to Wi-Fi</span>
           </div>
         </div>
       `}
@@ -15792,7 +15754,7 @@ function onRemoveWifiClient(nodeId, clientIdent) {
                 name: c.name || 'WiFi Device',
                 ip: c.ip,
                 mac: c.mac || '',
-                band: (c.conn_type && c.conn_type.includes('5G')) ? '5G' : '2.4G',
+                band: 'WiFi',
                 linkSpeed: '72 Mbps'
               });
               usedIps.add(c.ip);
