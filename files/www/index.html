@@ -3524,6 +3524,7 @@
       --c: #8fbaf0;
       --hub: #f4f8fa;
       --grid: rgba(255, 255, 255, 0.035);
+      --grid-dot: rgba(255, 255, 255, 0.12);
     }
     [data-theme="light"] {
       --bg: #f1f4f7;
@@ -3534,6 +3535,7 @@
       --c: #2a74d6;
       --hub: #0e1620;
       --grid: rgba(15, 25, 40, 0.05);
+      --grid-dot: rgba(15, 25, 40, 0.14);
     }
     .usb-bw-container {
       position: relative;
@@ -3552,9 +3554,9 @@
       position: absolute;
       inset: 0;
       pointer-events: none;
-      background:
-        linear-gradient(var(--grid) 1px, transparent 1px) 0 0/36px 36px,
-        linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0/36px 36px;
+      background-image: radial-gradient(var(--grid-dot) 1.2px, transparent 1.2px);
+      background-size: 24px 24px;
+      background-position: 0 0;
       z-index: 0;
     }
     /* Full Page Topology Viewer Mode */
