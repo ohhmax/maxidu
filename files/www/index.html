@@ -12109,10 +12109,8 @@
       _topoZoom = 1.0;
       _topoPanX = 0;
       _topoPanY = 0;
+      window._topoUserInteracted = false;
       applyTopologyZoom();
-      if (typeof fitTopologyToScreen === "function") {
-        fitTopologyToScreen();
-      }
     }
     function applyTopologyZoom() {
       const svg = document.getElementById('usbBwSvg');
