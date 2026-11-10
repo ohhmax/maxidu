@@ -13884,24 +13884,25 @@
       let globalMaxX = rtrCenterX + 100;
       let globalMaxY = rootY + 100;
 
+      // Detect USB standard: USB 3.0 (5Gbps) or USB 2.0 (480Mbps)
+      let isUsb3 = true;
+      let usbWireSpeed = "5Gbps";
+      if (window._lastDataCache) {
+        const rtrUsb = window._lastDataCache.router && window._lastDataCache.router.usb;
+        const usbDev = Array.isArray(window._lastDataCache.usb_devices) && window._lastDataCache.usb_devices[0];
+        const spd = (rtrUsb && rtrUsb.speed_mbps) || (usbDev && usbDev.speed_mbps) || 5000;
+        if (spd < 1000) {
+          isUsb3 = false;
+          usbWireSpeed = "480Mbps";
+        } else {
+          isUsb3 = true;
+          usbWireSpeed = "5Gbps";
+        }
+      }
+      const usbStyle = getUsbThemeStyle(isUsb3 ? "usb3" : "usb2", isLight);
+
       // 1. WAN UPLINK CHIP ON TOP OF GATEWAY (Curve UI matching cards, Hotspot tethering + ADB icons, USB standard wire speed)
       if (prefs.showWan) {
-        // Detect USB standard: USB 3.0 (5Gbps) or USB 2.0 (480Mbps)
-        let isUsb3 = true;
-        let usbWireSpeed = "5Gbps";
-        if (window._lastDataCache) {
-          const rtrUsb = window._lastDataCache.router && window._lastDataCache.router.usb;
-          const usbDev = Array.isArray(window._lastDataCache.usb_devices) && window._lastDataCache.usb_devices[0];
-          const spd = (rtrUsb && rtrUsb.speed_mbps) || (usbDev && usbDev.speed_mbps) || 5000;
-          if (spd < 1000) {
-            isUsb3 = false;
-            usbWireSpeed = "480Mbps";
-          } else {
-            isUsb3 = true;
-            usbWireSpeed = "5Gbps";
-          }
-        }
-        const usbStyle = getUsbThemeStyle(isUsb3 ? "usb3" : "usb2", isLight);
 
         const wanW = isPhone ? 210 : (isTablet ? 230 : 250);
         const wanH = 34;
