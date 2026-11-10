@@ -228,6 +228,21 @@ case "$QS" in
     cat "$CONF_FILE"
     exit 0
     ;;
+  *action=auto_scan*|*action=auto*|*action=evidence_scan*)
+    if [ -x /usr/bin/topology_auto_detect.sh ]; then
+      AUTO_RES=$(/usr/bin/topology_auto_detect.sh 2>/dev/null)
+      if [ -n "$AUTO_RES" ] && echo "$AUTO_RES" | jq -e '.tree' >/dev/null 2>&1; then
+        echo "$AUTO_RES" > "$CONF_FILE"
+        sync
+        echo "$AUTO_RES"
+        exit 0
+      fi
+    fi
+    init_default > "$CONF_FILE"
+    sync
+    cat "$CONF_FILE"
+    exit 0
+    ;;
   *action=auto_scan*|*action=auto*)
     STATUS_JSON=$(QUERY_STRING="action=status" /www/cgi-bin/status 2>/dev/null | sed '1,/^$/d')
     AUTO_TREE=$(echo "$STATUS_JSON" | jq '
