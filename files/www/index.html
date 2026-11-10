@@ -3552,7 +3552,10 @@
       position: absolute;
       inset: 0;
       pointer-events: none;
-      background: transparent;
+      background:
+        linear-gradient(var(--grid) 1px, transparent 1px) 0 0/36px 36px,
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0/36px 36px;
+      z-index: 0;
     }
     /* Full Page Topology Viewer Mode */
     .usb-bw-container.topo-fullpage-mode {
@@ -3635,10 +3638,10 @@
       touch-action: none;
       user-select: none;
       -webkit-user-select: none;
-      background: var(--bg, #090a0f);
+      background: transparent;
     }
     [data-theme="light"] .bw-box {
-      background: var(--bg, #f4f4f5);
+      background: transparent;
     }
     .bw-box svg {
       width: 100% !important;
@@ -5751,14 +5754,8 @@
       opacity: 0.55;
       filter: grayscale(80%);
     }
-    .topo-canvas-highlighting .topo-dimmed {
-      opacity: 0.22 !important;
-      transition: opacity 0.2s ease;
-    }
-    .topo-canvas-highlighting .topo-path-highlight {
-      opacity: 1 !important;
-      filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.65)) !important;
-      transition: opacity 0.2s ease, filter 0.2s ease;
+    .topo-selected-box {
+      filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.75)) !important;
     }
 
     /* MOBILE BOTTOM SHEET FOR TOPOLOGY NODE DETAILS */
@@ -13663,49 +13660,19 @@
 
     function highlightPathToRoot(targetNode) {
       const svg = document.getElementById('usbBwSvg');
-      if (!svg || !targetNode) return;
-      svg.classList.add('topo-canvas-highlighting');
-
-      svg.querySelectorAll('.topo-path-highlight, .topo-dimmed').forEach(el => {
-        el.classList.remove('topo-path-highlight', 'topo-dimmed');
+      if (!svg) return;
+      svg.querySelectorAll('.topo-selected-box, .topo-path-highlight, .topo-dimmed').forEach(el => {
+        el.classList.remove('topo-selected-box', 'topo-path-highlight', 'topo-dimmed');
       });
+      if (!targetNode) return;
 
-      const pathNodeIds = new Set();
-      let curr = targetNode;
-      const targetId = curr.id || curr.ip || curr.name;
-      pathNodeIds.add(targetId);
-      while (curr && curr._parentRouter) {
-        curr = curr._parentRouter;
-        pathNodeIds.add(curr.id || curr.ip || curr.name);
-      }
-      pathNodeIds.add('root');
-
-      svg.querySelectorAll('[data-node-id]').forEach(el => {
-        const id = el.getAttribute('data-node-id');
-        if (pathNodeIds.has(id)) {
-          el.classList.add('topo-path-highlight');
-        } else {
-          el.classList.add('topo-dimmed');
-        }
-      });
-      svg.querySelectorAll('[data-edge-from]').forEach(el => {
-        const from = el.getAttribute('data-edge-from');
-        const to = el.getAttribute('data-edge-to');
-        if (pathNodeIds.has(from) && pathNodeIds.has(to)) {
-          el.classList.add('topo-path-highlight');
-        } else {
-          el.classList.add('topo-dimmed');
-        }
-      });
+      const targetId = targetNode.id || targetNode.ip || targetNode.name;
+      const el = svg.querySelector(`[data-node-id="${targetId}"]`);
+      if (el) el.classList.add('topo-selected-box');
     }
 
     function clearPathHighlight() {
-      const svg = document.getElementById('usbBwSvg');
-      if (!svg) return;
-      svg.classList.remove('topo-canvas-highlighting');
-      svg.querySelectorAll('.topo-path-highlight, .topo-dimmed').forEach(el => {
-        el.classList.remove('topo-path-highlight', 'topo-dimmed');
-      });
+      highlightPathToRoot(null);
     }
 
     function renderTopologyMinimap(tree, bounds, screenW) {
