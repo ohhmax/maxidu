@@ -12864,16 +12864,12 @@
     }
 
     // =========================================================================
-    // MULTI-INTERFACE SLOTS & ZERO-OVERLAP TREE ENGINE
+    // MULTI-INTERFACE SLOTS & PURE VERTICAL TOPOLOGY ENGINE
     // =========================================================================
     function computeNodeInterfaceSlots(node, isMobile) {
       if (!node) return [];
       const lanPorts = node.ports || [];
-      const isRouterOrAp = (node.type === 'router' || node.type === 'ap');
-
-      const portBoxW = isMobile ? 54 : 66;
-      const clientCardW = isMobile ? 80 : 94;
-      const gap = isMobile ? 8 : 12;
+      const isRouterOrAp = (node.type === 'router' || node.type === 'ap' || node.type === 'switch');
 
       const slots = [];
       if (node.id === 'root' && node.wan_mode === 'wan_as_lan') {
@@ -12883,58 +12879,64 @@
           idx: -1,
           label: 'WAN [LAN 5]',
           role: 'empty',
-          child: null,
-          width: portBoxW
+          child: null
         });
       }
 
       lanPorts.forEach((p, idx) => {
-        let subW = portBoxW;
-        if (p.role === 'device' && p.child) {
-          subW = Math.max(portBoxW, isMobile ? 86 : 104);
-        } else if (p.role === 'node' && p.child) {
-          subW = Math.max(portBoxW, computeSubtreeBounds(p.child, isMobile).width);
-        }
         let portLabel = p.label || ('LAN ' + (idx + 1));
         if (node.id === 'root') {
           if (node.wan_mode === 'lan_as_wan_1' && idx === 0) portLabel = 'LAN 1 [WAN 2]';
           else if (node.wan_mode === 'lan_as_wan_4' && idx === 3) portLabel = 'LAN 4 [WAN 2]';
         }
-        slots.push({ type: 'lan', port: p, idx: idx, label: portLabel, role: p.role, child: p.child, width: subW });
+        slots.push({ type: 'lan', port: p, idx: idx, label: portLabel, role: p.role, child: p.child });
       });
 
       if (isRouterOrAp) {
         const wClients = node.wireless_clients || [];
         const wCount = wClients.length;
-        const wCols = (isMobile && wCount > 2) ? 2 : wCount;
-        const wSubW = wCount > 0 ? (wCols * clientCardW + (wCols - 1) * gap) : portBoxW;
         slots.push({
           type: 'wifi',
           label: 'Wi-Fi',
           band: 'Wi-Fi',
           color: '#38bdf8',
           clients: wClients,
-          count: wCount,
-          width: Math.max(portBoxW, wSubW)
+          count: wCount
         });
       }
 
       return slots;
     }
 
+    function computeTreeTotalVerticalHeight(node, isMobile, showWan = true) {
+      if (!node) return 400;
+      let h = showWan ? 110 : 40;
+      function getH(n) {
+        if (!n) return 0;
+        if (n.type === 'device') return 30 + 36;
+        const isCol = window._topoCollapsed && window._topoCollapsed.has(n.id);
+        const rtrH = 78;
+        if (isCol) return rtrH + 36;
+        let ch = 0;
+        if (Array.isArray(n.ports)) {
+          n.ports.forEach(p => {
+            if (p.role !== 'empty' && p.child) {
+              ch += getH(p.child);
+            }
+          });
+        }
+        if (Array.isArray(n.wireless_clients) && n.wireless_clients.length > 0) {
+          ch += n.wireless_clients.length * (28 + 18);
+        }
+        return rtrH + (ch > 0 ? 42 + ch : 36);
+      }
+      return h + getH(node) + 50;
+    }
+
     function computeSubtreeBounds(node, isMobile) {
-      if (!node) return { width: isMobile ? 54 : 66, height: 40 };
-      if (node.type === 'device') {
-        return { width: isMobile ? 86 : 104, height: isMobile ? 26 : 30 };
-      }
-      if (window._topoCollapsed && window._topoCollapsed.has(node.id)) {
-        return { width: isMobile ? 120 : 136, height: isMobile ? 44 : 48 };
-      }
-      const slots = computeNodeInterfaceSlots(node, isMobile);
-      const gap = isMobile ? 8 : 14;
-      const totalSlotsW = slots.reduce((sum, s) => sum + s.width, 0) + (slots.length - 1) * gap;
-      const minNodeW = isMobile ? 120 : 136;
-      return { width: Math.max(minNodeW, totalSlotsW), height: 180 };
+      const cardW = isMobile ? 260 : 288;
+      const h = computeTreeTotalVerticalHeight(node, isMobile, false);
+      return { width: cardW, height: h };
     }
 
     function computeTreeMaxDepth(node) {
@@ -13086,7 +13088,7 @@
     }
 
     // =========================================================================
-    // SVG DIAGRAM BUILDER (MOBILE RESPONSIVE, UNIFIED INTERFACES, ZERO LINE OVERLAPS)
+    // SVG DIAGRAM BUILDER (PURE VERTICALLY EXPANDING, INTEGRATED PORT BAYS, ZERO OVERLAPS)
     // =========================================================================
     function buildUsbBwSvg() {
       const svg = document.getElementById("usbBwSvg");
@@ -13187,12 +13189,10 @@
       const connectedIngress = bwLinks.filter(l => l && l.connected && l.name !== "Standby");
       const ingressLinks = connectedIngress.length > 0 ? connectedIngress : bwLinks.slice(0, 1);
 
-      // Auto-layout sizing with generous vertical breathing room
-      const rootBounds = computeSubtreeBounds(tree, isMobile);
-      const treeDepth = computeTreeMaxDepth(tree);
-
-      const W = Math.max(isMobile ? 640 : 980, rootBounds.width + (isMobile ? 80 : 140));
-      const H = Math.max(isMobile ? 540 : 560, (prefs.showWan ? 220 : 130) + treeDepth * (isMobile ? 165 : 185) + 40);
+      // VERTICAL-ONLY EXPANDING SIZING: Fixed compact width, dynamic vertical height
+      const W = isMobile ? 390 : Math.max(540, Math.min(boxW || 600, 720));
+      const totalContentH = computeTreeTotalVerticalHeight(tree, isMobile, prefs.showWan);
+      const H = Math.max(isMobile ? 540 : 560, totalContentH);
 
       svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
       const defs = mk("defs", {}, svg);
@@ -13219,20 +13219,16 @@
       }, svg);
 
       const rtrCenterX = W / 2;
-      const rtrBoxW = isMobile ? 124 : 136;
-      const rtrBoxH = isMobile ? 44 : 48;
-      const rtrBoxX = rtrCenterX - rtrBoxW / 2;
-      const rtrBoxY = prefs.showWan ? (isMobile ? 124 : 134) : (isMobile ? 38 : 44);
+      const rootY = prefs.showWan ? (isMobile ? 120 : 130) : (isMobile ? 36 : 42);
 
       // 1. INGRESS DEVICES & CONDUITS (Top of Diagram - if enabled)
       if (prefs.showWan) {
-        const ingressY0 = isMobile ? 38 : 44;
+        const ingressY0 = isMobile ? 36 : 42;
         const dyIngress = 52;
         const ingressCardW = isMobile ? 165 : 190;
         ingressLinks.forEach((l, i) => {
           const y = ingressY0 + i * dyIngress;
-          const dotX = rtrCenterX - (isMobile ? 65 : 110);
-          const cardX = dotX - ingressCardW - 10;
+          const cardX = rtrCenterX - ingressCardW / 2;
           const usbStyle = getUsbThemeStyle(l.usbStd || l.type || l.cls, isLight);
 
           const infoG = mk("g", { class: `ingress-info-card ${l.cls}`, style: `cursor:pointer;` }, svg);
@@ -13262,10 +13258,8 @@
           l.su = mk("tspan", { id: "bwDevSpeedUnit_" + i, class: "un", dx: 3, style: `font-size:8.5px; fill:${topoTheme.textDim};` }, tSp);
           l.sm = mk("tspan", { id: "bwDevSpeedMax_" + i, class: "sm", dx: 5, style: `font-size:8.5px; fill:${topoTheme.textMuted};` }, tSp);
 
-          // Trunk Conduit to Router
-          const dTrunk = (prefs.lineStyle === 'orthogonal') ?
-            `M${dotX} ${y} L${dotX + 60} ${y} L${dotX + 60} ${rtrBoxY} L${rtrCenterX} ${rtrBoxY}` :
-            `M${dotX} ${y} C${dotX + 50} ${y}, ${rtrCenterX - 30} ${rtrBoxY - 24}, ${rtrCenterX} ${rtrBoxY}`;
+          // Straight vertical trunk conduit from WAN Modem bottom to Gateway top
+          const dTrunk = `M${rtrCenterX} ${y + 22} L${rtrCenterX} ${rootY}`;
           mk("path", { class: "base", d: dTrunk, stroke: usbStyle.lineStroke, "stroke-width": 2.2, fill: "none", style: "opacity:0.35;" }, svg);
 
           if (l.connected) {
@@ -13284,511 +13278,89 @@
         });
       }
 
-      // 2. MAIN ROUTER CARD
-      const rtrG = mk("g", { style: "cursor:pointer;" }, svg);
-      rtrG.onclick = (e) => showTopoNodeDetail(tree, false, e);
-
-      mk("rect", {
-        x: rtrBoxX,
-        y: rtrBoxY,
-        width: rtrBoxW,
-        height: rtrBoxH,
-        rx: 8,
-        ry: 8,
-        fill: topoTheme.cardBg,
-        stroke: topoTheme.borderLan,
-        "stroke-width": 1.5,
-        style: `filter:${isLight ? 'drop-shadow(0 3px 8px rgba(2,132,199,0.18))' : 'drop-shadow(0 4px 12px rgba(56,189,248,0.22))'};`
-      }, rtrG);
-
-      drawRouterBoxIcon(rtrBoxX + 14, rtrBoxY + rtrBoxH / 2, topoTheme.borderLan, rtrG);
-
-      const tRtrName = mk("text", {
-        x: rtrBoxX + 30,
-        y: rtrBoxY + 16,
-        style: `font-size:10px; font-weight:800; font-family:var(--font-mono); fill:${topoTheme.textMain};`
-      }, rtrG);
-      tRtrName.textContent = "ROUTER";
-
-      const tRtrSpd = mk("text", {
-        id: "bwRouterThroughput",
-        x: rtrBoxX + 30,
-        y: rtrBoxY + 34,
-        style: `font-size:12px; font-weight:800; font-family:var(--font-mono); fill:${topoTheme.borderLan};`
-      }, rtrG);
-      tRtrSpd.textContent = "0.0Mbps";
-
-      // 3. UNIFIED INTERFACES ROW (LAN 1..N, Wi-Fi)
-      const slots = computeNodeInterfaceSlots(tree, isMobile);
-      const numSlots = slots.length;
-      const portBoxW = isMobile ? 54 : 66;
-      const portBoxH = isMobile ? 38 : 42;
-      const clientCardW = isMobile ? 80 : 94;
-      const clientCardH = isMobile ? 24 : 26;
-      const slotGap = isMobile ? 8 : 14;
-
-      const totalSlotsW = slots.reduce((sum, s) => sum + s.width, 0) + (numSlots - 1) * slotGap;
-      const slotsStartX = rtrCenterX - totalSlotsW / 2;
-      const rootPortsY = rtrBoxY + rtrBoxH + (isMobile ? 36 : 44);
-
-      let curSlotX = slotsStartX;
-
-      slots.forEach((slot, sIdx) => {
-        const slotW = slot.width;
-        const slotCenterX = curSlotX + slotW / 2;
-        const slotBoxX = slotCenterX - portBoxW / 2;
-        const slotLeftX = curSlotX;
-        curSlotX += slotW + slotGap;
-
-        // Draw conduit from Router bottom to Interface box top (Bezier or Orthogonal)
-        const yStart = rtrBoxY + rtrBoxH;
-        const yEnd = rootPortsY;
-        const midY = (yStart + yEnd) / 2;
-        const dConduit = (prefs.lineStyle === 'orthogonal') ?
-          `M${rtrCenterX} ${yStart} L${rtrCenterX} ${midY} L${slotCenterX} ${midY} L${slotCenterX} ${yEnd}` :
-          `M${rtrCenterX} ${yStart} C${rtrCenterX} ${midY}, ${slotCenterX} ${midY}, ${slotCenterX} ${yEnd}`;
-        const isLan = slot.type === 'lan';
-        const isUp = isLan ? (slot.role !== 'empty') : (slot.count > 0);
-        const slotColor = isLan ? topoTheme.borderLan : topoTheme.borderWifi;
-
-        mk("path", {
-          class: "base",
-          d: dConduit,
-          stroke: slotColor,
-          "stroke-width": 1.4,
-          fill: "none",
-          style: `opacity: ${isUp ? 0.45 : 0.28};`
-        }, svg);
-
-        if (isUp) {
-          const conduitId = "bwConduitRoot_" + sIdx;
-          const isAnim = (prefs.animMode === 'flowing');
-          const isGlow = (prefs.animMode === 'glow');
-          mk("path", {
-            id: conduitId,
-            class: "flow",
-            d: dConduit,
-            stroke: slotColor,
-            "stroke-width": 1.6,
-            fill: "none",
-            style: (isGlow || isAnim) ? `filter:drop-shadow(0 0 3px ${slotColor});` : ''
-          }, svg);
-          if (isAnim) {
-            const dur = prefs.animSpeed === 'fast' ? '1.2s' : (prefs.animSpeed === 'slow' ? '3.5s' : '2.2s');
-            const cCirc = mk("circle", { class: "pt", r: 1.8, fill: slotColor, style: `fill:${slotColor} !important;` }, svg);
-            const m = mk("animateMotion", { dur: dur, begin: `-${(sIdx * 0.35).toFixed(2)}s`, repeatCount: "indefinite" }, cCirc);
-            const mp = mk("mpath", { href: "#" + conduitId }, m);
-            try { mp.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#" + conduitId); } catch (e) {}
-          }
-        }
-
-        // Draw Interface Box
-        if (isLan) {
-          const port = slot.port;
-          const clientCount = computeSubtreeClientCount(port.child);
-          const portG = mk("g", { class: `compact-lan-box ${isUp ? 'is-up' : 'is-down'}`, style: `cursor:pointer;` }, svg);
-          portG.onclick = (e) => showTopoNodeDetail(port, true, e);
-
-          mk("rect", {
-            x: slotBoxX,
-            y: rootPortsY,
-            width: portBoxW,
-            height: portBoxH,
-            rx: 7,
-            ry: 7,
-            fill: topoTheme.cardBg,
-            stroke: isUp ? topoTheme.borderLan : topoTheme.cardBorderIdle,
-            "stroke-width": 1.2,
-            style: isUp ? `filter:${topoTheme.cardShadow};` : "opacity:0.85;"
-          }, portG);
-
-          mk("circle", {
-            cx: slotBoxX + 9,
-            cy: rootPortsY + 11,
-            r: 2.0,
-            fill: isUp ? "#10b981" : (isLight ? "#94a3b8" : "#52525b")
-          }, portG);
-
-          // ONLY the label text itself has layer color!
-          mk("text", {
-            x: slotBoxX + 17,
-            y: rootPortsY + 14,
-            style: `font-size:9px; font-weight:800; font-family:var(--font-mono); fill:${isUp ? themeColors.l1 : topoTheme.textDim};`
-          }, portG).textContent = port.label || `LAN ${slot.idx + 1}`;
-
-          drawPeopleIcon(slotBoxX + 12, rootPortsY + 23, isUp && clientCount > 0 ? topoTheme.textMain : topoTheme.textDim, portG);
-
-          mk("text", {
-            x: slotBoxX + 32,
-            y: rootPortsY + 33,
-            style: `font-size:10.5px; font-weight:800; font-family:var(--font-mono); fill:${clientCount > 0 ? topoTheme.textMain : topoTheme.textDim};`
-          }, portG).textContent = clientCount;
-
-          // Render Downstream Entities strictly under this LAN Port
-          if (isUp && port.child) {
-            renderSubtreeBranchSvg(port, slotCenterX, rootPortsY + portBoxH, defs, svg, isMobile, isLight, 1, allClientsList, prefs, themeColors);
-          }
-
-        } else {
-          // Wireless Interface Box (Unified Wi-Fi)
-          const wifiColor = topoTheme.borderWifi;
-          const wifiG = mk("g", { class: "compact-lan-box is-wifi", style: `cursor:pointer;` }, svg);
-          wifiG.onclick = (e) => showTopoNodeDetail({ label: 'Wi-Fi Interface', count: slot.count, clients: slot.clients, band: 'Wi-Fi' }, true, e);
-
-          mk("rect", {
-            x: slotBoxX,
-            y: rootPortsY,
-            width: portBoxW,
-            height: portBoxH,
-            rx: 7,
-            ry: 7,
-            fill: topoTheme.cardBg,
-            stroke: isUp ? wifiColor : topoTheme.cardBorderIdle,
-            "stroke-width": 1.2,
-            style: isUp ? `filter:${topoTheme.cardShadow};` : "opacity:0.85;"
-          }, wifiG);
-
-          drawWifiAntennaIcon(slotBoxX + 10, rootPortsY + 11, isUp ? themeColors.l1 : topoTheme.textDim, wifiG);
-
-          // ONLY the label text itself has layer color!
-          mk("text", {
-            x: slotBoxX + 19,
-            y: rootPortsY + 14,
-            style: `font-size:8.5px; font-weight:800; font-family:var(--font-mono); fill:${isUp ? themeColors.l1 : topoTheme.textDim};`
-          }, wifiG).textContent = "Wi-Fi";
-
-          drawPeopleIcon(slotBoxX + 12, rootPortsY + 23, isUp ? wifiColor : topoTheme.textDim, wifiG);
-
-          mk("text", {
-            x: slotBoxX + 32,
-            y: rootPortsY + 33,
-            style: `font-size:10.5px; font-weight:800; font-family:var(--font-mono); fill:${isUp ? wifiColor : topoTheme.textDim};`
-          }, wifiG).textContent = slot.count;
-
-          // Render Wireless Clients strictly under this Wi-Fi Port Box
-          if (slot.count > 0) {
-            const wifiStartY = rootPortsY + portBoxH + (isMobile ? 36 : 42);
-            const clients = slot.clients;
-            const numWc = clients.length;
-            const isGrid = isMobile && numWc > 2;
-            const numCols = isGrid ? 2 : numWc;
-            const numRows = Math.ceil(numWc / numCols);
-            const wGapX = isMobile ? 6 : 8;
-            const wGapY = isMobile ? 6 : 8;
-            const totalW = numCols * clientCardW + (numCols - 1) * wGapX;
-            const startWcX = slotCenterX - totalW / 2;
-
-            clients.forEach((wc, wcIdx) => {
-              const col = isGrid ? (wcIdx % 2) : wcIdx;
-              const row = isGrid ? Math.floor(wcIdx / 2) : 0;
-              const wcX = startWcX + col * (clientCardW + wGapX);
-              const wcY = wifiStartY + row * (clientCardH + wGapY);
-              const wcCenterX = wcX + clientCardW / 2;
-
-              const isClientOnline = (wc.connected !== false && wc.status !== 'offline' && wc.status !== 'disconnected');
-
-              // Dashed WiFi link from WiFi box bottom to wireless client card top (ALWAYS DRAWN)
-              const dWifiLink = (prefs.lineStyle === 'orthogonal') ?
-                `M${slotCenterX} ${rootPortsY + portBoxH} L${slotCenterX} ${(rootPortsY + portBoxH + wcY) / 2} L${wcCenterX} ${(rootPortsY + portBoxH + wcY) / 2} L${wcCenterX} ${wcY}` :
-                `M${slotCenterX} ${rootPortsY + portBoxH} C${slotCenterX} ${rootPortsY + portBoxH + 20}, ${wcCenterX} ${wcY - 18}, ${wcCenterX} ${wcY}`;
-              mk("path", {
-                d: dWifiLink,
-                stroke: wifiColor,
-                "stroke-width": 1.2,
-                "stroke-dasharray": "3 2.5",
-                fill: "none",
-                style: isClientOnline ? "opacity:0.75;" : "opacity:0.25;"
-              }, svg);
-
-              // Client Card
-              const wcG = mk("g", { class: "topo-wifi-client", style: `cursor:pointer;` }, svg);
-              wcG.onclick = (e) => showTopoNodeDetail(wc, false, e);
-
-              const isCompact = (prefs.infoDensity === 'compact');
-              const finalH = isCompact ? 20 : clientCardH;
-
-              mk("rect", {
-                x: wcX,
-                y: wcY,
-                width: clientCardW,
-                height: finalH,
-                rx: 5,
-                ry: 5,
-                fill: topoTheme.cardBg,
-                stroke: isClientOnline ? (isLight ? topoTheme.cardBorder : wifiColor) : topoTheme.cardBorderIdle,
-                "stroke-width": 1.0,
-                style: `filter:${topoTheme.cardShadow};` + (isClientOnline ? "" : "opacity:0.8;")
-              }, wcG);
-
-              drawWifiAntennaIcon(wcX + 9, wcY + finalH / 2, isClientOnline ? wifiColor : topoTheme.textDim, wcG);
-
-              let wcName = wc.name || wc.ip || "WiFi";
-              if (wcName.length > 9) wcName = wcName.substring(0, 8) + "…";
-
-              const tWcName = mk("text", {
-                x: wcX + 18,
-                y: isCompact ? (wcY + 13) : (wcY + 9),
-                style: `font-size:7.5px; font-weight:700; font-family:var(--font-mono); fill:${isClientOnline ? topoTheme.textMain : topoTheme.textDim};`
-              }, wcG);
-              tWcName.textContent = wcName;
-
-              if (!isCompact) {
-                const tWcBand = mk("text", {
-                  x: wcX + 18,
-                  y: wcY + 17,
-                  style: `font-size:6.5px; font-weight:800; font-family:var(--font-mono); fill:${isClientOnline ? wifiColor : topoTheme.textDim};`
-                }, wcG);
-                tWcBand.textContent = `[Wi-Fi] ${wc.ip ? wc.ip.split('.').slice(2).join('.') : ''}`;
-              }
-            });
-          }
-        }
-      });
+      // 2. RECURSIVE VERTICAL PIPELINE RENDERING (TOP DOWN, STRICTLY VERTICALLY EXPANDING)
+      renderVerticalBranchPipeline(tree, rtrCenterX, rootY, 0, isMobile, isLight, prefs, themeColors, topoTheme, defs, svg, allClientsList);
 
       renderBwValues();
     }
 
     // =========================================================================
-    // RECURSIVE SUBTREE BRANCH BUILDER (ZERO-OVERLAP LAN & WIFI LANES)
+    // VERTICAL TOPOLOGY ENGINE: INTEGRATED PORT BAY + VERTICALLY EXPANDING BRANCHES
     // =========================================================================
-    function renderSubtreeBranchSvg(parentPort, parentX, parentY, defs, svg, isMobile, isLight, depth, allClientsList, prefs, themeColors) {
-      if (!parentPort || !parentPort.child) return;
-      const child = parentPort.child;
+    function renderVerticalBranchPipeline(node, cx, y, depth, isMobile, isLight, prefs, themeColors, topoTheme, defs, svg, allClientsList) {
+      if (!node) return y;
 
-      prefs = prefs || getTopologyPrefs();
-      themeColors = themeColors || getTopologyThemeColors(isLight, prefs.theme);
+      const isSwitch = node.type === 'switch';
+      const isRoot = (depth === 0);
+      const nodeLayerColor = isRoot ? themeColors.l1 : ((depth === 1) ? themeColors.l2 : themeColors.l3);
+      const isNodeOnline = (node.connected !== false && node.status !== 'offline');
+      const isCollapsed = window._topoCollapsed && window._topoCollapsed.has(node.id);
 
-      // Distinct layer color for this tier: Layer 2, Layer 3, etc.
-      const nodeLayerColor = (depth === 1) ? themeColors.l2 : ((depth === 2) ? themeColors.l3 : themeColors.l4);
+      const rtrW = isMobile ? 250 : 276;
+      const rtrX = cx - rtrW / 2;
+      const headerH = 42;
+      const portBayH = 34;
+      const rtrH = headerH + portBayH;
 
-      const topoTheme = {
-        cardBg: isLight ? "#ffffff" : "#13151f",
-        cardBgAlt: isLight ? "#f8fafc" : "#181a26",
-        cardBorder: isLight ? "#cbd5e1" : "rgba(255, 255, 255, 0.16)",
-        cardBorderIdle: isLight ? "#e2e8f0" : "rgba(255, 255, 255, 0.08)",
-        borderActive: themeColors.accent,
-        borderLan: themeColors.accent,
-        borderSwitch: themeColors.l3,
-        borderAp: themeColors.l2,
-        borderDev: themeColors.l3,
-        borderWifi: themeColors.wifi,
-        textMain: isLight ? "#09090b" : "#f4f4f5",
-        textDim: isLight ? "#475569" : "#a1a1aa",
-        textMuted: isLight ? "#64748b" : "#71717a",
-        conduitIdle: isLight ? "rgba(0, 0, 0, 0.15)" : "rgba(255, 255, 255, 0.15)",
-        cardShadow: isLight ? "drop-shadow(0 2px 4px rgba(0,0,0,0.06))" : "drop-shadow(0 2px 6px rgba(0,0,0,0.5))"
-      };
+      // 1. CHASSIS CONTAINER
+      const chassisG = mk("g", { class: isRoot ? "topo-root-chassis" : "topo-ap-node", style: "cursor:pointer;" }, svg);
+      chassisG.onclick = (e) => showTopoNodeDetail(node, false, e);
 
-      // BRANCH TYPE 1: DIRECT LEAF DEVICE
-      if (parentPort.role === 'device') {
-        const dev = child;
-        const devClass = (typeof classifyLanDevice === 'function') ? classifyLanDevice(dev) : { type: 'client', title: 'Device', color: '#10b981', badge: 'DEVICE' };
-        const devW = isMobile ? 86 : 104;
-        const devH = isMobile ? 26 : 30;
-        const devY = parentY + (isMobile ? 38 : 46);
-        const devBoxX = parentX - devW / 2;
-        const devColor = isLight ? (devClass.color === '#10b981' ? '#059669' : devClass.color) : devClass.color;
+      mk("rect", {
+        x: rtrX,
+        y: y,
+        width: rtrW,
+        height: rtrH,
+        rx: 8,
+        ry: 8,
+        fill: topoTheme.cardBg,
+        stroke: isNodeOnline ? nodeLayerColor : topoTheme.cardBorderIdle,
+        "stroke-width": 1.4,
+        style: `filter:${isLight ? 'drop-shadow(0 3px 8px rgba(0,0,0,0.06))' : 'drop-shadow(0 4px 12px rgba(0,0,0,0.45))'};`
+      }, chassisG);
 
-        const isDevOnline = (dev.connected !== false && dev.status !== 'offline' && dev.status !== 'disconnected');
-
-        const conduitId = `bwCableDev_${depth}_${Math.random().toString(36).substr(2, 5)}`;
-        const dCable = `M${parentX} ${parentY} L${parentX} ${devY}`;
-
-        // Straight vertical wired cable from port to device (ALWAYS DRAWN)
-        mk("path", {
-          class: "base",
-          d: dCable,
-          stroke: devColor,
-          "stroke-width": 1.4,
-          fill: "none",
-          style: isDevOnline ? "opacity:0.45;" : "opacity:0.25; stroke-dasharray:4 3;"
-        }, svg);
-
-        // ONLY ANIMATE IF DEVICE IS ACTIVE / ONLINE!
-        if (isDevOnline && prefs.animMode !== 'off') {
-          mk("path", {
-            id: conduitId,
-            class: "flow",
-            d: dCable,
-            stroke: devColor,
-            "stroke-width": 1.6,
-            fill: "none",
-            style: (prefs.animMode === 'glow' || prefs.animMode === 'flowing') ? `filter:drop-shadow(0 0 3px ${devColor});` : ''
-          }, svg);
-
-          if (prefs.animMode === 'flowing') {
-            const dur = prefs.animSpeed === 'fast' ? '1.2s' : (prefs.animSpeed === 'slow' ? '3.5s' : '2.0s');
-            [0, 1].forEach(n => {
-              const cCirc = mk("circle", { class: "pt", r: 1.8, fill: devColor, style: `fill:${devColor} !important;` }, svg);
-              const m = mk("animateMotion", { dur: dur, begin: `-${(n * 1.0).toFixed(2)}s`, repeatCount: "indefinite" }, cCirc);
-              const mp = mk("mpath", { href: "#" + conduitId }, m);
-              try { mp.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#" + conduitId); } catch (e) {}
-            });
-          }
-        }
-
-        // Speed tag on cable (if enabled)
-        if (prefs.showSpeeds) {
-          const tSpeed = mk("text", {
-            x: parentX + 4,
-            y: parentY + (devY - parentY) / 2 + 3,
-            style: `font-size:7px; font-weight:800; font-family:var(--font-mono); fill:${devColor}; opacity:0.85;`
-          }, svg);
-          tSpeed.textContent = "1Gbps";
-        }
-
-        // Device Box Card
-        const devG = mk("g", { class: "topo-client-node", style: `cursor:pointer;` }, svg);
-        devG.onclick = (e) => showTopoNodeDetail(dev, false, e);
-
-        const isCompact = (prefs.infoDensity === 'compact');
-        const finalDevH = isCompact ? (isMobile ? 22 : 24) : devH;
-
-        mk("rect", {
-          x: devBoxX,
-          y: devY,
-          width: devW,
-          height: finalDevH,
-          rx: 6,
-          ry: 6,
-          fill: topoTheme.cardBg,
-          stroke: isDevOnline ? devColor : topoTheme.cardBorderIdle,
-          "stroke-width": 1.2,
-          style: `filter:${topoTheme.cardShadow};` + (isDevOnline ? "" : "opacity:0.8;")
-        }, devG);
-
-        drawLanClientDeviceIcon(devBoxX + 11, devY + finalDevH / 2, devClass, devG);
-
-        let devName = dev.name || dev.ip || "Device";
-        if (devName.length > 11) devName = devName.substring(0, 10) + "…";
-
-        const tDevName = mk("text", {
-          x: devBoxX + 22,
-          y: isCompact ? (devY + finalDevH / 2 + 3) : (devY + 11),
-          style: `font-size:8px; font-weight:800; font-family:var(--font-mono); fill:${isDevOnline ? topoTheme.textMain : topoTheme.textDim};`
-        }, devG);
-        tDevName.textContent = devName;
-
-        if (!isCompact) {
-          const tDevIp = mk("text", {
-            x: devBoxX + 22,
-            y: devY + 20,
-            style: `font-size:7px; font-weight:700; font-family:var(--font-mono); fill:${topoTheme.textDim};`
-          }, devG);
-          tDevIp.textContent = dev.ip || "";
-        }
-        return;
+      // Chassis Header Icon
+      if (isRoot) {
+        drawRouterBoxIcon(rtrX + 13, y + headerH / 2, nodeLayerColor, chassisG);
+      } else if (isSwitch) {
+        drawSwitchIcon(rtrX + 13, y + headerH / 2, nodeLayerColor, chassisG);
+      } else {
+        drawRouterApIcon(rtrX + 13, y + headerH / 2, nodeLayerColor, chassisG);
       }
 
-      // BRANCH TYPE 2: INTERMEDIATE NODE (ROUTER / AP / SWITCH)
-      if (parentPort.role === 'node') {
-        const node = child;
-        const isSwitch = node.type === 'switch';
-        const isRouter = node.type === 'router';
-        const nodeColor = isSwitch ? (isLight ? '#059669' : '#10b981') : nodeLayerColor;
+      // Title & Subtitle
+      const tTitle = mk("text", {
+        x: rtrX + 27,
+        y: y + 15,
+        style: `font-size:9.5px; font-weight:800; font-family:var(--font-mono); fill:${topoTheme.textMain};`
+      }, chassisG);
+      let apTitle = node.name || (isRoot ? "MAXNET GATEWAY" : "Access Point");
+      if (apTitle.length > 17) apTitle = apTitle.substring(0, 16) + "…";
+      tTitle.textContent = apTitle;
 
-        const isNodeOnline = (node.connected !== false && node.status !== 'offline');
+      const badgeTag = isRoot ? 'ROUTER' : (isSwitch ? 'SWITCH' : (node.type === 'router' ? 'ROUTER' : 'AP'));
+      const tSub = mk("text", {
+        x: rtrX + 27,
+        y: y + 26,
+        style: `font-size:7.5px; font-weight:700; font-family:var(--font-mono); fill:${nodeLayerColor};`
+      }, chassisG);
+      tSub.textContent = `[L${depth + 1} ${badgeTag}] ${node.ip || ''}`;
 
-        const isCollapsed = window._topoCollapsed && window._topoCollapsed.has(node.id);
-        const nodeW = isMobile ? 120 : 136;
-        const nodeH = isMobile ? 38 : 42;
-        const nodeY = parentY + (isMobile ? 38 : 46);
-        const nodeBoxX = parentX - nodeW / 2;
-
-        const conduitId = `bwTrunkNode_${depth}_${Math.random().toString(36).substr(2, 5)}`;
-        const dCable = (prefs.lineStyle === 'orthogonal') ?
-          `M${parentX} ${parentY} L${parentX} ${nodeY}` :
-          `M${parentX} ${parentY} C${parentX} ${parentY + 20}, ${parentX} ${nodeY - 20}, ${parentX} ${nodeY}`;
-
-        // Straight vertical trunk cable from parent port down to node box (ALWAYS DRAWN)
-        mk("path", {
-          class: "base",
-          d: dCable,
-          stroke: nodeColor,
-          "stroke-width": 1.6,
-          fill: "none",
-          style: isNodeOnline ? "opacity:0.45;" : "opacity:0.25; stroke-dasharray:4 3;"
-        }, svg);
-
-        if (isNodeOnline && prefs.animMode !== 'off') {
-          mk("path", {
-            id: conduitId,
-            class: "flow",
-            d: dCable,
-            stroke: nodeColor,
-            "stroke-width": 1.8,
-            fill: "none",
-            style: (prefs.animMode === 'glow' || prefs.animMode === 'flowing') ? `filter:drop-shadow(0 0 4px ${nodeColor});` : ''
-          }, svg);
-
-          if (prefs.animMode === 'flowing') {
-            const dur = prefs.animSpeed === 'fast' ? '1.2s' : (prefs.animSpeed === 'slow' ? '3.5s' : '2.0s');
-            [0, 1].forEach(n => {
-              const cCirc = mk("circle", { class: "pt", r: 2.0, fill: nodeColor, style: `fill:${nodeColor} !important;` }, svg);
-              const m = mk("animateMotion", { dur: dur, begin: `-${(n * 1.0).toFixed(2)}s`, repeatCount: "indefinite" }, cCirc);
-              const mp = mk("mpath", { href: "#" + conduitId }, m);
-              try { mp.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#" + conduitId); } catch (e) {}
-            });
-          }
-        }
-
-        // Speed tag
-        if (prefs.showSpeeds) {
-          const tTrunkSpeed = mk("text", {
-            x: parentX + 4,
-            y: parentY + (nodeY - parentY) / 2 + 3,
-            style: `font-size:7px; font-weight:800; font-family:var(--font-mono); fill:${nodeColor}; opacity:0.85;`
-          }, svg);
-          tTrunkSpeed.textContent = "1Gbps";
-        }
-
-        // Node Box Card
-        const nodeG = mk("g", { class: "topo-ap-node", style: `cursor:pointer;` }, svg);
-        nodeG.onclick = (e) => showTopoNodeDetail(node, false, e);
-
-        mk("rect", {
-          x: nodeBoxX,
-          y: nodeY,
-          width: nodeW,
-          height: nodeH,
-          rx: 7,
-          ry: 7,
-          fill: topoTheme.cardBg,
-          stroke: isNodeOnline ? nodeColor : topoTheme.cardBorderIdle,
-          "stroke-width": 1.3,
-          style: `filter:${topoTheme.cardShadow};` + (isNodeOnline ? "" : "opacity:0.85;")
-        }, nodeG);
-
-        if (isSwitch) {
-          drawSwitchIcon(nodeBoxX + 13, nodeY + nodeH / 2, nodeColor, nodeG);
-        } else {
-          drawRouterApIcon(nodeBoxX + 13, nodeY + nodeH / 2, nodeColor, nodeG);
-        }
-
-        let apTitle = node.name || "Access Point";
-        if (apTitle.length > 14) apTitle = apTitle.substring(0, 13) + "…";
-
-        const tNodeTitle = mk("text", {
-          x: nodeBoxX + 26,
-          y: nodeY + 12,
-          style: `font-size:8.5px; font-weight:800; font-family:var(--font-mono); fill:${topoTheme.textMain};`
-        }, nodeG);
-        tNodeTitle.textContent = apTitle;
-
-        const badgeTag = isSwitch ? 'SWITCH' : (isRouter ? 'ROUTER' : 'AP');
-        const tNodeSub = mk("text", {
-          x: nodeBoxX + 26,
-          y: nodeY + 23,
-          style: `font-size:7px; font-weight:700; font-family:var(--font-mono); fill:${nodeColor};`
-        }, nodeG);
-        tNodeSub.textContent = `[L${depth + 1} ${badgeTag}] ${node.ip || ''}`;
-
-        // Collapse / Expand Toggle Button
+      // Right Header Item: Live Throughput on Root, Collapse Toggle on Sub-nodes
+      if (isRoot) {
+        const tSpd = mk("text", {
+          id: "bwRouterThroughput",
+          x: rtrX + rtrW - 10,
+          y: y + 21,
+          "text-anchor": "end",
+          style: `font-size:11px; font-weight:800; font-family:var(--font-mono); fill:${nodeLayerColor};`
+        }, chassisG);
+        tSpd.textContent = "0.0Mbps";
+      } else {
         const hasChildren = (Array.isArray(node.ports) && node.ports.some(p => p.role !== 'empty')) ||
                             (Array.isArray(node.wireless_clients) && node.wireless_clients.length > 0);
-
         if (hasChildren) {
-          const btnG = mk("g", { style: "cursor:pointer;" }, nodeG);
+          const btnG = mk("g", { style: "cursor:pointer;" }, chassisG);
           btnG.onclick = (e) => {
             e.stopPropagation();
             if (window._topoCollapsed.has(node.id)) {
@@ -13799,10 +13371,10 @@
             buildUsbBwSvg();
           };
           mk("rect", {
-            x: nodeBoxX + nodeW - 16,
-            y: nodeY + 4,
-            width: 12,
-            height: 12,
+            x: rtrX + rtrW - 20,
+            y: y + 10,
+            width: 14,
+            height: 14,
             rx: 3,
             ry: 3,
             fill: isLight ? "#f1f5f9" : "rgba(255,255,255,0.06)",
@@ -13810,240 +13382,330 @@
             "stroke-width": 0.8
           }, btnG);
           const tBtn = mk("text", {
-            x: nodeBoxX + nodeW - 10,
-            y: nodeY + 13,
+            x: rtrX + rtrW - 13,
+            y: y + 20,
             "text-anchor": "middle",
             style: `font-size:8.5px; font-weight:900; font-family:var(--font-mono); fill:${topoTheme.textMain};`
           }, btnG);
           tBtn.textContent = isCollapsed ? "+" : "-";
         }
+      }
 
-        // IF NOT COLLAPSED: RENDER CHILD INTERFACES ROW (LAN 1..N, Wi-Fi)
-        if (!isCollapsed) {
-          const cSlots = computeNodeInterfaceSlots(node, isMobile);
-          const numCSlots = cSlots.length;
-          const cPortBoxW = isMobile ? 54 : 66;
-          const cPortBoxH = isMobile ? 36 : 40;
-          const clientCardW = isMobile ? 80 : 94;
-          const clientCardH = isMobile ? 22 : 24;
-          const cSlotGap = isMobile ? 8 : 14;
+      // Chassis Divider Line
+      mk("line", {
+        x1: rtrX,
+        y1: y + headerH,
+        x2: rtrX + rtrW,
+        y2: y + headerH,
+        stroke: topoTheme.cardBorderIdle,
+        "stroke-width": 1.0
+      }, chassisG);
 
-          const totalChildSlotsW = cSlots.reduce((a, b) => a + b.width, 0) + (numCSlots - 1) * cSlotGap;
-          const childRowStartX = parentX - totalChildSlotsW / 2;
-          const childPortsY = nodeY + nodeH + (isMobile ? 32 : 38);
+      // 2. DOCKED PORT BAY (LAN 1..N and Wi-Fi inside router chassis - ZERO WIDE SPREAD)
+      const slots = computeNodeInterfaceSlots(node, isMobile);
+      const numSlots = slots.length;
+      const bayPad = 6;
+      const socketGap = 4;
+      const socketW = Math.floor((rtrW - bayPad * 2 - (numSlots - 1) * socketGap) / numSlots);
+      const socketH = 24;
+      const socketY = y + headerH + 5;
 
-          let curChildSlotX = childRowStartX;
+      const renderedSockets = [];
 
-          cSlots.forEach((cSlot, csIdx) => {
-            const csW = cSlot.width;
-            const csCenterX = curChildSlotX + csW / 2;
-            const csBoxX = csCenterX - cPortBoxW / 2;
-            curChildSlotX += csW + cSlotGap;
+      slots.forEach((slot, sIdx) => {
+        const socketX = rtrX + bayPad + sIdx * (socketW + socketGap);
+        const socketCenterX = socketX + socketW / 2;
+        const socketBottomY = socketY + socketH;
+        const isLan = slot.type === 'lan';
+        const isConnected = isLan ? (slot.role !== 'empty') : (slot.count > 0);
+        const childCount = isLan ? computeSubtreeClientCount(slot.child) : slot.count;
 
-            const isLan = cSlot.type === 'lan';
-            const isCsUp = isLan ? (cSlot.role !== 'empty') : (cSlot.count > 0);
-            const csColor = isLan ? nodeColor : topoTheme.borderWifi;
+        const sockG = mk("g", { class: `topo-socket-box ${isConnected ? 'is-up' : 'is-idle'}`, style: "cursor:pointer;" }, chassisG);
+        sockG.onclick = (e) => {
+          e.stopPropagation();
+          showTopoNodeDetail(isLan ? (slot.port || slot) : { label: 'Wi-Fi Interface', count: slot.count, clients: slot.clients, band: 'Wi-Fi' }, true, e);
+        };
 
-            // Conduit from Node bottom to Child Interface box top (Bezier or Orthogonal)
-            const cYStart = nodeY + nodeH;
-            const cYEnd = childPortsY;
-            const cMidY = (cYStart + cYEnd) / 2;
-            const dCpConduit = (prefs.lineStyle === 'orthogonal') ?
-              `M${parentX} ${cYStart} L${parentX} ${cMidY} L${csCenterX} ${cMidY} L${csCenterX} ${cYEnd}` :
-              `M${parentX} ${cYStart} C${parentX} ${cMidY}, ${csCenterX} ${cMidY}, ${csCenterX} ${cYEnd}`;
+        // Socket Box Rect
+        mk("rect", {
+          x: socketX,
+          y: socketY,
+          width: socketW,
+          height: socketH,
+          rx: 4,
+          ry: 4,
+          fill: isConnected ? (isLight ? 'rgba(2,132,199,0.06)' : 'rgba(56,189,248,0.08)') : (isLight ? '#f8fafc' : 'rgba(255,255,255,0.02)'),
+          stroke: isConnected ? (isLan ? nodeLayerColor : themeColors.wifi) : topoTheme.cardBorderIdle,
+          "stroke-width": 0.9
+        }, sockG);
+
+        // Status LED Dot
+        mk("circle", {
+          cx: socketX + 5,
+          cy: socketY + 7,
+          r: 1.8,
+          fill: isConnected ? "#10b981" : (isLight ? "#94a3b8" : "#52525b")
+        }, sockG);
+
+        // Label Text with DISTINCT LAYER COLOR
+        const tSockLbl = mk("text", {
+          x: socketX + 9,
+          y: socketY + 9,
+          style: `font-size:7px; font-weight:800; font-family:var(--font-mono); fill:${isConnected ? nodeLayerColor : topoTheme.textDim};`
+        }, sockG);
+        let sLbl = slot.label || (isLan ? `LAN ${slot.idx + 1}` : 'Wi-Fi');
+        if (sLbl.length > 5) sLbl = sLbl.substring(0, 4) + '…';
+        tSockLbl.textContent = sLbl;
+
+        // Mini People Icon + Count Badge
+        if (childCount > 0) {
+          drawPeopleIcon(socketX + socketW - 14, socketY + 12, isConnected ? nodeLayerColor : topoTheme.textDim, sockG);
+          const tCnt = mk("text", {
+            x: socketX + socketW - 4,
+            y: socketY + 19,
+            "text-anchor": "end",
+            style: `font-size:8px; font-weight:800; font-family:var(--font-mono); fill:${isConnected ? topoTheme.textMain : topoTheme.textDim};`
+          }, sockG);
+          tCnt.textContent = childCount;
+        }
+
+        renderedSockets.push({
+          slot: slot,
+          socketCenterX: socketCenterX,
+          socketBottomY: socketBottomY,
+          isConnected: isConnected,
+          child: slot.child,
+          isLan: isLan
+        });
+      });
+
+      // 3. VERTICAL-ONLY EXPANDING CHILDREN (STRICTLY DOWN THE Y-AXIS, ZERO LATERAL SPRAWL)
+      if (isCollapsed) {
+        return y + rtrH + 36;
+      }
+
+      let currentY = y + rtrH + 42;
+
+      // Filter connected LAN ports
+      const activeLanSockets = renderedSockets.filter(s => s.isLan && s.isConnected && s.child);
+      const wifiSocket = renderedSockets.find(s => !s.isLan && s.isConnected && s.slot.count > 0);
+
+      activeLanSockets.forEach((s, aIdx) => {
+        const child = s.child;
+        const socketCenterX = s.socketCenterX;
+        const socketBottomY = s.socketBottomY;
+        const isOnline = (child.connected !== false && child.status !== 'offline' && child.status !== 'disconnected');
+        const conduitColor = nodeLayerColor;
+
+        const childAttachX = cx;
+        const childAttachY = currentY;
+
+        // Smooth S-curve conduit from socket down to child card
+        const midY = socketBottomY + (childAttachY - socketBottomY) * 0.5;
+        const dConduit = (prefs.lineStyle === 'orthogonal') ?
+          `M${socketCenterX} ${socketBottomY} L${socketCenterX} ${midY} L${childAttachX} ${midY} L${childAttachX} ${childAttachY}` :
+          `M${socketCenterX} ${socketBottomY} C${socketCenterX} ${midY}, ${childAttachX} ${midY}, ${childAttachX} ${childAttachY}`;
+
+        // Base cable (ALWAYS DRAWN)
+        mk("path", {
+          class: "base",
+          d: dConduit,
+          stroke: conduitColor,
+          "stroke-width": 1.4,
+          fill: "none",
+          style: isOnline ? "opacity:0.45;" : "opacity:0.25; stroke-dasharray:4 3;"
+        }, svg);
+
+        // Animated flow particles if active
+        if (isOnline && prefs.animMode !== 'off') {
+          const cId = `bwConduitVert_${depth}_${aIdx}_${Math.random().toString(36).substr(2, 5)}`;
+          mk("path", {
+            id: cId,
+            class: "flow",
+            d: dConduit,
+            stroke: conduitColor,
+            "stroke-width": 1.6,
+            fill: "none",
+            style: (prefs.animMode === 'glow' || prefs.animMode === 'flowing') ? `filter:drop-shadow(0 0 3px ${conduitColor});` : ''
+          }, svg);
+
+          if (prefs.animMode === 'flowing') {
+            const dur = prefs.animSpeed === 'fast' ? '1.2s' : (prefs.animSpeed === 'slow' ? '3.5s' : '2.2s');
+            const cCirc = mk("circle", { class: "pt", r: 1.8, fill: conduitColor, style: `fill:${conduitColor} !important;` }, svg);
+            const m = mk("animateMotion", { dur: dur, repeatCount: "indefinite" }, cCirc);
+            const mp = mk("mpath", { href: "#" + cId }, m);
+            try { mp.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#" + cId); } catch (e) {}
+          }
+        }
+
+        // Speed tag on cable (if enabled)
+        if (prefs.showSpeeds) {
+          const tSpeed = mk("text", {
+            x: (socketCenterX + childAttachX) / 2 + 6,
+            y: midY - 3,
+            style: `font-size:7px; font-weight:800; font-family:var(--font-mono); fill:${conduitColor}; opacity:0.85;`
+          }, svg);
+          tSpeed.textContent = "1Gbps";
+        }
+
+        // Branch 1: Leaf Device Card
+        if (child.type === 'device') {
+          const dev = child;
+          const devClass = (typeof classifyLanDevice === 'function') ? classifyLanDevice(dev) : { type: 'client', title: 'Device', color: '#10b981', badge: 'DEVICE' };
+          const devW = isMobile ? 136 : 156;
+          const devH = 28;
+          const devBoxX = cx - devW / 2;
+          const devColor = isLight ? (devClass.color === '#10b981' ? '#059669' : devClass.color) : devClass.color;
+
+          const devG = mk("g", { class: "topo-client-node", style: "cursor:pointer;" }, svg);
+          devG.onclick = (e) => showTopoNodeDetail(dev, false, e);
+
+          mk("rect", {
+            x: devBoxX,
+            y: currentY,
+            width: devW,
+            height: devH,
+            rx: 6,
+            ry: 6,
+            fill: topoTheme.cardBg,
+            stroke: isOnline ? devColor : topoTheme.cardBorderIdle,
+            "stroke-width": 1.1,
+            style: `filter:${topoTheme.cardShadow};` + (isOnline ? "" : "opacity:0.8;")
+          }, devG);
+
+          drawLanClientDeviceIcon(devBoxX + 11, currentY + devH / 2, devClass, devG);
+
+          let devName = dev.name || dev.ip || "Device";
+          if (devName.length > 13) devName = devName.substring(0, 12) + "…";
+
+          const tDevName = mk("text", {
+            x: devBoxX + 22,
+            y: currentY + 11,
+            style: `font-size:8px; font-weight:800; font-family:var(--font-mono); fill:${isOnline ? topoTheme.textMain : topoTheme.textDim};`
+          }, devG);
+          tDevName.textContent = devName;
+
+          const tDevIp = mk("text", {
+            x: devBoxX + 22,
+            y: currentY + 20,
+            style: `font-size:7px; font-weight:700; font-family:var(--font-mono); fill:${topoTheme.textDim};`
+          }, devG);
+          tDevIp.textContent = dev.ip || "";
+
+          // Online status dot
+          mk("circle", {
+            cx: devBoxX + devW - 9,
+            cy: currentY + 9,
+            r: 2.0,
+            fill: isOnline ? "#10b981" : (isLight ? "#94a3b8" : "#52525b")
+          }, devG);
+
+          currentY += devH + 34;
+
+        } else if (child.type === 'router' || child.type === 'ap' || child.type === 'switch') {
+          // Branch 2: Sub-Router / AP / Switch - Recursively render chassis and its vertical descendants!
+          const nextY = renderVerticalBranchPipeline(child, cx, currentY, depth + 1, isMobile, isLight, prefs, themeColors, topoTheme, defs, svg, allClientsList);
+          currentY = nextY + 34;
+        }
+      });
+
+      // Branch 3: Wireless Clients attached to this router's Wi-Fi interface
+      if (wifiSocket && Array.isArray(node.wireless_clients) && node.wireless_clients.length > 0) {
+        const wifiSocketX = wifiSocket.socketCenterX;
+        const wifiSocketY = wifiSocket.socketBottomY;
+        const wifiColor = themeColors.wifi;
+
+        node.wireless_clients.forEach(wc => {
+          const isWcOnline = (wc.connected !== false && wc.status !== 'offline');
+          const wcW = isMobile ? 136 : 156;
+          const wcH = 28;
+          const wcBoxX = cx - wcW / 2;
+          const wcAttachX = cx;
+          const wcAttachY = currentY;
+
+          // Dashed Wi-Fi conduit from Wi-Fi socket down to wireless client
+          const midY = wifiSocketY + (wcAttachY - wifiSocketY) * 0.5;
+          const dWifi = (prefs.lineStyle === 'orthogonal') ?
+            `M${wifiSocketX} ${wifiSocketY} L${wifiSocketX} ${midY} L${wcAttachX} ${midY} L${wcAttachX} ${wcAttachY}` :
+            `M${wifiSocketX} ${wifiSocketY} C${wifiSocketX} ${midY}, ${wcAttachX} ${midY}, ${wcAttachX} ${wcAttachY}`;
+
+          mk("path", {
+            d: dWifi,
+            stroke: wifiColor,
+            "stroke-width": 1.2,
+            "stroke-dasharray": "3 2.5",
+            fill: "none",
+            style: isWcOnline ? "opacity:0.75;" : "opacity:0.25;"
+          }, svg);
+
+          if (isWcOnline && prefs.animMode === 'flowing') {
+            const wId = `bwWifiVert_${depth}_${Math.random().toString(36).substr(2, 5)}`;
             mk("path", {
-              class: "base",
-              d: dCpConduit,
-              stroke: csColor,
-              "stroke-width": 1.2,
+              id: wId,
+              class: "flow",
+              d: dWifi,
+              stroke: wifiColor,
+              "stroke-width": 1.4,
+              "stroke-dasharray": "3 2.5",
               fill: "none",
-              style: `opacity:${isCsUp ? 0.4 : 0.24};`
+              style: `filter:drop-shadow(0 0 3px ${wifiColor});`
             }, svg);
 
-            if (isCsUp && prefs.animMode !== 'off') {
-              const cpConduitId = `bwConduitChild_${depth}_${csIdx}_${Math.random().toString(36).substr(2, 5)}`;
-              mk("path", {
-                id: cpConduitId,
-                class: "flow",
-                d: dCpConduit,
-                stroke: csColor,
-                "stroke-width": 1.4,
-                fill: "none",
-                style: `filter:drop-shadow(0 0 3px ${csColor});`
-              }, svg);
-              if (prefs.animMode === 'flowing') {
-                const dur = prefs.animSpeed === 'fast' ? '1.2s' : (prefs.animSpeed === 'slow' ? '3.5s' : '2.2s');
-                const cCirc = mk("circle", { class: "pt", r: 1.6, fill: csColor, style: `fill:${csColor} !important;` }, svg);
-                const m = mk("animateMotion", { dur: dur, begin: `-${(csIdx * 0.35).toFixed(2)}s`, repeatCount: "indefinite" }, cCirc);
-                const mp = mk("mpath", { href: "#" + cpConduitId }, m);
-                try { mp.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#" + cpConduitId); } catch (e) {}
-              }
-            }
+            const dur = prefs.animSpeed === 'fast' ? '1.2s' : (prefs.animSpeed === 'slow' ? '3.5s' : '2.2s');
+            const cCirc = mk("circle", { class: "pt", r: 1.6, fill: wifiColor, style: `fill:${wifiColor} !important;` }, svg);
+            const m = mk("animateMotion", { dur: dur, repeatCount: "indefinite" }, cCirc);
+            const mp = mk("mpath", { href: "#" + wId }, m);
+            try { mp.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#" + wId); } catch (e) {}
+          }
 
-            if (isLan) {
-              const cp = cSlot.port;
-              const cpClientCount = computeSubtreeClientCount(cp.child);
+          // Wireless Client Card
+          const wcG = mk("g", { class: "topo-wifi-client", style: "cursor:pointer;" }, svg);
+          wcG.onclick = (e) => showTopoNodeDetail(wc, false, e);
 
-              // Child LAN Port Box
-              const cpG = mk("g", { class: `compact-lan-box ${isCsUp ? 'is-up' : 'is-down'}`, style: `cursor:pointer;` }, svg);
-              cpG.onclick = (e) => showTopoNodeDetail(cp, true, e);
+          mk("rect", {
+            x: wcBoxX,
+            y: currentY,
+            width: wcW,
+            height: wcH,
+            rx: 6,
+            ry: 6,
+            fill: topoTheme.cardBg,
+            stroke: isWcOnline ? wifiColor : topoTheme.cardBorderIdle,
+            "stroke-width": 1.0,
+            style: `filter:${topoTheme.cardShadow};` + (isWcOnline ? "" : "opacity:0.8;")
+          }, wcG);
 
-              mk("rect", {
-                x: csBoxX,
-                y: childPortsY,
-                width: cPortBoxW,
-                height: cPortBoxH,
-                rx: 6,
-                ry: 6,
-                fill: topoTheme.cardBg,
-                stroke: isCsUp ? nodeColor : topoTheme.cardBorderIdle,
-                "stroke-width": 1.1,
-                style: isCsUp ? `filter:${topoTheme.cardShadow};` : "opacity:0.85;"
-              }, cpG);
+          drawWifiAntennaIcon(wcBoxX + 11, currentY + wcH / 2, isWcOnline ? wifiColor : topoTheme.textDim, wcG);
 
-              mk("circle", {
-                cx: csBoxX + 8,
-                cy: childPortsY + 10,
-                r: 1.8,
-                fill: isCsUp ? "#10b981" : (isLight ? "#94a3b8" : "#52525b")
-              }, cpG);
+          let wcName = wc.name || wc.ip || "WiFi Client";
+          if (wcName.length > 13) wcName = wcName.substring(0, 12) + "…";
 
-              // ONLY the label text itself has layer color!
-              mk("text", {
-                x: csBoxX + 15,
-                y: childPortsY + 12,
-                style: `font-size:8.5px; font-weight:800; font-family:var(--font-mono); fill:${isCsUp ? nodeLayerColor : topoTheme.textDim};`
-              }, cpG).textContent = cp.label || `LAN ${csIdx + 1}`;
+          const tWcName = mk("text", {
+            x: wcBoxX + 22,
+            y: currentY + 11,
+            style: `font-size:8px; font-weight:800; font-family:var(--font-mono); fill:${isWcOnline ? topoTheme.textMain : topoTheme.textDim};`
+          }, wcG);
+          tWcName.textContent = wcName;
 
-              drawPeopleIcon(csBoxX + 10, childPortsY + 18, isCsUp && cpClientCount > 0 ? topoTheme.textMain : topoTheme.textDim, cpG);
+          const tWcIp = mk("text", {
+            x: wcBoxX + 22,
+            y: currentY + 20,
+            style: `font-size:7px; font-weight:700; font-family:var(--font-mono); fill:${wifiColor};`
+          }, wcG);
+          tWcIp.textContent = `[Wi-Fi] ${wc.ip || ''}`;
 
-              mk("text", {
-                x: csBoxX + 30,
-                y: childPortsY + 28,
-                style: `font-size:9.5px; font-weight:800; font-family:var(--font-mono); fill:${cpClientCount > 0 ? topoTheme.textMain : topoTheme.textDim};`
-              }, cpG).textContent = cpClientCount;
+          mk("circle", {
+            cx: wcBoxX + wcW - 9,
+            cy: currentY + 9,
+            r: 2.0,
+            fill: isWcOnline ? "#10b981" : (isLight ? "#94a3b8" : "#52525b")
+          }, wcG);
 
-              // Recursively render whatever is plugged into this child LAN port!
-              if (isCsUp && cp.child) {
-                renderSubtreeBranchSvg(cp, csCenterX, childPortsY + cPortBoxH, defs, svg, isMobile, isLight, depth + 1, allClientsList, prefs, themeColors);
-              }
-
-            } else {
-              // Wireless Radio Interface Box on child AP/Router
-              const wifiColor = topoTheme.borderWifi;
-              const wifiG = mk("g", { class: "compact-lan-box is-wifi", style: `cursor:pointer;` }, svg);
-              wifiG.onclick = (e) => showTopoNodeDetail({ label: 'Wi-Fi Interface', count: cSlot.count, clients: cSlot.clients, band: 'Wi-Fi' }, true, e);
-
-              mk("rect", {
-                x: csBoxX,
-                y: childPortsY,
-                width: cPortBoxW,
-                height: cPortBoxH,
-                rx: 6,
-                ry: 6,
-                fill: topoTheme.cardBg,
-                stroke: isCsUp ? wifiColor : topoTheme.cardBorderIdle,
-                "stroke-width": 1.1,
-                style: isCsUp ? `filter:${topoTheme.cardShadow};` : "opacity:0.85;"
-              }, wifiG);
-
-              drawWifiAntennaIcon(csBoxX + 9, childPortsY + 10, isCsUp ? nodeLayerColor : topoTheme.textDim, wifiG);
-
-              // ONLY the label text itself has layer color!
-              mk("text", {
-                x: csBoxX + 17,
-                y: childPortsY + 12,
-                style: `font-size:8px; font-weight:800; font-family:var(--font-mono); fill:${isCsUp ? nodeLayerColor : topoTheme.textDim};`
-              }, wifiG).textContent = "Wi-Fi";
-
-              drawPeopleIcon(csBoxX + 10, childPortsY + 18, isCsUp ? csColor : topoTheme.textDim, wifiG);
-
-              mk("text", {
-                x: csBoxX + 30,
-                y: childPortsY + 28,
-                style: `font-size:9.5px; font-weight:800; font-family:var(--font-mono); fill:${isCsUp ? csColor : topoTheme.textDim};`
-              }, wifiG).textContent = cSlot.count;
-
-              // Render Wireless Clients strictly under this WiFi Box
-              if (cSlot.count > 0) {
-                const wifiStartY = childPortsY + cPortBoxH + (isMobile ? 36 : 42);
-                const clients = cSlot.clients;
-                const numWc = clients.length;
-                const isGrid = isMobile && numWc > 2;
-                const numCols = isGrid ? 2 : numWc;
-                const numRows = Math.ceil(numWc / numCols);
-                const wGapX = isMobile ? 6 : 8;
-                const wGapY = isMobile ? 6 : 8;
-                const totalW = numCols * clientCardW + (numCols - 1) * wGapX;
-                const startWcX = csCenterX - totalW / 2;
-
-                clients.forEach((wc, wcIdx) => {
-                  const col = isGrid ? (wcIdx % 2) : wcIdx;
-                  const row = isGrid ? Math.floor(wcIdx / 2) : 0;
-                  const isCompact = (prefs.infoDensity === 'compact');
-                  const finalClientH = isCompact ? 18 : clientCardH;
-                  const wcX = startWcX + col * (clientCardW + wGapX);
-                  const wcY = wifiStartY + row * (finalClientH + wGapY);
-                  const wcCenterX = wcX + clientCardW / 2;
-
-                  const isClientOnline = (wc.connected !== false && wc.status !== 'offline' && wc.status !== 'disconnected');
-
-                  // Dashed WiFi link line from WiFi interface box to client (ALWAYS DRAWN)
-                  const dWifi = (prefs.lineStyle === 'orthogonal') ?
-                    `M${csCenterX} ${childPortsY + cPortBoxH} L${csCenterX} ${(childPortsY + cPortBoxH + wcY) / 2} L${wcCenterX} ${(childPortsY + cPortBoxH + wcY) / 2} L${wcCenterX} ${wcY}` :
-                    `M${csCenterX} ${childPortsY + cPortBoxH} C${csCenterX} ${childPortsY + cPortBoxH + 18}, ${wcCenterX} ${wcY - 16}, ${wcCenterX} ${wcY}`;
-                  mk("path", {
-                    d: dWifi,
-                    stroke: csColor,
-                    "stroke-width": 1.2,
-                    "stroke-dasharray": "3 2.5",
-                    fill: "none",
-                    style: isClientOnline ? "opacity:0.75;" : "opacity:0.25;"
-                  }, svg);
-
-                  // Wireless Device Pill
-                  const wcG = mk("g", { class: "topo-wifi-client", style: `cursor:pointer;` }, svg);
-                  wcG.onclick = (e) => showTopoNodeDetail(wc, false, e);
-
-                  mk("rect", {
-                    x: wcX,
-                    y: wcY,
-                    width: clientCardW,
-                    height: finalClientH,
-                    rx: 5,
-                    ry: 5,
-                    fill: topoTheme.cardBg,
-                    stroke: isClientOnline ? (isLight ? topoTheme.cardBorder : csColor) : topoTheme.cardBorderIdle,
-                    "stroke-width": 1.0,
-                    style: `filter:${topoTheme.cardShadow};` + (isClientOnline ? "" : "opacity:0.8;")
-                  }, wcG);
-
-                  drawWifiAntennaIcon(wcX + 9, wcY + finalClientH / 2, isClientOnline ? csColor : topoTheme.textDim, wcG);
-
-                  let wcName = wc.name || wc.ip || "WiFi";
-                  if (wcName.length > 9) wcName = wcName.substring(0, 8) + "…";
-
-                  const tWcName = mk("text", {
-                    x: wcX + 18,
-                    y: isCompact ? (wcY + 12) : (wcY + 9),
-                    style: `font-size:7.5px; font-weight:700; font-family:var(--font-mono); fill:${isClientOnline ? topoTheme.textMain : topoTheme.textDim};`
-                  }, wcG);
-                  tWcName.textContent = wcName;
-
-                  if (!isCompact) {
-                    const tWcBand = mk("text", {
-                      x: wcX + 18,
-                      y: wcY + 17,
-                      style: `font-size:6.5px; font-weight:800; font-family:var(--font-mono); fill:${isClientOnline ? csColor : topoTheme.textDim};`
-                    }, wcG);
-                    tWcBand.textContent = `[Wi-Fi] ${wc.ip ? wc.ip.split('.').slice(2).join('.') : ''}`;
-                  }
-                });
-              }
-            }
-          });
-        }
+          currentY += wcH + 18;
+        });
       }
+
+      return currentY;
     }
 
     function renderBwValues() {
