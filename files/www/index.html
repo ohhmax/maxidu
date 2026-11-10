@@ -349,6 +349,8 @@
       max-width: 100vw;
       overflow-x: clip;
       overflow-y: auto;
+      overscroll-behavior-y: none;
+      overscroll-behavior-x: none;
       margin: 0;
       padding: 0;
     }
@@ -357,6 +359,8 @@
       max-width: 100vw;
       overflow-x: clip;
       overflow-y: visible;
+      overscroll-behavior-y: none;
+      overscroll-behavior-x: none;
       margin: 0;
       padding: 0;
       font-family: var(--font-family);
@@ -5611,9 +5615,12 @@
       width: 100%;
       padding: 12px 18px 4px 18px;
       box-sizing: border-box;
-      z-index: 50;
-      position: relative;
+      z-index: 100;
+      position: sticky;
+      top: 0;
       flex-shrink: 0;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
     }
     /* TOPOLOGY CANVAS BRAND META */
     .topo-brand-meta {
@@ -12761,9 +12768,9 @@
       return g;
     }
 
-    // NAME RESOLUTION ENGINE (STRICT PRIORITY: manual name > DHCP hostname > mDNS > OUI vendor > "Device")
+    // NAME RESOLUTION ENGINE (STRICT PRIORITY: manual name > DHCP hostname > device name > mDNS > OUI vendor > "Unknown Device")
     function resolveDeviceDisplayName(dev) {
-      if (!dev) return 'Device';
+      if (!dev) return 'Unknown Device';
       const ip = (dev.ip || '').trim();
       const mac = (dev.mac || '').toLowerCase().trim();
 
@@ -12781,28 +12788,31 @@
       // 2. DHCP Hostname
       const dhcp = (dev.hostname || dev.dhcp_hostname || dev.dhcp_name || '').trim();
       if (dhcp && dhcp !== '*' && !isStaleDeviceLabel(dhcp, ip)) {
-        return cleanDeviceLabel(dhcp);
+        const cleaned = cleanDeviceLabel(dhcp);
+        if (cleaned && cleaned.toLowerCase() !== 'device' && cleaned.toLowerCase() !== 'unknown') return cleaned;
       }
 
-      // Check dev.name
+      // 3. Device Name property
       const name = (dev.name || '').trim();
       if (name && !isStaleDeviceLabel(name, ip) && !name.toLowerCase().startsWith('device') && !name.toLowerCase().startsWith('unknown')) {
-        return cleanDeviceLabel(name);
+        const cleaned = cleanDeviceLabel(name);
+        if (cleaned && cleaned.toLowerCase() !== 'device' && cleaned.toLowerCase() !== 'unknown') return cleaned;
       }
 
-      // 3. mDNS name
+      // 4. mDNS name
       const mdns = (dev.mdns || dev.dns_name || '').trim();
       if (mdns && !isStaleDeviceLabel(mdns, ip)) {
-        return cleanDeviceLabel(mdns.replace(/\.local$/i, '').replace(/\.lan$/i, ''));
+        const cleaned = cleanDeviceLabel(mdns.replace(/\.local$/i, '').replace(/\.lan$/i, ''));
+        if (cleaned && cleaned.toLowerCase() !== 'device' && cleaned.toLowerCase() !== 'unknown') return cleaned;
       }
 
-      // 4. OUI Vendor
+      // 5. OUI Vendor
       const vendor = (dev.vendor || (dev.metrics && dev.metrics.vendor) || '').trim();
       if (vendor && !vendor.toLowerCase().includes('unknown') && !isStaleDeviceLabel(vendor, ip)) {
         return cleanDeviceLabel(vendor);
       }
 
-      return 'Device';
+      return 'Unknown Device';
     }
 
     function isStaleDeviceLabel(str, ip) {
@@ -12813,7 +12823,7 @@
     }
 
     function cleanDeviceLabel(str) {
-      if (!str) return 'Device';
+      if (!str) return 'Unknown Device';
       return str.replace(/\.lan$/i, '').replace(/\.local$/i, '').replace(/\s*\[(PC|PHONE|STORAGE|ROUTER|CCTV|TV)\]/gi, '').trim();
     }
 
@@ -12869,7 +12879,34 @@
         return { type: 'tv', title: 'Smart TV', icon: 'tv', color: '#a855f7', badge: 'TV' };
       }
 
-      // 6. Secondary Router / Access Point / Switch
+      // 6. IoT / Smart Home / Espressif ESP8266/ESP32 / Sonoff / Tuya / Smart Plug / Bulb
+      if (name.includes('esp_') || name.includes('espressif') || name.includes('esp32') || name.includes('esp8266') ||
+          name.includes('sonoff') || name.includes('tuya') || name.includes('tasmota') || name.includes('shelly') ||
+          name.includes('wled') || name.includes('iot') || name.includes('smartplug') || name.includes('bulb') ||
+          name.includes('sensor') || name.includes('zigbee') || name.includes('switchbot') ||
+          mac.startsWith('24:0a:c4') || mac.startsWith('30:ae:a4') || mac.startsWith('84:f3:eb') || mac.startsWith('bc:dd:c2')) {
+        return { type: 'iot', title: 'IoT Device', icon: 'iot', color: '#14b8a6', badge: 'IOT' };
+      }
+
+      // 7. Smart Speaker / Voice Assistant (Echo / Alexa / Google Home / Nest / HomePod)
+      if (name.includes('echo') || name.includes('alexa') || name.includes('nest') || name.includes('homepod') ||
+          name.includes('google-home') || name.includes('speaker') || name.includes('sonos')) {
+        return { type: 'speaker', title: 'Smart Speaker', icon: 'speaker', color: '#ec4899', badge: 'AUDIO' };
+      }
+
+      // 8. Printer / Scanner
+      if (name.includes('printer') || name.includes('epson') || name.includes('canon') || name.includes('brother') ||
+          name.includes('xerox') || name.includes('laserjet') || name.includes('deskjet')) {
+        return { type: 'printer', title: 'Network Printer', icon: 'printer', color: '#6366f1', badge: 'PRINT' };
+      }
+
+      // 9. Gaming Console (PlayStation / Xbox / Nintendo Switch / Steam Deck)
+      if (name.includes('playstation') || name.includes('ps4') || name.includes('ps5') || name.includes('xbox') ||
+          name.includes('nintendo') || name.includes('switch') && !name.includes('hub') || name.includes('steamdeck')) {
+        return { type: 'console', title: 'Gaming Console', icon: 'console', color: '#f43f5e', badge: 'GAME' };
+      }
+
+      // 10. Secondary Router / Access Point / Switch
       if (name.includes('router') || name.includes('accesspoint') || name.includes('repeater') ||
           name.includes('extender') || name.includes('switch') || name.includes('openwrt') ||
           name.includes('maxnet-b') || name.includes('tplink') || name.includes('tenda') || name.includes('netgear') ||
@@ -12908,6 +12945,33 @@
         mk("rect", { x: x - 6, y: y - 1, width: 12, height: 6, rx: 1.2, fill: "none", stroke: "currentColor", "stroke-width": 1.1 }, g);
         mk("line", { x1: x - 3.5, y1: y - 1, x2: x - 3.5, y2: y - 5.5, stroke: "currentColor", "stroke-width": 1.0, "stroke-linecap": "round" }, g);
         mk("line", { x1: x + 3.5, y1: y - 1, x2: x + 3.5, y2: y - 5.5, stroke: "currentColor", "stroke-width": 1.0, "stroke-linecap": "round" }, g);
+      } else if (devClass.type === 'iot') {
+        // Microchip / Smart Sensor IoT icon
+        mk("rect", { x: x - 5, y: y - 5, width: 10, height: 10, rx: 1.5, fill: "none", stroke: "currentColor", "stroke-width": 1.1 }, g);
+        mk("rect", { x: x - 2, y: y - 2, width: 4, height: 4, fill: "currentColor" }, g);
+        [-3, 0, 3].forEach(d => {
+          mk("line", { x1: x + d, y1: y - 7, x2: x + d, y2: y - 5, stroke: "currentColor", "stroke-width": 0.9 }, g);
+          mk("line", { x1: x + d, y1: y + 5, x2: x + d, y2: y + 7, stroke: "currentColor", "stroke-width": 0.9 }, g);
+          mk("line", { x1: x - 7, y1: y + d, x2: x - 5, y2: y + d, stroke: "currentColor", "stroke-width": 0.9 }, g);
+          mk("line", { x1: x + 5, y1: y + d, x2: x + 7, y2: y + d, stroke: "currentColor", "stroke-width": 0.9 }, g);
+        });
+      } else if (devClass.type === 'speaker') {
+        // Smart Speaker icon
+        mk("rect", { x: x - 4.5, y: y - 6, width: 9, height: 12, rx: 2, fill: "none", stroke: "currentColor", "stroke-width": 1.1 }, g);
+        mk("circle", { cx: x, cy: y - 2, r: 1.2, fill: "currentColor" }, g);
+        mk("circle", { cx: x, cy: y + 2.5, r: 2.2, fill: "none", stroke: "currentColor", "stroke-width": 0.9 }, g);
+      } else if (devClass.type === 'printer') {
+        // Network Printer icon
+        mk("rect", { x: x - 6, y: y - 2, width: 12, height: 7, rx: 1, fill: "none", stroke: "currentColor", "stroke-width": 1.1 }, g);
+        mk("path", { d: `M${x - 4} ${y - 2} L${x - 4} ${y - 6} L${x + 4} ${y - 6} L${x + 4} ${y - 2}`, fill: "none", stroke: "currentColor", "stroke-width": 1.0 }, g);
+        mk("line", { x1: x - 3, y1: y + 2, x2: x + 3, y2: y + 2, stroke: "currentColor", "stroke-width": 1.0 }, g);
+      } else if (devClass.type === 'console') {
+        // Gaming Controller icon
+        mk("rect", { x: x - 6.5, y: y - 4, width: 13, height: 8, rx: 3, fill: "none", stroke: "currentColor", "stroke-width": 1.1 }, g);
+        mk("line", { x1: x - 4, y1: y, x2: x - 2, y2: y, stroke: "currentColor", "stroke-width": 1.1, "stroke-linecap": "round" }, g);
+        mk("line", { x1: x - 3, y1: y - 1, x2: x - 3, y2: y + 1, stroke: "currentColor", "stroke-width": 1.1, "stroke-linecap": "round" }, g);
+        mk("circle", { cx: x + 2.5, cy: y - 1, r: 0.6, fill: "currentColor" }, g);
+        mk("circle", { cx: x + 4, cy: y + 0.8, r: 0.6, fill: "currentColor" }, g);
       } else {
         mk("circle", { cx: x, cy: y, r: 2.4, fill: devClass.color }, g);
       }
@@ -13255,13 +13319,16 @@
       const isRouterOrAp = (node.type === 'router' || node.type === 'ap' || node.type === 'switch');
 
       const slots = [];
-      if (node.id === 'root' && node.wan_mode === 'wan_as_lan') {
+      // Always include WAN port for root gateway
+      if (node.id === 'root') {
+        let wanPortLabel = 'WAN';
+        if (node.wan_mode === 'wan_as_lan') wanPortLabel = 'WAN [LAN 5]';
         slots.push({
-          type: 'lan',
-          port: { id: 'root-wan5', label: 'WAN [LAN 5]', role: 'empty', child: null },
+          type: 'wan',
+          port: { id: 'root-wan', label: wanPortLabel, role: 'uplink' },
           idx: -1,
-          label: 'WAN [LAN 5]',
-          role: 'empty',
+          label: wanPortLabel,
+          role: 'uplink',
           child: null
         });
       }
@@ -13799,7 +13866,7 @@
       computeLayeredSubtreeBounds(tree, screenW);
 
       const treeBounds = tree._layout || { subtreeW: 600, subtreeH: 500 };
-      const rootY = prefs.showWan ? (isPhone ? 90 : 100) : (isPhone ? 36 : 42);
+      const rootY = prefs.showWan ? (isPhone ? 110 : 124) : (isPhone ? 36 : 42);
       const initialW = isPhone ? Math.max(390, treeBounds.subtreeW + 60) : Math.max(boxW || 640, treeBounds.subtreeW + 80);
       const rtrCenterX = initialW / 2;
 
@@ -13844,19 +13911,19 @@
         globalMinX = Math.min(globalMinX, wanX);
         globalMaxX = Math.max(globalMaxX, wanX + wanW);
 
-        // WAN Conduit to Gateway top-center in EDGES LAYER
+        // WAN Conduit from WAN card bottom to Gateway top in EDGES LAYER (Clear high-visibility wire)
         const dWanTrunk = `M ${rtrCenterX} ${wanY + wanH} L ${rtrCenterX} ${rootY}`;
         mk("path", {
           class: "base",
           d: dWanTrunk,
           stroke: usbStyle.lineStroke || "#0284c7",
-          "stroke-width": 2.0,
+          "stroke-width": 2.2,
           fill: "none",
-          style: "opacity:0.4;"
+          style: "opacity:0.85;"
         }, edgesLayer);
 
         // Flow animation on WAN uplink
-        const isAnim = (prefs.animMode === 'flowing');
+        const isAnim = (prefs.animMode === 'flowing' || !prefs.animMode);
         const isGlow = (prefs.animMode === 'glow');
         const wanFlowId = "topoWanUplinkFlow";
         mk("path", {
@@ -13864,14 +13931,14 @@
           class: "flow",
           d: dWanTrunk,
           stroke: usbStyle.lineStroke || "#0284c7",
-          "stroke-width": 2.2,
+          "stroke-width": 2.4,
           fill: "none",
-          style: (isGlow || isAnim) ? `filter:drop-shadow(0 0 4px ${usbStyle.glowColor || 'rgba(56,189,248,0.5)'});` : ''
+          style: (isGlow || isAnim) ? `filter:drop-shadow(0 0 5px ${usbStyle.glowColor || 'rgba(56,189,248,0.7)'});` : ''
         }, edgesLayer);
 
         if (isAnim) {
           const dur = prefs.animSpeed === 'fast' ? '1.0s' : (prefs.animSpeed === 'slow' ? '2.8s' : '1.8s');
-          const circ = mk("circle", { class: "pt", r: 2.2, fill: usbStyle.lineStroke || "#0284c7", style: `fill:${usbStyle.lineStroke || '#0284c7'} !important;` }, edgesLayer);
+          const circ = mk("circle", { class: "pt", r: 2.4, fill: usbStyle.lineStroke || "#0284c7", style: `fill:${usbStyle.lineStroke || '#0284c7'} !important;` }, edgesLayer);
           const m = mk("animateMotion", { dur: dur, repeatCount: "indefinite" }, circ);
           const mp = mk("mpath", { href: "#" + wanFlowId }, m);
           try { mp.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#" + wanFlowId); } catch (e) {}
@@ -13891,8 +13958,8 @@
           ry: 4,
           fill: topoTheme.cardBg,
           stroke: usbStyle.lineStroke || "#0284c7",
-          "stroke-width": 0.9,
-          style: `filter:${isLight ? 'drop-shadow(0 1px 2px rgba(0,0,0,0.06))' : 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))'};`
+          "stroke-width": 1.1,
+          style: `filter:${isLight ? 'drop-shadow(0 1px 3px rgba(0,0,0,0.1))' : 'drop-shadow(0 2px 6px rgba(0,0,0,0.6))'};`
         }, wirePillG);
         const tWireSpd = mk("text", {
           x: rtrCenterX,
@@ -13963,10 +14030,10 @@
         }, wanG);
         tWanSpd.textContent = liveSpeedStr;
 
-        // Soft pulse online dot
+        // Soft pulse online dot at top-left (r: 1.8)
         mk("circle", {
-          cx: wanX + wanW - 6,
-          cy: wanY + 6,
+          cx: wanX + 7,
+          cy: wanY + 7,
           r: 1.8,
           class: "topo-pulse-dot",
           fill: "#10b981"
@@ -14063,13 +14130,13 @@
             style: `font-size:8px; font-weight:600; font-family:var(--font-mono); fill:${topoTheme.textMuted};`
           }, devG).textContent = dev.ip || "";
 
-          // Status dot: online = green, offline = gray, blocked = red
+          // Status dot at top-left: online = green, offline = gray, blocked = red
           const isDevBlocked = (typeof blockedIps !== 'undefined' && blockedIps.has(dev.ip)) || !!dev.blocked;
-          const devStatusCol = isDevBlocked ? "#ef4444" : (isNodeOnline ? "#22c55e" : (isLight ? "#94a3b8" : "#52525b"));
+          const devStatusCol = isDevBlocked ? "#ef4444" : (isNodeOnline ? "#10b981" : (isLight ? "#94a3b8" : "#52525b"));
           mk("circle", {
-            cx: devBoxX + devW - 8,
-            cy: l.y + devH / 2,
-            r: 2.5,
+            cx: devBoxX + 6,
+            cy: l.y + 6,
+            r: 2.0,
             class: (isNodeOnline && !isDevBlocked) ? "topo-pulse-dot" : "",
             fill: devStatusCol
           }, devG);
@@ -14151,10 +14218,10 @@
         }, chassisG);
         tSub.textContent = `[L${depth + 1} ${badgeTag}] ${node.ip || ''}`;
 
-        // Online soft pulse dot on chassis
+        // Online soft pulse dot on chassis at top-left
         mk("circle", {
-          cx: rtrX + rtrW - 8,
-          cy: l.y + 8,
+          cx: rtrX + 6,
+          cy: l.y + 6,
           r: 2.0,
           class: isNodeOnline ? "topo-pulse-dot" : "",
           fill: isNodeOnline ? "#10b981" : (isLight ? "#94a3b8" : "#52525b")
@@ -14243,6 +14310,10 @@
             showTopoNodeDetail(isLan ? (slot.port || slot) : { label: 'Wi-Fi Interface', count: slot.count, clients: slot.clients, band: 'Wi-Fi' }, true, e);
           };
 
+          const isWan = slot.type === 'wan';
+          const sockStrokeCol = isWan ? (usbStyle.lineStroke || '#0284c7') : (isConnected ? (isLan ? nodeLayerColor : themeColors.wifi) : topoTheme.cardBorderIdle);
+          const sockFillCol = isWan ? (isLight ? 'rgba(2,132,199,0.08)' : 'rgba(56,189,248,0.1)') : (isConnected ? (isLight ? 'rgba(2,132,199,0.06)' : 'rgba(56,189,248,0.08)') : (isLight ? '#f8fafc' : 'rgba(255,255,255,0.02)'));
+
           mk("rect", {
             x: socketX,
             y: socketY,
@@ -14250,40 +14321,53 @@
             height: socketH,
             rx: 6,
             ry: 6,
-            fill: isConnected ? (isLight ? 'rgba(2,132,199,0.06)' : 'rgba(56,189,248,0.08)') : (isLight ? '#f8fafc' : 'rgba(255,255,255,0.02)'),
-            stroke: isConnected ? (isLan ? nodeLayerColor : themeColors.wifi) : topoTheme.cardBorderIdle,
+            fill: sockFillCol,
+            stroke: sockStrokeCol,
             "stroke-width": 0.9
           }, sockG);
 
+          // Top-left status LED dot
           mk("circle", {
             cx: socketX + 5,
-            cy: socketY + 7,
-            r: 1.8,
-            class: isConnected ? "topo-pulse-dot" : "",
-            fill: isConnected ? "#10b981" : (isLight ? "#94a3b8" : "#52525b")
+            cy: socketY + 5.5,
+            r: 1.5,
+            class: (isConnected || isWan) ? "topo-pulse-dot" : "",
+            fill: (isConnected || isWan) ? "#10b981" : (isLight ? "#94a3b8" : "#52525b")
           }, sockG);
 
-          const tSockLbl = mk("text", {
-            x: socketX + 9,
-            y: socketY + 9,
-            style: `font-size:7px; font-weight:800; font-family:var(--font-mono); fill:${isConnected ? nodeLayerColor : topoTheme.textDim};`
-          }, sockG);
-          let sLbl = slot.label || (isLan ? `LAN ${slot.idx + 1}` : 'Wi-Fi');
-          tSockLbl.textContent = sLbl;
+          let sLbl = slot.label || (isWan ? 'WAN' : (isLan ? `LAN ${slot.idx + 1}` : 'Wi-Fi'));
 
-          // Show people icon and count without ()
+          // Perfect centered two-row layout: Top row centered label, Bottom row centered people icon + count
           if (childCount > 0) {
+            // Port label on top row centered
+            const tSockLbl = mk("text", {
+              x: socketCenterX,
+              y: socketY + 9.5,
+              "text-anchor": "middle",
+              style: `font-size:6.8px; font-weight:800; font-family:var(--font-mono); fill:${isConnected ? (isWan ? (usbStyle.lineStroke || '#0284c7') : (isLan ? nodeLayerColor : themeColors.wifi)) : topoTheme.textDim};`
+            }, sockG);
+            tSockLbl.textContent = sLbl;
+
+            // People micro-icon + count centered on bottom row (socketY + 18)
             const cntG = mk("g", { class: "topo-port-client-count", style: `fill:${isConnected ? topoTheme.textMain : topoTheme.textDim};` }, sockG);
-            const pX = socketX + socketW - 14;
-            const pY = socketY + 13;
-            mk("circle", { cx: pX - 4, cy: pY - 2, r: 1.5, fill: "currentColor" }, cntG);
-            mk("path", { d: `M ${pX - 6.5} ${pY + 2.5} a2.5 2.5 0 0 1 5 0 Z`, fill: "currentColor" }, cntG);
+            const iconOffset = -5.5;
+            mk("circle", { cx: socketCenterX + iconOffset - 2.5, cy: socketY + 16, r: 1.3, fill: "currentColor" }, cntG);
+            mk("path", { d: `M ${socketCenterX + iconOffset - 4.5} ${socketY + 20} a2 2 0 0 1 4 0 Z`, fill: "currentColor" }, cntG);
             mk("text", {
-              x: socketX + socketW - 4,
-              y: socketY + 16,
-              "text-anchor": "end",
-              style: `font-size:8px; font-weight:800; font-family:var(--font-mono); fill:${isConnected ? topoTheme.textMain : topoTheme.textDim};`
+              x: socketCenterX + iconOffset + 3.5,
+              y: socketY + 19.5,
+              "text-anchor": "start",
+              style: `font-size:7.5px; font-weight:800; font-family:var(--font-mono); fill:${isConnected ? topoTheme.textMain : topoTheme.textDim};`
             }, cntG).textContent = `${childCount}`;
+          } else {
+            // Centered single row for empty / uplink ports
+            const tSockLbl = mk("text", {
+              x: socketCenterX,
+              y: socketY + 15,
+              "text-anchor": "middle",
+              style: `font-size:7.2px; font-weight:800; font-family:var(--font-mono); fill:${(isConnected || isWan) ? (isWan ? (usbStyle.lineStroke || '#0284c7') : (isLan ? nodeLayerColor : themeColors.wifi)) : topoTheme.textDim};`
+            }, sockG);
+            tSockLbl.textContent = sLbl;
           }
         });
 
@@ -14587,7 +14671,8 @@
                   ry: 4,
                   fill: isLight ? "rgba(0,0,0,0.025)" : "rgba(255,255,255,0.025)"
                 }, wcG);
-                drawDeviceIcon(wcIconBoxX + wcIconBoxW / 2, wcIconBoxY + wcIconBoxH / 2, isWcOnline ? wifiCol : topoTheme.textDim, 'phone', wcG);
+                const wcClass = (typeof classifyLanDevice === 'function') ? classifyLanDevice(wc) : { type: 'phone', color: wifiCol };
+                drawLanClientDeviceIcon(wcIconBoxX + wcIconBoxW / 2, wcIconBoxY + wcIconBoxH / 2, { ...wcClass, color: isWcOnline ? wifiCol : topoTheme.textDim }, wcG);
 
                 let wcName = resolveDeviceDisplayName(wc);
                 if (wcName.length > 12) wcName = wcName.substring(0, 11) + "…";
@@ -14599,18 +14684,20 @@
                 }, wcG);
                 tWcName.textContent = wcName;
 
+                // Clean label only without 72Mbps
                 const tWcIp = mk("text", {
                   x: wcX + 38,
                   y: wcY + 25,
                   style: `font-size:7px; font-weight:700; font-family:var(--font-mono); fill:${wifiCol};`
                 }, wcG);
-                tWcIp.textContent = `${wc.ip || ''} • ${wc.linkSpeed || 'WiFi'}`;
+                const wcSubLabel = wc.band ? (wc.band.includes('5') ? '5 GHz' : '2.4 GHz') : 'Wi-Fi';
+                tWcIp.textContent = wc.ip ? `${wc.ip} • ${wcSubLabel}` : wcSubLabel;
 
 
 
-                // Status dot: online = green, offline = gray, blocked = red
+                // Status dot at top-left: online = green, offline = gray, blocked = red
                 mk("circle", {
-                  cx: wcX + wcW - 6,
+                  cx: wcX + 6,
                   cy: wcY + 6,
                   r: 2.0,
                   class: (isWcOnline && !isWcBlocked) ? "topo-pulse-dot" : "",
