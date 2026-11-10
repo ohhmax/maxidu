@@ -105,6 +105,24 @@ if [ "$ACTION" = "set" ]; then
     FLOW_OFF_HW=$(echo "$POST_DATA" | jq -r '.flow_offloading_hw // empty' 2>/dev/null)
     MSS_CLAMP=$(echo "$POST_DATA" | jq -r '.mss_clamping // empty' 2>/dev/null)
     DNS_REBIND=$(echo "$POST_DATA" | jq -r '.dns_rebind // empty' 2>/dev/null)
+    DEV_HOST=$(echo "$POST_DATA" | jq -r '.hostname // empty' 2>/dev/null | tr -cd 'a-zA-Z0-9.-')
+    CUST_MAC=$(echo "$POST_DATA" | jq -r '.custom_mac // empty' 2>/dev/null | tr 'A-Z' 'a-z' | tr -cd '0-9a-f:')
+    RESET_MAC=$(echo "$POST_DATA" | jq -r '.reset_mac // empty' 2>/dev/null)
+
+    # Device Hostname
+    if [ -n "$DEV_HOST" ]; then
+        uci -q set system.@system[0].hostname="$DEV_HOST"
+        uci commit system
+        echo "$DEV_HOST" > /proc/sys/kernel/hostname 2>/dev/null
+        sed -i "s/127.0.0.1 localhost.*/127.0.0.1 localhost $DEV_HOST/" /etc/hosts 2>/dev/null
+    fi
+
+    # Custom MAC Address Override
+    if [ "$RESET_MAC" = "1" ] || [ "$CUST_MAC" = "default" ] || [ "$CUST_MAC" = "reset" ]; then
+        uci -q delete network.lan.macaddr
+    elif [ -n "$CUST_MAC" ] && is_valid_mac "$CUST_MAC"; then
+        uci set network.lan.macaddr="$CUST_MAC"
+    fi
 
     if [ -n "$LAN_IP" ]; then
         if ! is_valid_ipv4 "$LAN_IP"; then
@@ -250,8 +268,16 @@ WAN_IP=$(echo "$WAN_STATUS" | jq -r '.["ipv4-address"][0].address // "--"' 2>/de
 [ -z "$WAN_IP" ] && WAN_IP="--"
 WAN_UP=$(echo "$WAN_STATUS" | jq -r '.up // false' 2>/dev/null)
 
+DEV_HOST=$(uci -q get system.@system[0].hostname || cat /proc/sys/kernel/hostname 2>/dev/null || echo 'MAXNET')
+[ -z "$DEV_HOST" ] && DEV_HOST="MAXNET"
+HW_MAC=$(cat /sys/class/net/br-lan/address 2>/dev/null || cat /sys/class/net/eth0/address 2>/dev/null || echo 'ca:e7:b7:34:8f:ac')
+CUST_MAC=$(uci -q get network.lan.macaddr || echo '')
+
 cat << JSON
 {
+  "hostname": "$DEV_HOST",
+  "custom_mac": "$CUST_MAC",
+  "hw_mac": "$HW_MAC",
   "lan_ip": "$LAN_IP",
   "netmask": "$NETMASK",
   "gateway": "$GATEWAY",
