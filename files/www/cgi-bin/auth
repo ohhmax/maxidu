@@ -34,6 +34,18 @@ CLIENT_IP="${REMOTE_ADDR:-127.0.0.1}"
 UA="${HTTP_USER_AGENT:-Web Browser}"
 NOW=$(date +%s)
 
+dispatch_login_alert() {
+    title="$1"
+    msg="$2"
+    level="$3"
+    ev_type="$4"
+    if [ -x "/www/cgi-bin/webhooks" ]; then
+        payload=$(jq -n --arg t "$title" --arg m "$msg" --arg l "$level" --arg et "$ev_type" \
+            '{action:"dispatch", title:$t, message:$m, level:$l, event_type:$et}')
+        POST_DATA="$payload" REQUEST_METHOD="POST" CONTENT_LENGTH=${#payload} /www/cgi-bin/webhooks >/dev/null 2>&1 &
+    fi
+}
+
 if [ "$ACTION" = "login" ]; then
     mkdir -p /tmp/login_attempts
     IP_FILE="/tmp/login_attempts/$(echo "$CLIENT_IP" | tr -c 'a-zA-Z0-9.' '_')"
@@ -73,13 +85,16 @@ if [ "$ACTION" = "login" ]; then
 }
 SESS
         echo "{\"status\": \"ok\", \"token\": \"$T\", \"user\": \"$USER\", \"ip\": \"$CLIENT_IP\"}"
+        dispatch_login_alert "Router WebUI Login: $USER" "Administrator '$USER' logged into MAXNET Gateway WebUI from IP $CLIENT_IP." "info" "router_login"
     else
         FAIL_COUNT=$((FAIL_COUNT + 1))
         echo "$FAIL_COUNT $NOW" > "$IP_FILE"
         ATTEMPTS_LEFT=$((5 - FAIL_COUNT))
         if [ "$ATTEMPTS_LEFT" -le 0 ]; then
+            dispatch_login_alert "Security Lockout: Brute-Force Blocked" "IP $CLIENT_IP locked out for 15 minutes after 5 consecutive failed WebUI login attempts." "danger" "security_alert"
             echo '{"status": "error", "message": "Security Lockout: Too many failed login attempts. Account locked for 15 minutes."}'
         else
+            dispatch_login_alert "Failed Router Login Attempt" "Failed WebUI login attempt for user '$USER' from IP $CLIENT_IP ($ATTEMPTS_LEFT attempts remaining)." "warning" "router_login"
             echo "{\"status\": \"error\", \"message\": \"Invalid username or password. ${ATTEMPTS_LEFT} attempts remaining before temporary lockout.\"}"
         fi
     fi

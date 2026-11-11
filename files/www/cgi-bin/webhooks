@@ -38,8 +38,18 @@ init_config() {
     "wan_disconnect": true,
     "dhcp_error": true,
     "system_update": true,
-    "security_alert": true
-  }
+    "security_alert": true,
+    "router_login": true,
+    "data_usage": true,
+    "lan_plugged": true,
+    "usb_plugged": true,
+    "power_event": true,
+    "custom_ip": true,
+    "adult_content": true,
+    "wifi_event": true
+  },
+  "custom_ip_target": "10.0.0.2",
+  "data_quota_mb": 1024
 }
 CFG
     fi
@@ -54,7 +64,7 @@ init_notif() {
 # ==================== ACTION: GET ====================
 if [ "$ACTION" = "get" ]; then
     init_config
-    cat "$CONF_FILE"
+    jq '.events += ({"router_login":true,"data_usage":true,"lan_plugged":true,"usb_plugged":true,"power_event":true,"custom_ip":true,"adult_content":true,"wifi_event":true} * (.events // {})) | .custom_ip_target = (.custom_ip_target // "10.0.0.2") | .data_quota_mb = (.data_quota_mb // 1024)' "$CONF_FILE" 2>/dev/null || cat "$CONF_FILE"
     exit 0
 fi
 
@@ -145,6 +155,64 @@ if [ "$ACTION" = "test" ]; then
     exit 0
 fi
 
+# ==================== ACTION: TEST_EVENT ====================
+if [ "$ACTION" = "test_event" ]; then
+    EV_TYPE=$(echo "$QUERY_STRING" | sed -n 's/^.*type=\([^&]*\).*$/\1/p')
+    [ -z "$EV_TYPE" ] && EV_TYPE=$(echo "$POST_DATA" | jq -r '.type // "system"' 2>/dev/null)
+    [ -z "$EV_TYPE" ] && EV_TYPE="system"
+
+    T_TITLE="System Alert"
+    T_MSG="MAXNET event test notification"
+    T_LEVEL="info"
+
+    case "$EV_TYPE" in
+        router_login)
+            T_TITLE="Router WebUI Login: root"
+            T_MSG="Administrator 'root' logged into MAXNET Gateway WebUI from IP 10.0.0.111."
+            T_LEVEL="info"
+            ;;
+        data_usage)
+            T_TITLE="Data Quota Alert: POCO-X6-5G"
+            T_MSG="Client POCO-X6-5G (10.0.0.114, MAC: d6:a7:58:73:5d:6b) consumed 1.42 GB, exceeding the 1024 MB quota threshold."
+            T_LEVEL="warning"
+            ;;
+        lan_plugged)
+            T_TITLE="Ethernet Cable Plugged: LAN 1"
+            T_MSG="Physical network link detected on port LAN 1 at 1000 Mbps Full Duplex."
+            T_LEVEL="info"
+            ;;
+        usb_plugged)
+            T_TITLE="USB Modem Connected: Galaxy S21 FE 5G"
+            T_MSG="New USB tethering modem detected on USB 3.0 port: Samsung Galaxy S21 FE 5G (usb0)."
+            T_LEVEL="info"
+            ;;
+        power_event)
+            T_TITLE="Router Reboot & Power Event"
+            T_MSG="MAXNET Gateway router has rebooted or recovered from power interruption. System uptime: 42s."
+            T_LEVEL="warning"
+            ;;
+        custom_ip)
+            T_TITLE="Monitored Host Offline: 10.0.0.2"
+            T_MSG="Target host 10.0.0.2 is UNREACHABLE or stopped responding on the network."
+            T_LEVEL="danger"
+            ;;
+        adult_content)
+            T_TITLE="18+ Adult Content Detected"
+            T_MSG="Network client at IP 10.0.0.114 (POCO-X6-5G) queried adult/restricted domain (pornhub.com). Access logged."
+            T_LEVEL="danger"
+            ;;
+        wifi_event)
+            T_TITLE="WiFi Client Associated: Realtek"
+            T_MSG="Wireless client (MAC: 46:df:eb:aa:43:32) connected to MAXNET-5G on channel 36."
+            T_LEVEL="info"
+            ;;
+    esac
+
+    POST_DATA=$(jq -n --arg t "$T_TITLE" --arg m "$T_MSG" --arg l "$T_LEVEL" --arg et "$EV_TYPE" \
+        '{title:$t, message:$m, level:$l, event_type:$et}')
+    ACTION="dispatch"
+fi
+
 # ==================== ACTION: DISPATCH (SEND NOTIFICATION & SAVE) ====================
 if [ "$ACTION" = "dispatch" ]; then
     init_config
@@ -172,7 +240,7 @@ if [ "$ACTION" = "dispatch" ]; then
 
     if [ -f "$NOTIF_FILE" ]; then
         # Prepend new entry and slice top 50
-        jq --argjson new "$NEW_ENTRY" '[$new] + (if type=="array" then . else [] end) | .[0:50]' "$NOTIF_FILE" > "${NOTIF_FILE}.tmp" && mv "${NOTIF_FILE}.tmp" "$NOTIF_FILE"
+        jq --argjson new "$NEW_ENTRY" '[$new] + (if type=="array" then . else [] end) | .[0:50]' "$NOTIF_FILE" > "/tmp/notif_new.json" && mv -f "/tmp/notif_new.json" "$NOTIF_FILE"
     else
         echo "[$NEW_ENTRY]" > "$NOTIF_FILE"
     fi

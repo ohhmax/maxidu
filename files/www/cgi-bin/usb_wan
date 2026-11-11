@@ -54,11 +54,50 @@ fi
 [ -z "$ACTION" ] && ACTION="get"
 
 if [ "$ACTION" = "restart" ] || [ "$ACTION" = "restart_modems" ]; then
-    ifup wan_usb 2>/dev/null
-    ifup wan_usb1 2>/dev/null
-    /etc/init.d/network reload 2>/dev/null
-    echo '{"status": "ok", "message": "USB WAN interfaces restarted"}'
-    exit 0
+    TARGET_IFACE=$(echo "$POST_DATA" | jq -r '.iface // .interface // empty' 2>/dev/null)
+    [ -z "$TARGET_IFACE" ] && TARGET_IFACE=$(echo "$QUERY_STRING" | sed -n 's/^.*iface=\([^&]*\).*$/\1/p')
+    [ -z "$TARGET_IFACE" ] && TARGET_IFACE="all"
+
+    REBOOT_ADB=$(echo "$POST_DATA" | jq -r '.reboot_adb // false' 2>/dev/null)
+    [ "$REBOOT_ADB" != "true" ] && REBOOT_ADB=$(echo "$QUERY_STRING" | grep -q "reboot_adb=true" && echo "true" || echo "false")
+
+    SERIAL=$(echo "$POST_DATA" | jq -r '.serial // empty' 2>/dev/null)
+    [ -z "$SERIAL" ] && SERIAL=$(echo "$QUERY_STRING" | sed -n 's/^.*serial=\([^&]*\).*$/\1/p')
+
+    if [ "$REBOOT_ADB" = "true" ]; then
+        if [ -n "$SERIAL" ]; then
+            adb -s "$SERIAL" reboot >/dev/null 2>&1 &
+            echo "{\"status\": \"ok\", \"action\": \"reboot_adb\", \"serial\": \"$SERIAL\", \"message\": \"ADB reboot signal dispatched to phone hardware ($SERIAL). Device is restarting.\"}"
+        else
+            adb reboot >/dev/null 2>&1 &
+            echo "{\"status\": \"ok\", \"action\": \"reboot_adb\", \"message\": \"ADB reboot signal dispatched to connected Android phone hardware.\"}"
+        fi
+        exit 0
+    fi
+
+    if [ "$TARGET_IFACE" = "all" ] || [ -z "$TARGET_IFACE" ]; then
+        ifup wan_usb 2>/dev/null
+        ifup wan_usb1 2>/dev/null
+        /etc/init.d/network reload 2>/dev/null
+        udhcpc -i usb0 -n -q 2>/dev/null &
+        udhcpc -i usb1 -n -q 2>/dev/null &
+        echo '{"status": "ok", "action": "restart_interfaces", "target": "all", "message": "All USB modem interfaces (usb0, usb1) restarted and fresh DHCP leases acquired."}'
+        exit 0
+    else
+        if [ "$TARGET_IFACE" = "usb0" ]; then
+            ifdown wan_usb 2>/dev/null
+            sleep 1
+            ifup wan_usb 2>/dev/null
+            udhcpc -i usb0 -n -q 2>/dev/null &
+        else
+            ifdown "wan_${TARGET_IFACE}" 2>/dev/null
+            sleep 1
+            ifup "wan_${TARGET_IFACE}" 2>/dev/null
+            udhcpc -i "$TARGET_IFACE" -n -q 2>/dev/null &
+        fi
+        echo "{\"status\": \"ok\", \"action\": \"restart_interface\", \"target\": \"$TARGET_IFACE\", \"message\": \"USB interface $TARGET_IFACE soft-restarted and DHCP lease renewed successfully.\"}"
+        exit 0
+    fi
 fi
 
 if [ "$ACTION" = "save" ] || [ "$ACTION" = "save_config" ]; then

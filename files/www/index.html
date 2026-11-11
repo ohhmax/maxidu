@@ -2858,7 +2858,7 @@ GitHub: https://github.com/ohhmax | Email: max@maxnet.lan
       transition: .25s;
     }
     input:checked + .toggle-slider {
-      background-color: var(--primary, #0ea5e9);
+      background-color: var(--mh-emerald, #10b981);
     }
     input:checked + .toggle-slider:before {
       transform: translateX(20px);
@@ -4812,9 +4812,9 @@ GitHub: https://github.com/ohhmax | Email: max@maxnet.lan
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
     }
     input:checked + .toggle-slider {
-      background-color: var(--primary, #0ea5e9);
-      border-color: var(--primary, #0ea5e9);
-      box-shadow: 0 0 10px rgba(14, 165, 233, 0.35);
+      background-color: #10b981;
+      border-color: #10b981;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.35);
     }
     input:checked + .toggle-slider:before {
       transform: translateX(20px);
@@ -8771,10 +8771,10 @@ GitHub: https://github.com/ohhmax | Email: max@maxnet.lan
                   </div>
                 </div>
 
-                <div class="setting-row-item setting-clickable-row" onclick="restartUsbWanInterfaces()">
+                <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('restart_usb_modem')">
                   <div class="setting-label-col">
                     <span class="setting-label-bold">Restart USB Modems</span>
-                    <span class="setting-label-sub">Tap to restart modems &amp; renew DHCP</span>
+                    <span class="setting-label-sub" id="usbRestartModemVal">Select interface, renew DHCP or reboot phone via ADB</span>
                   </div>
                   <div class="setting-arrow-col">
                     <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
@@ -9165,6 +9165,130 @@ GitHub: https://github.com/ohhmax | Email: max@maxnet.lan
                 <div class="toggle-wrap-cell">
                   <label class="toggle-switch">
                     <input type="checkbox" id="evSecurityToggle" checked onchange="saveWebhooksConfig()">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Router WebUI &amp; SSH Logins</span>
+                  <span class="setting-label-sub">Alert on administrator logins and invalid authentication attempts</span>
+                </div>
+                <div class="toggle-wrap-cell">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="evRouterLoginToggle" checked onchange="saveWebhooksConfig()">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Per-User High Data Consumption</span>
+                  <span class="setting-label-sub">Alert when a client device exceeds bandwidth/data quota threshold</span>
+                </div>
+                <div class="toggle-wrap-cell">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="evDataUsageToggle" checked onchange="saveWebhooksConfig()">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('webhook_data_quota')">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Data Quota Alert Threshold</span>
+                  <span class="setting-label-sub" id="disp_webhook_data_quota">1024 MB (1.0 GB)</span>
+                </div>
+                <div class="setting-arrow-col">
+                  <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+              </div>
+
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Ethernet Cable Plugged / Unplugged</span>
+                  <span class="setting-label-sub">Alert on physical LAN/WAN port cable link state changes</span>
+                </div>
+                <div class="toggle-wrap-cell">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="evLanPlugToggle" checked onchange="saveWebhooksConfig()">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">USB Device &amp; Modem Hotplug</span>
+                  <span class="setting-label-sub">Alert when USB modems, phones, or storage drives connect/disconnect</span>
+                </div>
+                <div class="toggle-wrap-cell">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="evUsbPlugToggle" checked onchange="saveWebhooksConfig()">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Router Reboot &amp; Power Events</span>
+                  <span class="setting-label-sub">Alert when router reboots or recovers from power loss/outage</span>
+                </div>
+                <div class="toggle-wrap-cell">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="evPowerToggle" checked onchange="saveWebhooksConfig()">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Custom IP Online / Offline Watchdog</span>
+                  <span class="setting-label-sub">Alert when monitored local or remote host IP goes offline/online</span>
+                </div>
+                <div class="toggle-wrap-cell">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="evCustomIpToggle" checked onchange="saveWebhooksConfig()">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('webhook_custom_ip')">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Monitored Watchdog Target IP</span>
+                  <span class="setting-label-sub" id="disp_webhook_custom_ip">10.0.0.2</span>
+                </div>
+                <div class="setting-arrow-col">
+                  <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+              </div>
+
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">18+ Adult Content Visit Detection</span>
+                  <span class="setting-label-sub">Alert when network clients query or access adult/restricted domains</span>
+                </div>
+                <div class="toggle-wrap-cell">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="evAdultToggle" checked onchange="saveWebhooksConfig()">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">WiFi Client Association &amp; Roaming</span>
+                  <span class="setting-label-sub">Alert on wireless client connect, disconnect, and deauth events</span>
+                </div>
+                <div class="toggle-wrap-cell">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="evWifiToggle" checked onchange="saveWebhooksConfig()">
                     <span class="toggle-slider"></span>
                   </label>
                 </div>
@@ -11924,17 +12048,7 @@ GitHub: https://github.com/ohhmax | Email: max@maxnet.lan
     }
 
     async function restartUsbWanInterfaces() {
-      showNotificationToast('Restarting USB WAN modems & DHCP leases...');
-      try {
-        const res = await fetch('/cgi-bin/usb_wan?action=restart_modems', { method: 'POST' });
-        const data = await res.json();
-        if (data.status === 'ok') {
-          showNotificationToast('USB modems restarted successfully');
-          setTimeout(loadUsbWanConfig, 2500);
-        }
-      } catch (e) {
-        showNotificationToast('Restart request error: ' + e.message, true);
-      }
+      openSettingModal('restart_usb_modem');
     }
 
     function openEditUsbDeviceModal(devId) {
@@ -21021,6 +21135,77 @@ function onRemoveWifiClient(nodeId, clientIdent) {
             <input type="text" id="modalInput_ntfy_url" class="mh-input" value="${escapeHtml(cur)}" placeholder="https://ntfy.sh/maxnet-alerts" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
           </div>
         `;
+      } else if (key === 'webhook_data_quota') {
+        titleEl.textContent = 'Data Quota Alert Threshold';
+        descEl.textContent = 'Specify bandwidth consumption limit in Megabytes. When any client exceeds this threshold, an alert notification is dispatched.';
+        const cur = (window._cachedWebhooksConfig?.data_quota_mb) || 1024;
+        bodyEl.innerHTML = `
+          <div>
+            <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">Threshold Limit (MB)</label>
+            <input type="number" id="modalInput_data_quota" class="mh-input" value="${escapeHtml(cur)}" placeholder="1024" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+          </div>
+          <div>
+            <span style="font-size:10px; font-family:var(--font-mono); color:var(--text-dim); margin-bottom:6px; display:block;">Quick Presets:</span>
+            <div style="display:flex; flex-wrap:wrap; gap:6px;">
+              <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalInput_data_quota').value='500'">500 MB</button>
+              <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalInput_data_quota').value='1024'">1024 MB (1 GB)</button>
+              <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalInput_data_quota').value='2048'">2048 MB (2 GB)</button>
+              <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalInput_data_quota').value='5120'">5120 MB (5 GB)</button>
+              <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalInput_data_quota').value='10240'">10240 MB (10 GB)</button>
+            </div>
+          </div>
+        `;
+      } else if (key === 'webhook_custom_ip') {
+        titleEl.textContent = 'Monitored Watchdog Target IP';
+        descEl.textContent = 'Enter local or remote IPv4 address to monitor for online/offline reachability alerts.';
+        const cur = (window._cachedWebhooksConfig?.custom_ip_target) || '10.0.0.2';
+        bodyEl.innerHTML = `
+          <div>
+            <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">Target Host IP</label>
+            <input type="text" id="modalInput_custom_ip_target" class="mh-input" value="${escapeHtml(cur)}" placeholder="10.0.0.2" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+          </div>
+          <div>
+            <span style="font-size:10px; font-family:var(--font-mono); color:var(--text-dim); margin-bottom:6px; display:block;">Quick Suggestions:</span>
+            <div style="display:flex; flex-wrap:wrap; gap:6px;">
+              <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalInput_custom_ip_target').value='10.0.0.2'">10.0.0.2 (Router B)</button>
+              <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalInput_custom_ip_target').value='10.0.0.5'">10.0.0.5 (NAS Storage)</button>
+              <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalInput_custom_ip_target').value='10.0.0.100'">10.0.0.100 (CCTV Server)</button>
+              <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalInput_custom_ip_target').value='1.1.1.1'">1.1.1.1 (Cloudflare)</button>
+              <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalInput_custom_ip_target').value='8.8.8.8'">8.8.8.8 (Google DNS)</button>
+            </div>
+          </div>
+        `;
+      } else if (key === 'restart_usb_modem') {
+        titleEl.textContent = 'Restart USB Modem / Hardware';
+        descEl.textContent = 'Choose which connected USB modem interface to reset & renew DHCP lease, or reboot physical phone via ADB.';
+        if (saveBtn) saveBtn.textContent = 'EXECUTE RESTART';
+        const devs = (window._cachedUsbWanData?.devices) || [];
+        bodyEl.innerHTML = `
+          <div>
+            <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">Target USB Interface</label>
+            <select id="modalSelect_restart_target" class="mh-input" style="width:100%; box-sizing:border-box;">
+              <option value="all">All Connected USB Modems</option>
+              ${devs.map(d => `<option value="${escapeHtml(d.id)}">${escapeHtml(d.id)} (${escapeHtml(d.ip || '--')}) - ${escapeHtml(d.name || 'Modem')}</option>`).join('')}
+            </select>
+          </div>
+          <div style="margin-top:14px;">
+            <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:8px; display:block; font-family:var(--font-mono);">Action Type</label>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <label style="display:flex; align-items:flex-start; gap:8px; cursor:pointer; font-size:12px; line-height:1.4;">
+                <input type="radio" name="usb_restart_mode" value="soft" checked style="margin-top:2px;">
+                <span><strong>Interface Soft Reset &amp; Renew DHCP</strong><br><span style="color:var(--text-dim);">Re-cycles interface link and gets fresh IP from carrier. Zero downtime for phone.</span></span>
+              </label>
+              <label style="display:flex; align-items:flex-start; gap:8px; cursor:pointer; font-size:12px; line-height:1.4;">
+                <input type="radio" name="usb_restart_mode" value="adb" style="margin-top:2px;">
+                <span><strong>Reboot Phone Hardware via ADB</strong><br><span style="color:var(--text-dim);">Dispatches hardware reboot signal to restart the physical Android smartphone.</span></span>
+              </label>
+            </div>
+          </div>
+          <div id="usbRestartModalStatus" style="margin-top:12px; font-size:12px; font-family:var(--font-mono); color:var(--primary); min-height:18px;"></div>
+          <div style="margin-top:14px; padding-top:10px; border-top:1px solid var(--border-sub);">
+            <a href="javascript:void(0)" onclick="closeSettingModal(); openSettingPage('acc-adb-device');" style="color:var(--primary, #0ea5e9); font-size:12px; text-decoration:none; font-weight:600;">Manage Phone Hardware Controls in ADB Devices &rarr;</a>
+          </div>
+        `;
       } else if (key === 'wan_static_ip') {
         titleEl.textContent = 'Static IPv4 Address';
         descEl.textContent = 'Fixed IPv4 address assigned to the router by your upstream provider.';
@@ -21842,6 +22027,50 @@ function onRemoveWifiClient(nodeId, clientIdent) {
         const disp = document.getElementById('disp_webhook_ntfy_url');
         if (disp) disp.textContent = url || 'https://ntfy.sh/maxnet-alerts';
         saveWebhooksConfig();
+      } else if (currentModalKey === 'webhook_data_quota') {
+        const val = parseInt((document.getElementById('modalInput_data_quota')?.value || '1024').trim()) || 1024;
+        window._cachedWebhooksConfig = window._cachedWebhooksConfig || {};
+        window._cachedWebhooksConfig.data_quota_mb = val;
+        const disp = document.getElementById('disp_webhook_data_quota');
+        if (disp) disp.textContent = `${val} MB (${(val/1024).toFixed(1)} GB)`;
+        saveWebhooksConfig();
+      } else if (currentModalKey === 'webhook_custom_ip') {
+        const ip = (document.getElementById('modalInput_custom_ip_target')?.value || '10.0.0.2').trim();
+        window._cachedWebhooksConfig = window._cachedWebhooksConfig || {};
+        window._cachedWebhooksConfig.custom_ip_target = ip;
+        const disp = document.getElementById('disp_webhook_custom_ip');
+        if (disp) disp.textContent = ip;
+        saveWebhooksConfig();
+      } else if (currentModalKey === 'restart_usb_modem') {
+        const target = document.getElementById('modalSelect_restart_target')?.value || 'all';
+        const mode = document.querySelector('input[name="usb_restart_mode"]:checked')?.value || 'soft';
+        const statusEl = document.getElementById('usbRestartModalStatus');
+        const saveBtn = document.getElementById('btnModalSave');
+        if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'RESTARTING...'; }
+
+        if (statusEl) statusEl.textContent = mode === 'adb' ? 'Transmitting ADB reboot signal to smartphone...' : `Resetting interface (${target}) & renewing DHCP...`;
+        
+        try {
+          if (mode === 'adb') {
+            await fetch('/cgi-bin/usb_wan?action=restart_modems&reboot_adb=true&serial=' + encodeURIComponent(target === 'all' ? '' : target), { method: 'POST' });
+            if (statusEl) statusEl.textContent = 'Phone reboot signal sent! Phone is power cycling.';
+            if (typeof showToast === 'function') showToast('ADB phone reboot initiated!', 'success');
+          } else {
+            const res = await fetch(`/cgi-bin/usb_wan?action=restart_modems&iface=${encodeURIComponent(target)}`, { method: 'POST' });
+            const data = await res.json();
+            if (statusEl) statusEl.textContent = data.message || 'Interface restarted successfully!';
+            if (typeof showToast === 'function') showToast(data.message || 'USB Modem restarted', 'success');
+          }
+          setTimeout(() => {
+            closeSettingModal();
+            loadUsbWanConfig();
+          }, 1400);
+        } catch (e) {
+          if (statusEl) statusEl.textContent = 'Error: ' + e.message;
+          if (typeof showToast === 'function') showToast('Restart error: ' + e.message, 'error');
+          if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'EXECUTE RESTART'; }
+        }
+        return;
       } else if (currentModalKey === 'wan_static_ip') {
         const ip = (document.getElementById('modalInput_wan_static_ip')?.value || '').trim();
         if (document.getElementById('wanStaticIp')) document.getElementById('wanStaticIp').value = ip;
@@ -24403,6 +24632,144 @@ function onRemoveWifiClient(nodeId, clientIdent) {
       try {
         localStorage.setItem('maxnet_known_macs', JSON.stringify([...known]));
       } catch (e) {}
+
+      // 4. Per-User High Data Consumption Alert
+      const dataQuotaMB = (window._cachedWebhooksConfig && window._cachedWebhooksConfig.data_quota_mb) || 1024;
+      const dataQuotaBytes = dataQuotaMB * 1024 * 1024;
+      window._notifiedClientDataQuota = window._notifiedClientDataQuota || new Set();
+      clients.forEach(c => {
+        const totalB = c.total_bytes || ((c.rx_bytes || 0) + (c.tx_bytes || 0)) || (((c.rx_mb || 0) + (c.tx_mb || 0)) * 1048576);
+        if (totalB >= dataQuotaBytes && c.mac && !window._notifiedClientDataQuota.has(c.mac)) {
+          window._notifiedClientDataQuota.add(c.mac);
+          dispatchAlertNotification({
+            title: `Data Quota Alert: ${c.name || c.ip}`,
+            message: `Client device ${c.name || 'Device'} (${c.ip}, MAC: ${c.mac}) has consumed ${fmtBytes(totalB)}, exceeding the ${dataQuotaMB} MB quota limit.`,
+            level: 'warning',
+            event_type: 'data_usage'
+          });
+        }
+      });
+
+      // 5. LAN/WAN Ethernet Port Link State Changes
+      const netPorts = (data.network && Array.isArray(data.network.ports)) ? data.network.ports : [];
+      if (!window._lastPortStates) {
+        window._lastPortStates = {};
+        netPorts.forEach(p => { window._lastPortStates[p.id] = p.status; });
+      } else {
+        netPorts.forEach(p => {
+          const prev = window._lastPortStates[p.id];
+          if (prev && prev !== p.status) {
+            window._lastPortStates[p.id] = p.status;
+            if (p.status === 'up') {
+              dispatchAlertNotification({
+                title: `Ethernet Cable Plugged: ${p.id.toUpperCase()}`,
+                message: `Physical network link established on port ${p.id.toUpperCase()} at ${p.speed || 1000} Mbps (${p.duplex || 'Full'} Duplex).`,
+                level: 'info',
+                event_type: 'lan_plugged'
+              });
+            } else {
+              dispatchAlertNotification({
+                title: `Ethernet Cable Unplugged: ${p.id.toUpperCase()}`,
+                message: `Physical link disconnected on port ${p.id.toUpperCase()}. Network cable removed or remote device powered down.`,
+                level: 'warning',
+                event_type: 'lan_plugged'
+              });
+            }
+          }
+        });
+      }
+
+      // 6. USB Device & Modem Hotplug Detection
+      const curUsbDevs = Array.isArray(data.usb_devices) ? data.usb_devices : (Array.isArray(data.adb_devices) ? data.adb_devices : []);
+      const curUsbIds = new Set(curUsbDevs.map(d => d.serial || d.product || d.id || d.name).filter(Boolean));
+      if (!window._lastUsbDeviceIds) {
+        window._lastUsbDeviceIds = curUsbIds;
+      } else {
+        curUsbDevs.forEach(d => {
+          const id = d.serial || d.product || d.id || d.name;
+          if (id && !window._lastUsbDeviceIds.has(id)) {
+            dispatchAlertNotification({
+              title: `USB Device Connected: ${d.product || d.name || 'USB Modem'}`,
+              message: `New USB hardware plugged into router: ${d.manufacturer || ''} ${d.product || d.name || 'Device'} (${id}).`,
+              level: 'info',
+              event_type: 'usb_plugged'
+            });
+          }
+        });
+        window._lastUsbDeviceIds.forEach(oldId => {
+          if (!curUsbIds.has(oldId)) {
+            dispatchAlertNotification({
+              title: 'USB Device Disconnected',
+              message: `USB device (${oldId}) was removed or unplugged from the router.`,
+              level: 'warning',
+              event_type: 'usb_plugged'
+            });
+          }
+        });
+        window._lastUsbDeviceIds = curUsbIds;
+      }
+
+      // 7. System Reboot & Power Event Detection
+      const upSec = router.uptime_seconds || 0;
+      if (window._lastRecordedUptime !== undefined) {
+        if (upSec < 180 && window._lastRecordedUptime > 300) {
+          dispatchAlertNotification({
+            title: 'Router Reboot & Power Event',
+            message: `MAXNET Gateway router has rebooted or recovered from power interruption. Current uptime: ${router.uptime || '1 minute'}.`,
+            level: 'warning',
+            event_type: 'power_event'
+          });
+        }
+      }
+      window._lastRecordedUptime = upSec;
+
+      // 8. Custom IP Watchdog Reachability Monitor
+      const targetWatchIp = (window._cachedWebhooksConfig && window._cachedWebhooksConfig.custom_ip_target) || '10.0.0.2';
+      const isTargetReachable = clients.some(c => c.ip === targetWatchIp) || (data.network && (data.network.gateway_ip === targetWatchIp || data.network.dns_ip === targetWatchIp));
+      if (window._lastWatchdogState !== undefined && window._lastWatchdogIp === targetWatchIp) {
+        if (window._lastWatchdogState !== isTargetReachable) {
+          window._lastWatchdogState = isTargetReachable;
+          if (isTargetReachable) {
+            dispatchAlertNotification({
+              title: `Monitored Host Online: ${targetWatchIp}`,
+              message: `Monitored host device (${targetWatchIp}) is back online and responding on the network.`,
+              level: 'info',
+              event_type: 'custom_ip'
+            });
+          } else {
+            dispatchAlertNotification({
+              title: `Monitored Host Offline: ${targetWatchIp}`,
+              message: `Monitored host device (${targetWatchIp}) has gone OFFLINE or stopped responding.`,
+              level: 'danger',
+              event_type: 'custom_ip'
+            });
+          }
+        }
+      } else {
+        window._lastWatchdogState = isTargetReachable;
+        window._lastWatchdogIp = targetWatchIp;
+      }
+
+      // 9. 18+ Adult Site Visit Detection
+      const adultKeywords = ['pornhub', 'xvideos', 'xnxx', 'xhamster', 'chaturbate', 'stripchat', 'redtube', 'youporn', 'spankbang', 'livejasmin', 'onlyfans', 'cam4', 'brazzers', 'beeg'];
+      window._notifiedAdultEvents = window._notifiedAdultEvents || new Set();
+      if (Array.isArray(data.dns_queries) || Array.isArray(data.conntrack_flows)) {
+        const queries = (data.dns_queries || data.conntrack_flows || []);
+        queries.forEach(q => {
+          const domain = (q.domain || q.host || '').toLowerCase();
+          const clientIp = q.client_ip || q.src || '10.0.0.x';
+          const match = adultKeywords.find(k => domain.includes(k));
+          if (match && !window._notifiedAdultEvents.has(domain + clientIp)) {
+            window._notifiedAdultEvents.add(domain + clientIp);
+            dispatchAlertNotification({
+              title: '18+ Adult Content Visit Detected',
+              message: `Client device at ${clientIp} attempted to access adult/restricted website (${domain}). Gateway security notification dispatched.`,
+              level: 'danger',
+              event_type: 'adult_content'
+            });
+          }
+        });
+      }
     }
 
     async function checkForSystemFirmwareUpdates() {
@@ -24477,6 +24844,27 @@ function onRemoveWifiClient(nodeId, clientIdent) {
           if (elUpd) elUpd.checked = (ev.system_update !== false);
           const elSec = document.getElementById('evSecurityToggle');
           if (elSec) elSec.checked = (ev.security_alert !== false);
+          const elLogin = document.getElementById('evRouterLoginToggle');
+          if (elLogin) elLogin.checked = (ev.router_login !== false);
+          const elData = document.getElementById('evDataUsageToggle');
+          if (elData) elData.checked = (ev.data_usage !== false);
+          const elLan = document.getElementById('evLanPlugToggle');
+          if (elLan) elLan.checked = (ev.lan_plugged !== false);
+          const elUsb = document.getElementById('evUsbPlugToggle');
+          if (elUsb) elUsb.checked = (ev.usb_plugged !== false);
+          const elPower = document.getElementById('evPowerToggle');
+          if (elPower) elPower.checked = (ev.power_event !== false);
+          const elCustomIp = document.getElementById('evCustomIpToggle');
+          if (elCustomIp) elCustomIp.checked = (ev.custom_ip !== false);
+          const elAdult = document.getElementById('evAdultToggle');
+          if (elAdult) elAdult.checked = (ev.adult_content !== false);
+          const elWifi = document.getElementById('evWifiToggle');
+          if (elWifi) elWifi.checked = (ev.wifi_event !== false);
+
+          const dqDisp = document.getElementById('disp_webhook_data_quota');
+          if (dqDisp) dqDisp.textContent = `${data.data_quota_mb || 1024} MB (${((data.data_quota_mb || 1024)/1024).toFixed(1)} GB)`;
+          const cipDisp = document.getElementById('disp_webhook_custom_ip');
+          if (cipDisp) cipDisp.textContent = data.custom_ip_target || '10.0.0.2';
         }
       } catch (e) {
         console.warn('loadWebhooksConfig error:', e);
@@ -24500,6 +24888,16 @@ function onRemoveWifiClient(nodeId, clientIdent) {
       cfg.events.dhcp_error = !!document.getElementById('evDhcpToggle')?.checked;
       cfg.events.system_update = !!document.getElementById('evUpdateToggle')?.checked;
       cfg.events.security_alert = !!document.getElementById('evSecurityToggle')?.checked;
+      cfg.events.router_login = !!document.getElementById('evRouterLoginToggle')?.checked;
+      cfg.events.data_usage = !!document.getElementById('evDataUsageToggle')?.checked;
+      cfg.events.lan_plugged = !!document.getElementById('evLanPlugToggle')?.checked;
+      cfg.events.usb_plugged = !!document.getElementById('evUsbPlugToggle')?.checked;
+      cfg.events.power_event = !!document.getElementById('evPowerToggle')?.checked;
+      cfg.events.custom_ip = !!document.getElementById('evCustomIpToggle')?.checked;
+      cfg.events.adult_content = !!document.getElementById('evAdultToggle')?.checked;
+      cfg.events.wifi_event = !!document.getElementById('evWifiToggle')?.checked;
+      cfg.data_quota_mb = cfg.data_quota_mb || 1024;
+      cfg.custom_ip_target = cfg.custom_ip_target || '10.0.0.2';
 
       try {
         await fetch('/cgi-bin/webhooks?action=set', {
