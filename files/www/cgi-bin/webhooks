@@ -7,9 +7,10 @@ echo ""
 CONF_FILE="/etc/maxnet_webhooks.json"
 NOTIF_FILE="/etc/maxnet_notifications.json"
 
-[ "$REQUEST_METHOD" = "POST" ] && [ -n "$CONTENT_LENGTH" ] && read -r POST_DATA 2>/dev/null
+[ "$REQUEST_METHOD" = "POST" ] && [ -n "$CONTENT_LENGTH" ] && POST_DATA=$(head -c "$CONTENT_LENGTH" 2>/dev/null)
 
 ACTION=$(echo "$QUERY_STRING" | sed -n 's/^.*action=\([^&]*\).*$/\1/p')
+[ -z "$ACTION" ] && ACTION=$(echo "$POST_DATA" | jq -r '.action // empty' 2>/dev/null)
 [ -z "$ACTION" ] && ACTION=$(echo "$POST_DATA" | sed -n 's/.*"action"[ ]*:[ ]*"\([^"]*\)".*/\1/p')
 [ -z "$ACTION" ] && ACTION="get"
 
@@ -218,15 +219,38 @@ if [ "$ACTION" = "dispatch" ]; then
     init_config
     init_notif
 
-    ID=$(echo "$POST_DATA" | jq -r '.id // empty' 2>/dev/null)
-    TITLE=$(echo "$POST_DATA" | jq -r '.title // "System Alert"' 2>/dev/null)
-    MSG=$(echo "$POST_DATA" | jq -r '.message // ""' 2>/dev/null)
-    LEVEL=$(echo "$POST_DATA" | jq -r '.level // "info"' 2>/dev/null)
-    EV_TYPE=$(echo "$POST_DATA" | jq -r '.event_type // "system"' 2>/dev/null)
-    TS=$(echo "$POST_DATA" | jq -r '.timestamp // empty' 2>/dev/null)
+    ID=""
+    TITLE=""
+    MSG=""
+    LEVEL=""
+    EV_TYPE=""
+    TS=""
 
+    if [ -n "$POST_DATA" ] && echo "$POST_DATA" | jq . >/dev/null 2>&1; then
+        ID=$(echo "$POST_DATA" | jq -r '.id // empty' 2>/dev/null)
+        TITLE=$(echo "$POST_DATA" | jq -r '.title // empty' 2>/dev/null)
+        MSG=$(echo "$POST_DATA" | jq -r '.message // empty' 2>/dev/null)
+        LEVEL=$(echo "$POST_DATA" | jq -r '.level // empty' 2>/dev/null)
+        EV_TYPE=$(echo "$POST_DATA" | jq -r '.event_type // empty' 2>/dev/null)
+        TS=$(echo "$POST_DATA" | jq -r '.timestamp // empty' 2>/dev/null)
+    fi
+
+    [ -z "$ID" ] && ID=$(echo "$QUERY_STRING" | sed -n 's/^.*id=\([^&]*\).*$/\1/p')
+    [ -z "$TITLE" ] && TITLE=$(echo "$QUERY_STRING" | sed -n 's/^.*title=\([^&]*\).*$/\1/p' | sed 's/+/ /g;s/%20/ /g')
+    [ -z "$MSG" ] && MSG=$(echo "$QUERY_STRING" | sed -n 's/^.*msg=\([^&]*\).*$/\1/p' | sed 's/+/ /g;s/%20/ /g')
+    [ -z "$LEVEL" ] && LEVEL=$(echo "$QUERY_STRING" | sed -n 's/^.*level=\([^&]*\).*$/\1/p')
+    [ -z "$EV_TYPE" ] && EV_TYPE=$(echo "$QUERY_STRING" | sed -n 's/^.*type=\([^&]*\).*$/\1/p')
+
+    [ -z "$TITLE" ] && TITLE="System Alert"
+    [ -z "$LEVEL" ] && LEVEL="info"
+    [ -z "$EV_TYPE" ] && EV_TYPE="system"
     [ -z "$ID" ] && ID="notif_$(date +%s)_$RANDOM"
     [ -z "$TS" ] && TS=$(date +"%b %d, %H:%M")
+
+    # Ensure NOTIF_FILE is a valid JSON array; self-heal if corrupted
+    if [ ! -f "$NOTIF_FILE" ] || ! jq -e 'type=="array"' "$NOTIF_FILE" >/dev/null 2>&1; then
+        echo "[]" > "$NOTIF_FILE"
+    fi
 
     # Append to NOTIF_FILE (keep newest 50)
     NEW_ENTRY=$(jq -n \
@@ -236,13 +260,14 @@ if [ "$ACTION" = "dispatch" ]; then
         --arg level "$LEVEL" \
         --arg type "$EV_TYPE" \
         --arg ts "$TS" \
-        '{id: $id, title: $title, message: $msg, level: $level, event_type: $type, timestamp: $ts, read: false}')
+        '{id: $id, title: $title, message: $msg, level: $level, event_type: $type, timestamp: $ts, read: false}' 2>/dev/null)
 
-    if [ -f "$NOTIF_FILE" ]; then
-        # Prepend new entry and slice top 50
-        jq --argjson new "$NEW_ENTRY" '[$new] + (if type=="array" then . else [] end) | .[0:50]' "$NOTIF_FILE" > "/tmp/notif_new.json" && mv -f "/tmp/notif_new.json" "$NOTIF_FILE"
-    else
-        echo "[$NEW_ENTRY]" > "$NOTIF_FILE"
+    if [ -n "$NEW_ENTRY" ]; then
+        jq --argjson new "$NEW_ENTRY" '[$new] + (if type=="array" then . else [] end) | .[0:50]' "$NOTIF_FILE" > "/tmp/notif_new.json" 2>/dev/null
+        if [ -s "/tmp/notif_new.json" ] && jq -e 'type=="array"' "/tmp/notif_new.json" >/dev/null 2>&1; then
+            mv -f "/tmp/notif_new.json" "$NOTIF_FILE"
+        fi
+        rm -f "/tmp/notif_new.json"
     fi
 
     # Forward to Webhooks if enabled
@@ -252,14 +277,17 @@ if [ "$ACTION" = "dispatch" ]; then
         [ -n "$EV_TYPE" ] && EV_EN=$(jq -r ".events.${EV_TYPE} // true" "$CONF_FILE" 2>/dev/null)
 
         if [ "$EV_EN" = "true" ]; then
+            LEVEL_UP=$(echo "$LEVEL" | tr '[:lower:]' '[:upper:]')
+            TG_TEXT="[MAXNET ALERT - ${LEVEL_UP}] ${TITLE}"$'\n'"${MSG}"$'\n'"Time: ${TS}"
+
             # 1. Telegram
             TG_EN=$(jq -r '.telegram.enabled // false' "$CONF_FILE" 2>/dev/null)
             TG_TOK=$(jq -r '.telegram.bot_token // empty' "$CONF_FILE" 2>/dev/null)
             TG_CHAT=$(jq -r '.telegram.chat_id // empty' "$CONF_FILE" 2>/dev/null)
             if [ "$TG_EN" = "true" ] && [ -n "$TG_TOK" ] && [ -n "$TG_CHAT" ]; then
-                ( curl -s -m 6 -X POST "https://api.telegram.org/bot${TG_TOK}/sendMessage" \
+                ( curl -s -m 8 -X POST "https://api.telegram.org/bot${TG_TOK}/sendMessage" \
                     -d "chat_id=${TG_CHAT}" \
-                    -d "text=[MAXNET ALERT - ${LEVEL^^}] ${TITLE}%0A${MSG}%0ATime: ${TS}" >/dev/null 2>&1 ) &
+                    --data-urlencode "text=${TG_TEXT}" >/dev/null 2>&1 ) &
             fi
 
             # 2. Discord
@@ -269,17 +297,17 @@ if [ "$ACTION" = "dispatch" ]; then
                 DC_PAYLOAD=$(jq -n \
                     --arg title "$TITLE" \
                     --arg msg "$MSG" \
-                    --arg level "$LEVEL" \
+                    --arg level "$LEVEL_UP" \
                     --arg ts "$TS" \
-                    '{username: "MAXNET Gateway", content: ("**[MAXNET - " + ($level|ascii_upcase) + "] " + $title + "**\n" + $msg + "\n*Time: " + $ts + "*")}')
-                ( curl -s -m 6 -H "Content-Type: application/json" -X POST -d "$DC_PAYLOAD" "$DC_URL" >/dev/null 2>&1 ) &
+                    '{username: "MAXNET Gateway", content: ("**[MAXNET - " + $level + "] " + $title + "**\n" + $msg + "\n*Time: " + $ts + "*")}')
+                ( curl -s -m 8 -H "Content-Type: application/json" -X POST -d "$DC_PAYLOAD" "$DC_URL" >/dev/null 2>&1 ) &
             fi
 
             # 3. ntfy.sh
             NT_EN=$(jq -r '.ntfy.enabled // false' "$CONF_FILE" 2>/dev/null)
             NT_URL=$(jq -r '.ntfy.topic_url // empty' "$CONF_FILE" 2>/dev/null)
             if [ "$NT_EN" = "true" ] && [ -n "$NT_URL" ]; then
-                ( curl -s -m 6 -H "Title: MAXNET: $TITLE" -H "Priority: default" -d "$MSG" "$NT_URL" >/dev/null 2>&1 ) &
+                ( curl -s -m 8 -H "Title: MAXNET: $TITLE" -H "Priority: default" -d "$MSG" "$NT_URL" >/dev/null 2>&1 ) &
             fi
         fi
     fi
