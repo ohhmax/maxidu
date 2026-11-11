@@ -409,8 +409,13 @@
     #tabOverview {
       width: 100% !important;
       max-width: 100% !important;
+      height: 100vh !important;
+      max-height: 100vh !important;
+      overflow: hidden !important;
+      position: relative !important;
       margin: 0 !important;
       padding: 0 !important;
+      overscroll-behavior: none !important;
     }
     .app-viewport {
       position: relative;
@@ -3566,13 +3571,17 @@
       width: 100vw;
       max-width: 100vw;
       height: 100vh;
+      max-height: 100vh;
       min-height: 100vh;
       margin: 0;
       display: flex;
       flex-direction: column;
-      padding: 10px 14px;
+      padding: 0;
       border-radius: 0;
       box-sizing: border-box;
+      overflow: hidden !important;
+      overscroll-behavior: none !important;
+      touch-action: none;
       transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .usb-bw-container::before {
@@ -3614,6 +3623,9 @@
     .usb-bw-container.topo-fullpage-mode .bw-box {
       min-height: calc(100vh - 70px) !important;
       height: calc(100vh - 70px) !important;
+    }
+    .usb-bw-container.topo-fullpage-mode .topo-top-bar {
+      z-index: 100001 !important;
     }
     /* ZERO CPU/RAM OPTIMIZATION: Pause all SVG and CSS animations when offscreen/backgrounded */
     .topo-paused,
@@ -3701,7 +3713,8 @@
         font-size: 11px !important;
       }
       .bw-box {
-        min-height: calc(100vh - 55px) !important;
+        min-height: 100% !important;
+        height: 100% !important;
       }
     }
     .u3 { --k: #00d2ff; }
@@ -5617,21 +5630,27 @@
       box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05) !important;
     }
 
-    /* TOPOLOGY TOP BAR (FLOATING GLASS HEADER, CANVAS SLIDES UNDERNEATH) */
+    /* TOPOLOGY TOP BAR (PERSISTENT FLOATING GLASS HEADER, NEVER DISAPPEARS) */
     .topo-top-bar {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-      padding: 10px 18px;
-      box-sizing: border-box;
-      z-index: 100;
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      width: 100% !important;
+      padding: max(10px, env(safe-area-inset-top, 10px)) 18px 10px 18px !important;
+      box-sizing: border-box !important;
+      z-index: 9000 !important;
       pointer-events: none;
-      background: transparent;
+      background: linear-gradient(180deg, rgba(11, 13, 19, 0.85) 0%, rgba(11, 13, 19, 0.45) 70%, transparent 100%);
+      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(8px);
+      transition: right 0.28s cubic-bezier(0.16, 1, 0.3, 1), width 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    [data-theme="light"] .topo-top-bar {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.5) 70%, transparent 100%);
     }
     .topo-brand-meta, .topo-toolbar {
       pointer-events: auto;
@@ -5759,7 +5778,7 @@
     #tabOverview:fullscreen, #tabOverview:-webkit-full-screen {
       background: var(--bg, #0b0d13);
       padding: 0;
-      overflow: auto;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -5975,10 +5994,14 @@
       #dashboardContainer.settings-side-open #tabSettings .settings-subnav-bar {
         top: 0;
       }
+      #dashboardContainer.settings-side-open .topo-top-bar {
+        right: min(480px, 44vw) !important;
+        width: calc(100% - min(480px, 44vw)) !important;
+      }
     }
     @media (max-width: 600px) {
       .topo-top-bar {
-        padding: 8px 12px 2px 12px;
+        padding: max(8px, env(safe-area-inset-top, 8px)) 12px 6px 12px !important;
       }
       .topo-brand-title {
         font-size: 11.5px;
@@ -5988,12 +6011,12 @@
         font-size: 9.5px;
       }
       .topo-toolbar {
-        padding: 3px;
-        gap: 3px;
+        padding: 4px;
+        gap: 4px;
       }
       .topo-tool-btn {
-        width: 26px;
-        height: 26px;
+        width: 30px;
+        height: 30px;
       }
     }
 
@@ -11793,6 +11816,7 @@
         }
       } else {
         // Default: overview (Topology)
+        window.scrollTo(0, 0);
         if (dashContainer) dashContainer.classList.remove('settings-side-open');
         if (tabOv) tabOv.style.display = 'block';
         if (tabSet) tabSet.style.display = 'none';
