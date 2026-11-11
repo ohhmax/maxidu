@@ -7728,7 +7728,7 @@
             </div>
             <div>
               <div class="android-modal-title" style="font-size:16px;">SSL Root CA Certificate Guide</div>
-              <div class="android-modal-desc" style="font-size:11.5px; font-family:var(--font-mono); color:#10b981;">Registered to: Mahendra Mali - Max</div>
+              <div class="android-modal-desc" style="font-size:11.5px; font-family:var(--font-mono); color:#10b981;">Authority: MAXNET Root CA</div>
             </div>
           </div>
           <span class="card-badge emerald">TLS 1.3 TRUSTED</span>
@@ -7736,7 +7736,7 @@
       </div>
       <div class="android-modal-body" style="padding:16px 20px; max-height:65vh; overflow-y:auto; display:flex; flex-direction:column; gap:14px;">
         <div style="background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.25); border-radius:8px; padding:12px 14px; font-size:11.5px; line-height:1.5; color:var(--text-main);">
-          To eliminate all browser &quot;Not Secure&quot; warnings when opening <strong>https://maxnet.local</strong> or <strong>https://10.0.0.1</strong>, install the <strong>Mahendra Mali - Max Root CA</strong> certificate on your phone or PC once.
+          To eliminate all browser &quot;Not Secure&quot; warnings when opening <strong>https://maxnet.local</strong> or <strong>https://10.0.0.1</strong>, install the <strong>MAXNET Root CA</strong> certificate on your phone or PC once.
         </div>
 
         <div style="display:flex; flex-direction:column; gap:8px;">
@@ -7765,7 +7765,7 @@
             1. Tap <strong>APPLE 1-TAP (.MOBILECONFIG)</strong> button below &rarr; Tap <strong>Allow</strong> in Safari.<br>
             2. Go to <strong>Settings &rarr; Profile Downloaded &rarr; Install</strong>.<br>
             3. Go to <strong>Settings &rarr; General &rarr; About &rarr; Certificate Trust Settings</strong>.<br>
-            4. Under &quot;Enable full trust for root certificates&quot;, toggle <strong>Mahendra Mali - Max Root CA</strong> to ON. Done!
+            4. Under &quot;Enable full trust for root certificates&quot;, toggle <strong>MAXNET Root CA</strong> to ON. Done!
           </div>
         </div>
       </div>
@@ -7829,6 +7829,22 @@
               <div class="snc-info">
                 <span class="snc-title">Interfaces</span>
                 <span class="snc-desc">WAN protocol (DHCP / PPPoE / Static), custom MAC cloning, and interface status</span>
+              </div>
+            </div>
+            <div class="snc-right">
+              <svg class="snc-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+          </div>
+
+          <!-- PPPoE Broadband Dialer & Server -->
+          <div class="settings-nav-card" onclick="openSettingPage('acc-pppoe')" data-search="pppoe broadband wan isp dialer client server credentials access concentrator ac chap pap pppd">
+            <div class="snc-left">
+              <div class="snc-icon-box" style="color:#06b6d4;">
+                <svg viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+              </div>
+              <div class="snc-info">
+                <span class="snc-title">PPPoE Broadband</span>
+                <span class="snc-desc">PPPoE Client dialer and high-performance PPPoE Server concentrator</span>
               </div>
             </div>
             <div class="snc-right">
@@ -8100,7 +8116,7 @@
       <div id="settingsDetailPageView" style="display:none;">
         <!-- STICKY SUB-NAV BAR (CURVED BORDER, TRANSPARENT BG, ICON + TITLE) -->
         <div class="settings-subnav-bar">
-          <button class="settings-back-btn" onclick="closeSettingPage()" title="Back">
+          <button class="settings-back-btn" onclick="handleSettingsBack()" title="Back">
             <svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
           </button>
           <div class="settings-subnav-divider"></div>
@@ -8664,6 +8680,137 @@
               <div id="staticLeasesListContainer" style="display:flex; flex-direction:column; gap:8px;">
                 <div style="font-size:11.5px; color:var(--text-dim); font-family:var(--font-mono); padding:16px; background:rgba(255,255,255,0.02); border-radius:8px; text-align:center;">
                   No static DHCP leases registered. Click Add Reservation to create one.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PPPoE BROADBAND CLIENT & SERVER PANEL -->
+        <div class="settings-card settings-detail-panel accordion-item" id="acc-pppoe">
+          <div class="settings-card-header accordion-header" onclick="toggleAccordion('acc-pppoe')">
+            <div class="acc-title-left">
+              <div class="acc-icon-box" style="color:#06b6d4;">
+                <svg class="svg-icon" viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+              </div>
+              <span class="acc-main-title">PPPoE Broadband</span>
+            </div>
+            <div class="acc-right-action">
+              <svg class="svg-icon acc-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+          </div>
+          <div class="accordion-content">
+            <div class="settings-card-body">
+              <!-- PART A: PPPoE CLIENT -->
+              <div class="setting-section-header">PPPoE Client (ISP Broadband Dialer)</div>
+
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">PPPoE WAN Client</span>
+                  <span class="setting-label-sub" id="pppoeClientStatusSub">Disabled &bull; ISP Broadband dialer over WAN Ethernet</span>
+                </div>
+                <div class="toggle-wrap-cell">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="pppoeClientMasterToggle" onchange="togglePppoeClient(this.checked)">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- PPPoE CLIENT LIVE TELEMETRY ROW -->
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Connection State &amp; IP</span>
+                  <span class="setting-label-sub" id="pppoeClientIpText">Disconnected &bull; Gateway: -- &bull; DNS: --</span>
+                </div>
+                <div class="setting-control-col">
+                  <span id="pppoeClientUptime" style="font-size:11px; font-weight:700; font-family:var(--font-mono); color:var(--text-dim);">Offline</span>
+                </div>
+              </div>
+
+              <!-- PPPoE USERNAME & PASSWORD -->
+              <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('pppoe_client_creds')">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">ISP Account Credentials</span>
+                  <span class="setting-label-sub" id="disp_pppoe_user_desc">User: Not set &bull; Tap to configure username &amp; password</span>
+                </div>
+                <div class="setting-arrow-col">
+                  <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+              </div>
+
+              <!-- SERVICE & ACCESS CONCENTRATOR -->
+              <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('pppoe_client_ac')">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Service &amp; Concentrator (AC)</span>
+                  <span class="setting-label-sub" id="disp_pppoe_ac_desc">Auto Discovery &bull; Optional ISP AC and Service Name</span>
+                </div>
+                <div class="setting-arrow-col">
+                  <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+              </div>
+
+              <!-- CLONE MAC & MTU -->
+              <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('pppoe_client_mac')">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">MAC Clone &amp; MTU Size</span>
+                  <span class="setting-label-sub" id="disp_pppoe_mac_desc">MTU: 1492 &bull; Hardware Default MAC</span>
+                </div>
+                <div class="setting-arrow-col">
+                  <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+              </div>
+
+              <div class="setting-section-divider"></div>
+
+              <!-- PART B: PPPoE SERVER -->
+              <div class="setting-section-header">PPPoE Server (LAN Access Concentrator)</div>
+
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">PPPoE Access Server</span>
+                  <span class="setting-label-sub" id="pppoeServerStatusSub">Disabled &bull; Local PPPoE Concentrator for LAN subscribers</span>
+                </div>
+                <div class="toggle-wrap-cell">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="pppoeServerMasterToggle" onchange="togglePppoeServer(this.checked)">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- SERVER POOL & NETWORK CONFIG -->
+              <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('pppoe_server_config')">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Server IP Pool &amp; Network</span>
+                  <span class="setting-label-sub" id="disp_pppoe_srv_network">Local: 10.0.0.1 &bull; Pool: 10.0.0.150 - 10.0.0.220 &bull; DNS: 10.0.0.1</span>
+                </div>
+                <div class="setting-arrow-col">
+                  <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+              </div>
+
+              <!-- SUBSCRIBER ACCOUNTS -->
+              <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('pppoe_server_users')">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Subscriber Accounts &amp; CHAP Secrets</span>
+                  <span class="setting-label-sub" id="disp_pppoe_users_count">0 accounts configured &bull; Tap to manage users</span>
+                </div>
+                <div class="setting-arrow-col">
+                  <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+              </div>
+
+              <!-- ACTIVE SESSIONS -->
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Connected PPPoE Subscribers</span>
+                  <span class="setting-label-sub" id="pppoeActiveSessionsText">No active subscriber sessions</span>
+                </div>
+                <div class="setting-control-col">
+                  <button type="button" class="round-action-btn" onclick="loadPppoeConfig()" title="Refresh Sessions">
+                    <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                  </button>
                 </div>
               </div>
             </div>
@@ -9805,7 +9952,7 @@
               <div class="setting-row-item">
                 <div class="setting-label-col">
                   <span class="setting-label-bold">HTTPS Encryption</span>
-                  <span class="setting-label-sub" id="disp_https_security_sub">Encrypted access on port 443 (maxnet.local) &bull; TLS 1.3 certificate by Mahendra Mali - Max</span>
+                  <span class="setting-label-sub" id="disp_https_security_sub">Encrypted access on port 443 (maxnet.local) &bull; TLS 1.3 root certificate</span>
                 </div>
                 <div class="setting-control-col" style="display:flex; gap:10px; align-items:center;">
                   <a href="/maxnet-root-ca.crt" download="maxnet-root-ca.crt" class="round-action-btn" title="Download SSL Certificate">
@@ -10706,10 +10853,11 @@
     }
     applyThemeMode();
 
-    // Direct Zero-Cache API Fetcher (Never Cache, Realtime Fresh Data)
+    // Direct Zero-Cache API Fetcher (Never Cache, Realtime Fresh Data with Session Auth)
     function apiFetch(url, options = {}) {
       const sep = url.includes('?') ? '&' : '?';
       const noCacheUrl = `${url}${sep}_t=${Date.now()}`;
+      const token = localStorage.getItem('maxnet_token');
       return fetch(noCacheUrl, {
         ...options,
         cache: 'no-store',
@@ -10717,6 +10865,7 @@
           'Cache-Control': 'no-cache, no-store, must-revalidate',
           'Pragma': 'no-cache',
           'Expires': '0',
+          ...(token ? { 'X-Session-Token': token } : {}),
           ...(options.headers || {})
         }
       });
@@ -10794,6 +10943,7 @@
       loadSslCertificateStatus();
       loadDufsConfig();
       loadWanInterfaceConfig();
+      loadPppoeConfig();
       setupTimer();
       setTimeout(checkUpdateStatus, 1000);
     }
@@ -10862,6 +11012,11 @@
         title: 'Interfaces',
         badge: 'WAN & INTERFACES',
         badgeColor: '#0ea5e9'
+      },
+      'acc-pppoe': {
+        title: 'PPPoE Broadband',
+        badge: 'CLIENT & SERVER',
+        badgeColor: '#06b6d4'
       },
       'acc-topo-layers': {
         title: 'Network Topology',
@@ -11015,6 +11170,9 @@
       } else if (id === 'acc-interfaces') {
         document.body.classList.remove('terminal-active');
         if (typeof loadWanInterfaceConfig === 'function') loadWanInterfaceConfig();
+      } else if (id === 'acc-pppoe') {
+        document.body.classList.remove('terminal-active');
+        if (typeof loadPppoeConfig === 'function') loadPppoeConfig();
       } else if (id === 'acc-sys-info') {
         document.body.classList.remove('terminal-active');
         if (typeof fetchDeviceInfo === 'function') fetchDeviceInfo();
@@ -11075,6 +11233,22 @@
       } else {
         window.scrollTo({ top: 0, behavior: 'instant' });
       }
+    }
+
+    function handleSettingsBack() {
+      if (window._currentDhcpClientDetail) {
+        closeDhcpClientDetail(true);
+        return;
+      }
+      if (window._currentAdbDeviceDetail && window._currentAdbSubView && window._currentAdbSubView !== 'controls') {
+        switchAdbSubView('controls');
+        return;
+      }
+      if (window._currentAdbDeviceDetail) {
+        closeAdbDeviceDetail(true);
+        return;
+      }
+      closeSettingPage(true);
     }
 
     function closeSettingPage(triggerHistoryBack = true) {
@@ -16463,7 +16637,7 @@ function drawStorageIconSmall(x, y, color, parent) {
 
       const navTitle = document.getElementById('settingsDetailNavTitle');
       if (navTitle) {
-        navTitle.innerHTML = `<span style="cursor:pointer;" onclick="closeDhcpClientDetail(true)">DHCP Clients</span> <span style="opacity:0.4;">&rsaquo;</span> <span style="color:#10b981;">${escapeHtml(displayName)}</span>`;
+        navTitle.textContent = displayName;
       }
 
       renderDhcpClientDetail(client);
@@ -19017,10 +19191,10 @@ function onRemoveWifiClient(nodeId, clientIdent) {
       const navTitle = document.getElementById('settingsDetailNavTitle');
       if (navTitle) {
         if (view === 'controls') {
-          navTitle.innerHTML = `<span style="cursor:pointer;" onclick="closeAdbDeviceDetail(true)">ADB Devices</span> <span style="opacity:0.4;">&rsaquo;</span> <span style="color:#38bdf8;">${escapeHtml(devName)}</span>`;
+          navTitle.textContent = devName;
         } else {
           const titles = { 'sms': 'SMS Messages', 'calls': 'Call History', 'contacts': 'Contacts' };
-          navTitle.innerHTML = `<span style="cursor:pointer;" onclick="closeAdbDeviceDetail(true)">ADB Devices</span> <span style="opacity:0.4;">&rsaquo;</span> <span style="cursor:pointer; color:#38bdf8;" onclick="switchAdbSubView('controls')">${escapeHtml(devName)}</span> <span style="opacity:0.4;">&rsaquo;</span> <span style="color:#10b981;">${titles[view]}</span>`;
+          navTitle.textContent = titles[view] || devName;
         }
       }
 
@@ -20296,6 +20470,122 @@ function onRemoveWifiClient(nodeId, clientIdent) {
             <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalInput_dufs_user').value=''; document.getElementById('modalInput_dufs_pass').value='';">Disable Password (Public Anonymous)</button>
           </div>
         `;
+      } else if (key === 'pppoe_client_creds') {
+        titleEl.textContent = 'PPPoE Client Credentials';
+        descEl.textContent = 'Configure broadband account username and password assigned by your Internet Service Provider (ISP).';
+        const curUser = (window._cachedPppoeData && window._cachedPppoeData.client && window._cachedPppoeData.client.username) || '';
+        bodyEl.innerHTML = `
+          <div>
+            <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">PPPoE Username</label>
+            <input type="text" id="modalInput_pppoe_user" class="mh-input" value="${escapeHtml(curUser)}" placeholder="e.g. broadband@isp.com" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+          </div>
+          <div style="margin-top:10px;">
+            <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">PPPoE Password</label>
+            <input type="password" id="modalInput_pppoe_pass" class="mh-input" placeholder="Enter ISP password" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+          </div>
+        `;
+      } else if (key === 'pppoe_client_ac') {
+        titleEl.textContent = 'Access Concentrator & Service';
+        descEl.textContent = 'Optional Access Concentrator (AC) name and Service Name. Leave empty for automatic discovery.';
+        const curAc = (window._cachedPppoeData && window._cachedPppoeData.client && window._cachedPppoeData.client.ac) || '';
+        const curService = (window._cachedPppoeData && window._cachedPppoeData.client && window._cachedPppoeData.client.service) || '';
+        bodyEl.innerHTML = `
+          <div>
+            <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">Access Concentrator (AC) Name (Optional)</label>
+            <input type="text" id="modalInput_pppoe_ac" class="mh-input" value="${escapeHtml(curAc)}" placeholder="Auto / Any AC" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+          </div>
+          <div style="margin-top:10px;">
+            <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">Service Name (Optional)</label>
+            <input type="text" id="modalInput_pppoe_service" class="mh-input" value="${escapeHtml(curService)}" placeholder="Auto / Default Service" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+          </div>
+        `;
+      } else if (key === 'pppoe_client_mac') {
+        titleEl.textContent = 'Custom MAC Clone & MTU Size';
+        descEl.textContent = 'Override the WAN MAC address for ISP hardware binding, and configure PPPoE MTU (Standard 1492).';
+        const curMac = (window._cachedPppoeData && window._cachedPppoeData.client && window._cachedPppoeData.client.macaddr) || '';
+        const curMtu = (window._cachedPppoeData && window._cachedPppoeData.client && window._cachedPppoeData.client.mtu) || '1492';
+        bodyEl.innerHTML = `
+          <div>
+            <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">Cloned WAN MAC Address</label>
+            <input type="text" id="modalInput_pppoe_mac" class="mh-input" value="${escapeHtml(curMac)}" placeholder="Default Hardware MAC" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+          </div>
+          <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:6px;">
+            <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalInput_pppoe_mac').value=''">Clear (Default HW)</button>
+            <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalInput_pppoe_mac').value='7e:85:7d:a7:58:58'">Hardware MAC</button>
+            <button type="button" class="dns-preset-pill" onclick="generateRandomPppoeMac()">Randomize MAC</button>
+          </div>
+          <div style="margin-top:12px;">
+            <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">PPPoE MTU Packet Size</label>
+            <input type="number" id="modalInput_pppoe_mtu" class="mh-input" value="${escapeHtml(curMtu)}" placeholder="1492" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+            <div style="font-size:10.5px; color:var(--text-dim); margin-top:4px;">Standard PPPoE MTU is 1492 bytes (1500 - 8 bytes PPPoE header).</div>
+          </div>
+        `;
+      } else if (key === 'pppoe_server_config') {
+        titleEl.textContent = 'PPPoE Server Network Configuration';
+        descEl.textContent = 'Configure the server gateway IP, client IP lease pool range, and DNS nameservers for subscribers.';
+        const srv = (window._cachedPppoeData && window._cachedPppoeData.server) || {};
+        bodyEl.innerHTML = `
+          <div>
+            <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">Server Gateway IP (Local)</label>
+            <input type="text" id="modalInput_pppoe_srv_ip" class="mh-input" value="${escapeHtml(srv.server_ip || '10.0.0.1')}" placeholder="10.0.0.1" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;">
+            <div>
+              <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">Pool Start IP</label>
+              <input type="text" id="modalInput_pppoe_srv_start" class="mh-input" value="${escapeHtml(srv.pool_start || '10.0.0.150')}" placeholder="10.0.0.150" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+            </div>
+            <div>
+              <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">Pool End IP</label>
+              <input type="text" id="modalInput_pppoe_srv_end" class="mh-input" value="${escapeHtml(srv.pool_end || '10.0.0.220')}" placeholder="10.0.0.220" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;">
+            <div>
+              <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">Primary DNS</label>
+              <input type="text" id="modalInput_pppoe_srv_dns1" class="mh-input" value="${escapeHtml(srv.dns1 || '10.0.0.1')}" placeholder="10.0.0.1" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+            </div>
+            <div>
+              <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">Secondary DNS</label>
+              <input type="text" id="modalInput_pppoe_srv_dns2" class="mh-input" value="${escapeHtml(srv.dns2 || '1.1.1.1')}" placeholder="1.1.1.1" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+            </div>
+          </div>
+          <div style="margin-top:10px;">
+            <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">Max Concurrent Sessions</label>
+            <input type="number" id="modalInput_pppoe_srv_max" class="mh-input" value="${escapeHtml(srv.max_sessions || '32')}" placeholder="32" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+          </div>
+        `;
+      } else if (key === 'pppoe_server_users') {
+        titleEl.textContent = 'Subscriber Accounts (CHAP Secrets)';
+        descEl.textContent = 'Manage PPPoE client logins allowed to authenticate through this access concentrator.';
+        const srv = (window._cachedPppoeData && window._cachedPppoeData.server) || {};
+        const users = srv.users || [];
+        let rowsHtml = '';
+        if (users.length === 0) {
+          rowsHtml = '<div style="font-size:12px; color:var(--text-dim); padding:10px; text-align:center;">No accounts registered yet.</div>';
+        } else {
+          rowsHtml = users.map(u => `
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:6px; margin-bottom:6px;">
+              <div>
+                <strong style="font-size:12px; color:var(--text-main); font-family:var(--font-mono);">${escapeHtml(u.user)}</strong>
+                <span style="font-size:10.5px; color:var(--text-dim); margin-left:8px;">IP: ${escapeHtml(u.ip || '*')}</span>
+              </div>
+              <button type="button" class="mh-btn btn-sm btn-ghost" style="color:#ef4444; padding:2px 8px; font-size:10px;" onclick="deletePppoeUser('${escapeHtml(u.user)}')">DELETE</button>
+            </div>
+          `).join('');
+        }
+        bodyEl.innerHTML = `
+          <div style="max-height:160px; overflow-y:auto; margin-bottom:12px;">
+            ${rowsHtml}
+          </div>
+          <div style="padding-top:10px; border-top:1px solid var(--border-sub);">
+            <div style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:8px; text-transform:uppercase;">Add New Subscriber Account</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+              <input type="text" id="modalInput_new_pppoe_u" class="mh-input" placeholder="Subscriber Username" style="padding:8px 10px; font-size:12px; font-family:var(--font-mono);">
+              <input type="password" id="modalInput_new_pppoe_p" class="mh-input" placeholder="Password" style="padding:8px 10px; font-size:12px; font-family:var(--font-mono);">
+            </div>
+            <button type="button" class="mh-btn" style="margin-top:8px; width:100%; background:#06b6d4; color:#0b1120; font-weight:700; padding:7px; font-size:11.5px; border-radius:6px;" onclick="addPppoeUserFromModal()">+ ADD SUBSCRIBER</button>
+          </div>
+        `;
       }
 
       overlay.style.display = 'flex';
@@ -20755,6 +21045,28 @@ function onRemoveWifiClient(nodeId, clientIdent) {
         if (document.getElementById('dufsUserInput')) document.getElementById('dufsUserInput').value = user;
         if (document.getElementById('dufsPassInput')) document.getElementById('dufsPassInput').value = pass;
         saveDufsConfig();
+      } else if (currentModalKey === 'pppoe_client_creds') {
+        const u = (document.getElementById('modalInput_pppoe_user')?.value || '').trim();
+        const p = document.getElementById('modalInput_pppoe_pass')?.value || '';
+        savePppoeClientCreds(u, p);
+      } else if (currentModalKey === 'pppoe_client_ac') {
+        const ac = (document.getElementById('modalInput_pppoe_ac')?.value || '').trim();
+        const serv = (document.getElementById('modalInput_pppoe_service')?.value || '').trim();
+        savePppoeClientAc(ac, serv);
+      } else if (currentModalKey === 'pppoe_client_mac') {
+        const mac = (document.getElementById('modalInput_pppoe_mac')?.value || '').trim();
+        const mtu = parseInt(document.getElementById('modalInput_pppoe_mtu')?.value, 10) || 1492;
+        savePppoeClientMac(mac, mtu);
+      } else if (currentModalKey === 'pppoe_server_config') {
+        const srv_ip = (document.getElementById('modalInput_pppoe_srv_ip')?.value || '10.0.0.1').trim();
+        const pool_start = (document.getElementById('modalInput_pppoe_srv_start')?.value || '10.0.0.150').trim();
+        const pool_end = (document.getElementById('modalInput_pppoe_srv_end')?.value || '10.0.0.220').trim();
+        const dns1 = (document.getElementById('modalInput_pppoe_srv_dns1')?.value || '10.0.0.1').trim();
+        const dns2 = (document.getElementById('modalInput_pppoe_srv_dns2')?.value || '1.1.1.1').trim();
+        const max_sess = parseInt(document.getElementById('modalInput_pppoe_srv_max')?.value, 10) || 32;
+        savePppoeServerConfig(srv_ip, pool_start, pool_end, dns1, dns2, max_sess);
+      } else if (currentModalKey === 'pppoe_server_users') {
+        // Done
       }
 
       closeSettingModal();
@@ -20908,10 +21220,10 @@ function onRemoveWifiClient(nodeId, clientIdent) {
       const devName = selDev.model || selDev.brand || 'Android Handset';
       const ser = selDev.serial || selDev.bus || serial || '--';
 
-      // Update Subnav Title: ADB Devices › Handset Model
+      // Update Subnav Title
       const navTitle = document.getElementById('settingsDetailNavTitle');
       if (navTitle) {
-        navTitle.innerHTML = `<span style="cursor:pointer;" onclick="closeAdbDeviceDetail(true)">ADB Devices</span> <span style="opacity:0.4;">&rsaquo;</span> <span style="color:#38bdf8;">${escapeHtml(devName)}</span>`;
+        navTitle.textContent = devName;
       }
 
       // Populate basic info immediately
@@ -22422,6 +22734,284 @@ function onRemoveWifiClient(nodeId, clientIdent) {
       }
     }
 
+    /* ==================== PPPOE BROADBAND (CLIENT & SERVER) CONTROLLER ==================== */
+    window._cachedPppoeData = null;
+
+    async function loadPppoeConfig() {
+      try {
+        const res = await fetch('/cgi-bin/pppoe?action=get');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data && data.status === 'ok') {
+          window._cachedPppoeData = data;
+          const client = data.client || {};
+          const server = data.server || {};
+
+          // Update Client Displays
+          const clientToggle = document.getElementById('pppoeClientMasterToggle');
+          if (clientToggle) clientToggle.checked = !!client.enabled;
+
+          const clientSub = document.getElementById('pppoeClientStatusSub');
+          if (clientSub) {
+            clientSub.textContent = client.enabled
+              ? (client.connected ? `Connected • Assigned IP: ${client.ip || '--'} • ISP Dialer Active` : 'Connecting to ISP Access Concentrator...')
+              : 'Disabled • ISP Broadband dialer over WAN Ethernet';
+          }
+
+          const ipText = document.getElementById('pppoeClientIpText');
+          if (ipText) {
+            ipText.textContent = client.connected 
+              ? `IP: ${client.ip || '--'} • Gateway: ${client.gateway || '--'} • DNS: ${client.dns || '--'}`
+              : (client.enabled ? 'Dialing PPPoE session...' : 'Disconnected • Gateway: -- • DNS: --');
+          }
+
+          const uptimeEl = document.getElementById('pppoeClientUptime');
+          if (uptimeEl) {
+            if (client.connected) {
+              uptimeEl.textContent = `UP (${Math.floor(client.uptime / 60)}m)`;
+              uptimeEl.style.color = '#10b981';
+            } else {
+              uptimeEl.textContent = client.enabled ? 'Connecting...' : 'Offline';
+              uptimeEl.style.color = client.enabled ? '#06b6d4' : 'var(--text-dim)';
+            }
+          }
+
+          const userDesc = document.getElementById('disp_pppoe_user_desc');
+          if (userDesc) {
+            userDesc.textContent = client.username ? `User: ${client.username} • Password: ${client.has_password ? '••••••••' : '(empty)'}` : 'User: Not set • Tap to configure username & password';
+          }
+
+          const acDesc = document.getElementById('disp_pppoe_ac_desc');
+          if (acDesc) {
+            acDesc.textContent = (client.ac || client.service) ? `AC: ${client.ac || 'Auto'} • Service: ${client.service || 'Default'}` : 'Auto Discovery • Optional ISP AC and Service Name';
+          }
+
+          const macDesc = document.getElementById('disp_pppoe_mac_desc');
+          if (macDesc) {
+            macDesc.textContent = `MTU: ${client.mtu || 1492} • ${client.macaddr ? `Cloned MAC: ${client.macaddr.toLowerCase()}` : 'Hardware Default MAC'}`;
+          }
+
+          // Update Server Displays
+          const serverToggle = document.getElementById('pppoeServerMasterToggle');
+          if (serverToggle) serverToggle.checked = !!server.server_enabled;
+
+          const serverSub = document.getElementById('pppoeServerStatusSub');
+          if (serverSub) {
+            serverSub.textContent = server.server_enabled
+              ? (server.running ? `Running on ${server.listen_iface || 'br-lan'} • ${server.sessions ? server.sessions.length : 0} active subscribers` : 'Starting server daemon...')
+              : 'Disabled • Local PPPoE Concentrator for LAN subscribers';
+          }
+
+          const srvNetDesc = document.getElementById('disp_pppoe_srv_network');
+          if (srvNetDesc) {
+            srvNetDesc.textContent = `Gateway: ${server.server_ip || '10.0.0.1'} • Pool: ${server.pool_start || '10.0.0.150'} - ${server.pool_end || '10.0.0.220'} • DNS: ${server.dns1 || '10.0.0.1'}`;
+          }
+
+          const srvUsersDesc = document.getElementById('disp_pppoe_users_count');
+          if (srvUsersDesc) {
+            const count = (server.users && server.users.length) || 0;
+            srvUsersDesc.textContent = `${count} subscriber account${count === 1 ? '' : 's'} configured • Tap to manage`;
+          }
+
+          const sessionsText = document.getElementById('pppoeActiveSessionsText');
+          if (sessionsText) {
+            const sessions = server.sessions || [];
+            if (sessions.length === 0) {
+              sessionsText.textContent = server.server_enabled ? 'Server listening • No subscribers currently connected' : 'Server is disabled';
+            } else {
+              sessionsText.textContent = sessions.map(s => `${s.interface} (${s.client_ip})`).join(', ');
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('loadPppoeConfig error:', e);
+      }
+    }
+
+    async function togglePppoeClient(enabled) {
+      if (typeof showToast === 'function') {
+        showToast(enabled ? 'Enabling PPPoE WAN dialer...' : 'Disabling PPPoE client (reverting to DHCP)...', 'info');
+      }
+      try {
+        const curUser = (window._cachedPppoeData && window._cachedPppoeData.client && window._cachedPppoeData.client.username) || '';
+        const res = await fetch('/cgi-bin/pppoe?action=client_set', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ enabled: !!enabled, username: curUser })
+        });
+        const data = await res.json();
+        if (typeof showToast === 'function') showToast(data.message || 'PPPoE Client state updated', 'success');
+      } catch (e) {
+        if (typeof showToast === 'function') showToast('PPPoE client toggle error: ' + e.message, 'error');
+      }
+      loadPppoeConfig();
+    }
+
+    async function savePppoeClientCreds(username, password) {
+      if (typeof showToast === 'function') showToast('Saving PPPoE credentials...', 'info');
+      try {
+        const isEn = window._cachedPppoeData && window._cachedPppoeData.client && window._cachedPppoeData.client.enabled;
+        const res = await fetch('/cgi-bin/pppoe?action=client_set', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ enabled: !!isEn, username, password })
+        });
+        const data = await res.json();
+        if (typeof showToast === 'function') showToast(data.message || 'Credentials updated', 'success');
+      } catch (e) {
+        if (typeof showToast === 'function') showToast('Error saving credentials: ' + e.message, 'error');
+      }
+      loadPppoeConfig();
+    }
+
+    async function savePppoeClientAc(ac, service) {
+      if (typeof showToast === 'function') showToast('Saving Access Concentrator options...', 'info');
+      try {
+        const isEn = window._cachedPppoeData && window._cachedPppoeData.client && window._cachedPppoeData.client.enabled;
+        const res = await fetch('/cgi-bin/pppoe?action=client_set', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ enabled: !!isEn, ac, service })
+        });
+        const data = await res.json();
+        if (typeof showToast === 'function') showToast(data.message || 'AC options updated', 'success');
+      } catch (e) {
+        if (typeof showToast === 'function') showToast('Error saving AC options: ' + e.message, 'error');
+      }
+      loadPppoeConfig();
+    }
+
+    async function savePppoeClientMac(macaddr, mtu) {
+      if (typeof showToast === 'function') showToast('Saving MAC & MTU settings...', 'info');
+      try {
+        const isEn = window._cachedPppoeData && window._cachedPppoeData.client && window._cachedPppoeData.client.enabled;
+        const res = await fetch('/cgi-bin/pppoe?action=client_set', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ enabled: !!isEn, macaddr, mtu })
+        });
+        const data = await res.json();
+        if (typeof showToast === 'function') showToast(data.message || 'MAC & MTU updated', 'success');
+      } catch (e) {
+        if (typeof showToast === 'function') showToast('Error saving MAC: ' + e.message, 'error');
+      }
+      loadPppoeConfig();
+    }
+
+    function generateRandomPppoeMac() {
+      const hex = '0123456789abcdef';
+      let mac = '02';
+      for (let i = 1; i < 6; i++) {
+        mac += ':' + hex[Math.floor(Math.random() * 16)] + hex[Math.floor(Math.random() * 16)];
+      }
+      const inp = document.getElementById('modalInput_pppoe_mac');
+      if (inp) inp.value = mac;
+    }
+
+    async function togglePppoeServer(enabled) {
+      if (typeof showToast === 'function') {
+        showToast(enabled ? 'Starting PPPoE Access Server...' : 'Stopping PPPoE Access Server...', 'info');
+      }
+      try {
+        const srv = (window._cachedPppoeData && window._cachedPppoeData.server) || {};
+        const res = await fetch('/cgi-bin/pppoe?action=server_set', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            server_enabled: !!enabled,
+            listen_iface: srv.listen_iface || 'br-lan',
+            server_ip: srv.server_ip || '10.0.0.1',
+            pool_start: srv.pool_start || '10.0.0.150',
+            pool_end: srv.pool_end || '10.0.0.220',
+            dns1: srv.dns1 || '10.0.0.1',
+            dns2: srv.dns2 || '1.1.1.1',
+            max_sessions: srv.max_sessions || 32,
+            service_name: srv.service_name || 'MAXNET'
+          })
+        });
+        const data = await res.json();
+        if (typeof showToast === 'function') showToast(data.message || 'PPPoE Server state updated', 'success');
+      } catch (e) {
+        if (typeof showToast === 'function') showToast('PPPoE server toggle error: ' + e.message, 'error');
+      }
+      loadPppoeConfig();
+    }
+
+    async function savePppoeServerConfig(server_ip, pool_start, pool_end, dns1, dns2, max_sessions) {
+      if (typeof showToast === 'function') showToast('Saving PPPoE Server configuration...', 'info');
+      try {
+        const srv = (window._cachedPppoeData && window._cachedPppoeData.server) || {};
+        const isEn = !!srv.server_enabled;
+        const res = await fetch('/cgi-bin/pppoe?action=server_set', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            server_enabled: isEn,
+            listen_iface: srv.listen_iface || 'br-lan',
+            server_ip,
+            pool_start,
+            pool_end,
+            dns1,
+            dns2,
+            max_sessions,
+            service_name: srv.service_name || 'MAXNET'
+          })
+        });
+        const data = await res.json();
+        if (typeof showToast === 'function') showToast(data.message || 'PPPoE Server updated', 'success');
+      } catch (e) {
+        if (typeof showToast === 'function') showToast('PPPoE server save error: ' + e.message, 'error');
+      }
+      loadPppoeConfig();
+    }
+
+    async function addPppoeUserFromModal() {
+      const u = (document.getElementById('modalInput_new_pppoe_u')?.value || '').trim();
+      const p = (document.getElementById('modalInput_new_pppoe_p')?.value || '').trim();
+      if (!u || !p) {
+        if (typeof showToast === 'function') showToast('Username and password are required', 'error');
+        return;
+      }
+      try {
+        const res = await fetch('/cgi-bin/pppoe?action=add_user', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user: u, pass: p, ip: '*' })
+        });
+        const data = await res.json();
+        if (data.status === 'ok') {
+          if (typeof showToast === 'function') showToast(`Subscriber account ${u} added!`, 'success');
+          await loadPppoeConfig();
+          openSettingModal('pppoe_server_users');
+        } else {
+          if (typeof showToast === 'function') showToast(data.message || 'Failed to add user', 'error');
+        }
+      } catch (e) {
+        if (typeof showToast === 'function') showToast('Add user error: ' + e.message, 'error');
+      }
+    }
+
+    async function deletePppoeUser(user) {
+      if (!confirm(`Are you sure you want to delete subscriber ${user}?`)) return;
+      try {
+        const res = await fetch('/cgi-bin/pppoe?action=del_user', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user })
+        });
+        const data = await res.json();
+        if (data.status === 'ok') {
+          if (typeof showToast === 'function') showToast(`Subscriber ${user} deleted`, 'success');
+          await loadPppoeConfig();
+          openSettingModal('pppoe_server_users');
+        } else {
+          if (typeof showToast === 'function') showToast(data.message || 'Failed to delete user', 'error');
+        }
+      } catch (e) {
+        if (typeof showToast === 'function') showToast('Delete user error: ' + e.message, 'error');
+      }
+    }
+
     /* ==================== DUFS WEBDAV & STORAGE CONTROLLER ==================== */
     async function loadDufsConfig() {
       try {
@@ -22627,7 +23217,7 @@ function onRemoveWifiClient(nodeId, clientIdent) {
               const activeDom = (data.custom_config && data.custom_config.domain) ? data.custom_config.domain : 'duckdns.org';
               descEl.innerHTML = `Domain: <strong>${activeDom}</strong> &bull; Issuer: <strong>Let's Encrypt Public Authority</strong> &bull; Valid to: ${data.expires || '90 days'}`;
             } else {
-              descEl.innerHTML = `Domain: <strong>maxnet.local</strong> &bull; Issuer: <strong>Mahendra Mali - Max Root CA</strong> &bull; Valid to: ${data.expires || '2029'}`;
+              descEl.innerHTML = `Domain: <strong>maxnet.local</strong> &bull; Issuer: <strong>MAXNET Root CA</strong> &bull; Valid to: ${data.expires || '2029'}`;
             }
           }
           if (badgeEl) {
@@ -22867,7 +23457,7 @@ function onRemoveWifiClient(nodeId, clientIdent) {
         id: 'https-security-status',
         level: 'healthy',
         title: 'Secure Access: HTTPS (:443) Active for maxnet.local',
-        desc: 'Registered to Mahendra Mali - Max. Issued by Mahendra Mali - Max Root CA with SAN for maxnet.local, maxnet.lan, and 10.0.0.1.',
+        desc: 'Issued by MAXNET Root CA with SAN for maxnet.local, maxnet.lan, and 10.0.0.1.',
         actionHtml: `<a href="/maxnet-root-ca.crt" download="maxnet-root-ca.crt" class="mh-btn btn-sm btn-ghost" style="color:#10b981; text-decoration:none; padding:4px 10px; font-size:11px;">DOWNLOAD CA CERT</a>`
       });
 

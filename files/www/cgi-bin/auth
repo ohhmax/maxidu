@@ -35,11 +35,32 @@ UA="${HTTP_USER_AGENT:-Web Browser}"
 NOW=$(date +%s)
 
 if [ "$ACTION" = "login" ]; then
+    mkdir -p /tmp/login_attempts
+    IP_FILE="/tmp/login_attempts/$(echo "$CLIENT_IP" | tr -c 'a-zA-Z0-9.' '_')"
+    
+    FAIL_COUNT=0
+    if [ -f "$IP_FILE" ]; then
+        FAIL_COUNT=$(awk 'NR==1{print $1}' "$IP_FILE" 2>/dev/null || echo 0)
+        LOCK_TIME=$(awk 'NR==1{print $2}' "$IP_FILE" 2>/dev/null || echo 0)
+        if [ "$FAIL_COUNT" -ge 5 ]; then
+            REMAIN=$((LOCK_TIME + 900 - NOW))
+            if [ "$REMAIN" -gt 0 ]; then
+                echo "{\"status\": \"error\", \"message\": \"Security Lockout: Too many failed login attempts. Retry in ${REMAIN} seconds.\"}"
+                exit 0
+            else
+                rm -f "$IP_FILE"
+                FAIL_COUNT=0
+            fi
+        fi
+    fi
+
     if [ -z "$PASS" ]; then
         echo '{"status": "error", "message": "Password required"}'
         exit 0
     fi
+
     if /usr/bin/checkpass "$USER" "$PASS" >/dev/null 2>&1; then
+        rm -f "$IP_FILE"
         T=$(head -c 16 /dev/urandom | md5sum | awk '{print $1}')
         cat << SESS > "/tmp/sessions/$T"
 {
@@ -53,7 +74,14 @@ if [ "$ACTION" = "login" ]; then
 SESS
         echo "{\"status\": \"ok\", \"token\": \"$T\", \"user\": \"$USER\", \"ip\": \"$CLIENT_IP\"}"
     else
-        echo '{"status": "error", "message": "Invalid username or password"}'
+        FAIL_COUNT=$((FAIL_COUNT + 1))
+        echo "$FAIL_COUNT $NOW" > "$IP_FILE"
+        ATTEMPTS_LEFT=$((5 - FAIL_COUNT))
+        if [ "$ATTEMPTS_LEFT" -le 0 ]; then
+            echo '{"status": "error", "message": "Security Lockout: Too many failed login attempts. Account locked for 15 minutes."}'
+        else
+            echo "{\"status\": \"error\", \"message\": \"Invalid username or password. ${ATTEMPTS_LEFT} attempts remaining before temporary lockout.\"}"
+        fi
     fi
     exit 0
 fi
