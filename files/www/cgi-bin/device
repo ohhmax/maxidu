@@ -84,6 +84,45 @@ if [ "$ACTION" = "security_set" ]; then
     exit 0
 fi
 
+# ==================== ACTION: DUFS (GET / SET) ====================
+if [ "$ACTION" = "dufs_get" ]; then
+    CONF_FILE="/etc/dufs.json"
+    if [ ! -f "$CONF_FILE" ]; then
+        echo '{"status":"ok","port":5000,"path":"/mnt/storage","allow_upload":true,"allow_delete":true,"user":"","has_auth":false}'
+    else
+        cat "$CONF_FILE"
+    fi
+    exit 0
+fi
+
+if [ "$ACTION" = "dufs_set" ]; then
+    CONF_FILE="/etc/dufs.json"
+    PORT=$(echo "$POST_DATA" | jq -r '.port // 5000' 2>/dev/null)
+    PATH_DIR=$(echo "$POST_DATA" | jq -r '.path // "/mnt/storage"' 2>/dev/null)
+    ALLOW_UPLOAD=$(echo "$POST_DATA" | jq -r '.allow_upload // true' 2>/dev/null)
+    ALLOW_DELETE=$(echo "$POST_DATA" | jq -r '.allow_delete // true' 2>/dev/null)
+    USER=$(echo "$POST_DATA" | jq -r '.user // empty' 2>/dev/null)
+    PASS=$(echo "$POST_DATA" | jq -r '.pass // empty' 2>/dev/null)
+
+    HAS_AUTH=false
+    [ -n "$USER" ] && [ -n "$PASS" ] && HAS_AUTH=true
+
+    cat << EOF > "$CONF_FILE"
+{
+  "status": "ok",
+  "port": $PORT,
+  "path": "$PATH_DIR",
+  "allow_upload": $ALLOW_UPLOAD,
+  "allow_delete": $ALLOW_DELETE,
+  "user": "$USER",
+  "has_auth": $HAS_AUTH
+}
+EOF
+    /etc/init.d/dufs restart >/dev/null 2>&1
+    echo '{"status":"ok","message":"Dufs configuration updated and restarted successfully."}'
+    exit 0
+fi
+
 # ==================== ACTION: DEVICES (LIST ALL CONNECTED DEVICES) ====================
 if [ "$ACTION" = "devices" ]; then
     DEVS_LIST=""

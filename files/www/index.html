@@ -8510,91 +8510,92 @@
               <div class="setting-section-divider"></div>
               <div class="setting-section-header">WAN Uplink Protocol Configuration</div>
 
-              <!-- WAN Protocol Selector -->
-              <div class="setting-row-item">
+              <!-- HIDDEN FORM BINDINGS FOR WAN -->
+              <div style="display:none;">
+                <input type="text" id="wanProtoSelect" value="dhcp">
+                <input type="text" id="wanPppoeUser" value="">
+                <input type="password" id="wanPppoePass" value="">
+                <input type="text" id="wanPppoeService" value="">
+                <input type="number" id="wanPppoeMtu" value="1492">
+                <input type="text" id="wanStaticIp" value="">
+                <input type="text" id="wanStaticNetmask" value="255.255.255.0">
+                <input type="text" id="wanStaticGateway" value="">
+                <input type="text" id="wanCustomMacInput" value="">
+              </div>
+
+              <!-- 1. WAN PROTOCOL (CLICKABLE ROW) -->
+              <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('wan_proto')">
                 <div class="setting-label-col">
                   <span class="setting-label-bold">WAN Connection Protocol</span>
-                  <span class="setting-label-sub">Select upstream carrier ISP protocol (DHCP, PPPoE session, or Static IPv4)</span>
+                  <span class="setting-label-sub" id="disp_wan_proto">DHCP Client (Dynamic IPv4 from ISP)</span>
                 </div>
-                <div class="setting-control-col">
-                  <select id="wanProtoSelect" class="mh-input" onchange="onWanProtoChange()" style="padding:6px 10px; font-size:12px; font-family:var(--font-mono); min-width:160px;">
-                    <option value="dhcp">DHCP Client (Dynamic)</option>
-                    <option value="pppoe">PPPoE (Fiber / DSL)</option>
-                    <option value="static">Static IPv4</option>
-                  </select>
+                <div class="setting-arrow-col">
+                  <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
                 </div>
               </div>
 
-              <!-- PPPoE Credentials Block (visible when PPPoE selected) -->
+              <!-- 2. PPPoE CONFIGURATION (VISIBLE WHEN PPPoE) -->
               <div id="pppoeConfigFields" style="display:none; flex-direction:column; gap:0;">
-                <div class="setting-row-item">
+                <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('wan_pppoe_creds')">
                   <div class="setting-label-col">
-                    <span class="setting-label-bold">PPPoE Username</span>
-                    <span class="setting-label-sub">ISP account login credential (e.g. user@broadband)</span>
+                    <span class="setting-label-bold">PPPoE ISP Credentials</span>
+                    <span class="setting-label-sub" id="disp_wan_pppoe_creds">Click to configure ISP username &amp; password</span>
                   </div>
-                  <div class="setting-control-col" style="flex:1; max-width:240px;">
-                    <input type="text" id="wanPppoeUser" class="mh-input" placeholder="ISP Username" style="width:100%; padding:6px 10px; font-size:12px; font-family:var(--font-mono);">
+                  <div class="setting-arrow-col">
+                    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
                   </div>
                 </div>
 
-                <div class="setting-row-item">
+                <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('wan_pppoe_mtu')">
                   <div class="setting-label-col">
-                    <span class="setting-label-bold">PPPoE Password</span>
-                    <span class="setting-label-sub">ISP account authentication password</span>
+                    <span class="setting-label-bold">PPPoE MTU Packet Size</span>
+                    <span class="setting-label-sub" id="disp_wan_pppoe_mtu">1492 Bytes (Standard PPPoE MTU)</span>
                   </div>
-                  <div class="setting-control-col" style="flex:1; max-width:240px;">
-                    <input type="password" id="wanPppoePass" class="mh-input" placeholder="Password" style="width:100%; padding:6px 10px; font-size:12px; font-family:var(--font-mono);">
+                  <div class="setting-arrow-col">
+                    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
                   </div>
                 </div>
 
-                <div class="setting-row-item">
+                <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('wan_pppoe_service')">
                   <div class="setting-label-col">
                     <span class="setting-label-bold">PPPoE Service Name (Optional)</span>
-                    <span class="setting-label-sub">Access Concentrator service name (leave blank for auto)</span>
+                    <span class="setting-label-sub" id="disp_wan_pppoe_service">Auto (Default Access Concentrator)</span>
                   </div>
-                  <div class="setting-control-col" style="flex:1; max-width:240px;">
-                    <input type="text" id="wanPppoeService" class="mh-input" placeholder="Auto" style="width:100%; padding:6px 10px; font-size:12px; font-family:var(--font-mono);">
-                  </div>
-                </div>
-
-                <div class="setting-row-item">
-                  <div class="setting-label-col">
-                    <span class="setting-label-bold">PPPoE MTU Size</span>
-                    <span class="setting-label-sub">Maximum transmission unit (standard PPPoE is 1492)</span>
-                  </div>
-                  <div class="setting-control-col" style="flex:1; max-width:140px;">
-                    <input type="number" id="wanPppoeMtu" class="mh-input" value="1492" min="576" max="1500" style="width:100%; padding:6px 10px; font-size:12px; font-family:var(--font-mono);">
+                  <div class="setting-arrow-col">
+                    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
                   </div>
                 </div>
               </div>
 
-              <!-- Static IP Fields Block (visible when static selected) -->
+              <!-- 3. STATIC IP CONFIGURATION (VISIBLE WHEN STATIC) -->
               <div id="wanStaticConfigFields" style="display:none; flex-direction:column; gap:0;">
-                <div class="setting-row-item">
+                <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('wan_static_ip')">
                   <div class="setting-label-col">
                     <span class="setting-label-bold">Static IPv4 Address</span>
-                    <span class="setting-label-sub">Fixed IP address assigned by ISP</span>
+                    <span class="setting-label-sub" id="disp_wan_static_ip">192.168.1.2 (Tap to configure)</span>
                   </div>
-                  <div class="setting-control-col" style="flex:1; max-width:240px;">
-                    <input type="text" id="wanStaticIp" class="mh-input" placeholder="192.168.1.2" style="width:100%; padding:6px 10px; font-size:12px; font-family:var(--font-mono);">
+                  <div class="setting-arrow-col">
+                    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
                   </div>
                 </div>
-                <div class="setting-row-item">
+
+                <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('wan_static_netmask')">
                   <div class="setting-label-col">
                     <span class="setting-label-bold">Subnet Netmask</span>
-                    <span class="setting-label-sub">IPv4 subnet mask (e.g. 255.255.255.0)</span>
+                    <span class="setting-label-sub" id="disp_wan_static_netmask">255.255.255.0 (/24)</span>
                   </div>
-                  <div class="setting-control-col" style="flex:1; max-width:240px;">
-                    <input type="text" id="wanStaticNetmask" class="mh-input" placeholder="255.255.255.0" style="width:100%; padding:6px 10px; font-size:12px; font-family:var(--font-mono);">
+                  <div class="setting-arrow-col">
+                    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
                   </div>
                 </div>
-                <div class="setting-row-item">
+
+                <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('wan_static_gateway')">
                   <div class="setting-label-col">
-                    <span class="setting-label-bold">Default Gateway</span>
-                    <span class="setting-label-sub">Upstream ISP gateway router IP</span>
+                    <span class="setting-label-bold">Default Gateway Router</span>
+                    <span class="setting-label-sub" id="disp_wan_static_gateway">192.168.1.1 (Tap to configure)</span>
                   </div>
-                  <div class="setting-control-col" style="flex:1; max-width:240px;">
-                    <input type="text" id="wanStaticGateway" class="mh-input" placeholder="192.168.1.1" style="width:100%; padding:6px 10px; font-size:12px; font-family:var(--font-mono);">
+                  <div class="setting-arrow-col">
+                    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
                   </div>
                 </div>
               </div>
@@ -8602,24 +8603,21 @@
               <div class="setting-section-divider"></div>
               <div class="setting-section-header">Hardware MAC Address Override (Cloning)</div>
 
-              <div class="setting-row-item">
+              <!-- 4. WAN CLONED MAC (CLICKABLE ROW) -->
+              <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('wan_custom_mac')">
                 <div class="setting-label-col">
                   <span class="setting-label-bold">WAN Cloned MAC Address</span>
-                  <span class="setting-label-sub" id="wanMacSubtext">Override physical WAN MAC to match ISP provisioned hardware</span>
+                  <span class="setting-label-sub" id="disp_wan_custom_mac">Default Hardware MAC in use</span>
                 </div>
-                <div class="setting-control-col" style="flex:1; max-width:280px;">
-                  <div style="display:flex; gap:6px; align-items:center;">
-                    <input type="text" id="wanCustomMacInput" class="mh-input" placeholder="Default Hardware" style="width:100%; padding:6px 10px; font-size:12px; font-family:var(--font-mono);">
-                    <button type="button" class="mh-btn btn-ghost" onclick="cloneCurrentPcMac()" title="Clone Current Client MAC" style="padding:6px 10px; font-size:10px; white-space:nowrap;">CLONE</button>
-                    <button type="button" class="mh-btn btn-ghost" onclick="resetWanMacToDefault()" title="Reset to Hardware Default" style="padding:6px 10px; font-size:10px; white-space:nowrap;">RESET</button>
-                  </div>
+                <div class="setting-arrow-col">
+                  <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
                 </div>
               </div>
 
               <!-- Action buttons -->
               <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:16px;">
                 <button type="button" class="mh-btn btn-ghost" onclick="loadWanInterfaceConfig()">RELOAD</button>
-                <button type="button" class="mh-btn" onclick="saveWanInterfaceConfig()" style="background:#0ea5e9; color:#fff; font-weight:700;">SAVE WAN CONFIG</button>
+                <button type="button" class="mh-btn" onclick="saveWanInterfaceConfig()" style="background:#0ea5e9; color:#fff; font-weight:700;">APPLY WAN CONFIG</button>
               </div>
             </div>
           </div>
@@ -9663,38 +9661,85 @@
               </div>
 
               <div class="setting-section-divider"></div>
-              <div class="setting-section-header">WebDAV File Browser (Dufs)</div>
+              <div class="setting-section-header">WebDAV File Browser &amp; Storage (Dufs)</div>
 
+              <!-- HIDDEN FORM BINDINGS FOR DUFS -->
+              <div style="display:none;">
+                <input type="number" id="dufsPortInput" value="5000">
+                <input type="text" id="dufsPathInput" value="/mnt/storage">
+                <input type="text" id="dufsAllowUpload" value="true">
+                <input type="text" id="dufsAllowDelete" value="true">
+                <input type="text" id="dufsUserInput" value="">
+                <input type="password" id="dufsPassInput" value="">
+              </div>
+
+              <!-- SERVICE BANNER -->
               <div class="setting-row-item">
                 <div class="setting-label-col">
                   <span class="setting-label-bold">Dufs WebDAV &amp; File Manager</span>
-                  <span class="setting-label-sub">High-speed file explorer and WebDAV server mounted on /mnt/storage</span>
-                </div>
-                <div class="setting-control-col">
-                  <span class="card-badge emerald" style="font-size:9.5px; font-weight:700;">RUNNING (PORT 5000)</span>
-                </div>
-              </div>
-
-              <div class="setting-row-item">
-                <div class="setting-label-col">
-                  <span class="setting-label-bold">WebDAV Share URL</span>
-                  <span class="setting-label-sub" id="dufsWebdavUrlText">http://10.0.0.1:5000/</span>
+                  <span class="setting-label-sub" id="dufsServiceSub">Active on Port 5000 &bull; WebDAV &amp; Browser File Explorer</span>
                 </div>
                 <div class="setting-control-col" style="display:flex; gap:8px; align-items:center;">
-                  <button type="button" class="round-action-btn" onclick="navigator.clipboard.writeText('http://10.0.0.1:5000/'); if(typeof showToast==='function')showToast('Copied WebDAV URL: http://10.0.0.1:5000/');" title="Copy WebDAV URL">
-                    <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                  </button>
-                  <a href="http://10.0.0.1:5000/" target="_blank" rel="noopener noreferrer" class="mh-btn btn-sm" style="background:#c084fc; color:#0b1120; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:5px; padding:6px 12px; font-size:11px; border-radius:6px;">
+                  <span class="card-badge emerald" id="dufsStatusBadge" style="font-size:9.5px; font-weight:700;">RUNNING</span>
+                  <a href="http://10.0.0.1:5000/" id="dufsOpenBtn" target="_blank" rel="noopener noreferrer" class="mh-btn btn-sm" style="background:#c084fc; color:#0b1120; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:5px; padding:6px 12px; font-size:11px; border-radius:6px;">
                     <svg viewBox="0 0 24 24" style="width:12px; height:12px; fill:none; stroke:currentColor; stroke-width:2;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                     OPEN FILE MANAGER
                   </a>
                 </div>
               </div>
 
-              <div class="setting-row-item">
+              <!-- 1. WEBDAV SHARE URL (CLICKABLE ROW) -->
+              <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('dufs_url')">
                 <div class="setting-label-col">
-                  <span class="setting-label-bold">WebDAV Connection Support</span>
-                  <span class="setting-label-sub">Compatible with Windows Explorer Map Network Drive, macOS Finder Connect to Server (http://10.0.0.1:5000/), and mobile file managers.</span>
+                  <span class="setting-label-bold">WebDAV Network Share URL</span>
+                  <span class="setting-label-sub" id="dufsWebdavUrlText">http://10.0.0.1:5000/ &bull; Tap to copy or view connection instructions</span>
+                </div>
+                <div class="setting-arrow-col">
+                  <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+              </div>
+
+              <!-- 2. WEBDAV PORT (CLICKABLE ROW) -->
+              <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('dufs_port')">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">WebDAV &amp; File Manager Port</span>
+                  <span class="setting-label-sub" id="disp_dufs_port">Port 5000 (Default Standard)</span>
+                </div>
+                <div class="setting-arrow-col">
+                  <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+              </div>
+
+              <!-- 3. STORAGE DIRECTORY (CLICKABLE ROW) -->
+              <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('dufs_path')">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Storage Mount Directory</span>
+                  <span class="setting-label-sub" id="disp_dufs_path">/mnt/storage (USB Root Storage)</span>
+                </div>
+                <div class="setting-arrow-col">
+                  <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+              </div>
+
+              <!-- 4. PERMISSIONS & UPLOAD POLICY (CLICKABLE ROW) -->
+              <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('dufs_permissions')">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">File Access &amp; Upload Policy</span>
+                  <span class="setting-label-sub" id="disp_dufs_permissions">Full Access: Browse, Upload, and Delete Enabled</span>
+                </div>
+                <div class="setting-arrow-col">
+                  <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+              </div>
+
+              <!-- 5. WEBDAV AUTHENTICATION (CLICKABLE ROW) -->
+              <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('dufs_auth')">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">WebDAV Access Authentication</span>
+                  <span class="setting-label-sub" id="disp_dufs_auth">Anonymous Public Access (No Password Required)</span>
+                </div>
+                <div class="setting-arrow-col">
+                  <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
                 </div>
               </div>
             </div>
@@ -10803,6 +10848,8 @@
       fetchTailscale();
       fetchAdbDeviceList();
       loadSslCertificateStatus();
+      loadDufsConfig();
+      loadWanInterfaceConfig();
       setupTimer();
       setTimeout(checkUpdateStatus, 1000);
     }
@@ -11020,6 +11067,10 @@
       } else if (id === 'acc-smb-storage') {
         document.body.classList.remove('terminal-active');
         if (typeof fetchSmbConfig === 'function') fetchSmbConfig();
+        if (typeof loadDufsConfig === 'function') loadDufsConfig();
+      } else if (id === 'acc-interfaces') {
+        document.body.classList.remove('terminal-active');
+        if (typeof loadWanInterfaceConfig === 'function') loadWanInterfaceConfig();
       } else if (id === 'acc-sys-info') {
         document.body.classList.remove('terminal-active');
         if (typeof fetchDeviceInfo === 'function') fetchDeviceInfo();
@@ -20068,6 +20119,239 @@ function onRemoveWifiClient(nodeId, clientIdent) {
             <input type="text" id="modalInput_ipv6_ula" class="mh-input" value="${escapeHtml(curUla)}" placeholder="fd00::/48" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
           </div>
         `;
+      } else if (key === 'wan_proto') {
+        titleEl.textContent = 'WAN Connection Protocol';
+        descEl.textContent = 'Select upstream carrier ISP protocol used by physical or USB WAN.';
+        const curProto = (document.getElementById('wanProtoSelect') ? document.getElementById('wanProtoSelect').value : 'dhcp') || 'dhcp';
+        bodyEl.innerHTML = `
+          <div>
+            <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">Protocol Type</label>
+            <select id="modalSelect_wan_proto" class="mh-input" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+              <option value="dhcp" ${curProto === 'dhcp' ? 'selected' : ''}>DHCP Client (Dynamic IPv4 - Standard)</option>
+              <option value="pppoe" ${curProto === 'pppoe' ? 'selected' : ''}>PPPoE (Fiber / DSL Session Dial-up)</option>
+              <option value="static" ${curProto === 'static' ? 'selected' : ''}>Static IPv4 (Fixed Gateway Address)</option>
+            </select>
+          </div>
+          <div>
+            <span style="font-size:10px; font-family:var(--font-mono); color:var(--text-dim); margin-bottom:6px; display:block;">Quick Presets:</span>
+            <div style="display:flex; flex-wrap:wrap; gap:6px;">
+              <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalSelect_wan_proto').value='dhcp'">DHCP Dynamic</button>
+              <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalSelect_wan_proto').value='pppoe'">PPPoE Fiber</button>
+              <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalSelect_wan_proto').value='static'">Static IPv4</button>
+            </div>
+          </div>
+        `;
+      } else if (key === 'wan_pppoe_creds') {
+        titleEl.textContent = 'PPPoE ISP Credentials';
+        descEl.textContent = 'Enter username and password provided by your broadband carrier for PPPoE session dial-up.';
+        const curUser = (document.getElementById('wanPppoeUser') ? document.getElementById('wanPppoeUser').value : '') || '';
+        const curPass = (document.getElementById('wanPppoePass') ? document.getElementById('wanPppoePass').value : '') || '';
+        bodyEl.innerHTML = `
+          <div>
+            <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">PPPoE Username</label>
+            <input type="text" id="modalInput_pppoe_user" class="mh-input" value="${escapeHtml(curUser)}" placeholder="user@broadband" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+          </div>
+          <div>
+            <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">PPPoE Password</label>
+            <div style="position:relative;">
+              <input type="password" id="modalInput_pppoe_pass" class="mh-input" value="${escapeHtml(curPass)}" placeholder="••••••••" style="width:100%; padding:9px 50px 9px 12px; font-size:13px; font-family:var(--font-mono);">
+              <button type="button" onclick="const p=document.getElementById('modalInput_pppoe_pass'); p.type = p.type==='password'?'text':'password';" style="position:absolute; right:8px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-dim); cursor:pointer; font-size:11px;">SHOW</button>
+            </div>
+          </div>
+        `;
+      } else if (key === 'wan_pppoe_mtu') {
+        titleEl.textContent = 'PPPoE MTU Packet Size';
+        descEl.textContent = 'Maximum transmission unit size for PPPoE frames. Standard is 1492 (or 1480 for certain ISPs).';
+        const curMtu = (document.getElementById('wanPppoeMtu') ? document.getElementById('wanPppoeMtu').value : '1492') || '1492';
+        bodyEl.innerHTML = `
+          <div>
+            <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">MTU Size (Bytes)</label>
+            <input type="number" id="modalInput_pppoe_mtu" class="mh-input" value="${escapeHtml(curMtu)}" min="576" max="1500" placeholder="1492" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+          </div>
+          <div>
+            <span style="font-size:10px; font-family:var(--font-mono); color:var(--text-dim); margin-bottom:6px; display:block;">Standard MTU Presets:</span>
+            <div style="display:flex; flex-wrap:wrap; gap:6px;">
+              <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalInput_pppoe_mtu').value='1492'">1492 (Standard PPPoE)</button>
+              <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalInput_pppoe_mtu').value='1480'">1480 (Jio / Airtel)</button>
+              <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalInput_pppoe_mtu').value='1460'">1460 (Safe MSS)</button>
+              <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalInput_pppoe_mtu').value='1500'">1500 (Baby Jumbo)</button>
+            </div>
+          </div>
+        `;
+      } else if (key === 'wan_pppoe_service') {
+        titleEl.textContent = 'PPPoE Service Name';
+        descEl.textContent = 'Access Concentrator service name if required by your carrier. Leave blank for auto.';
+        const curSvc = (document.getElementById('wanPppoeService') ? document.getElementById('wanPppoeService').value : '') || '';
+        bodyEl.innerHTML = `
+          <div>
+            <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">Service Name</label>
+            <input type="text" id="modalInput_pppoe_service" class="mh-input" value="${escapeHtml(curSvc)}" placeholder="Auto (blank)" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+          </div>
+          <div>
+            <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalInput_pppoe_service').value=''">Reset to Auto (Blank)</button>
+          </div>
+        `;
+      } else if (key === 'wan_static_ip') {
+        titleEl.textContent = 'Static IPv4 Address';
+        descEl.textContent = 'Fixed IPv4 address assigned to the router by your upstream provider.';
+        const curIp = (document.getElementById('wanStaticIp') ? document.getElementById('wanStaticIp').value : '192.168.1.2') || '192.168.1.2';
+        bodyEl.innerHTML = `
+          <div>
+            <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">Static IPv4 Address</label>
+            <input type="text" id="modalInput_wan_static_ip" class="mh-input" value="${escapeHtml(curIp)}" placeholder="192.168.1.2" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+          </div>
+          <div>
+            <span style="font-size:10px; font-family:var(--font-mono); color:var(--text-dim); margin-bottom:6px; display:block;">Common Suggestions:</span>
+            <div style="display:flex; flex-wrap:wrap; gap:6px;">
+              <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalInput_wan_static_ip').value='192.168.1.2'">192.168.1.2</button>
+              <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalInput_wan_static_ip').value='192.168.0.2'">192.168.0.2</button>
+              <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalInput_wan_static_ip').value='10.0.1.2'">10.0.1.2</button>
+            </div>
+          </div>
+        `;
+      } else if (key === 'wan_static_netmask') {
+        titleEl.textContent = 'Subnet Netmask';
+        descEl.textContent = 'IPv4 subnet mask for static WAN.';
+        const curMask = (document.getElementById('wanStaticNetmask') ? document.getElementById('wanStaticNetmask').value : '255.255.255.0') || '255.255.255.0';
+        bodyEl.innerHTML = `
+          <div>
+            <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">Subnet Mask</label>
+            <input type="text" id="modalInput_wan_static_netmask" class="mh-input" value="${escapeHtml(curMask)}" placeholder="255.255.255.0" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+          </div>
+          <div>
+            <span style="font-size:10px; font-family:var(--font-mono); color:var(--text-dim); margin-bottom:6px; display:block;">Mask Presets:</span>
+            <div style="display:flex; flex-wrap:wrap; gap:6px;">
+              <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalInput_wan_static_netmask').value='255.255.255.0'">255.255.255.0 (/24)</button>
+              <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalInput_wan_static_netmask').value='255.255.0.0'">255.255.0.0 (/16)</button>
+              <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalInput_wan_static_netmask').value='255.255.255.240'">255.255.255.240 (/28)</button>
+            </div>
+          </div>
+        `;
+      } else if (key === 'wan_static_gateway') {
+        titleEl.textContent = 'Default Gateway Router';
+        descEl.textContent = 'IP address of upstream carrier router or gateway modem.';
+        const curGw = (document.getElementById('wanStaticGateway') ? document.getElementById('wanStaticGateway').value : '192.168.1.1') || '192.168.1.1';
+        bodyEl.innerHTML = `
+          <div>
+            <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">Gateway IP</label>
+            <input type="text" id="modalInput_wan_static_gateway" class="mh-input" value="${escapeHtml(curGw)}" placeholder="192.168.1.1" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+          </div>
+          <div>
+            <span style="font-size:10px; font-family:var(--font-mono); color:var(--text-dim); margin-bottom:6px; display:block;">Common Gateways:</span>
+            <div style="display:flex; flex-wrap:wrap; gap:6px;">
+              <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalInput_wan_static_gateway').value='192.168.1.1'">192.168.1.1</button>
+              <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalInput_wan_static_gateway').value='192.168.0.1'">192.168.0.1</button>
+              <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalInput_wan_static_gateway').value='10.0.1.1'">10.0.1.1</button>
+            </div>
+          </div>
+        `;
+      } else if (key === 'wan_custom_mac') {
+        titleEl.textContent = 'WAN Cloned MAC Address';
+        descEl.textContent = 'Override WAN interface MAC address. Useful for ISPs that bind connectivity to a specific router or PC MAC.';
+        const curMac = (document.getElementById('wanCustomMacInput') ? document.getElementById('wanCustomMacInput').value : '') || '';
+        bodyEl.innerHTML = `
+          <div>
+            <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">Cloned MAC Address (XX:XX:XX:XX:XX:XX)</label>
+            <input type="text" id="modalInput_wan_custom_mac" class="mh-input" value="${escapeHtml(curMac)}" placeholder="Default Hardware (No Override)" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+          </div>
+          <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:4px;">
+            <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalInput_wan_custom_mac').value=''">Reset to Default (No Override)</button>
+            <button type="button" class="dns-preset-pill" onclick="cloneCurrentPcMacToModal()">Clone Current PC MAC</button>
+            <button type="button" class="dns-preset-pill" onclick="generateRandomWanMacInModal()">Generate Random MAC</button>
+          </div>
+        `;
+      } else if (key === 'dufs_url') {
+        titleEl.textContent = 'WebDAV Network Share';
+        descEl.textContent = 'Connect any device on your local network to browse, stream, and manage USB storage files.';
+        const host = window.location.hostname || '10.0.0.1';
+        const port = document.getElementById('dufsPortInput')?.value || 5000;
+        const proto = window.location.protocol || 'http:';
+        const webdavUrl = `${proto}//${host}:${port}/`;
+        if (saveBtn) saveBtn.textContent = 'DONE';
+        bodyEl.innerHTML = `
+          <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:12px; display:flex; justify-content:space-between; align-items:center; gap:8px;">
+            <span style="font-size:13px; font-weight:700; color:#38bdf8; font-family:var(--font-mono); word-break:break-all;">${webdavUrl}</span>
+            <button type="button" class="mh-btn btn-sm" onclick="navigator.clipboard.writeText('${webdavUrl}'); if(typeof showToast==='function')showToast('Copied: ${webdavUrl}');" style="background:#10b981; color:#0b1120; font-weight:700; padding:6px 12px; font-size:11px; white-space:nowrap;">COPY</button>
+          </div>
+          <div style="font-size:11.5px; color:var(--text-dim); line-height:1.5;">
+            <strong>Windows Explorer</strong>: Right-click &quot;This PC&quot; &rarr; <em>Map Network Drive</em> &rarr; Paste <code>${webdavUrl}</code><br>
+            <strong>macOS Finder</strong>: Go &rarr; <em>Connect to Server</em> (Cmd+K) &rarr; Paste <code>${webdavUrl}</code><br>
+            <strong>Android / iOS</strong>: Open VLC, Solid Explorer, or Cx File Explorer &rarr; Add WebDAV &rarr; Server: <code>${host}</code>, Port: <code>${port}</code>.
+          </div>
+        `;
+      } else if (key === 'dufs_port') {
+        titleEl.textContent = 'WebDAV & File Manager Port';
+        descEl.textContent = 'TCP listening port for WebDAV file sharing and web browser file management.';
+        const curPort = (document.getElementById('dufsPortInput') ? document.getElementById('dufsPortInput').value : '5000') || '5000';
+        bodyEl.innerHTML = `
+          <div>
+            <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">TCP Port Number</label>
+            <input type="number" id="modalInput_dufs_port" class="mh-input" value="${escapeHtml(curPort)}" min="1" max="65535" placeholder="5000" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+          </div>
+          <div>
+            <span style="font-size:10px; font-family:var(--font-mono); color:var(--text-dim); margin-bottom:6px; display:block;">Common Port Presets:</span>
+            <div style="display:flex; flex-wrap:wrap; gap:6px;">
+              <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalInput_dufs_port').value='5000'">5000 (Default Standard)</button>
+              <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalInput_dufs_port').value='8080'">8080</button>
+              <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalInput_dufs_port').value='8888'">8888</button>
+              <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalInput_dufs_port').value='9000'">9000</button>
+            </div>
+          </div>
+        `;
+      } else if (key === 'dufs_path') {
+        titleEl.textContent = 'Storage Mount Directory';
+        descEl.textContent = 'Filesystem directory shared over WebDAV and the web file manager.';
+        const curPath = (document.getElementById('dufsPathInput') ? document.getElementById('dufsPathInput').value : '/mnt/storage') || '/mnt/storage';
+        bodyEl.innerHTML = `
+          <div>
+            <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">Mount Directory Path</label>
+            <input type="text" id="modalInput_dufs_path" class="mh-input" value="${escapeHtml(curPath)}" placeholder="/mnt/storage" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+          </div>
+          <div>
+            <span style="font-size:10px; font-family:var(--font-mono); color:var(--text-dim); margin-bottom:6px; display:block;">Common Mount Points:</span>
+            <div style="display:flex; flex-wrap:wrap; gap:6px;">
+              <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalInput_dufs_path').value='/mnt/storage'">/mnt/storage (USB Root)</button>
+              <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalInput_dufs_path').value='/mnt/pendrive'">/mnt/pendrive</button>
+              <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalInput_dufs_path').value='/tmp'">/tmp (RAM Disk)</button>
+            </div>
+          </div>
+        `;
+      } else if (key === 'dufs_permissions') {
+        titleEl.textContent = 'File Access & Upload Policy';
+        descEl.textContent = 'Select permissions granted to WebDAV clients and web file manager users.';
+        const curUp = document.getElementById('dufsAllowUpload')?.value !== 'false';
+        const curDel = document.getElementById('dufsAllowDelete')?.value !== 'false';
+        let curMode = 'full';
+        if (curUp && curDel) curMode = 'full';
+        else if (curUp) curMode = 'upload_only';
+        else curMode = 'readonly';
+        bodyEl.innerHTML = `
+          <div>
+            <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">Access Level</label>
+            <select id="modalSelect_dufs_mode" class="mh-input" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+              <option value="full" ${curMode === 'full' ? 'selected' : ''}>Full Access (Browse, Upload, and Delete)</option>
+              <option value="upload_only" ${curMode === 'upload_only' ? 'selected' : ''}>Upload Only (Browse &amp; Upload, No Deletion)</option>
+              <option value="readonly" ${curMode === 'readonly' ? 'selected' : ''}>Read-Only (Browse and Download Only)</option>
+            </select>
+          </div>
+        `;
+      } else if (key === 'dufs_auth') {
+        titleEl.textContent = 'WebDAV Access Authentication';
+        descEl.textContent = 'Require a username and password to connect to WebDAV and the file explorer.';
+        const curUser = (document.getElementById('dufsUserInput') ? document.getElementById('dufsUserInput').value : '') || '';
+        bodyEl.innerHTML = `
+          <div>
+            <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">Username (Leave empty for public access)</label>
+            <input type="text" id="modalInput_dufs_user" class="mh-input" value="${escapeHtml(curUser)}" placeholder="e.g. max" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+          </div>
+          <div>
+            <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">Password</label>
+            <input type="password" id="modalInput_dufs_pass" class="mh-input" placeholder="Password (if username is set)" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+          </div>
+          <div>
+            <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalInput_dufs_user').value=''; document.getElementById('modalInput_dufs_pass').value='';">Disable Password (Public Anonymous)</button>
+          </div>
+        `;
       }
 
       overlay.style.display = 'flex';
@@ -20447,6 +20731,86 @@ function onRemoveWifiClient(nodeId, clientIdent) {
         const disp = document.getElementById('disp_ipv6_ula');
         if (disp) disp.textContent = `${val || 'fd00::/48'} • Unique local address scope`;
         scheduleNetworkAutoSave();
+      } else if (currentModalKey === 'wan_proto') {
+        const sel = document.getElementById('modalSelect_wan_proto');
+        const val = sel ? sel.value : 'dhcp';
+        if (document.getElementById('wanProtoSelect')) document.getElementById('wanProtoSelect').value = val;
+        updateWanInterfaceDisplays();
+        saveWanInterfaceConfig();
+      } else if (currentModalKey === 'wan_pppoe_creds') {
+        const user = (document.getElementById('modalInput_pppoe_user')?.value || '').trim();
+        const pass = document.getElementById('modalInput_pppoe_pass')?.value || '';
+        if (document.getElementById('wanPppoeUser')) document.getElementById('wanPppoeUser').value = user;
+        if (document.getElementById('wanPppoePass')) document.getElementById('wanPppoePass').value = pass;
+        updateWanInterfaceDisplays();
+        saveWanInterfaceConfig();
+      } else if (currentModalKey === 'wan_pppoe_mtu') {
+        const mtu = parseInt(document.getElementById('modalInput_pppoe_mtu')?.value, 10) || 1492;
+        if (document.getElementById('wanPppoeMtu')) document.getElementById('wanPppoeMtu').value = mtu;
+        updateWanInterfaceDisplays();
+        saveWanInterfaceConfig();
+      } else if (currentModalKey === 'wan_pppoe_service') {
+        const svc = (document.getElementById('modalInput_pppoe_service')?.value || '').trim();
+        if (document.getElementById('wanPppoeService')) document.getElementById('wanPppoeService').value = svc;
+        updateWanInterfaceDisplays();
+        saveWanInterfaceConfig();
+      } else if (currentModalKey === 'wan_static_ip') {
+        const ip = (document.getElementById('modalInput_wan_static_ip')?.value || '').trim();
+        if (document.getElementById('wanStaticIp')) document.getElementById('wanStaticIp').value = ip;
+        updateWanInterfaceDisplays();
+        saveWanInterfaceConfig();
+      } else if (currentModalKey === 'wan_static_netmask') {
+        const mask = (document.getElementById('modalInput_wan_static_netmask')?.value || '').trim();
+        if (document.getElementById('wanStaticNetmask')) document.getElementById('wanStaticNetmask').value = mask;
+        updateWanInterfaceDisplays();
+        saveWanInterfaceConfig();
+      } else if (currentModalKey === 'wan_static_gateway') {
+        const gw = (document.getElementById('modalInput_wan_static_gateway')?.value || '').trim();
+        if (document.getElementById('wanStaticGateway')) document.getElementById('wanStaticGateway').value = gw;
+        updateWanInterfaceDisplays();
+        saveWanInterfaceConfig();
+      } else if (currentModalKey === 'wan_custom_mac') {
+        const mac = (document.getElementById('modalInput_wan_custom_mac')?.value || '').trim();
+        if (mac && !isValidMac(mac)) {
+          showToast('Invalid MAC address format (e.g. 00:11:22:33:44:55)', 'error');
+          return;
+        }
+        if (document.getElementById('wanCustomMacInput')) document.getElementById('wanCustomMacInput').value = mac;
+        updateWanInterfaceDisplays();
+        saveWanInterfaceConfig();
+      } else if (currentModalKey === 'dufs_url') {
+        // Just closed modal
+      } else if (currentModalKey === 'dufs_port') {
+        const port = parseInt(document.getElementById('modalInput_dufs_port')?.value, 10);
+        if (!port || port < 1 || port > 65535) {
+          showToast('Invalid port number (1-65535)', 'error');
+          return;
+        }
+        if (document.getElementById('dufsPortInput')) document.getElementById('dufsPortInput').value = port;
+        saveDufsConfig();
+      } else if (currentModalKey === 'dufs_path') {
+        const path = (document.getElementById('modalInput_dufs_path')?.value || '/mnt/storage').trim();
+        if (document.getElementById('dufsPathInput')) document.getElementById('dufsPathInput').value = path;
+        saveDufsConfig();
+      } else if (currentModalKey === 'dufs_permissions') {
+        const mode = document.getElementById('modalSelect_dufs_mode')?.value || 'full';
+        let allowUp = 'true';
+        let allowDel = 'true';
+        if (mode === 'upload_only') { allowUp = 'true'; allowDel = 'false'; }
+        else if (mode === 'readonly') { allowUp = 'false'; allowDel = 'false'; }
+        if (document.getElementById('dufsAllowUpload')) document.getElementById('dufsAllowUpload').value = allowUp;
+        if (document.getElementById('dufsAllowDelete')) document.getElementById('dufsAllowDelete').value = allowDel;
+        saveDufsConfig();
+      } else if (currentModalKey === 'dufs_auth') {
+        const user = (document.getElementById('modalInput_dufs_user')?.value || '').trim();
+        const pass = document.getElementById('modalInput_dufs_pass')?.value || '';
+        if (user && !pass) {
+          showToast('Please enter a password for user ' + user, 'error');
+          return;
+        }
+        if (document.getElementById('dufsUserInput')) document.getElementById('dufsUserInput').value = user;
+        if (document.getElementById('dufsPassInput')) document.getElementById('dufsPassInput').value = pass;
+        saveDufsConfig();
       }
 
       closeSettingModal();
@@ -21916,13 +22280,53 @@ function onRemoveWifiClient(nodeId, clientIdent) {
 
     /* ==================== INTERFACES & WAN PPPoE CONTROLLER ==================== */
     function onWanProtoChange() {
-      const protoSelect = document.getElementById('wanProtoSelect');
-      if (!protoSelect) return;
-      const proto = protoSelect.value;
-      const pppoeDiv = document.getElementById('pppoeConfigFields');
-      const staticDiv = document.getElementById('wanStaticConfigFields');
-      if (pppoeDiv) pppoeDiv.style.display = proto === 'pppoe' ? 'flex' : 'none';
-      if (staticDiv) staticDiv.style.display = proto === 'static' ? 'flex' : 'none';
+      updateWanInterfaceDisplays();
+    }
+
+    function updateWanInterfaceDisplays() {
+      const proto = (document.getElementById('wanProtoSelect') ? document.getElementById('wanProtoSelect').value : 'dhcp') || 'dhcp';
+      const dispProto = document.getElementById('disp_wan_proto');
+      if (dispProto) {
+        if (proto === 'pppoe') dispProto.textContent = 'PPPoE (Fiber / DSL Dial-up Session)';
+        else if (proto === 'static') dispProto.textContent = 'Static IPv4 (Fixed Gateway Address)';
+        else dispProto.textContent = 'DHCP Client (Dynamic IPv4 from ISP)';
+      }
+
+      const pppoeBox = document.getElementById('pppoeConfigFields');
+      const staticBox = document.getElementById('wanStaticConfigFields');
+      if (pppoeBox) pppoeBox.style.display = (proto === 'pppoe') ? 'flex' : 'none';
+      if (staticBox) staticBox.style.display = (proto === 'static') ? 'flex' : 'none';
+
+      const user = document.getElementById('wanPppoeUser') ? document.getElementById('wanPppoeUser').value : '';
+      const pass = document.getElementById('wanPppoePass') ? document.getElementById('wanPppoePass').value : '';
+      const dispCreds = document.getElementById('disp_wan_pppoe_creds');
+      if (dispCreds) {
+        dispCreds.textContent = user ? `Username: ${user} • Password: ${pass ? '••••••••' : '(none)'}` : 'Click to configure ISP username & password';
+      }
+
+      const mtu = document.getElementById('wanPppoeMtu') ? document.getElementById('wanPppoeMtu').value : '1492';
+      const dispMtu = document.getElementById('disp_wan_pppoe_mtu');
+      if (dispMtu) dispMtu.textContent = `${mtu || 1492} Bytes (Standard PPPoE MTU)`;
+
+      const svc = document.getElementById('wanPppoeService') ? document.getElementById('wanPppoeService').value : '';
+      const dispSvc = document.getElementById('disp_wan_pppoe_service');
+      if (dispSvc) dispSvc.textContent = svc ? `Service: ${svc}` : 'Auto (Default Access Concentrator)';
+
+      const sIp = document.getElementById('wanStaticIp') ? document.getElementById('wanStaticIp').value : '';
+      const dispSIp = document.getElementById('disp_wan_static_ip');
+      if (dispSIp) dispSIp.textContent = sIp ? `${sIp} • Fixed Address` : '192.168.1.2 (Tap to configure)';
+
+      const sMask = document.getElementById('wanStaticNetmask') ? document.getElementById('wanStaticNetmask').value : '';
+      const dispSMask = document.getElementById('disp_wan_static_netmask');
+      if (dispSMask) dispSMask.textContent = sMask ? `${sMask}` : '255.255.255.0 (/24)';
+
+      const sGw = document.getElementById('wanStaticGateway') ? document.getElementById('wanStaticGateway').value : '';
+      const dispSGw = document.getElementById('disp_wan_static_gateway');
+      if (dispSGw) dispSGw.textContent = sGw ? `${sGw} • Upstream Gateway` : '192.168.1.1 (Tap to configure)';
+
+      const mac = document.getElementById('wanCustomMacInput') ? document.getElementById('wanCustomMacInput').value : '';
+      const dispMac = document.getElementById('disp_wan_custom_mac');
+      if (dispMac) dispMac.textContent = mac ? `Custom: ${mac.toLowerCase()} • Hardware override active` : 'Default Hardware MAC in use';
     }
 
     async function loadWanInterfaceConfig(preloadedData) {
@@ -21932,7 +22336,6 @@ function onRemoveWifiClient(nodeId, clientIdent) {
 
         if (document.getElementById('wanProtoSelect')) {
           document.getElementById('wanProtoSelect').value = wan.proto || 'dhcp';
-          onWanProtoChange();
         }
         if (document.getElementById('wanPppoeUser')) {
           document.getElementById('wanPppoeUser').value = wan.username || '';
@@ -21949,6 +22352,18 @@ function onRemoveWifiClient(nodeId, clientIdent) {
         if (document.getElementById('wanCustomMacInput')) {
           document.getElementById('wanCustomMacInput').value = wan.custom_mac || '';
         }
+        if (wan.ip && document.getElementById('wanStaticIp') && !document.getElementById('wanStaticIp').value) {
+          document.getElementById('wanStaticIp').value = wan.ip;
+        }
+        if (wan.netmask && document.getElementById('wanStaticNetmask')) {
+          document.getElementById('wanStaticNetmask').value = wan.netmask;
+        }
+        if (wan.gateway && document.getElementById('wanStaticGateway')) {
+          document.getElementById('wanStaticGateway').value = wan.gateway;
+        }
+
+        updateWanInterfaceDisplays();
+
         const wanBadge = document.getElementById('wanStatusBadge');
         if (wanBadge) {
           const isUp = wan.up || (wan.ip && wan.ip !== '0.0.0.0');
@@ -21972,12 +22387,15 @@ function onRemoveWifiClient(nodeId, clientIdent) {
     }
 
     async function saveWanInterfaceConfig() {
-      const proto = document.getElementById('wanProtoSelect').value;
-      const username = (document.getElementById('wanPppoeUser').value || '').trim();
-      const password = document.getElementById('wanPppoePass').value || '';
-      const service = (document.getElementById('wanPppoeService').value || '').trim();
-      const mtu = parseInt(document.getElementById('wanPppoeMtu').value, 10) || 1492;
-      const custom_mac = (document.getElementById('wanCustomMacInput').value || '').trim();
+      const proto = document.getElementById('wanProtoSelect') ? document.getElementById('wanProtoSelect').value : 'dhcp';
+      const username = (document.getElementById('wanPppoeUser')?.value || '').trim();
+      const password = document.getElementById('wanPppoePass')?.value || '';
+      const service = (document.getElementById('wanPppoeService')?.value || '').trim();
+      const mtu = parseInt(document.getElementById('wanPppoeMtu')?.value, 10) || 1492;
+      const custom_mac = (document.getElementById('wanCustomMacInput')?.value || '').trim();
+      const ip = (document.getElementById('wanStaticIp')?.value || '').trim();
+      const netmask = (document.getElementById('wanStaticNetmask')?.value || '255.255.255.0').trim();
+      const gateway = (document.getElementById('wanStaticGateway')?.value || '').trim();
 
       if (custom_mac && !/^([0-9a-fA-F]{2}[:\-]){5}[0-9a-fA-F]{2}$/.test(custom_mac)) {
         if (typeof showToast === 'function') showToast('Invalid MAC address format (XX:XX:XX:XX:XX:XX)', 'error');
@@ -21993,7 +22411,10 @@ function onRemoveWifiClient(nodeId, clientIdent) {
           password,
           service,
           mtu,
-          custom_mac
+          custom_mac,
+          ip,
+          netmask,
+          gateway
         };
         const res = await fetch('/cgi-bin/network', {
           method: 'POST',
@@ -22014,6 +22435,14 @@ function onRemoveWifiClient(nodeId, clientIdent) {
     }
 
     function cloneCurrentPcMac() {
+      cloneCurrentPcMacToModal();
+      if (document.getElementById('wanCustomMacInput') && document.getElementById('modalInput_wan_custom_mac')) {
+        document.getElementById('wanCustomMacInput').value = document.getElementById('modalInput_wan_custom_mac').value;
+        updateWanInterfaceDisplays();
+      }
+    }
+
+    function cloneCurrentPcMacToModal() {
       const cache = window._lastDataCache || {};
       const clients = Array.isArray(cache.clients) ? cache.clients : [];
       let detectedMac = '';
@@ -22023,10 +22452,118 @@ function onRemoveWifiClient(nodeId, clientIdent) {
           break;
         }
       }
+      const inp = document.getElementById('modalInput_wan_custom_mac');
+      if (inp) {
+        inp.value = detectedMac || 'ca:e7:b7:34:8f:ac';
+        if (typeof showToast === 'function') showToast('Cloned MAC: ' + inp.value, 'info');
+      }
+    }
+
+    function generateRandomWanMacInModal() {
+      const hex = '0123456789ABCDEF';
+      let mac = '02';
+      for (let i = 1; i < 6; i++) {
+        mac += ':' + hex[Math.floor(Math.random() * 16)] + hex[Math.floor(Math.random() * 16)];
+      }
+      const inp = document.getElementById('modalInput_wan_custom_mac');
+      if (inp) inp.value = mac.toLowerCase();
+    }
+
+    function resetWanMacToDefault() {
       const macInput = document.getElementById('wanCustomMacInput');
       if (macInput) {
-        macInput.value = detectedMac || '00:15:5d:01:22:33';
-        if (typeof showToast === 'function') showToast('Cloned MAC set: ' + macInput.value, 'info');
+        macInput.value = '';
+        updateWanInterfaceDisplays();
+        if (typeof showToast === 'function') showToast('Custom MAC cleared. Hardware default will be used.', 'info');
+      }
+    }
+
+    /* ==================== DUFS WEBDAV & STORAGE CONTROLLER ==================== */
+    async function loadDufsConfig() {
+      try {
+        const res = await fetch('/cgi-bin/device?action=dufs_get');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data && data.status === 'ok') {
+          const port = data.port || 5000;
+          const path = data.path || '/mnt/storage';
+          const allowUp = data.allow_upload !== false;
+          const allowDel = data.allow_delete !== false;
+          const user = data.user || '';
+          const hasAuth = !!data.has_auth;
+
+          if (document.getElementById('dufsPortInput')) document.getElementById('dufsPortInput').value = port;
+          if (document.getElementById('dufsPathInput')) document.getElementById('dufsPathInput').value = path;
+          if (document.getElementById('dufsAllowUpload')) document.getElementById('dufsAllowUpload').value = allowUp ? 'true' : 'false';
+          if (document.getElementById('dufsAllowDelete')) document.getElementById('dufsAllowDelete').value = allowDel ? 'true' : 'false';
+          if (document.getElementById('dufsUserInput')) document.getElementById('dufsUserInput').value = user;
+
+          const dispPort = document.getElementById('disp_dufs_port');
+          if (dispPort) dispPort.textContent = `Port ${port} (Standard WebDAV)`;
+
+          const dispPath = document.getElementById('disp_dufs_path');
+          if (dispPath) dispPath.textContent = `${path} (Storage Mount)`;
+
+          const dispPerm = document.getElementById('disp_dufs_permissions');
+          if (dispPerm) {
+            if (allowUp && allowDel) dispPerm.textContent = 'Full Access: Browse, Upload, and Delete Enabled';
+            else if (allowUp) dispPerm.textContent = 'Upload Only: Browse & Upload Enabled (No Delete)';
+            else dispPerm.textContent = 'Read-Only: Browse & Download Only';
+          }
+
+          const dispAuth = document.getElementById('disp_dufs_auth');
+          if (dispAuth) {
+            dispAuth.textContent = hasAuth ? `Protected: User "${user}" configured` : 'Anonymous Public Access (No Password Required)';
+          }
+
+          const host = window.location.hostname || '10.0.0.1';
+          const proto = window.location.protocol || 'http:';
+          const webdavUrl = `${proto}//${host}:${port}/`;
+
+          const urlText = document.getElementById('dufsWebdavUrlText');
+          if (urlText) urlText.innerHTML = `<strong>${webdavUrl}</strong> &bull; Tap to copy or view connection instructions`;
+
+          const openBtn = document.getElementById('dufsOpenBtn');
+          if (openBtn) openBtn.href = webdavUrl;
+
+          const subBanner = document.getElementById('dufsServiceSub');
+          if (subBanner) subBanner.textContent = `Active on Port ${port} • WebDAV & Browser File Explorer`;
+        }
+      } catch (e) {
+        console.warn('loadDufsConfig error:', e);
+      }
+    }
+
+    async function saveDufsConfig() {
+      const port = parseInt(document.getElementById('dufsPortInput')?.value, 10) || 5000;
+      const path = (document.getElementById('dufsPathInput')?.value || '/mnt/storage').trim();
+      const allow_upload = document.getElementById('dufsAllowUpload')?.value === 'true';
+      const allow_delete = document.getElementById('dufsAllowDelete')?.value === 'true';
+      const user = (document.getElementById('dufsUserInput')?.value || '').trim();
+      const pass = (document.getElementById('dufsPassInput')?.value || '').trim();
+
+      try {
+        const res = await fetch('/cgi-bin/device?action=dufs_set', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            port,
+            path,
+            allow_upload,
+            allow_delete,
+            user,
+            pass
+          })
+        });
+        const data = await res.json();
+        if (data && data.status === 'ok') {
+          if (typeof showToast === 'function') showToast('Dufs WebDAV & File Manager updated!', 'success');
+          loadDufsConfig();
+        } else {
+          if (typeof showToast === 'function') showToast('Failed to save Dufs config', 'error');
+        }
+      } catch (e) {
+        if (typeof showToast === 'function') showToast('Error saving Dufs: ' + e.message, 'error');
       }
     }
 
