@@ -934,6 +934,11 @@
       align-items: center;
       gap: 4px;
     }
+    .settings-shell .card-badge,
+    #settingsDetailPageView .card-badge,
+    .android-modal-card .card-badge {
+      display: none !important;
+    }
     .card-badge.gold {
       background: rgba(245, 158, 11, 0.1);
       border-color: rgba(245, 158, 11, 0.25);
@@ -2551,6 +2556,11 @@
       display: inline-flex;
       align-items: center;
       gap: 4px;
+    }
+    .settings-shell .card-badge,
+    #settingsDetailPageView .card-badge,
+    .android-modal-card .card-badge {
+      display: none !important;
     }
     .client-port-micro strong { color: var(--text-muted); }
     .client-port-micro.tether strong { color: var(--usb3); }
@@ -9589,7 +9599,7 @@
                 </div>
                 <div class="toggle-wrap-cell">
                   <label class="toggle-switch">
-                    <input type="checkbox" id="smbMasterToggle" checked onchange="toggleSmbService(this.checked)">
+                    <input type="checkbox" id="smbMasterToggle" onchange="toggleSmbService(this.checked)">
                     <span class="toggle-slider"></span>
                   </label>
                 </div>
@@ -9677,14 +9687,18 @@
               <div class="setting-row-item">
                 <div class="setting-label-col">
                   <span class="setting-label-bold">Dufs WebDAV &amp; File Manager</span>
-                  <span class="setting-label-sub" id="dufsServiceSub">Active on Port 5000 &bull; WebDAV &amp; Browser File Explorer</span>
+                  <span class="setting-label-sub" id="dufsServiceSub">Disabled &bull; Local WebDAV storage server &amp; browser file manager</span>
                 </div>
-                <div class="setting-control-col" style="display:flex; gap:8px; align-items:center;">
-                  <span class="card-badge emerald" id="dufsStatusBadge" style="font-size:9.5px; font-weight:700;">RUNNING</span>
-                  <a href="http://10.0.0.1:5000/" id="dufsOpenBtn" target="_blank" rel="noopener noreferrer" class="mh-btn btn-sm" style="background:#c084fc; color:#0b1120; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:5px; padding:6px 12px; font-size:11px; border-radius:6px;">
-                    <svg viewBox="0 0 24 24" style="width:12px; height:12px; fill:none; stroke:currentColor; stroke-width:2;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                    OPEN FILE MANAGER
+                <div class="setting-control-col" style="display:flex; gap:10px; align-items:center;">
+                  <a href="http://10.0.0.1:5000/" id="dufsOpenBtn" target="_blank" rel="noopener noreferrer" class="round-action-btn" title="Open in Web Browser">
+                    <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                   </a>
+                  <div class="toggle-wrap-cell">
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="dufsMasterToggle" onchange="toggleDufsService(this.checked)">
+                      <span class="toggle-slider"></span>
+                    </label>
+                  </div>
                 </div>
               </div>
 
@@ -9786,79 +9800,23 @@
               <div class="setting-section-divider"></div>
 
               <!-- SECTION: SSL / TLS SECURITY CERTIFICATE -->
-              <div class="setting-section-header">SSL / TLS Security Certificates (HTTPS)</div>
+              <div class="setting-section-header">Web Encryption (HTTPS)</div>
 
               <div class="setting-row-item">
                 <div class="setting-label-col">
-                  <span class="setting-label-bold">Active HTTPS Certificate</span>
-                  <span class="setting-label-sub" id="sslActiveCertDesc">Domain: <strong>maxnet.local</strong> &bull; Issuer: <strong>Mahendra Mali - Max Root CA</strong></span>
+                  <span class="setting-label-bold">HTTPS Encryption</span>
+                  <span class="setting-label-sub" id="disp_https_security_sub">Encrypted access on port 443 (maxnet.local) &bull; TLS 1.3 certificate by Mahendra Mali - Max</span>
                 </div>
-                <div class="setting-control-col">
-                  <span class="card-badge emerald" id="sslActiveCertBadge" style="font-size:9.5px; font-weight:700;">VALID TLS 1.3</span>
-                </div>
-              </div>
-
-              <div class="setting-row-item">
-                <div class="setting-label-col">
-                  <span class="setting-label-bold">Local Root Certificate Authority (CA)</span>
-                  <span class="setting-label-sub">Issuer: <strong>Mahendra Mali - Max Root CA</strong> &bull; RSA 2048-bit &bull; 10-Year Trust</span>
-                </div>
-                <div class="setting-control-col" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-                  <a href="/maxnet-root-ca.crt" download="maxnet-root-ca.crt" class="mh-btn btn-sm" style="background:#10b981; color:#0b1120; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:5px; padding:6px 12px; font-size:11px; border-radius:6px;">
-                    <svg viewBox="0 0 24 24" style="width:12px; height:12px; fill:none; stroke:currentColor; stroke-width:2;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                    ROOT CA (.CRT)
+                <div class="setting-control-col" style="display:flex; gap:10px; align-items:center;">
+                  <a href="/maxnet-root-ca.crt" download="maxnet-root-ca.crt" class="round-action-btn" title="Download SSL Certificate">
+                    <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                   </a>
-                  <a href="/maxnet-root-ca.mobileconfig" download="maxnet-root-ca.mobileconfig" class="mh-btn btn-sm" style="background:#38bdf8; color:#0b1120; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:5px; padding:6px 12px; font-size:11px; border-radius:6px;">
-                    <svg viewBox="0 0 24 24" style="width:12px; height:12px; fill:none; stroke:currentColor; stroke-width:2;"><path d="M12 2a10 10 0 0 1 10 10c0 5.52-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2zm1 5h-2v6h6v-2h-4V7z"/></svg>
-                    APPLE (.MOBILECONFIG)
-                  </a>
-                  <button type="button" class="mh-btn btn-sm btn-ghost" onclick="openSslHelpModal()" style="padding:6px 12px; font-size:11px; font-weight:700;">
-                    INSTALL GUIDE
-                  </button>
-                </div>
-              </div>
-
-              <div class="setting-row-item">
-                <div class="setting-label-col">
-                  <span class="setting-label-bold">Subject Alternative Names (SAN)</span>
-                  <span class="setting-label-sub" id="sslSanList">maxnet.local &bull; maxnet.lan &bull; maxnet &bull; 10.0.0.1 (Zero browser warnings)</span>
-                </div>
-              </div>
-
-              <!-- AUTOMATED DUCKDNS / LET'S ENCRYPT PUBLIC GREEN LOCK CARD -->
-              <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:14px 16px; margin-top:6px; display:flex; flex-direction:column; gap:12px;">
-                <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;">
-                  <div>
-                    <div style="font-size:13px; font-weight:700; color:#38bdf8; display:flex; align-items:center; gap:6px;">
-                      <svg viewBox="0 0 24 24" style="width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                      Automated Public Green Padlock SSL (Let's Encrypt / DuckDNS)
-                    </div>
-                    <div style="font-size:11px; color:var(--text-dim); margin-top:4px; line-height:1.45;">
-                      Out-of-the-box 100% Green Padlock on all phones &amp; browsers without installing any certificates. Powered by <strong>Split-Horizon DNS</strong> and <strong>ACME DNS-01</strong> (works behind CGNAT / 5G modems with zero open ports).
-                    </div>
+                  <div class="toggle-wrap-cell">
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="secHttpsToggle" onchange="saveSecurityPolicy('force_https', this.checked)">
+                      <span class="toggle-slider"></span>
+                    </label>
                   </div>
-                  <span class="card-badge" id="sslDuckDnsBadge" style="background:rgba(56,189,248,0.15); color:#38bdf8; font-size:9.5px; font-weight:700;">SPLIT-HORIZON READY</span>
-                </div>
-
-                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:10px;">
-                  <div>
-                    <label style="font-size:11px; font-weight:600; color:var(--text-dim); display:block; margin-bottom:4px;">DuckDNS Subdomain</label>
-                    <div style="display:flex; align-items:center; background:rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.12); border-radius:6px; overflow:hidden;">
-                      <input type="text" id="duckdnsSubdomain" placeholder="e.g. maxnet" style="flex:1; background:transparent; border:none; padding:7px 10px; color:var(--text-main); font-size:12px; outline:none; font-family:var(--font-mono);">
-                      <span style="padding:7px 10px; font-size:11px; color:var(--text-dim); background:rgba(255,255,255,0.05); font-family:var(--font-mono); border-left:1px solid rgba(255,255,255,0.08);">.duckdns.org</span>
-                    </div>
-                  </div>
-                  <div>
-                    <label style="font-size:11px; font-weight:600; color:var(--text-dim); display:block; margin-bottom:4px;">DuckDNS Token (from duckdns.org)</label>
-                    <input type="password" id="duckdnsToken" placeholder="Paste DuckDNS Account Token" style="width:100%; box-sizing:border-box; background:rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.12); border-radius:6px; padding:7px 10px; color:var(--text-main); font-size:12px; outline:none; font-family:var(--font-mono);">
-                  </div>
-                </div>
-
-                <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; pt:4px;">
-                  <div id="duckdnsStatusMsg" style="font-size:11px; color:var(--text-dim); font-family:var(--font-mono);">Ready. Enter your DuckDNS subdomain and token to obtain real Let's Encrypt certificate.</div>
-                  <button type="button" id="btnIssueDuckDns" class="mh-btn" onclick="requestDuckDnsSsl()" style="background:#10b981; color:#0b1120; font-weight:700; padding:7px 16px; font-size:11px; border-radius:6px; cursor:pointer;">
-                    OBTAIN GREEN PADLOCK SSL
-                  </button>
                 </div>
               </div>
 
@@ -9937,20 +9895,6 @@
                 <div class="toggle-wrap-cell">
                   <label class="toggle-switch">
                     <input type="checkbox" id="secBruteForceToggle" checked onchange="saveSecurityPolicy('brute_force', this.checked)">
-                    <span class="toggle-slider"></span>
-                  </label>
-                </div>
-              </div>
-
-              <!-- 7. FORCE HTTPS ENCRYPTION -->
-              <div class="setting-row-item">
-                <div class="setting-label-col">
-                  <span class="setting-label-bold">Force HTTPS Encryption</span>
-                  <span class="setting-label-sub">Automatically redirect insecure HTTP traffic to secure HTTPS</span>
-                </div>
-                <div class="toggle-wrap-cell">
-                  <label class="toggle-switch">
-                    <input type="checkbox" id="secHttpsToggle" onchange="saveSecurityPolicy('force_https', this.checked)">
                     <span class="toggle-slider"></span>
                   </label>
                 </div>
@@ -16574,7 +16518,7 @@ function drawStorageIconSmall(x, y, color, parent) {
             <span class="setting-label-sub">${escapeHtml(vendor)} &bull; ${escapeHtml(c.port || 'LAN Interface')}</span>
           </div>
           <div class="setting-control-col">
-            <span class="card-badge" style="border-color:${statusInfo.color}; color:${statusInfo.color}; background:rgba(255,255,255,0.04); font-size:10px; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+            <span style="color:${statusInfo.color}; font-size:11px; font-weight:700; font-family:var(--font-mono); display:inline-flex; align-items:center; gap:5px;">
               <span style="width:6px; height:6px; border-radius:50%; background:${statusInfo.color}; display:inline-block;"></span>
               ${statusInfo.status.toUpperCase()}
             </span>
@@ -16673,7 +16617,7 @@ function drawStorageIconSmall(x, y, color, parent) {
           </div>
           <div class="setting-control-col">
             ${isGateway
-              ? `<span class="card-badge emerald" style="font-size:9.5px; font-weight:700;">PROTECTED</span>`
+              ? ''
               : (isBlocked
                 ? `<button class="mh-btn btn-sm btn-ghost" onclick="unblockDevice('${escapeHtml(c.ip)}', '${escapeHtml(c.mac)}'); setTimeout(() => openDhcpClientDetail('${escapeHtml(c.ip)}', false), 600);">UNBLOCK</button>`
                 : `<button class="mh-btn btn-sm btn-danger" onclick="blockDevice('${escapeHtml(c.ip)}', '${escapeHtml(c.mac)}', '${escapeHtml(hostName || c.ip)}'); setTimeout(() => openDhcpClientDetail('${escapeHtml(c.ip)}', false), 600);">BLOCK</button>`
@@ -16689,7 +16633,7 @@ function drawStorageIconSmall(x, y, color, parent) {
           </div>
           <div class="setting-control-col">
             ${isGateway
-              ? `<span class="card-badge" style="font-size:9.5px; font-weight:700;">STATIC BR-LAN</span>`
+              ? ''
               : `<button type="button" class="round-action-btn" title="Reserve Static Lease" onclick="reserveClientStaticLease('${escapeHtml(c.ip)}', '${escapeHtml(c.mac)}', '${escapeHtml(hostName || '')}')">
                    <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
                  </button>`
@@ -22526,12 +22470,44 @@ function onRemoveWifiClient(nodeId, clientIdent) {
           const openBtn = document.getElementById('dufsOpenBtn');
           if (openBtn) openBtn.href = webdavUrl;
 
+          const isEnabled = !!data.enabled;
+          const dufsToggle = document.getElementById('dufsMasterToggle');
+          if (dufsToggle) dufsToggle.checked = isEnabled;
+
           const subBanner = document.getElementById('dufsServiceSub');
-          if (subBanner) subBanner.textContent = `Active on Port ${port} • WebDAV & Browser File Explorer`;
+          if (subBanner) {
+            subBanner.textContent = isEnabled 
+              ? `Active on Port ${port} • WebDAV & Browser File Explorer` 
+              : 'Disabled • Local WebDAV storage server & browser file manager';
+          }
         }
       } catch (e) {
         console.warn('loadDufsConfig error:', e);
       }
+    }
+
+    async function toggleDufsService(enabled) {
+      if (typeof showToast === 'function') {
+        showToast(enabled ? 'Starting Dufs WebDAV service...' : 'Stopping Dufs WebDAV service...', 'info');
+      }
+      try {
+        const res = await fetch('/cgi-bin/device?action=dufs_set', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ enabled: !!enabled })
+        });
+        const data = await res.json();
+        if (data && data.status === 'ok') {
+          if (typeof showToast === 'function') {
+            showToast(enabled ? 'Dufs WebDAV service started' : 'Dufs WebDAV service stopped', 'success');
+          }
+        } else {
+          if (typeof showToast === 'function') showToast('Failed to update Dufs state', 'error');
+        }
+      } catch (e) {
+        if (typeof showToast === 'function') showToast('Error toggling Dufs: ' + e.message, 'error');
+      }
+      loadDufsConfig();
     }
 
     async function saveDufsConfig() {
