@@ -2828,6 +2828,7 @@ GitHub: https://github.com/ohhmax | Email: max@maxnet.lan
       border-color: rgba(255, 255, 255, 0.4);
       box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
     }
+    .switch-toggle,
     .toggle-switch {
       position: relative;
       display: inline-block;
@@ -2835,6 +2836,7 @@ GitHub: https://github.com/ohhmax | Email: max@maxnet.lan
       height: 24px;
       flex-shrink: 0;
     }
+    .switch-toggle input,
     .toggle-switch input { opacity: 0; width: 0; height: 0; }
     .toggle-slider {
       position: absolute;
@@ -2856,7 +2858,7 @@ GitHub: https://github.com/ohhmax | Email: max@maxnet.lan
       transition: .25s;
     }
     input:checked + .toggle-slider {
-      background-color: var(--mh-emerald);
+      background-color: var(--primary, #0ea5e9);
     }
     input:checked + .toggle-slider:before {
       transform: translateX(20px);
@@ -4774,6 +4776,7 @@ GitHub: https://github.com/ohhmax | Email: max@maxnet.lan
       color: #94a3b8;
       border-color: #cbd5e1;
     }
+    .switch-toggle,
     .toggle-switch {
       position: relative;
       display: inline-block;
@@ -4781,6 +4784,7 @@ GitHub: https://github.com/ohhmax | Email: max@maxnet.lan
       height: 24px;
       flex-shrink: 0;
     }
+    .switch-toggle input,
     .toggle-switch input { opacity: 0; width: 0; height: 0; }
     .toggle-slider {
       position: absolute;
@@ -4808,9 +4812,9 @@ GitHub: https://github.com/ohhmax | Email: max@maxnet.lan
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
     }
     input:checked + .toggle-slider {
-      background-color: #10b981;
-      border-color: #10b981;
-      box-shadow: 0 0 10px rgba(16, 185, 129, 0.35);
+      background-color: var(--primary, #0ea5e9);
+      border-color: var(--primary, #0ea5e9);
+      box-shadow: 0 0 10px rgba(14, 165, 233, 0.35);
     }
     input:checked + .toggle-slider:before {
       transform: translateX(20px);
@@ -8733,7 +8737,7 @@ GitHub: https://github.com/ohhmax | Email: max@maxnet.lan
                     <span class="setting-label-sub">Monitors uplink health and switches to standby modem if primary fails</span>
                   </div>
                   <div class="setting-control-col">
-                    <label class="switch-toggle"><input type="checkbox" id="usbWatchdogToggle" onchange="saveUsbWanConfig()"><span class="toggle-slider"></span></label>
+                    <label class="toggle-switch"><input type="checkbox" id="usbWatchdogToggle" onchange="saveUsbWanConfig()"><span class="toggle-slider"></span></label>
                   </div>
                 </div>
 
@@ -8783,7 +8787,7 @@ GitHub: https://github.com/ohhmax | Email: max@maxnet.lan
                     <span class="setting-label-sub">Automatically restarts udhcpc on USB device replug</span>
                   </div>
                   <div class="setting-control-col">
-                    <label class="switch-toggle"><input type="checkbox" id="usbAutoReconnectToggle" checked onchange="saveUsbWanConfig()"><span class="toggle-slider"></span></label>
+                    <label class="toggle-switch"><input type="checkbox" id="usbAutoReconnectToggle" checked onchange="saveUsbWanConfig()"><span class="toggle-slider"></span></label>
                   </div>
                 </div>
 
