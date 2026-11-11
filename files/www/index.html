@@ -13110,8 +13110,13 @@
       return g;
     }
 
-    function drawTetheringIconSmall(x, y, color, parent) {
-      const g = mk("g", { class: "dev-icon-tether", style: `color:${color || '#10b981'}; cursor:help;` }, parent);
+    function drawTetheringIconSmall(x, y, color, parent, scale) {
+      const s = (typeof scale === "number") ? scale : 1;
+      const attrs = { class: "dev-icon-tether", style: `color:${color || '#10b981'}; cursor:help;` };
+      if (s !== 1) {
+        attrs.transform = `translate(${x}, ${y}) scale(${s}) translate(${-x}, ${-y})`;
+      }
+      const g = mk("g", attrs, parent);
       mk("title", {}, g).textContent = "Hotspot / Tethering Active";
       mk("circle", { cx: x, cy: y, r: 1.4, fill: "currentColor" }, g);
       mk("path", { d: `M${x - 2.6} ${y - 2.6} a3.6 3.6 0 0 0 0 5.2`, fill: "none", stroke: "currentColor", "stroke-width": 1.1, "stroke-linecap": "round" }, g);
@@ -13121,8 +13126,13 @@
       return g;
     }
 
-    function drawAdbIconSmall(x, y, color, parent) {
-      const g = mk("g", { class: "dev-icon-adb", style: `color:${color || '#38bdf8'}; cursor:help;` }, parent);
+    function drawAdbIconSmall(x, y, color, parent, scale) {
+      const s = (typeof scale === "number") ? scale : 1;
+      const attrs = { class: "dev-icon-adb", style: `color:${color || '#38bdf8'}; cursor:help;` };
+      if (s !== 1) {
+        attrs.transform = `translate(${x}, ${y}) scale(${s}) translate(${-x}, ${-y})`;
+      }
+      const g = mk("g", attrs, parent);
       mk("title", {}, g).textContent = "ADB Debugging Enabled";
       mk("line", { x1: x - 2, y1: y - 2, x2: x - 3.2, y2: y - 3.8, stroke: "currentColor", "stroke-width": 0.9, "stroke-linecap": "round" }, g);
       mk("line", { x1: x + 2, y1: y - 2, x2: x + 3.2, y2: y - 3.8, stroke: "currentColor", "stroke-width": 0.9, "stroke-linecap": "round" }, g);
@@ -14135,7 +14145,7 @@ function drawStorageIconSmall(x, y, color, parent) {
 
         wanG.onclick = (e) => {
           showTopoNodeDetail({
-            name: "WAN (USB0)",
+            name: "WAN USB",
             type: "wan",
             ip: liveWanIpStr,
             speed: `${liveWanTotalSpeed.toFixed(3)} Mbps`,
@@ -14190,7 +14200,7 @@ function drawStorageIconSmall(x, y, color, parent) {
           y: wanY + 14.5,
           style: `font-size:8.5px; font-weight:800; font-family:var(--font-mono); fill:${topoTheme.textMain};`
         }, wanG);
-        tWanTitle.textContent = "WAN (USB0)";
+        tWanTitle.textContent = "WAN USB";
 
         // WAN IP directly below label
         const tWanIp = mk("text", {
@@ -14200,13 +14210,13 @@ function drawStorageIconSmall(x, y, color, parent) {
         }, wanG);
         tWanIp.textContent = liveWanIpStr;
 
-        // Draw Hotspot Tethering Icon & Android ADB Icon in WAN card if mobile
+        // Draw Hotspot Tethering Icon & Android ADB Icon in WAN card if mobile (compact, right next to "WAN USB" label)
         if (!isStorageDev) {
-          const iconTetherX = textStartX + 66;
-          const iconAdbX = textStartX + 80;
-          const iconCenterY = wanY + 13.5;
-          drawTetheringIconSmall(iconTetherX, iconCenterY, "#10b981", wanG);
-          drawAdbIconSmall(iconAdbX, iconCenterY, "#38bdf8", wanG);
+          const iconTetherX = textStartX + 46;
+          const iconAdbX = textStartX + 57;
+          const iconCenterY = wanY + 11.5;
+          drawTetheringIconSmall(iconTetherX, iconCenterY, "#10b981", wanG, 0.65);
+          drawAdbIconSmall(iconAdbX, iconCenterY, "#38bdf8", wanG, 0.65);
         }
 
         // Live measured speed in 0.000 Mbps decimal with soft dark font color
