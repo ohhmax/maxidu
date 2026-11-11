@@ -7837,7 +7837,7 @@ GitHub: https://github.com/ohhmax | Email: max@maxnet.lan
           <!-- 3. USB WAN (Dedicated Multi-Device USB Tethering & Load Balancing) -->
           <div class="settings-nav-card" id="card-usb-wan" onclick="openSettingPage('acc-usb-wan')" data-search="usb wan tethering multi-device load balancing rndis ncm ecm 4g 5g modem failover watchdog dongle usb0 usb1">
             <div class="snc-left">
-              <div class="snc-icon-box" style="color:#10b981;">
+              <div class="snc-icon-box" style="color:#0ea5e9;">
                 <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/><path d="M10 12h4"/></svg>
               </div>
               <div class="snc-info">
@@ -8697,40 +8697,25 @@ GitHub: https://github.com/ohhmax | Email: max@maxnet.lan
         <div class="settings-card settings-detail-panel accordion-item" id="acc-usb-wan">
           <div class="settings-card-header accordion-header" onclick="toggleAccordion('acc-usb-wan')">
             <div class="acc-title-left">
-              <div class="acc-icon-box" style="color:#10b981;">
+              <div class="acc-icon-box" style="color:#0ea5e9;">
                 <svg class="svg-icon" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/><path d="M10 12h4"/></svg>
               </div>
               <span class="acc-main-title">USB WAN</span>
             </div>
             <div class="acc-right-action">
-              <span class="card-badge emerald" id="usbWanGlobalBadge">ACTIVE</span>
+              <span class="card-badge" style="background:rgba(14,165,233,0.12); color:#38bdf8; border:1px solid rgba(14,165,233,0.3);" id="usbWanGlobalBadge">ACTIVE</span>
               <svg class="svg-icon acc-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
             </div>
           </div>
           <div class="accordion-content">
             <div class="settings-card-body">
-              <!-- TOP NOTICE BANNER -->
-              <div style="background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.25); border-radius:10px; padding:12px 14px; margin-bottom:14px; display:flex; align-items:center; justify-content:space-between; gap:12px;">
-                <div style="display:flex; align-items:center; gap:10px;">
-                  <div style="width:32px; height:32px; border-radius:8px; background:rgba(16,185,129,0.18); display:flex; align-items:center; justify-content:center; color:#10b981; flex-shrink:0;">
-                    <svg viewBox="0 0 24 24" style="width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2;"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-                  </div>
-                  <div>
-                    <div style="font-size:12.5px; font-weight:700; color:#10b981;">Multi-Device USB WAN Gateway</div>
-                    <div style="font-size:11px; color:var(--text-dim);">Simultaneous Multi-WAN load balancing &amp; 4G/5G failover modems</div>
-                  </div>
-                </div>
-                <button type="button" class="mh-btn btn-sm" onclick="restartUsbWanInterfaces()" style="background:#10b981; color:#0b1120; font-weight:700; font-size:10.5px; padding:5px 10px;">RESTART MODEMS</button>
-              </div>
-
-              <!-- CONNECTED USB MODEMS LIST -->
-              <div style="font-size:10px; font-weight:800; font-family:var(--font-mono); color:var(--text-dim); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">Active USB Tethering Interfaces</div>
-              <div id="usbWanDeviceListContainer" style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;">
+              <div class="setting-section-header">Active USB Modems &amp; Dongles</div>
+              <div id="usbWanDeviceListContainer" style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;">
                 <!-- Populated dynamically via renderUsbWanDevices -->
               </div>
 
-              <!-- MULTI-WAN LOAD BALANCING SETTINGS -->
-              <div style="font-size:10px; font-weight:800; font-family:var(--font-mono); color:var(--text-dim); text-transform:uppercase; letter-spacing:0.5px; margin:16px 0 8px 0;">Load Balancing &amp; Traffic Strategy</div>
+              <div class="setting-section-divider"></div>
+              <div class="setting-section-header">Multi-WAN Traffic Strategy</div>
               <div style="display:flex; flex-direction:column; gap:4px;">
                 <div class="setting-row-item" id="usbLbModeRow" onclick="openSettingModal('usb_lb_mode')">
                   <div class="setting-label-col">
@@ -8799,6 +8784,16 @@ GitHub: https://github.com/ohhmax | Email: max@maxnet.lan
                   </div>
                   <div class="setting-control-col">
                     <label class="switch-toggle"><input type="checkbox" id="usbAutoReconnectToggle" checked onchange="saveUsbWanConfig()"><span class="toggle-slider"></span></label>
+                  </div>
+                </div>
+
+                <div class="setting-row-item">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">Restart USB Modems</span>
+                    <span class="setting-label-sub">Re-initialize USB network drivers, renew DHCP leases, and reset routing</span>
+                  </div>
+                  <div class="setting-control-col">
+                    <button type="button" class="mh-btn btn-sm" onclick="restartUsbWanInterfaces()" style="padding:6px 14px; font-size:11px; background:rgba(14,165,233,0.12); color:#38bdf8; border:1px solid rgba(14,165,233,0.3); font-weight:700; border-radius:6px;">RESTART</button>
                   </div>
                 </div>
               </div>
@@ -11405,8 +11400,8 @@ GitHub: https://github.com/ohhmax | Email: max@maxnet.lan
     const SETTINGS_PAGES_META = {
       'acc-usb-wan': {
         title: 'USB WAN',
-        badge: 'MULTI-MODEM',
-        badgeColor: '#10b981'
+        badge: 'MULTI-WAN',
+        badgeColor: '#0ea5e9'
       },
       'acc-sys-info': {
         title: 'Device Info',
@@ -11822,7 +11817,10 @@ GitHub: https://github.com/ohhmax | Email: max@maxnet.lan
         const activeDevs = (data.devices || []).filter(d => d.present && d.status === 'connected');
         if (globalBadge) {
           globalBadge.textContent = activeDevs.length > 0 ? `${activeDevs.length} CONNECTED` : 'STANDBY';
-          globalBadge.className = 'card-badge ' + (activeDevs.length > 0 ? 'emerald' : 'amber');
+          globalBadge.className = 'card-badge';
+          globalBadge.style.background = activeDevs.length > 0 ? 'rgba(14,165,233,0.12)' : 'rgba(255,255,255,0.05)';
+          globalBadge.style.color = activeDevs.length > 0 ? '#38bdf8' : 'var(--text-dim)';
+          globalBadge.style.borderColor = activeDevs.length > 0 ? 'rgba(14,165,233,0.3)' : 'rgba(255,255,255,0.1)';
         }
 
         const lbVal = document.getElementById('usbLbModeVal');
@@ -11882,26 +11880,26 @@ GitHub: https://github.com/ohhmax | Email: max@maxnet.lan
         const txMb = (d.tx_bytes / (1024 * 1024)).toFixed(1);
 
         return `
-          <div style="background:rgba(255,255,255,0.03); border:1px solid ${isConn ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.08)'}; border-radius:10px; padding:12px 14px; display:flex; flex-direction:column; gap:8px;">
+          <div style="background:rgba(255,255,255,0.03); border:1px solid ${isConn ? 'rgba(14,165,233,0.22)' : 'rgba(255,255,255,0.07)'}; border-radius:8px; padding:12px 14px; display:flex; flex-direction:column; gap:8px;">
             <div style="display:flex; align-items:center; justify-content:space-between;">
               <div style="display:flex; align-items:center; gap:8px;">
-                <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:${isConn ? '#10b981' : '#f59e0b'};"></span>
-                <strong style="font-size:13px; color:#e2e8f0; font-family:var(--font-mono);">${escapeHtml(d.name)} (${escapeHtml(d.interface)})</strong>
+                <span style="display:inline-block; width:7px; height:7px; border-radius:50%; background:${isConn ? '#38bdf8' : '#64748b'};"></span>
+                <strong style="font-size:12.5px; color:var(--text-main); font-family:var(--font-mono);">${escapeHtml(d.name)} (${escapeHtml(d.interface)})</strong>
               </div>
               <div style="display:flex; align-items:center; gap:6px;">
-                <span class="card-badge ${isConn ? 'emerald' : 'amber'}" style="font-size:10px; padding:2px 6px;">${d.status.toUpperCase()}</span>
-                <button type="button" class="mh-btn btn-sm" style="font-size:10.5px; padding:4px 8px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12);" onclick="openEditUsbDeviceModal('${escapeHtml(d.id)}')">EDIT</button>
+                <span class="card-badge" style="font-size:10px; padding:2px 7px; background:${isConn ? 'rgba(14,165,233,0.12)' : 'rgba(255,255,255,0.05)'}; color:${isConn ? '#38bdf8' : 'var(--text-dim)'}; border:1px solid ${isConn ? 'rgba(14,165,233,0.3)' : 'rgba(255,255,255,0.1)'};">${d.status.toUpperCase()}</span>
+                <button type="button" class="action-circle-btn" style="width:26px; height:26px;" title="Edit USB Modem" onclick="openEditUsbDeviceModal('${escapeHtml(d.id)}')"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
               </div>
             </div>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size:11px; font-family:var(--font-mono); color:var(--text-dim);">
               <div>IP: <span style="color:#38bdf8; font-weight:700;">${escapeHtml(d.ip || '--')}</span></div>
               <div>MAC: <span>${escapeHtml(d.mac || '--')}</span></div>
-              <div>Weight: <span style="color:#10b981; font-weight:700;">${d.weight || 50}%</span> (Metric ${d.metric || 100})</div>
-              <div>Speed: <span style="color:#a78bfa;">${escapeHtml(d.speed || 'USB 3.0')}</span></div>
+              <div>Weight: <span style="color:var(--text-main); font-weight:700;">${d.weight || 50}%</span> (Metric ${d.metric || 100})</div>
+              <div>Speed: <span>${escapeHtml(d.speed || 'USB 3.0')}</span></div>
             </div>
             ${isConn ? `
               <div style="font-size:10.5px; font-family:var(--font-mono); color:var(--text-dim); border-top:1px solid rgba(255,255,255,0.05); padding-top:6px; display:flex; justify-content:space-between;">
-                <span>RX: <strong style="color:#10b981;">${rxMb} MB</strong> / TX: <strong style="color:#38bdf8;">${txMb} MB</strong></span>
+                <span>RX: <strong style="color:var(--text-main);">${rxMb} MB</strong> &bull; TX: <strong style="color:var(--text-main);">${txMb} MB</strong></span>
                 <span>Driver: ${escapeHtml(d.driver || 'rndis_host')}</span>
               </div>
             ` : ''}
@@ -21319,7 +21317,7 @@ function onRemoveWifiClient(nodeId, clientIdent) {
             <label style="display:flex; align-items:center; gap:10px; padding:10px 12px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:8px; cursor:pointer;">
               <input type="radio" name="modal_usb_mode" value="balanced" ${curMode === 'balanced' ? 'checked' : ''}>
               <div>
-                <strong style="color:#10b981; display:block; font-size:12.5px;">Balanced Multi-WAN (Weighted Round-Robin)</strong>
+                <strong style="color:#38bdf8; display:block; font-size:12.5px;">Balanced Multi-WAN (Weighted Round-Robin)</strong>
                 <span style="font-size:11px; color:var(--text-dim);">Distribute active internet connections across all active USB modems for doubled throughput.</span>
               </div>
             </label>
@@ -21387,7 +21385,7 @@ function onRemoveWifiClient(nodeId, clientIdent) {
             <label style="display:flex; align-items:center; gap:10px; padding:10px 12px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:8px; cursor:pointer;">
               <input type="radio" name="modal_usb_proto" value="rndis" ${curP === 'rndis' ? 'checked' : ''}>
               <div>
-                <strong style="color:#10b981; display:block; font-size:12.5px;">RNDIS (Remote NDIS)</strong>
+                <strong style="color:#38bdf8; display:block; font-size:12.5px;">RNDIS (Remote NDIS)</strong>
                 <span style="font-size:11px; color:var(--text-dim);">Universal Android USB tethering &amp; Qualcomm 4G/5G modems (Recommended).</span>
               </div>
             </label>
