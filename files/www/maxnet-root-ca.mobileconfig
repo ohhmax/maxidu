@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>PayloadContent</key>
+    <array>
+        <dict>
+            <key>PayloadCertificateFileName</key>
+            <string>maxnet-root-ca.crt</string>
+            <key>PayloadContent</key>
+            <data>
+MIIEPTCCAyWgAwIBAgIUQvGtCPs+8dgp6KViAI3KTnOphSgwDQYJKoZIhvcNAQELBQAwgaUxCzAJBgNVBAYTAklOMRIwEAYDVQQIDAlSYWphc3RoYW4xEDAOBgNVBAcMB0pvZGhwdXIxHDAaBgNVBAoME01haGVuZHJhIE1hbGkgLSBNYXgxLDAqBgNVBAsMI01BWE5FVCBSb290IENlcnRpZmljYXRpb24gQXV0aG9yaXR5MSQwIgYDVQQDDBtNYWhlbmRyYSBNYWxpIC0gTWF4IFJvb3QgQ0EwHhcNMjYxMTExMDc0MjQ5WhcNMzYxMTA4MDc0MjQ5WjCBpTELMAkGA1UEBhMCSU4xEjAQBgNVBAgMCVJhamFzdGhhbjEQMA4GA1UEBwwHSm9kaHB1cjEcMBoGA1UECgwTTWFoZW5kcmEgTWFsaSAtIE1heDEsMCoGA1UECwwjTUFYTkVUIFJvb3QgQ2VydGlmaWNhdGlvbiBBdXRob3JpdHkxJDAiBgNVBAMMG01haGVuZHJhIE1hbGkgLSBNYXggUm9vdCBDQTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMJcJkYPnGYLIkxZtS58hJc5JYyeaARUggL9Crg55vCl6GUkxJDiOwZpNH7bCOVMNzAjuhul584vl9tSN2CPs1Ddc9kRgyww4MhoAcAXCTn86OJcl+OnW/XfeYAFM90coSdf5IIHx1FfE6zwyIf2hKzmCNmuwnmQQ1fBKegTqVOT+9v1KHkQT3W3zjgExHJKGabIpoj0QEfig+luNy2AaF2p6OSI49cAESL63WlbeTTJuaT9CtAdaAHd99EliZsNcElWnfML3LpeKOBVcR3RAr9FozKmhq014yVUj8QA982Of/M1MZ0HfI5RTR0tc3WA6TAsJf/vrcl/jcJRljUmEdECAwEAAaNjMGEwHQYDVR0OBBYEFD9ccuzbHodMK9JWBDTK1E2hv37XMB8GA1UdIwQYMBaAFD9ccuzbHodMK9JWBDTK1E2hv37XMA8GA1UdEwEB/wQFMAMBAf8wDgYDVR0PAQH/BAQDAgGGMA0GCSqGSIb3DQEBCwUAA4IBAQCXyreNOu1miIwNr9a/kLuVdhd3ymS5c2iYbCmQaqZbVIAA4JehRJt+FzA8zSlhayzwFN+Y60rvHfWg3qK4v6QRxh6NVdQzY9rCSFt1LQ/B6LcgZom3jY/Oey05u+oJ48bdk9JtJtIKj+E81Ij4k1+pZEBr9RWfkoE9cLtkrefXkogEX8wsGncoDhJwgvDWF1Oay9aHykU1hPjn6Mn8hkx8ypdVhKpt8hx6XQFFONQ7zmsgUpA5qI5LJBRvF8AXUjDQIqpmYydkvkwNURU1cvSn0BwoxwGBAtF/ERWOUPyTsoIXvYQ3/EJX2Tw3PWMAV27J3WuYAPa8StcGAhzYVYav
+            </data>
+            <key>PayloadDescription</key>
+            <string>Installs Mahendra Mali - Max Root CA for trusted HTTPS access to MAXNET Gateway</string>
+            <key>PayloadDisplayName</key>
+            <string>Mahendra Mali - Max Root CA</string>
+            <key>PayloadIdentifier</key>
+            <string>org.maxnet.rootca.cert</string>
+            <key>PayloadType</key>
+            <string>cops.x509</string>
+            <key>PayloadUUID</key>
+            <string>56E4231E-F328-4BC2-86FD-3D79124DE3F1</string>
+            <key>PayloadVersion</key>
+            <integer>1</integer>
+        </dict>
+    </array>
+    <key>PayloadDescription</key>
+    <string>MAXNET Root CA Configuration Profile for Apple iOS and macOS</string>
+    <key>PayloadDisplayName</key>
+    <string>MAXNET Root CA - Mahendra Mali - Max</string>
+    <key>PayloadIdentifier</key>
+    <string>org.maxnet.rootca.profile</string>
+    <key>PayloadOrganization</key>
+    <string>Mahendra Mali - Max</string>
+    <key>PayloadRemovalDisallowed</key>
+    <false/>
+    <key>PayloadType</key>
+    <string>Configuration</string>
+    <key>PayloadUUID</key>
+    <string>A1F97904-749C-4CD8-87C2-113A32D65E8A</string>
+    <key>PayloadVersion</key>
+    <integer>1</integer>
+</dict>
+</plist>
