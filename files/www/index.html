@@ -1,3 +1,12 @@
+<!--
+================================================================================
+MAXNET ENTERPRISE ROUTER OS & CYBERNETIC GATEWAY
+Engineered & Developed by Mahendra Mali - Max
+All Rights Reserved (c) 2026 Mahendra Mali - Max
+Donation & Support via UPI: 9824584454@ybl
+GitHub: https://github.com/ohhmax | Email: max@maxnet.lan
+================================================================================
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -416,6 +425,7 @@
       margin: 0 !important;
       padding: 0 !important;
       overscroll-behavior: none !important;
+      box-sizing: border-box !important;
     }
     .app-viewport {
       position: relative;
@@ -5950,10 +5960,19 @@
     /* ==================== DESKTOP RIGHT-SIDE SETTINGS PANEL ==================== */
     @media (min-width: 900px) {
       #tabOverview {
-        transition: margin-right 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+        transition: width 0.28s cubic-bezier(0.16, 1, 0.3, 1), max-width 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .topo-telemetry-dock {
+        transition: left 0.28s cubic-bezier(0.16, 1, 0.3, 1);
       }
       #dashboardContainer.settings-side-open #tabOverview {
-        margin-right: min(480px, 44vw);
+        width: calc(100vw - min(480px, 44vw)) !important;
+        max-width: calc(100vw - min(480px, 44vw)) !important;
+        margin: 0 !important;
+      }
+      #dashboardContainer.settings-side-open .topo-telemetry-dock {
+        left: calc((100vw - min(480px, 44vw)) / 2) !important;
+        transform: translateX(-50%) !important;
       }
       #dashboardContainer.settings-side-open #tabSettings {
         position: fixed;
@@ -7431,7 +7450,7 @@
             <button class="topo-tool-btn" onclick="resetTopologyZoom()" id="btnResetTopoView" title="Reset Topology to Default View" aria-label="Reset Topology View">
               <svg viewBox="0 0 24 24" class="topo-tool-icon"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
             </button>
-            <button class="topo-tool-btn" onclick="toggleNotificationCenter()" id="btnTopoNotifications" title="System Notifications & Alerts" aria-label="Notifications & Alerts" style="position:relative;">
+            <button class="topo-tool-btn" onclick="toggleNotificationCenter()" id="btnTopoNotifications" title="Notifications" aria-label="Notifications" style="position:relative;">
               <svg viewBox="0 0 24 24" class="topo-tool-icon"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
               <span id="topoNotificationBadge" style="display:none; position:absolute; top:4px; right:4px; width:7px; height:7px; background:#ef4444; border-radius:50%; box-shadow:0 0 6px #ef4444;"></span>
             </button>
@@ -7782,8 +7801,9 @@
 
         <!-- SETTINGS NAV TILES GRID (13 CLICKABLE CARDS) -->
         <div class="settings-grid" id="settingsGrid">
+
           <!-- 1. Network -->
-          <div class="settings-nav-card" onclick="openSettingPage('acc-network')" data-search="network dhcp gateway ip subnet mask dns nameservers lease pool lan interface ipv6 slaac dhcpv6 ula flow offloading acceleration ppe mss mtu">
+          <div class="settings-nav-card" id="card-network" onclick="openSettingPage('acc-network')" data-search="network dhcp gateway ip subnet mask dns nameservers lease pool lan interface ipv6 slaac dhcpv6 ula flow offloading acceleration ppe mss mtu">
             <div class="snc-left">
               <div class="snc-icon-box" style="color:#38bdf8;">
                 <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
@@ -7799,7 +7819,7 @@
           </div>
 
           <!-- Interfaces (Physical WAN, LAN Bridge, Custom MAC) -->
-          <div class="settings-nav-card" onclick="openSettingPage('acc-interfaces')" data-search="interfaces wan lan dhcp static custom mac clone mtu link physical ethernet usb0 br-lan">
+          <div class="settings-nav-card" id="card-interfaces" onclick="openSettingPage('acc-interfaces')" data-search="interfaces wan lan dhcp static custom mac clone mtu link physical ethernet usb0 br-lan">
             <div class="snc-left">
               <div class="snc-icon-box" style="color:#0ea5e9;">
                 <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
@@ -7814,8 +7834,24 @@
             </div>
           </div>
 
+          <!-- 3. USB WAN (Dedicated Multi-Device USB Tethering & Load Balancing) -->
+          <div class="settings-nav-card" id="card-usb-wan" onclick="openSettingPage('acc-usb-wan')" data-search="usb wan tethering multi-device load balancing rndis ncm ecm 4g 5g modem failover watchdog dongle usb0 usb1">
+            <div class="snc-left">
+              <div class="snc-icon-box" style="color:#10b981;">
+                <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/><path d="M10 12h4"/></svg>
+              </div>
+              <div class="snc-info">
+                <span class="snc-title">USB WAN</span>
+                <span class="snc-desc">Multi-device USB tethering, 4G/5G dongles, and load balancing</span>
+              </div>
+            </div>
+            <div class="snc-right">
+              <svg class="snc-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+          </div>
+
           <!-- PPPoE Broadband Dialer & Server -->
-          <div class="settings-nav-card" onclick="openSettingPage('acc-pppoe')" data-search="pppoe broadband wan isp dialer client server credentials access concentrator ac chap pap pppd">
+          <div class="settings-nav-card" id="card-pppoe" onclick="openSettingPage('acc-pppoe')" data-search="pppoe broadband wan isp dialer client server credentials access concentrator ac chap pap pppd">
             <div class="snc-left">
               <div class="snc-icon-box" style="color:#06b6d4;">
                 <svg viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
@@ -7830,56 +7866,8 @@
             </div>
           </div>
 
-          <!-- Notifications & Alerts -->
-          <div class="settings-nav-card" onclick="openSettingPage('acc-notifications')" data-search="notifications alerts logs events errors cpu spike pppoe dhcp new devices firmware updates">
-            <div class="snc-left">
-              <div class="snc-icon-box" style="color:#f59e0b;">
-                <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-              </div>
-              <div class="snc-info">
-                <span class="snc-title">Notifications &amp; Alerts</span>
-                <span class="snc-desc">System events, CPU spikes, PPPoE errors, new devices, and firmware updates</span>
-              </div>
-            </div>
-            <div class="snc-right">
-              <svg class="snc-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-            </div>
-          </div>
-
-          <!-- Webhooks & Alert Forwarding -->
-          <div class="settings-nav-card" onclick="openSettingPage('acc-webhooks')" data-search="webhooks alerts push telegram discord ntfy forward bot token chat id notifications">
-            <div class="snc-left">
-              <div class="snc-icon-box" style="color:#0ea5e9;">
-                <svg viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-              </div>
-              <div class="snc-info">
-                <span class="snc-title">Webhooks &amp; Alerts</span>
-                <span class="snc-desc">Telegram, Discord, and ntfy.sh instant alert forwarding for router events</span>
-              </div>
-            </div>
-            <div class="snc-right">
-              <svg class="snc-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-            </div>
-          </div>
-
-          <!-- 2. Network Topology -->
-          <div class="settings-nav-card" onclick="openSettingPage('acc-topo-layers')" data-search="topology layers port layer 2 layer 3 access point switch router ap hierarchy mapping lan1 lan2 lan3 lan4">
-            <div class="snc-left">
-              <div class="snc-icon-box" style="color:#38bdf8;">
-                <svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-              </div>
-              <div class="snc-info">
-                <span class="snc-title">Network Topology</span>
-                <span class="snc-desc">Port modes, Layer 2 AP, and client hierarchy</span>
-              </div>
-            </div>
-            <div class="snc-right">
-              <svg class="snc-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-            </div>
-          </div>
-
           <!-- 3. DHCP Clients -->
-          <div class="settings-nav-card" onclick="openSettingPage('acc-lan-clients')" data-search="dhcp clients connected devices leases ip mac hostname allocation">
+          <div class="settings-nav-card" id="card-lan-clients" onclick="openSettingPage('acc-lan-clients')" data-search="dhcp clients connected devices leases ip mac hostname allocation">
             <div class="snc-left">
               <div class="snc-icon-box" style="color:#10b981;">
                 <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -7894,15 +7882,15 @@
             </div>
           </div>
 
-          <!-- 4. Gaming Mode -->
-          <div class="settings-nav-card" onclick="openSettingPage('acc-gaming')" data-search="gaming qos bufferbloat low ping latency dscp fastopen interrupt steering esports acceleration">
+          <!-- 2. Network Topology -->
+          <div class="settings-nav-card" id="card-topo-layers" onclick="openSettingPage('acc-topo-layers')" data-search="topology layers port layer 2 layer 3 access point switch router ap hierarchy mapping lan1 lan2 lan3 lan4">
             <div class="snc-left">
-              <div class="snc-icon-box" style="color:#ec4899;">
-                <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              <div class="snc-icon-box" style="color:#38bdf8;">
+                <svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
               </div>
               <div class="snc-info">
-                <span class="snc-title">Gaming Mode</span>
-                <span class="snc-desc">Low-latency QoS, bufferbloat killer, and CPU steering</span>
+                <span class="snc-title">Network Topology</span>
+                <span class="snc-desc">Port modes, Layer 2 AP, and client hierarchy</span>
               </div>
             </div>
             <div class="snc-right">
@@ -7910,10 +7898,24 @@
             </div>
           </div>
 
-
+          <!-- 9. Security -->
+          <div class="settings-nav-card" id="card-security" onclick="openSettingPage('acc-security')" data-search="security firewall syn flood wan ping icmp protection drop isolation">
+            <div class="snc-left">
+              <div class="snc-icon-box" style="color:#f59e0b;">
+                <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </div>
+              <div class="snc-info">
+                <span class="snc-title">Security</span>
+                <span class="snc-desc">Firewall rules, SYN flood protection, and WAN isolation</span>
+              </div>
+            </div>
+            <div class="snc-right">
+              <svg class="snc-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+          </div>
 
           <!-- 6. Tailscale VPN -->
-          <div class="settings-nav-card" onclick="openSettingPage('acc-tailscale')" data-search="tailscale vpn wireguard remote access mesh exit node subnet router auth key">
+          <div class="settings-nav-card" id="card-tailscale" onclick="openSettingPage('acc-tailscale')" data-search="tailscale vpn wireguard remote access mesh exit node subnet router auth key">
             <div class="snc-left">
               <div class="snc-icon-box" style="color:#06b6d4;">
                 <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
@@ -7928,8 +7930,24 @@
             </div>
           </div>
 
+          <!-- 4. Gaming Mode -->
+          <div class="settings-nav-card" id="card-gaming" onclick="openSettingPage('acc-gaming')" data-search="gaming qos bufferbloat low ping latency dscp fastopen interrupt steering esports acceleration">
+            <div class="snc-left">
+              <div class="snc-icon-box" style="color:#ec4899;">
+                <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              </div>
+              <div class="snc-info">
+                <span class="snc-title">Gaming Mode</span>
+                <span class="snc-desc">Low-latency QoS, bufferbloat killer, and CPU steering</span>
+              </div>
+            </div>
+            <div class="snc-right">
+              <svg class="snc-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+          </div>
+
           <!-- 7. ADB Devices -->
-          <div class="settings-nav-card" onclick="openSettingPage('acc-adb-device')" data-search="adb devices android debugging phone handset hardware controls usb tethering tcpip wireless port forwarding">
+          <div class="settings-nav-card" id="card-adb-device" onclick="openSettingPage('acc-adb-device')" data-search="adb devices android debugging phone handset hardware controls usb tethering tcpip wireless port forwarding">
             <div class="snc-left">
               <div class="snc-icon-box" style="color:#38bdf8;">
                 <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
@@ -7945,7 +7963,7 @@
           </div>
 
           <!-- 8. Network Storage -->
-          <div class="settings-nav-card" onclick="openSettingPage('acc-smb-storage')" data-search="samba smb storage nas share usb drive disk mount file sharing windows mac">
+          <div class="settings-nav-card" id="card-smb-storage" onclick="openSettingPage('acc-smb-storage')" data-search="samba smb storage nas share usb drive disk mount file sharing windows mac">
             <div class="snc-left">
               <div class="snc-icon-box" style="color:#c084fc;">
                 <svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
@@ -7960,15 +7978,31 @@
             </div>
           </div>
 
-          <!-- 9. Security -->
-          <div class="settings-nav-card" onclick="openSettingPage('acc-security')" data-search="security firewall syn flood wan ping icmp protection drop isolation">
+          <!-- Webhooks & Alert Forwarding -->
+          <div class="settings-nav-card" id="card-webhooks" onclick="openSettingPage('acc-webhooks')" data-search="webhooks alerts push telegram discord ntfy forward bot token chat id notifications">
             <div class="snc-left">
-              <div class="snc-icon-box" style="color:#f59e0b;">
-                <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <div class="snc-icon-box" style="color:#0ea5e9;">
+                <svg viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
               </div>
               <div class="snc-info">
-                <span class="snc-title">Security</span>
-                <span class="snc-desc">Firewall rules, SYN flood protection, and WAN isolation</span>
+                <span class="snc-title">Webhooks</span>
+                <span class="snc-desc">Telegram, Discord, and ntfy.sh instant alert forwarding for router events</span>
+              </div>
+            </div>
+            <div class="snc-right">
+              <svg class="snc-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+          </div>
+
+          <!-- Notifications & Alerts -->
+          <div class="settings-nav-card" id="card-notifications" onclick="openSettingPage('acc-notifications')" data-search="notifications alerts logs events errors cpu spike pppoe dhcp new devices firmware updates">
+            <div class="snc-left">
+              <div class="snc-icon-box" style="color:#f59e0b;">
+                <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              </div>
+              <div class="snc-info">
+                <span class="snc-title">Notifications</span>
+                <span class="snc-desc">System events, CPU spikes, PPPoE errors, new devices, and firmware updates</span>
               </div>
             </div>
             <div class="snc-right">
@@ -7977,7 +8011,7 @@
           </div>
 
           <!-- 10. Diagnostics -->
-          <div class="settings-nav-card" onclick="openSettingPage('acc-diagnostics')" data-search="diagnostics tools ping traceroute nslookup reachability packet loss latency">
+          <div class="settings-nav-card" id="card-diagnostics" onclick="openSettingPage('acc-diagnostics')" data-search="diagnostics tools ping traceroute nslookup reachability packet loss latency">
             <div class="snc-left">
               <div class="snc-icon-box" style="color:#38bdf8;">
                 <svg viewBox="0 0 24 24"><polyline points="4 17 10 11 14 15 20 9"/><line x1="20" y1="14" x2="20" y2="9"/><line x1="15" y1="9" x2="20" y2="9"/></svg>
@@ -7992,15 +8026,15 @@
             </div>
           </div>
 
-          <!-- 11. Maintenance -->
-          <div class="settings-nav-card" onclick="openSettingPage('acc-maintenance')" data-search="maintenance reboot restart shutdown firmware upgrade backup restore factory reset logcat dmesg logs">
+          <!-- 13. Terminal -->
+          <div class="settings-nav-card" id="card-terminal-cli" onclick="openSettingPage('acc-terminal-cli')" data-search="terminal cli console bash shell root command ssh ttyd execute">
             <div class="snc-left">
-              <div class="snc-icon-box" style="color:#ef4444;">
-                <svg viewBox="0 0 24 24"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
+              <div class="snc-icon-box" style="color:#10b981;">
+                <svg viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
               </div>
               <div class="snc-info">
-                <span class="snc-title">Maintenance</span>
-                <span class="snc-desc">System reboot, USB power cycle, backup, and factory reset</span>
+                <span class="snc-title">Terminal</span>
+                <span class="snc-desc">Interactive on-screen root shell console</span>
               </div>
             </div>
             <div class="snc-right">
@@ -8009,7 +8043,7 @@
           </div>
 
           <!-- 12. System Logs (DEDICATED MENU) -->
-          <div class="settings-nav-card" onclick="openSettingPage('acc-logs')" data-search="logs system log kernel dmesg logread buffer events daemon syslog real-time">
+          <div class="settings-nav-card" id="card-logs" onclick="openSettingPage('acc-logs')" data-search="logs system log kernel dmesg logread buffer events daemon syslog real-time">
             <div class="snc-left">
               <div class="snc-icon-box" style="color:#06b6d4;">
                 <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
@@ -8025,7 +8059,7 @@
           </div>
 
           <!-- 13. Packages -->
-          <div class="settings-nav-card" onclick="openSettingPage('acc-packages')" data-search="packages software opkg apk install uninstall update repository plugins modules">
+          <div class="settings-nav-card" id="card-packages" onclick="openSettingPage('acc-packages')" data-search="packages software opkg apk install uninstall update repository plugins modules">
             <div class="snc-left">
               <div class="snc-icon-box" style="color:#38bdf8;">
                 <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
@@ -8040,40 +8074,8 @@
             </div>
           </div>
 
-          <!-- 13. Terminal -->
-          <div class="settings-nav-card" onclick="openSettingPage('acc-terminal-cli')" data-search="terminal cli console bash shell root command ssh ttyd execute">
-            <div class="snc-left">
-              <div class="snc-icon-box" style="color:#10b981;">
-                <svg viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
-              </div>
-              <div class="snc-info">
-                <span class="snc-title">Terminal</span>
-                <span class="snc-desc">Interactive on-screen root shell console</span>
-              </div>
-            </div>
-            <div class="snc-right">
-              <svg class="snc-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-            </div>
-          </div>
-
-          <!-- 12. Web UI -->
-          <div class="settings-nav-card" onclick="openSettingPage('acc-webui')" data-search="webui theme dark light appearance refresh rate poll interval display customization font">
-            <div class="snc-left">
-              <div class="snc-icon-box" style="color:#a855f7;">
-                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="12" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-              </div>
-              <div class="snc-info">
-                <span class="snc-title">Web UI</span>
-                <span class="snc-desc">Dark/Light themes, telemetry refresh, and display options</span>
-              </div>
-            </div>
-            <div class="snc-right">
-              <svg class="snc-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-            </div>
-          </div>
-
           <!-- Device Info -->
-          <div class="settings-nav-card" onclick="openSettingPage('acc-sys-info')" data-search="device info system hardware cpu ram memory temperature sensors thermals storage flash partitions wan ports interfaces uptime kernel model">
+          <div class="settings-nav-card" id="card-sys-info" onclick="openSettingPage('acc-sys-info')" data-search="device info system hardware cpu ram memory temperature sensors thermals storage flash partitions wan ports interfaces uptime kernel model">
             <div class="snc-left">
               <div class="snc-icon-box" style="color:#38bdf8;">
                 <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
@@ -8088,8 +8090,40 @@
             </div>
           </div>
 
+          <!-- 11. Maintenance -->
+          <div class="settings-nav-card" id="card-maintenance" onclick="openSettingPage('acc-maintenance')" data-search="maintenance reboot restart shutdown firmware upgrade backup restore factory reset logcat dmesg logs">
+            <div class="snc-left">
+              <div class="snc-icon-box" style="color:#ef4444;">
+                <svg viewBox="0 0 24 24"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
+              </div>
+              <div class="snc-info">
+                <span class="snc-title">Maintenance</span>
+                <span class="snc-desc">System reboot, USB power cycle, backup, and factory reset</span>
+              </div>
+            </div>
+            <div class="snc-right">
+              <svg class="snc-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+          </div>
+
+          <!-- 12. Web UI -->
+          <div class="settings-nav-card" id="card-webui" onclick="openSettingPage('acc-webui')" data-search="webui theme dark light appearance refresh rate poll interval display customization font">
+            <div class="snc-left">
+              <div class="snc-icon-box" style="color:#a855f7;">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="12" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+              </div>
+              <div class="snc-info">
+                <span class="snc-title">Web UI</span>
+                <span class="snc-desc">Dark/Light themes, telemetry refresh, and display options</span>
+              </div>
+            </div>
+            <div class="snc-right">
+              <svg class="snc-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+          </div>
+
           <!-- About Developer -->
-          <div class="settings-nav-card" onclick="openSettingPage('acc-device-info')" data-search="about developer max mahendra mali firmware architecture openwrt kernel ohhmax github">
+          <div class="settings-nav-card" id="card-device-info" onclick="openSettingPage('acc-device-info')" data-search="about developer max mahendra mali firmware architecture openwrt kernel ohhmax github">
             <div class="snc-left">
               <div class="snc-icon-box" style="color:#8b5cf6;">
                 <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -8101,22 +8135,6 @@
             </div>
             <div class="snc-right">
               <svg class="snc-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-            </div>
-          </div>
-
-          <!-- 15. Active Sessions & Sign Out -->
-          <div class="settings-nav-card snc-logout" onclick="openSettingPage('acc-sessions')" data-search="signout logout exit session terminate leave disconnect devices auth active">
-            <div class="snc-left">
-              <div class="snc-icon-box" style="color:#f87171;">
-                <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-              </div>
-              <div class="snc-info">
-                <span class="snc-title" style="color:#f87171;">Active Sessions &amp; Sign Out</span>
-                <span class="snc-desc">Manage authenticated devices, login history, and remote sign-out</span>
-              </div>
-            </div>
-            <div class="snc-right">
-              <svg class="snc-arrow" viewBox="0 0 24 24" style="stroke:#f87171;"><polyline points="9 18 15 12 9 6"/></svg>
             </div>
           </div>
         </div>
@@ -8527,9 +8545,9 @@
                   <div style="font-size:10.5px; color:var(--text-dim);">Status: UP &bull; Switch Bridge</div>
                 </div>
                 <div style="background:rgba(255,255,255,0.03); padding:10px 12px; border-radius:8px; border:1px solid rgba(255,255,255,0.07);">
-                  <div style="font-size:10px; font-weight:800; font-family:var(--font-mono); color:var(--text-dim); text-transform:uppercase;">USB WAN (usb0)</div>
-                  <div style="font-size:13px; font-weight:700; color:#10b981; font-family:var(--font-mono); margin:2px 0;" id="ifaceUsbIp">192.168.109.110</div>
-                  <div style="font-size:10.5px; color:var(--text-dim);">Status: UP &bull; 5000 Mbps USB 3.0</div>
+                  <div style="font-size:10px; font-weight:800; font-family:var(--font-mono); color:var(--text-dim); text-transform:uppercase;">LAN Switch (lan1-lan4)</div>
+                  <div style="font-size:13px; font-weight:700; color:#38bdf8; font-family:var(--font-mono); margin:2px 0;">Gigabit Ports</div>
+                  <div style="font-size:10.5px; color:var(--text-dim);">4-Port Hardware Switch</div>
                 </div>
                 <div style="background:rgba(255,255,255,0.03); padding:10px 12px; border-radius:8px; border:1px solid rgba(255,255,255,0.07);">
                   <div style="font-size:10px; font-weight:800; font-family:var(--font-mono); color:var(--text-dim); text-transform:uppercase;">Physical WAN (eth0)</div>
@@ -8675,7 +8693,120 @@
         </div>
 
         <!-- PPPoE BROADBAND CLIENT & SERVER PANEL -->
-        <div class="settings-card settings-detail-panel accordion-item" id="acc-pppoe">
+                <!-- USB WAN (Dedicated Multi-Device USB Tethering & Load Balancing Panel) -->
+        <div class="settings-card settings-detail-panel accordion-item" id="acc-usb-wan">
+          <div class="settings-card-header accordion-header" onclick="toggleAccordion('acc-usb-wan')">
+            <div class="acc-title-left">
+              <div class="acc-icon-box" style="color:#10b981;">
+                <svg class="svg-icon" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/><path d="M10 12h4"/></svg>
+              </div>
+              <span class="acc-main-title">USB WAN</span>
+            </div>
+            <div class="acc-right-action">
+              <span class="card-badge emerald" id="usbWanGlobalBadge">ACTIVE</span>
+              <svg class="svg-icon acc-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+          </div>
+          <div class="accordion-content">
+            <div class="settings-card-body">
+              <!-- TOP NOTICE BANNER -->
+              <div style="background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.25); border-radius:10px; padding:12px 14px; margin-bottom:14px; display:flex; align-items:center; justify-content:space-between; gap:12px;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <div style="width:32px; height:32px; border-radius:8px; background:rgba(16,185,129,0.18); display:flex; align-items:center; justify-content:center; color:#10b981; flex-shrink:0;">
+                    <svg viewBox="0 0 24 24" style="width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2;"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                  </div>
+                  <div>
+                    <div style="font-size:12.5px; font-weight:700; color:#10b981;">Multi-Device USB WAN Gateway</div>
+                    <div style="font-size:11px; color:var(--text-dim);">Simultaneous Multi-WAN load balancing &amp; 4G/5G failover modems</div>
+                  </div>
+                </div>
+                <button type="button" class="mh-btn btn-sm" onclick="restartUsbWanInterfaces()" style="background:#10b981; color:#0b1120; font-weight:700; font-size:10.5px; padding:5px 10px;">RESTART MODEMS</button>
+              </div>
+
+              <!-- CONNECTED USB MODEMS LIST -->
+              <div style="font-size:10px; font-weight:800; font-family:var(--font-mono); color:var(--text-dim); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">Active USB Tethering Interfaces</div>
+              <div id="usbWanDeviceListContainer" style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;">
+                <!-- Populated dynamically via renderUsbWanDevices -->
+              </div>
+
+              <!-- MULTI-WAN LOAD BALANCING SETTINGS -->
+              <div style="font-size:10px; font-weight:800; font-family:var(--font-mono); color:var(--text-dim); text-transform:uppercase; letter-spacing:0.5px; margin:16px 0 8px 0;">Load Balancing &amp; Traffic Strategy</div>
+              <div style="display:flex; flex-direction:column; gap:4px;">
+                <div class="setting-row-item" id="usbLbModeRow" onclick="openSettingModal('usb_lb_mode')">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">Multi-WAN Strategy</span>
+                    <span class="setting-label-sub" id="usbLbModeVal">Balanced (Weighted Round-Robin)</span>
+                  </div>
+                  <div class="setting-control-col">
+                    <button type="button" class="action-circle-btn" title="Configure Load Balancing"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+                  </div>
+                </div>
+
+                <div class="setting-row-item">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">Connection Watchdog (Auto-Ping)</span>
+                    <span class="setting-label-sub">Monitors uplink health and switches to standby modem if primary fails</span>
+                  </div>
+                  <div class="setting-control-col">
+                    <label class="switch-toggle"><input type="checkbox" id="usbWatchdogToggle" onchange="saveUsbWanConfig()"><span class="toggle-slider"></span></label>
+                  </div>
+                </div>
+
+                <div class="setting-row-item" id="usbPingTargetRow" onclick="openSettingModal('usb_ping_target')">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">Health Check Ping Target</span>
+                    <span class="setting-label-sub" id="usbPingTargetVal">1.1.1.1 (Cloudflare Anycast)</span>
+                  </div>
+                  <div class="setting-control-col">
+                    <button type="button" class="action-circle-btn" title="Change Ping Target"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+                  </div>
+                </div>
+
+                <div class="setting-row-item" onclick="openSettingModal('usb_ping_interval')">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">Health Check Interval</span>
+                    <span class="setting-label-sub" id="usbPingIntervalVal">15 Seconds</span>
+                  </div>
+                  <div class="setting-control-col">
+                    <button type="button" class="action-circle-btn" title="Change Interval"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+                  </div>
+                </div>
+
+                <div class="setting-row-item" onclick="openSettingModal('usb_dns_override')">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">USB WAN DNS Servers</span>
+                    <span class="setting-label-sub" id="usbDnsOverrideVal">1.1.1.1, 8.8.8.8 (ISP Bypass)</span>
+                  </div>
+                  <div class="setting-control-col">
+                    <button type="button" class="action-circle-btn" title="Configure DNS"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+                  </div>
+                </div>
+
+                <div class="setting-row-item" onclick="openSettingModal('usb_tether_proto')">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">Tethering Protocol Driver</span>
+                    <span class="setting-label-sub" id="usbTetherProtoVal">RNDIS (Android / Qualcomm standard)</span>
+                  </div>
+                  <div class="setting-control-col">
+                    <button type="button" class="action-circle-btn" title="Change Protocol"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+                  </div>
+                </div>
+
+                <div class="setting-row-item">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold">Auto-Reconnect on Disconnect</span>
+                    <span class="setting-label-sub">Automatically restarts udhcpc on USB device replug</span>
+                  </div>
+                  <div class="setting-control-col">
+                    <label class="switch-toggle"><input type="checkbox" id="usbAutoReconnectToggle" checked onchange="saveUsbWanConfig()"><span class="toggle-slider"></span></label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+<div class="settings-card settings-detail-panel accordion-item" id="acc-pppoe">
           <div class="settings-card-header accordion-header" onclick="toggleAccordion('acc-pppoe')">
             <div class="acc-title-left">
               <div class="acc-icon-box" style="color:#06b6d4;">
@@ -8812,7 +8943,7 @@
               <div class="acc-icon-box" style="color:#f59e0b;">
                 <svg class="svg-icon" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
               </div>
-              <span class="acc-main-title">Notifications &amp; Alerts</span>
+              <span class="acc-main-title">Notifications</span>
             </div>
             <div class="acc-right-action">
               <span class="card-badge amber" id="notifActiveBadge">0 ALERTS</span>
@@ -8848,7 +8979,7 @@
               <div class="acc-icon-box" style="color:#0ea5e9;">
                 <svg class="svg-icon" viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
               </div>
-              <span class="acc-main-title">Webhooks &amp; Alerts</span>
+              <span class="acc-main-title">Webhooks</span>
             </div>
             <div class="acc-right-action">
               <span class="card-badge emerald" id="webhookStatusBadge">ONLINE</span>
@@ -9401,6 +9532,18 @@
                   </div>
                   <div class="setting-control-col">
                     <div style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, #8b5cf6, #3b82f6); display:flex; align-items:center; justify-content:center; color:#ffffff; font-weight:800; font-size:15px;">M</div>
+                  </div>
+                </div>
+
+                <!-- UPI Support & Donation -->
+                <div class="setting-row-item" style="background:rgba(139,92,246,0.06); border:1px solid rgba(139,92,246,0.25); border-radius:10px; padding:12px 14px; margin:4px 0 8px 0;">
+                  <div class="setting-label-col">
+                    <span class="setting-label-bold" style="color:#a78bfa;">Donation &amp; Support via UPI</span>
+                    <span class="setting-label-sub" style="font-family:var(--font-mono); font-size:12px; color:#e2e8f0; font-weight:700;">9824584454@ybl</span>
+                    <span style="font-size:10.5px; color:var(--text-dim); margin-top:2px;">Developed by Mahendra Mali - Max &bull; Every contribution powers MAXNET innovation</span>
+                  </div>
+                  <div class="setting-control-col">
+                    <button type="button" class="mh-btn" style="padding:6px 12px; font-size:11px; background:#8b5cf6; color:#fff; font-weight:700; border-radius:6px;" onclick="navigator.clipboard.writeText('9824584454@ybl'); showNotificationToast('Copied UPI ID: 9824584454@ybl to clipboard!')">COPY UPI</button>
                   </div>
                 </div>
 
@@ -11260,6 +11403,11 @@
     // DEDICATED SETTINGS PAGE VIEW & SUB-NAVIGATION SYSTEM (NO ACCORDION)
     // =========================================================================
     const SETTINGS_PAGES_META = {
+      'acc-usb-wan': {
+        title: 'USB WAN',
+        badge: 'MULTI-MODEM',
+        badgeColor: '#10b981'
+      },
       'acc-sys-info': {
         title: 'Device Info',
         badge: 'HARDWARE & SYSTEM',
@@ -11281,13 +11429,13 @@
         badgeColor: '#06b6d4'
       },
       'acc-notifications': {
-        title: 'Notifications & Alerts',
-        badge: 'SYSTEM ALERTS',
+        title: 'Notifications',
+        badge: 'NOTIFICATIONS',
         badgeColor: '#f59e0b'
       },
       'acc-webhooks': {
-        title: 'Webhooks & Alerts',
-        badge: 'ALERT FORWARDING',
+        title: 'Webhooks',
+        badge: 'WEBHOOKS',
         badgeColor: '#0ea5e9'
       },
       'acc-topo-layers': {
@@ -11513,7 +11661,304 @@
       }
     }
 
-    function handleSettingsBack() {
+    
+    /* ========================================================================
+       MAXNET REAL-TIME LIVE INPUT VALIDATION & USB WAN ENGINE
+       Engineered by Mahendra Mali - Max | UPI Support: 9824584454@ybl
+       ======================================================================== */
+
+    function getValidationTypeForKey(key) {
+      if (['net_gw_ip', 'net_dns1', 'net_dns2', 'iface_static_ip', 'iface_static_gw', 'iface_static_dns', 'usb_ping_target'].includes(key)) {
+        return 'ipv4';
+      }
+      if (['custom_mac', 'pppoe_mac_clone'].includes(key)) {
+        return 'mac';
+      }
+      if (['device_hostname'].includes(key)) {
+        return 'hostname';
+      }
+      if (['net_subnet'].includes(key)) {
+        return 'netmask';
+      }
+      if (['dufs_port', 'pppoe_mtu', 'iface_mtu', 'usb_dev_mtu'].includes(key)) {
+        return 'integer_range';
+      }
+      if (['telegram_bot_token'].includes(key)) {
+        return 'telegram_token';
+      }
+      if (['discord_webhook_url'].includes(key)) {
+        return 'url';
+      }
+      return 'text';
+    }
+
+    function onModalLiveValidate(inputEl, key) {
+      if (!inputEl) return true;
+      const vType = getValidationTypeForKey(key);
+      const val = (inputEl.value || '').trim();
+      const msgEl = document.getElementById('modalInputValidationMsg');
+      const saveBtn = document.getElementById('btnModalSave');
+
+      let isValid = true;
+      let errorText = '';
+      let successText = 'Valid format';
+
+      if (vType === 'ipv4') {
+        if (!val) {
+          isValid = false;
+          errorText = 'IPv4 address cannot be empty';
+        } else if (!/^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(val)) {
+          isValid = false;
+          errorText = 'Invalid IPv4 (expected format: 192.168.1.1)';
+        } else {
+          successText = 'Valid IPv4 address';
+        }
+      } else if (vType === 'mac') {
+        if (val && !/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/.test(val)) {
+          isValid = false;
+          errorText = 'Invalid MAC (expected format: AA:BB:CC:DD:EE:FF)';
+        } else {
+          successText = val ? 'Valid MAC address' : 'Default Hardware MAC';
+        }
+      } else if (vType === 'hostname') {
+        if (!val) {
+          isValid = false;
+          errorText = 'Hostname cannot be empty';
+        } else if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,62}$/.test(val)) {
+          isValid = false;
+          errorText = 'Only letters, numbers, hyphens, underscores (1-63 chars)';
+        } else {
+          successText = 'Valid RFC-compliant hostname';
+        }
+      } else if (vType === 'netmask') {
+        if (!isValidNetmask(val)) {
+          isValid = false;
+          errorText = 'Invalid subnet mask (e.g. 255.255.255.0)';
+        } else {
+          successText = 'Valid subnet mask';
+        }
+      } else if (vType === 'integer_range') {
+        const num = parseInt(val, 10);
+        if (key.includes('mtu')) {
+          if (isNaN(num) || num < 576 || num > 1500) {
+            isValid = false;
+            errorText = 'MTU must be between 576 and 1500';
+          } else {
+            successText = 'Valid MTU packet size';
+          }
+        } else if (key.includes('port')) {
+          if (isNaN(num) || num < 1 || num > 65535) {
+            isValid = false;
+            errorText = 'Port must be between 1 and 65535';
+          } else {
+            successText = 'Valid TCP/UDP port';
+          }
+        }
+      } else if (vType === 'url') {
+        if (val && !/^https?:\/\/[^\s$.?#].[^\s]*$/i.test(val)) {
+          isValid = false;
+          errorText = 'Invalid URL (must start with http:// or https://)';
+        } else {
+          successText = val ? 'Valid webhook URL' : 'Optional URL';
+        }
+      } else if (vType === 'telegram_token') {
+        if (val && !/^[0-9]{8,11}:[a-zA-Z0-9_-]{35}$/.test(val)) {
+          isValid = false;
+          errorText = 'Format: 123456789:ABCdefGhIJKlmNoPQRsTUVwxyZ';
+        } else {
+          successText = val ? 'Valid Telegram bot token' : 'Optional token';
+        }
+      }
+
+      if (msgEl) {
+        if (!isValid) {
+          msgEl.style.display = 'block';
+          msgEl.style.color = '#ef4444';
+          msgEl.innerHTML = `<span style="font-weight:700;">&#x2717; Error:</span> ${errorText}`;
+          inputEl.style.borderColor = '#ef4444';
+          inputEl.style.boxShadow = '0 0 0 2px rgba(239,68,68,0.2)';
+        } else {
+          msgEl.style.display = 'block';
+          msgEl.style.color = '#10b981';
+          msgEl.innerHTML = `<span style="font-weight:700;">&#x2713;</span> ${successText}`;
+          inputEl.style.borderColor = '#10b981';
+          inputEl.style.boxShadow = '0 0 0 2px rgba(16,185,129,0.2)';
+        }
+      }
+
+      if (saveBtn) {
+        saveBtn.disabled = !isValid;
+        saveBtn.style.opacity = isValid ? '1' : '0.4';
+        saveBtn.style.cursor = isValid ? 'pointer' : 'not-allowed';
+      }
+
+      return isValid;
+    }
+
+    function triggerModalInitialValidation(key) {
+      setTimeout(() => {
+        const bodyEl = document.getElementById('settingModalBody');
+        if (!bodyEl) return;
+        const inp = bodyEl.querySelector('input.mh-input');
+        if (inp) {
+          inp.addEventListener('input', () => onModalLiveValidate(inp, key));
+          inp.addEventListener('keyup', () => onModalLiveValidate(inp, key));
+          onModalLiveValidate(inp, key);
+        }
+      }, 60);
+    }
+
+    /* USB WAN CONTROLLER */
+    let _cachedUsbWanData = null;
+
+    async function loadUsbWanConfig() {
+      try {
+        const res = await fetch('/cgi-bin/usb_wan?action=status', { cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        _cachedUsbWanData = data;
+
+        const globalBadge = document.getElementById('usbWanGlobalBadge');
+        const activeDevs = (data.devices || []).filter(d => d.present && d.status === 'connected');
+        if (globalBadge) {
+          globalBadge.textContent = activeDevs.length > 0 ? `${activeDevs.length} CONNECTED` : 'STANDBY';
+          globalBadge.className = 'card-badge ' + (activeDevs.length > 0 ? 'emerald' : 'amber');
+        }
+
+        const lbVal = document.getElementById('usbLbModeVal');
+        if (lbVal && data.load_balancing) {
+          const m = data.load_balancing.mode;
+          lbVal.textContent = m === 'failover' ? 'Active Failover (Hot Standby)' : (m === 'broadcast' ? 'Broadcast Duplication' : 'Balanced (Weighted Round-Robin)');
+        }
+
+        const wdToggle = document.getElementById('usbWatchdogToggle');
+        if (wdToggle && data.load_balancing) {
+          wdToggle.checked = !!data.load_balancing.watchdog;
+        }
+
+        const ptVal = document.getElementById('usbPingTargetVal');
+        if (ptVal && data.load_balancing) {
+          ptVal.textContent = data.load_balancing.ping_target || '1.1.1.1';
+        }
+
+        const piVal = document.getElementById('usbPingIntervalVal');
+        if (piVal && data.load_balancing) {
+          piVal.textContent = `${data.load_balancing.ping_interval || 15} Seconds`;
+        }
+
+        const dnsVal = document.getElementById('usbDnsOverrideVal');
+        if (dnsVal && data.load_balancing) {
+          dnsVal.textContent = data.load_balancing.dns_override || '1.1.1.1 8.8.8.8';
+        }
+
+        const protoVal = document.getElementById('usbTetherProtoVal');
+        if (protoVal && data.load_balancing) {
+          const p = data.load_balancing.tether_proto || 'rndis';
+          protoVal.textContent = p.toUpperCase() + ' (Android / Qualcomm standard)';
+        }
+
+        renderUsbWanDevices(data.devices || []);
+      } catch (e) {
+        console.warn('loadUsbWanConfig error:', e);
+      }
+    }
+
+    function renderUsbWanDevices(devices) {
+      const cont = document.getElementById('usbWanDeviceListContainer');
+      if (!cont) return;
+
+      if (!devices || devices.length === 0) {
+        cont.innerHTML = `
+          <div style="background:rgba(255,255,255,0.02); border:1px dashed rgba(255,255,255,0.1); border-radius:8px; padding:14px; text-align:center; color:var(--text-dim); font-size:12px;">
+            No USB tethering modems or dongles detected. Plug in an Android phone or 4G/5G USB modem.
+          </div>
+        `;
+        return;
+      }
+
+      cont.innerHTML = devices.map(d => {
+        const isConn = d.present && d.status === 'connected';
+        const rxMb = (d.rx_bytes / (1024 * 1024)).toFixed(1);
+        const txMb = (d.tx_bytes / (1024 * 1024)).toFixed(1);
+
+        return `
+          <div style="background:rgba(255,255,255,0.03); border:1px solid ${isConn ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.08)'}; border-radius:10px; padding:12px 14px; display:flex; flex-direction:column; gap:8px;">
+            <div style="display:flex; align-items:center; justify-content:space-between;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:${isConn ? '#10b981' : '#f59e0b'};"></span>
+                <strong style="font-size:13px; color:#e2e8f0; font-family:var(--font-mono);">${escapeHtml(d.name)} (${escapeHtml(d.interface)})</strong>
+              </div>
+              <div style="display:flex; align-items:center; gap:6px;">
+                <span class="card-badge ${isConn ? 'emerald' : 'amber'}" style="font-size:10px; padding:2px 6px;">${d.status.toUpperCase()}</span>
+                <button type="button" class="mh-btn btn-sm" style="font-size:10.5px; padding:4px 8px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12);" onclick="openEditUsbDeviceModal('${escapeHtml(d.id)}')">EDIT</button>
+              </div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size:11px; font-family:var(--font-mono); color:var(--text-dim);">
+              <div>IP: <span style="color:#38bdf8; font-weight:700;">${escapeHtml(d.ip || '--')}</span></div>
+              <div>MAC: <span>${escapeHtml(d.mac || '--')}</span></div>
+              <div>Weight: <span style="color:#10b981; font-weight:700;">${d.weight || 50}%</span> (Metric ${d.metric || 100})</div>
+              <div>Speed: <span style="color:#a78bfa;">${escapeHtml(d.speed || 'USB 3.0')}</span></div>
+            </div>
+            ${isConn ? `
+              <div style="font-size:10.5px; font-family:var(--font-mono); color:var(--text-dim); border-top:1px solid rgba(255,255,255,0.05); padding-top:6px; display:flex; justify-content:space-between;">
+                <span>RX: <strong style="color:#10b981;">${rxMb} MB</strong> / TX: <strong style="color:#38bdf8;">${txMb} MB</strong></span>
+                <span>Driver: ${escapeHtml(d.driver || 'rndis_host')}</span>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function saveUsbWanConfig() {
+      if (!_cachedUsbWanData) return;
+      const wdToggle = document.getElementById('usbWatchdogToggle');
+      const arToggle = document.getElementById('usbAutoReconnectToggle');
+      if (wdToggle) _cachedUsbWanData.load_balancing.watchdog = wdToggle.checked;
+      if (arToggle) _cachedUsbWanData.load_balancing.auto_reconnect = arToggle.checked;
+
+      try {
+        const res = await fetch('/cgi-bin/usb_wan?action=save_config', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(_cachedUsbWanData)
+        });
+        const data = await res.json();
+        if (data.status === 'ok') {
+          showNotificationToast('USB WAN configuration updated successfully');
+          loadUsbWanConfig();
+        } else {
+          showNotificationToast('Failed to save USB WAN config: ' + (data.error || 'Unknown'), true);
+        }
+      } catch (e) {
+        showNotificationToast('Error saving USB WAN config: ' + e.message, true);
+      }
+    }
+
+    async function restartUsbWanInterfaces() {
+      showNotificationToast('Restarting USB WAN modems & DHCP leases...');
+      try {
+        const res = await fetch('/cgi-bin/usb_wan?action=restart_modems', { method: 'POST' });
+        const data = await res.json();
+        if (data.status === 'ok') {
+          showNotificationToast('USB modems restarted successfully');
+          setTimeout(loadUsbWanConfig, 2500);
+        }
+      } catch (e) {
+        showNotificationToast('Restart request error: ' + e.message, true);
+      }
+    }
+
+    function openEditUsbDeviceModal(devId) {
+      if (!_cachedUsbWanData) return;
+      const dev = (_cachedUsbWanData.devices || []).find(d => d.id === devId);
+      if (!dev) return;
+      window._editingUsbDevId = devId;
+      openSettingModal('usb_device_edit');
+    }
+
+
+function handleSettingsBack() {
       if (window._currentDhcpClientDetail) {
         closeDhcpClientDetail(true);
         return;
@@ -20865,6 +21310,127 @@ function onRemoveWifiClient(nodeId, clientIdent) {
             <button type="button" class="mh-btn" style="margin-top:8px; width:100%; background:#06b6d4; color:#0b1120; font-weight:700; padding:7px; font-size:11.5px; border-radius:6px;" onclick="addPppoeUserFromModal()">+ ADD SUBSCRIBER</button>
           </div>
         `;
+      } else if (key === 'usb_lb_mode') {
+        titleEl.textContent = 'Multi-Device Load Balancing Strategy';
+        descEl.textContent = 'Configure traffic distribution across multiple connected USB tethering modems or dongles.';
+        const curMode = (window._cachedUsbWanData && window._cachedUsbWanData.load_balancing) ? window._cachedUsbWanData.load_balancing.mode : 'balanced';
+        bodyEl.innerHTML = `
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <label style="display:flex; align-items:center; gap:10px; padding:10px 12px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:8px; cursor:pointer;">
+              <input type="radio" name="modal_usb_mode" value="balanced" ${curMode === 'balanced' ? 'checked' : ''}>
+              <div>
+                <strong style="color:#10b981; display:block; font-size:12.5px;">Balanced Multi-WAN (Weighted Round-Robin)</strong>
+                <span style="font-size:11px; color:var(--text-dim);">Distribute active internet connections across all active USB modems for doubled throughput.</span>
+              </div>
+            </label>
+            <label style="display:flex; align-items:center; gap:10px; padding:10px 12px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:8px; cursor:pointer;">
+              <input type="radio" name="modal_usb_mode" value="failover" ${curMode === 'failover' ? 'checked' : ''}>
+              <div>
+                <strong style="color:#38bdf8; display:block; font-size:12.5px;">Active Failover (Hot Standby)</strong>
+                <span style="font-size:11px; color:var(--text-dim);">Route 100% traffic through primary modem (usb0). Automatically switch to secondary if primary fails.</span>
+              </div>
+            </label>
+            <label style="display:flex; align-items:center; gap:10px; padding:10px 12px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:8px; cursor:pointer;">
+              <input type="radio" name="modal_usb_mode" value="broadcast" ${curMode === 'broadcast' ? 'checked' : ''}>
+              <div>
+                <strong style="color:#f59e0b; display:block; font-size:12.5px;">Broadcast Duplication (Ultra-Low Latency)</strong>
+                <span style="font-size:11px; color:var(--text-dim);">Duplicate packets across both USB links to eliminate packet loss and jitter for gaming and streaming.</span>
+              </div>
+            </label>
+          </div>
+        `;
+      } else if (key === 'usb_ping_target') {
+        titleEl.textContent = 'Health Check Ping Target';
+        descEl.textContent = 'IPv4 address pinged periodically to verify internet reachability.';
+        const curTarget = (window._cachedUsbWanData && window._cachedUsbWanData.load_balancing) ? window._cachedUsbWanData.load_balancing.ping_target : '1.1.1.1';
+        bodyEl.innerHTML = `
+          <div>
+            <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">Ping Target IPv4</label>
+            <input type="text" id="modalInput_usb_ping_target" class="mh-input" value="${escapeHtml(curTarget)}" placeholder="1.1.1.1" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+            <div id="modalInputValidationMsg" style="font-size:11px; font-family:var(--font-mono); min-height:18px; margin-top:4px;"></div>
+          </div>
+          <div style="margin-top:10px;">
+            <span style="font-size:10px; font-family:var(--font-mono); color:var(--text-dim); margin-bottom:6px; display:block;">Recommended Targets:</span>
+            <div style="display:flex; flex-wrap:wrap; gap:6px;">
+              <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalInput_usb_ping_target').value='1.1.1.1'; onModalLiveValidate(document.getElementById('modalInput_usb_ping_target'), 'usb_ping_target');">1.1.1.1 (Cloudflare)</button>
+              <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalInput_usb_ping_target').value='8.8.8.8'; onModalLiveValidate(document.getElementById('modalInput_usb_ping_target'), 'usb_ping_target');">8.8.8.8 (Google)</button>
+              <button type="button" class="dns-preset-pill" onclick="document.getElementById('modalInput_usb_ping_target').value='9.9.9.9'; onModalLiveValidate(document.getElementById('modalInput_usb_ping_target'), 'usb_ping_target');">9.9.9.9 (Quad9)</button>
+            </div>
+          </div>
+        `;
+      } else if (key === 'usb_ping_interval') {
+        titleEl.textContent = 'Watchdog Ping Interval';
+        descEl.textContent = 'How often in seconds the gateway sends ICMP health check packets to the target.';
+        const curInt = (window._cachedUsbWanData && window._cachedUsbWanData.load_balancing) ? window._cachedUsbWanData.load_balancing.ping_interval : 15;
+        bodyEl.innerHTML = `
+          <div>
+            <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">Interval (5 to 120 Seconds)</label>
+            <input type="number" id="modalInput_usb_ping_interval" class="mh-input" value="${curInt}" min="5" max="120" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+          </div>
+        `;
+      } else if (key === 'usb_dns_override') {
+        titleEl.textContent = 'USB WAN DNS Override';
+        descEl.textContent = 'Space-separated DNS nameservers pushed to the USB WAN routing table.';
+        const curDns = (window._cachedUsbWanData && window._cachedUsbWanData.load_balancing) ? window._cachedUsbWanData.load_balancing.dns_override : '1.1.1.1 8.8.8.8';
+        bodyEl.innerHTML = `
+          <div>
+            <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">Nameservers (e.g. 1.1.1.1 8.8.8.8)</label>
+            <input type="text" id="modalInput_usb_dns" class="mh-input" value="${escapeHtml(curDns)}" placeholder="1.1.1.1 8.8.8.8" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+          </div>
+        `;
+      } else if (key === 'usb_tether_proto') {
+        titleEl.textContent = 'Tethering Protocol Driver';
+        descEl.textContent = 'Linux kernel USB network driver protocol used for modem communication.';
+        const curP = (window._cachedUsbWanData && window._cachedUsbWanData.load_balancing) ? window._cachedUsbWanData.load_balancing.tether_proto : 'rndis';
+        bodyEl.innerHTML = `
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <label style="display:flex; align-items:center; gap:10px; padding:10px 12px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:8px; cursor:pointer;">
+              <input type="radio" name="modal_usb_proto" value="rndis" ${curP === 'rndis' ? 'checked' : ''}>
+              <div>
+                <strong style="color:#10b981; display:block; font-size:12.5px;">RNDIS (Remote NDIS)</strong>
+                <span style="font-size:11px; color:var(--text-dim);">Universal Android USB tethering &amp; Qualcomm 4G/5G modems (Recommended).</span>
+              </div>
+            </label>
+            <label style="display:flex; align-items:center; gap:10px; padding:10px 12px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:8px; cursor:pointer;">
+              <input type="radio" name="modal_usb_proto" value="ncm" ${curP === 'ncm' ? 'checked' : ''}>
+              <div>
+                <strong style="color:#38bdf8; display:block; font-size:12.5px;">CDC-NCM (Network Control Model)</strong>
+                <span style="font-size:11px; color:var(--text-dim);">High-speed Gigabit-class USB tethering for newer iOS and Android devices.</span>
+              </div>
+            </label>
+            <label style="display:flex; align-items:center; gap:10px; padding:10px 12px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:8px; cursor:pointer;">
+              <input type="radio" name="modal_usb_proto" value="ecm" ${curP === 'ecm' ? 'checked' : ''}>
+              <div>
+                <strong style="color:#a78bfa; display:block; font-size:12.5px;">CDC-ECM (Ethernet Control Model)</strong>
+                <span style="font-size:11px; color:var(--text-dim);">Legacy standard USB Ethernet dongles and embedded Linux modems.</span>
+              </div>
+            </label>
+          </div>
+        `;
+      } else if (key === 'usb_device_edit') {
+        const devId = window._editingUsbDevId;
+        const dev = (_cachedUsbWanData && _cachedUsbWanData.devices) ? _cachedUsbWanData.devices.find(d => d.id === devId) : null;
+        titleEl.textContent = dev ? `Edit ${dev.name} (${dev.interface})` : 'Edit USB Interface';
+        descEl.textContent = 'Configure traffic weight, routing metric, and MTU packet sizing for this USB modem.';
+        bodyEl.innerHTML = `
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <div>
+              <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">Traffic Weight Percentage (1% - 100%)</label>
+              <input type="number" id="modalInput_usb_dev_weight" class="mh-input" value="${dev ? (dev.weight || 50) : 50}" min="1" max="100" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+              <span style="font-size:10px; color:var(--text-dim); margin-top:3px; display:block;">Higher percentage directs proportionally more bandwidth through this modem.</span>
+            </div>
+            <div>
+              <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">Route Metric Priority</label>
+              <input type="number" id="modalInput_usb_dev_metric" class="mh-input" value="${dev ? (dev.metric || 100) : 100}" min="1" max="999" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+              <span style="font-size:10px; color:var(--text-dim); margin-top:3px; display:block;">Lower metric numbers take routing priority (e.g. 100 before 110).</span>
+            </div>
+            <div>
+              <label style="font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:5px; display:block; font-family:var(--font-mono);">Interface MTU</label>
+              <input type="number" id="modalInput_usb_dev_mtu" class="mh-input" value="${dev ? (dev.mtu || 1400) : 1400}" min="576" max="1500" style="width:100%; padding:9px 12px; font-size:13px; font-family:var(--font-mono);">
+              <div id="modalInputValidationMsg" style="font-size:11px; font-family:var(--font-mono); min-height:18px; margin-top:4px;"></div>
+            </div>
+          </div>
+        `;
       }
 
       overlay.style.display = 'flex';
@@ -20874,6 +21440,7 @@ function onRemoveWifiClient(nodeId, clientIdent) {
         });
       });
       window._isSettingModalOpen = true;
+      triggerModalInitialValidation(key);
 
       try {
         history.pushState({ modalOpen: true, modalKey: key }, '', window.location.hash);
@@ -21366,6 +21933,48 @@ function onRemoveWifiClient(nodeId, clientIdent) {
         savePppoeServerConfig(srv_ip, pool_start, pool_end, dns1, dns2, max_sess);
       } else if (currentModalKey === 'pppoe_server_users') {
         // Done
+      } else if (currentModalKey === 'usb_lb_mode') {
+        const sel = document.querySelector('input[name="modal_usb_mode"]:checked');
+        if (sel && window._cachedUsbWanData) {
+          window._cachedUsbWanData.load_balancing.mode = sel.value;
+          saveUsbWanConfig();
+        }
+      } else if (currentModalKey === 'usb_ping_target') {
+        const inp = document.getElementById('modalInput_usb_ping_target');
+        if (inp && window._cachedUsbWanData) {
+          window._cachedUsbWanData.load_balancing.ping_target = inp.value.trim();
+          saveUsbWanConfig();
+        }
+      } else if (currentModalKey === 'usb_ping_interval') {
+        const inp = document.getElementById('modalInput_usb_ping_interval');
+        if (inp && window._cachedUsbWanData) {
+          window._cachedUsbWanData.load_balancing.ping_interval = parseInt(inp.value, 10) || 15;
+          saveUsbWanConfig();
+        }
+      } else if (currentModalKey === 'usb_dns_override') {
+        const inp = document.getElementById('modalInput_usb_dns');
+        if (inp && window._cachedUsbWanData) {
+          window._cachedUsbWanData.load_balancing.dns_override = inp.value.trim();
+          saveUsbWanConfig();
+        }
+      } else if (currentModalKey === 'usb_tether_proto') {
+        const sel = document.querySelector('input[name="modal_usb_proto"]:checked');
+        if (sel && window._cachedUsbWanData) {
+          window._cachedUsbWanData.load_balancing.tether_proto = sel.value;
+          saveUsbWanConfig();
+        }
+      } else if (currentModalKey === 'usb_device_edit') {
+        const devId = window._editingUsbDevId;
+        const dev = (window._cachedUsbWanData && window._cachedUsbWanData.devices) ? window._cachedUsbWanData.devices.find(d => d.id === devId) : null;
+        if (dev) {
+          const w = parseInt(document.getElementById('modalInput_usb_dev_weight')?.value, 10) || 50;
+          const m = parseInt(document.getElementById('modalInput_usb_dev_metric')?.value, 10) || 100;
+          const mtu = parseInt(document.getElementById('modalInput_usb_dev_mtu')?.value, 10) || 1400;
+          dev.weight = w;
+          dev.metric = m;
+          dev.mtu = mtu;
+          saveUsbWanConfig();
+        }
       }
 
       closeSettingModal();
