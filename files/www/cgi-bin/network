@@ -173,8 +173,10 @@ if [ "$ACTION" = "set" ]; then
         h_lower=$(echo "$DEV_HOST" | tr 'A-Z' 'a-z')
         sed -i "s/127.0.0.1 localhost.*/127.0.0.1 localhost $DEV_HOST/" /etc/hosts 2>/dev/null
         sed -i "/^10\.0\.0\.1 /d" /etc/hosts 2>/dev/null
-        echo "10.0.0.1 ${h_lower}.lan ${h_lower}.local ${DEV_HOST} maxnet.lan smb.lan disk.lan" >> /etc/hosts
+        echo "10.0.0.1 maxnet.local maxnet.lan maxnet ${h_lower}.lan ${h_lower}.local ${DEV_HOST} smb.local smb.lan disk.local disk.lan" >> /etc/hosts
+        echo "10.0.0.1 maxnet.local maxnet.lan maxnet ${h_lower}.local" > /etc/avahi/hosts 2>/dev/null
         killall -HUP dnsmasq 2>/dev/null
+        /etc/init.d/avahi-daemon reload 2>/dev/null || /etc/init.d/avahi-daemon restart 2>/dev/null
     fi
 
     # Custom MAC Address Override
