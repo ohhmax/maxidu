@@ -674,9 +674,15 @@ WAKE=$(echo "$RAW" | awk -F'mWakefulness=' '/mWakefulness=/ {print $2; exit}' | 
 [ -z "$WAKE" ] && WAKE="Awake"
 
 UP_SEC=$(echo "$RAW" | sed -n '/===UPTIME===/{n;p;}' | awk '{print int($1); exit}')
-UP_H=$(( UP_SEC / 3600 ))
+[ -z "$UP_SEC" ] && UP_SEC=0
+UP_D=$(( UP_SEC / 86400 ))
+UP_H=$(( (UP_SEC % 86400) / 3600 ))
 UP_M=$(( (UP_SEC % 3600) / 60 ))
-UPTIME_FMT="${UP_H}h ${UP_M}m"
+if [ "$UP_D" -gt 0 ]; then
+    UPTIME_FMT="${UP_D}d ${UP_H}h ${UP_M}m"
+else
+    UPTIME_FMT="${UP_H}h ${UP_M}m"
+fi
 
 SIM_STATE=$(adb -s "$TARGET_SERIAL" shell getprop gsm.sim.state 2>/dev/null | tr -d '\r\n')
 NET_TYPE=$(adb -s "$TARGET_SERIAL" shell getprop gsm.network.type 2>/dev/null | tr -d '\r\n' | awk -F, '{print $1}')

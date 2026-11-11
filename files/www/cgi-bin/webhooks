@@ -1,0 +1,253 @@
+#!/bin/sh
+echo "Content-Type: application/json"
+echo "Cache-Control: no-cache, no-store, must-revalidate"
+echo "Access-Control-Allow-Origin: *"
+echo ""
+
+CONF_FILE="/etc/maxnet_webhooks.json"
+NOTIF_FILE="/etc/maxnet_notifications.json"
+
+[ "$REQUEST_METHOD" = "POST" ] && [ -n "$CONTENT_LENGTH" ] && read -r POST_DATA 2>/dev/null
+
+ACTION=$(echo "$QUERY_STRING" | sed -n 's/^.*action=\([^&]*\).*$/\1/p')
+[ -z "$ACTION" ] && ACTION=$(echo "$POST_DATA" | sed -n 's/.*"action"[ ]*:[ ]*"\([^"]*\)".*/\1/p')
+[ -z "$ACTION" ] && ACTION="get"
+
+init_config() {
+    if [ ! -f "$CONF_FILE" ]; then
+        cat << 'CFG' > "$CONF_FILE"
+{
+  "status": "ok",
+  "master_enabled": true,
+  "telegram": {
+    "enabled": false,
+    "bot_token": "",
+    "chat_id": ""
+  },
+  "discord": {
+    "enabled": false,
+    "webhook_url": ""
+  },
+  "ntfy": {
+    "enabled": false,
+    "topic_url": "https://ntfy.sh/maxnet-alerts"
+  },
+  "events": {
+    "cpu_spike": true,
+    "new_device": true,
+    "wan_disconnect": true,
+    "dhcp_error": true,
+    "system_update": true,
+    "security_alert": true
+  }
+}
+CFG
+    fi
+}
+
+init_notif() {
+    if [ ! -f "$NOTIF_FILE" ]; then
+        echo "[]" > "$NOTIF_FILE"
+    fi
+}
+
+# ==================== ACTION: GET ====================
+if [ "$ACTION" = "get" ]; then
+    init_config
+    cat "$CONF_FILE"
+    exit 0
+fi
+
+# ==================== ACTION: SET ====================
+if [ "$ACTION" = "set" ]; then
+    init_config
+    if [ -n "$POST_DATA" ]; then
+        # Validate JSON if jq available
+        if echo "$POST_DATA" | jq . >/dev/null 2>&1; then
+            echo "$POST_DATA" | jq . > "$CONF_FILE"
+            echo '{"status":"ok","message":"Webhook configuration saved successfully."}'
+            exit 0
+        fi
+    fi
+    echo '{"status":"error","message":"Invalid JSON payload."}'
+    exit 0
+fi
+
+# ==================== ACTION: TEST ====================
+if [ "$ACTION" = "test" ]; then
+    init_config
+    PROVIDER=$(echo "$QUERY_STRING" | sed -n 's/^.*provider=\([^&]*\).*$/\1/p')
+    [ -z "$PROVIDER" ] && PROVIDER=$(echo "$POST_DATA" | sed -n 's/.*"provider"[ ]*:[ ]*"\([^"]*\)".*/\1/p')
+
+    if [ "$PROVIDER" = "telegram" ]; then
+        TOKEN=$(echo "$POST_DATA" | jq -r '.token // empty' 2>/dev/null)
+        CHAT_ID=$(echo "$POST_DATA" | jq -r '.chat_id // empty' 2>/dev/null)
+        [ -z "$TOKEN" ] && TOKEN=$(jq -r '.telegram.bot_token // empty' "$CONF_FILE" 2>/dev/null)
+        [ -z "$CHAT_ID" ] && CHAT_ID=$(jq -r '.telegram.chat_id // empty' "$CONF_FILE" 2>/dev/null)
+
+        if [ -z "$TOKEN" ] || [ -z "$CHAT_ID" ]; then
+            echo '{"status":"error","message":"Telegram Bot Token and Chat ID are required."}'
+            exit 0
+        fi
+
+        MSG="[MAXNET GATEWAY] Telegram alert connection verified successfully! Host: 10.0.0.1"
+        RESP=$(curl -s -m 8 -X POST "https://api.telegram.org/bot${TOKEN}/sendMessage" \
+            -d "chat_id=${CHAT_ID}" \
+            -d "text=${MSG}" 2>&1)
+
+        if echo "$RESP" | grep -q '"ok":true'; then
+            echo '{"status":"ok","message":"Telegram test alert delivered successfully!"}'
+        else
+            ERR=$(echo "$RESP" | jq -r '.description // "Failed to send message"' 2>/dev/null)
+            [ -z "$ERR" ] && ERR="$RESP"
+            echo "{\"status\":\"error\",\"message\":\"Telegram error: $ERR\"}"
+        fi
+        exit 0
+    elif [ "$PROVIDER" = "discord" ]; then
+        URL=$(echo "$POST_DATA" | jq -r '.url // empty' 2>/dev/null)
+        [ -z "$URL" ] && URL=$(jq -r '.discord.webhook_url // empty' "$CONF_FILE" 2>/dev/null)
+
+        if [ -z "$URL" ]; then
+            echo '{"status":"error","message":"Discord Webhook URL is required."}'
+            exit 0
+        fi
+
+        PAYLOAD='{"username":"MAXNET Gateway","avatar_url":"https://raw.githubusercontent.com/ohhmax/maxidu/main/files/www/favicon.ico","content":"**[MAXNET GATEWAY]** Discord webhook test notification verified successfully from router (10.0.0.1)!"}'
+        HTTP_CODE=$(curl -s -m 8 -o /tmp/discord_resp.txt -w "%{http_code}" -H "Content-Type: application/json" -X POST -d "$PAYLOAD" "$URL" 2>&1)
+
+        if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "204" ]; then
+            echo '{"status":"ok","message":"Discord test alert delivered successfully!"}'
+        else
+            RESP=$(cat /tmp/discord_resp.txt 2>/dev/null)
+            echo "{\"status\":\"error\",\"message\":\"Discord error (HTTP $HTTP_CODE): $RESP\"}"
+        fi
+        rm -f /tmp/discord_resp.txt
+        exit 0
+    elif [ "$PROVIDER" = "ntfy" ]; then
+        TOPIC_URL=$(echo "$POST_DATA" | jq -r '.topic_url // empty' 2>/dev/null)
+        [ -z "$TOPIC_URL" ] && TOPIC_URL=$(jq -r '.ntfy.topic_url // empty' "$CONF_FILE" 2>/dev/null)
+
+        if [ -z "$TOPIC_URL" ]; then
+            echo '{"status":"error","message":"ntfy Topic URL is required."}'
+            exit 0
+        fi
+
+        RESP=$(curl -s -m 8 -H "Title: MAXNET Gateway" -H "Tags: bell,rocket" -d "ntfy.sh push alert verified successfully from router (10.0.0.1)!" "$TOPIC_URL" 2>&1)
+        if echo "$RESP" | grep -q '"id":'; then
+            echo '{"status":"ok","message":"ntfy.sh test alert published successfully!"}'
+        else
+            echo "{\"status\":\"ok\",\"message\":\"ntfy test sent to $TOPIC_URL\"}"
+        fi
+        exit 0
+    fi
+
+    echo '{"status":"error","message":"Unknown provider specified."}'
+    exit 0
+fi
+
+# ==================== ACTION: DISPATCH (SEND NOTIFICATION & SAVE) ====================
+if [ "$ACTION" = "dispatch" ]; then
+    init_config
+    init_notif
+
+    ID=$(echo "$POST_DATA" | jq -r '.id // empty' 2>/dev/null)
+    TITLE=$(echo "$POST_DATA" | jq -r '.title // "System Alert"' 2>/dev/null)
+    MSG=$(echo "$POST_DATA" | jq -r '.message // ""' 2>/dev/null)
+    LEVEL=$(echo "$POST_DATA" | jq -r '.level // "info"' 2>/dev/null)
+    EV_TYPE=$(echo "$POST_DATA" | jq -r '.event_type // "system"' 2>/dev/null)
+    TS=$(echo "$POST_DATA" | jq -r '.timestamp // empty' 2>/dev/null)
+
+    [ -z "$ID" ] && ID="notif_$(date +%s)_$RANDOM"
+    [ -z "$TS" ] && TS=$(date +"%b %d, %H:%M")
+
+    # Append to NOTIF_FILE (keep newest 50)
+    NEW_ENTRY=$(jq -n \
+        --arg id "$ID" \
+        --arg title "$TITLE" \
+        --arg msg "$MSG" \
+        --arg level "$LEVEL" \
+        --arg type "$EV_TYPE" \
+        --arg ts "$TS" \
+        '{id: $id, title: $title, message: $msg, level: $level, event_type: $type, timestamp: $ts, read: false}')
+
+    if [ -f "$NOTIF_FILE" ]; then
+        # Prepend new entry and slice top 50
+        jq --argjson new "$NEW_ENTRY" '[$new] + (if type=="array" then . else [] end) | .[0:50]' "$NOTIF_FILE" > "${NOTIF_FILE}.tmp" && mv "${NOTIF_FILE}.tmp" "$NOTIF_FILE"
+    else
+        echo "[$NEW_ENTRY]" > "$NOTIF_FILE"
+    fi
+
+    # Forward to Webhooks if enabled
+    MASTER_EN=$(jq -r '.master_enabled // false' "$CONF_FILE" 2>/dev/null)
+    if [ "$MASTER_EN" = "true" ]; then
+        EV_EN="true"
+        [ -n "$EV_TYPE" ] && EV_EN=$(jq -r ".events.${EV_TYPE} // true" "$CONF_FILE" 2>/dev/null)
+
+        if [ "$EV_EN" = "true" ]; then
+            # 1. Telegram
+            TG_EN=$(jq -r '.telegram.enabled // false' "$CONF_FILE" 2>/dev/null)
+            TG_TOK=$(jq -r '.telegram.bot_token // empty' "$CONF_FILE" 2>/dev/null)
+            TG_CHAT=$(jq -r '.telegram.chat_id // empty' "$CONF_FILE" 2>/dev/null)
+            if [ "$TG_EN" = "true" ] && [ -n "$TG_TOK" ] && [ -n "$TG_CHAT" ]; then
+                ( curl -s -m 6 -X POST "https://api.telegram.org/bot${TG_TOK}/sendMessage" \
+                    -d "chat_id=${TG_CHAT}" \
+                    -d "text=[MAXNET ALERT - ${LEVEL^^}] ${TITLE}%0A${MSG}%0ATime: ${TS}" >/dev/null 2>&1 ) &
+            fi
+
+            # 2. Discord
+            DC_EN=$(jq -r '.discord.enabled // false' "$CONF_FILE" 2>/dev/null)
+            DC_URL=$(jq -r '.discord.webhook_url // empty' "$CONF_FILE" 2>/dev/null)
+            if [ "$DC_EN" = "true" ] && [ -n "$DC_URL" ]; then
+                DC_PAYLOAD=$(jq -n \
+                    --arg title "$TITLE" \
+                    --arg msg "$MSG" \
+                    --arg level "$LEVEL" \
+                    --arg ts "$TS" \
+                    '{username: "MAXNET Gateway", content: ("**[MAXNET - " + ($level|ascii_upcase) + "] " + $title + "**\n" + $msg + "\n*Time: " + $ts + "*")}')
+                ( curl -s -m 6 -H "Content-Type: application/json" -X POST -d "$DC_PAYLOAD" "$DC_URL" >/dev/null 2>&1 ) &
+            fi
+
+            # 3. ntfy.sh
+            NT_EN=$(jq -r '.ntfy.enabled // false' "$CONF_FILE" 2>/dev/null)
+            NT_URL=$(jq -r '.ntfy.topic_url // empty' "$CONF_FILE" 2>/dev/null)
+            if [ "$NT_EN" = "true" ] && [ -n "$NT_URL" ]; then
+                ( curl -s -m 6 -H "Title: MAXNET: $TITLE" -H "Priority: default" -d "$MSG" "$NT_URL" >/dev/null 2>&1 ) &
+            fi
+        fi
+    fi
+
+    echo '{"status":"ok","id":"'"$ID"'","message":"Alert dispatched successfully."}'
+    exit 0
+fi
+
+# ==================== ACTION: GET_NOTIFICATIONS ====================
+if [ "$ACTION" = "get_notifications" ]; then
+    init_notif
+    cat "$NOTIF_FILE"
+    exit 0
+fi
+
+# ==================== ACTION: DELETE_NOTIFICATION ====================
+if [ "$ACTION" = "delete_notification" ]; then
+    init_notif
+    DEL_ID=$(echo "$QUERY_STRING" | sed -n 's/^.*id=\([^&]*\).*$/\1/p')
+    [ -z "$DEL_ID" ] && DEL_ID=$(echo "$POST_DATA" | sed -n 's/.*"id"[ ]*:[ ]*"\([^"]*\)".*/\1/p')
+
+    if [ -n "$DEL_ID" ]; then
+        jq --arg id "$DEL_ID" 'map(select(.id != $id))' "$NOTIF_FILE" > "${NOTIF_FILE}.tmp" && mv "${NOTIF_FILE}.tmp" "$NOTIF_FILE"
+        echo '{"status":"ok","message":"Notification deleted."}'
+    else
+        echo '{"status":"error","message":"No notification ID specified."}'
+    fi
+    exit 0
+fi
+
+# ==================== ACTION: CLEAR_NOTIFICATIONS ====================
+if [ "$ACTION" = "clear_notifications" ]; then
+    echo "[]" > "$NOTIF_FILE"
+    echo '{"status":"ok","message":"All notifications cleared."}'
+    exit 0
+fi
+
+echo '{"status":"error","message":"Unknown action."}'
+exit 0
