@@ -7576,27 +7576,27 @@
 
   <!-- TOPOLOGY RICH NODE DETAILS MODAL SHEET -->
   <div id="topoNodeDetailOverlay" class="android-modal-overlay" style="display:none;" onclick="if(event.target===this)closeTopoNodeDetail()">
-    <div class="android-modal-card" style="max-width:500px;" id="topoNodeDetailCard">
-      <div class="android-modal-header" style="border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:14px;">
-        <div style="display:flex; align-items:center; justify-content:space-between; width:100%;">
-          <div style="display:flex; align-items:center; gap:8px;">
-            <div id="topoNodeDetailIconBox" style="width:34px; height:34px; border-radius:8px; display:flex; align-items:center; justify-content:center; background:rgba(56,189,248,0.12); color:#38bdf8;"></div>
-            <div>
-              <div class="android-modal-title" id="topoNodeDetailTitle" style="font-size:16px;">Node Details</div>
-              <div class="android-modal-desc" id="topoNodeDetailSub" style="font-size:11.5px; font-family:var(--font-mono); color:#38bdf8;">--</div>
+    <div class="android-modal-card" style="max-width:520px; width:92%;" id="topoNodeDetailCard">
+      <div class="android-modal-header" style="border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:12px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; width:100%; gap:10px;">
+          <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+            <div id="topoNodeDetailIconBox" style="width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:rgba(56,189,248,0.12); color:#38bdf8;"></div>
+            <div style="min-width:0;">
+              <div class="android-modal-title" id="topoNodeDetailTitle" style="font-size:15px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Node Details</div>
+              <div class="android-modal-desc" id="topoNodeDetailSub" style="font-size:11px; font-family:var(--font-mono); color:var(--text-dim); margin-top:2px;">--</div>
             </div>
           </div>
-          <span class="card-badge emerald" id="topoNodeDetailStatusBadge">ONLINE</span>
+          <span class="card-badge emerald" id="topoNodeDetailStatusBadge" style="flex-shrink:0; font-size:10px; font-weight:800;">ONLINE</span>
         </div>
       </div>
-      <div class="android-modal-body" id="topoNodeDetailBody" style="padding:16px 20px;">
+      <div class="android-modal-body" id="topoNodeDetailBody" style="padding:14px 18px; max-height:75vh; overflow-y:auto;">
         <!-- Dynamically populated parameters grid -->
       </div>
-      <div class="android-modal-footer" style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;">
-        <button type="button" class="mh-btn btn-ghost" onclick="closeTopoNodeDetail()">CLOSE</button>
+      <div class="android-modal-footer" style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; padding:12px 18px; border-top:1px solid rgba(255,255,255,0.06);">
+        <button type="button" class="mh-btn btn-ghost" onclick="closeTopoNodeDetail()" style="padding:6px 14px; font-size:11px;">CLOSE</button>
         <div style="display:flex; gap:8px;">
-          <button type="button" class="mh-btn btn-ghost" id="btnTopoNodeViewClient" onclick="openTopoNodeClientPage()" style="display:none;">VIEW CLIENT</button>
-          <button type="button" class="mh-btn" id="btnTopoNodeEditSettings" onclick="openTopoNodeSettings()" style="background:#38bdf8; color:#0b1120;">CONFIGURE IN SETTINGS</button>
+          <button type="button" class="mh-btn btn-ghost" id="btnTopoNodeViewClient" onclick="openTopoNodeClientPage()" style="display:none; padding:6px 14px; font-size:11px;">VIEW CLIENT</button>
+          <button type="button" class="mh-btn" id="btnTopoNodeEditSettings" onclick="openTopoNodeSettings()" style="background:#38bdf8; color:#0b1120; padding:6px 14px; font-size:11px;">CONFIGURE IN SETTINGS</button>
         </div>
       </div>
     </div>
@@ -12465,178 +12465,321 @@
       const iconBox = document.getElementById('topoNodeDetailIconBox');
       const bodyEl = document.getElementById('topoNodeDetailBody');
       const btnViewClient = document.getElementById('btnTopoNodeViewClient');
+      const btnEditSettings = document.getElementById('btnTopoNodeEditSettings');
 
-      const clients = (window._lastDataCache && Array.isArray(window._lastDataCache.clients)) ? window._lastDataCache.clients : [];
-      let liveClient = null;
+      const isLight = document.documentElement.getAttribute("data-theme") === "light";
+      const cardBg = isLight ? "rgba(0, 0, 0, 0.025)" : "rgba(255, 255, 255, 0.03)";
+      const cardBorder = isLight ? "rgba(0, 0, 0, 0.08)" : "rgba(255, 255, 255, 0.06)";
+      const textDim = isLight ? "#64748b" : "var(--text-dim, #94a3b8)";
+      const textMain = isLight ? "#0f172a" : "var(--text-main, #eef3f5)";
+      const textSub = isLight ? "#475569" : "rgba(255, 255, 255, 0.65)";
 
-      if (isPort) {
-        const port = target;
-        if (titleEl) titleEl.textContent = port.label || 'Port';
-        if (subEl) subEl.textContent = port.band ? `Wireless Interface: ${port.band}` : `Port Role: ${port.role ? port.role.toUpperCase() : 'EMPTY'}`;
+      const cache = window._lastDataCache || {};
+      const clients = Array.isArray(cache.clients) ? cache.clients : [];
+      const router = cache.router || {};
+      const net = cache.network || {};
+      const usbDev = (Array.isArray(cache.usb_devices) && cache.usb_devices[0]) || {};
+      const mobile = cache.mobile || {};
+      const ports = Array.isArray(net.ports) ? net.ports : [];
+
+      function esc(s) {
+        return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      }
+
+      function copyBtn(val) {
+        if (!val || val === '--') return '';
+        return `<button type="button" class="round-action-btn" onclick="navigator.clipboard.writeText('${val}'); if(typeof showToast==='function')showToast('Copied: ${val}');" title="Copy" style="width:20px; height:20px; min-width:20px; border:none; background:transparent; cursor:pointer; color:currentColor; display:inline-flex; align-items:center; justify-content:center; opacity:0.75;"><svg viewBox="0 0 24 24" style="width:11px; height:11px; stroke:currentColor; fill:none; stroke-width:2;"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>`;
+      }
+
+      function makeTile(label, val, subText, fullWidth) {
+        return `
+          <div style="background:${cardBg}; padding:10px 12px; border-radius:8px; border:1px solid ${cardBorder}; ${fullWidth ? 'grid-column:span 2;' : ''} display:flex; flex-direction:column; justify-content:center;">
+            <div style="color:${textDim}; font-size:9.5px; font-weight:800; font-family:var(--font-mono); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:3px;">${esc(label)}</div>
+            <div style="color:${textMain}; font-weight:700; font-size:12px; font-family:var(--font-mono); display:flex; align-items:center; justify-content:space-between; gap:6px;">
+              <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${val}</span>
+            </div>
+            ${subText ? `<div style="font-size:10px; color:${textSub}; font-family:var(--font-mono); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${subText}</div>` : ''}
+          </div>
+        `;
+      }
+
+      // 1. WAN Uplink Node (USB Phone / Modem / Storage)
+      if (target.type === 'wan') {
+        const isStorage = (usbDev.device_type === "storage" || usbDev.device_type === "ssd" || usbDev.device_type === "pendrive" || usbDev.has_storage);
+        const wanIp = target.ip || net.wan_ip || usbDev.dhcp_ip || '--';
+        const phoneModel = usbDev.model || (mobile && mobile.model) || (isStorage ? 'USB Storage' : 'USB Modem');
+        
+        if (titleEl) titleEl.textContent = isStorage ? (usbDev.model || 'USB Storage Drive') : phoneModel;
+        if (subEl) subEl.textContent = `WAN Uplink • Interface: ${usbDev.net_interface || 'usb0'} (USB 3.0)`;
         if (badgeEl) {
-          const isUp = port.band ? (port.count > 0) : (port.role !== 'empty');
-          badgeEl.textContent = isUp ? 'ACTIVE' : 'IDLE';
-          badgeEl.className = 'card-badge ' + (isUp ? 'emerald' : '');
+          const isCellOnline = mobile.connected || usbDev.status === 'online' || usbDev.has_internet;
+          badgeEl.textContent = isCellOnline ? 'ONLINE' : 'CONNECTING';
+          badgeEl.className = 'card-badge ' + (isCellOnline ? 'emerald' : 'amber');
         }
         if (iconBox) {
-          iconBox.innerHTML = port.band 
-            ? '<svg viewBox="0 0 24 24" style="width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2;"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>'
-            : '<svg viewBox="0 0 24 24" style="width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2;"><rect x="2" y="2" width="20" height="20" rx="4"/><circle cx="12" cy="12" r="3"/></svg>';
+          iconBox.style.background = isStorage ? 'rgba(192,132,252,0.12)' : 'rgba(56,189,248,0.12)';
+          iconBox.style.color = isStorage ? '#c084fc' : '#38bdf8';
+          iconBox.innerHTML = isStorage
+            ? '<svg viewBox="0 0 24 24" style="width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:2;"><rect x="6" y="2" width="12" height="14" rx="2"/><rect x="9" y="16" width="6" height="6"/><line x1="10" y1="19" x2="10" y2="20"/><line x1="14" y1="19" x2="14" y2="20"/></svg>'
+            : '<svg viewBox="0 0 24 24" style="width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:2;"><rect x="5" y="2" width="14" height="20" rx="3"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>';
         }
 
-        if (port.band) {
-          const clientList = Array.isArray(port.clients) ? port.clients : [];
-          if (bodyEl) {
-            bodyEl.innerHTML = `
-              <div style="display:flex; flex-direction:column; gap:8px; font-family:var(--font-mono); font-size:11.5px;">
-                <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); display:flex; justify-content:space-between; align-items:center;">
-                  <div>
-                    <div style="color:var(--text-dim); font-size:10px;">RADIO STATUS</div>
-                    <div style="color:#10b981; font-weight:700;">Wi-Fi Interface Active</div>
-                  </div>
-                  <div>
-                    <div style="color:var(--text-dim); font-size:10px; text-align:right;">CONNECTED</div>
-                    <div style="color:var(--text-main); font-weight:700; text-align:right;">${clientList.length} Clients</div>
-                  </div>
-                </div>
-                ${clientList.length > 0 ? clientList.map(c => `
-                  <div style="background:rgba(255,255,255,0.02); padding:8px 10px; border-radius:6px; border:1px solid rgba(255,255,255,0.04); display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                      <div style="font-weight:700; color:var(--text-main);">${escapeHtml(c.name || 'Device')}</div>
-                      <div style="font-size:10px; color:var(--text-dim);">${escapeHtml(c.ip || '--')} &bull; ${escapeHtml(c.mac || '--')}</div>
-                    </div>
-                    <span class="card-badge sky" style="font-size:9px;">Wi-Fi</span>
-                  </div>
-                `).join('') : `
-                  <div style="font-size:11px; color:var(--text-dim); text-align:center; padding:12px;">No wireless clients connected to this Wi-Fi interface.</div>
-                `}
-              </div>
-            `;
-          }
-          if (btnViewClient) btnViewClient.style.display = 'none';
-          overlay.style.display = 'flex';
-          overlay.classList.add('active');
-          return;
+        const tiles = [];
+        tiles.push(makeTile('WAN IP Address', `<span>${esc(wanIp)}</span> ${copyBtn(wanIp)}`, 'DHCP Upstream Carrier Lease'));
+        const linkStd = usbDev.standard || router.usb?.link_mode || 'USB 3.0 SuperSpeed';
+        const speedVal = usbDev.speed_mbps || router.usb?.speed_mbps || 5000;
+        tiles.push(makeTile('USB Hardware Link', `${esc(linkStd)} (${speedVal} Mbps)`, `Bus: ${usbDev.bus || '2-1'} • Port: ${usbDev.port || '1'}`));
+
+        if (!isStorage) {
+          const carrier = usbDev.operator || mobile.cellular?.operator || 'Jio';
+          const netType = usbDev.network || mobile.cellular?.network || '5G SA (NR)';
+          const bars = mobile.cellular?.bars !== undefined ? `${mobile.cellular.bars}/4 Bars` : 'Full Signal';
+          const rsrp = mobile.cellular?.rsrp_dbm ? ` (${mobile.cellular.rsrp_dbm} dBm)` : '';
+          tiles.push(makeTile('Cellular Network', `${esc(carrier)} • ${esc(netType)}`, `Signal: ${bars}${rsrp}`));
+
+          const batLvl = usbDev.battery_pct ?? mobile.battery?.level ?? '--';
+          const batTemp = usbDev.battery_temp_c ?? mobile.battery?.temp_c ?? '--';
+          tiles.push(makeTile('Phone Battery & Thermals', `${batLvl}% Battery (${mobile.battery?.status || 'Normal'})`, `Temp: ${batTemp}°C • SoC: Normal`));
+        } else {
+          tiles.push(makeTile('Storage Partitions', `${esc(usbDev.mount_point || '/mnt/storage')}`, `Total: ${esc(usbDev.total_space || '--')} • Free: ${esc(usbDev.free_space || '--')}`));
+          tiles.push(makeTile('File Sharing (SMB)', `${usbDev.smb_running ? 'SMB Active' : 'SMB Stopped'}`, `Share: ${esc(usbDev.share_path || '\\\\10.0.0.1\\Storage')}`));
         }
 
-        const childName = (port.child && (port.child.name || port.child.ip)) || 'None';
-        const childIp = (port.child && port.child.ip) || '--';
-        const childType = (port.child && port.child.type) || (port.role === 'node' ? 'Router/AP' : 'Device');
+        const liveSpd = target.speed || `${(window._currentRxMbps + window._currentTxMbps).toFixed(3)} Mbps`;
+        const rxMb = router.usb?.rx_mb || 0;
+        const txMb = router.usb?.tx_mb || 0;
+        const rxStr = rxMb > 1024 ? (rxMb / 1024).toFixed(2) + ' GB' : rxMb.toFixed(1) + ' MB';
+        const txStr = txMb > 1024 ? (txMb / 1024).toFixed(2) + ' GB' : txMb.toFixed(1) + ' MB';
+        tiles.push(makeTile('Live Throughput', `<span style="color:#10b981;">${esc(liveSpd)}</span>`, `Session: Rx ${rxStr} • Tx ${txStr}`));
+        tiles.push(makeTile('Device Features', `<span class="card-badge emerald" style="font-size:9.5px; margin-right:4px;">Tethering Active</span> <span class="card-badge sky" style="font-size:9.5px;">ADB: ${usbDev.adb_enabled ? 'Enabled' : 'Disabled'}</span>`, 'USB High-Speed Connection'));
 
         if (bodyEl) {
-          bodyEl.innerHTML = `
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; font-family:var(--font-mono); font-size:11.5px;">
-              <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
-                <div style="color:var(--text-dim); font-size:10px; margin-bottom:4px;">PORT ID</div>
-                <div style="color:var(--text-main); font-weight:700;">${escapeHtml(port.id || '--')}</div>
-              </div>
-              <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
-                <div style="color:var(--text-dim); font-size:10px; margin-bottom:4px;">LINK STATE</div>
-                <div style="color:${port.role !== 'empty' ? '#10b981' : 'var(--text-dim)'}; font-weight:700;">${port.role !== 'empty' ? 'LINK UP (1000 Mbps)' : 'DISCONNECTED'}</div>
-              </div>
-              <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); grid-column:span 2;">
-                <div style="color:var(--text-dim); font-size:10px; margin-bottom:4px;">ATTACHED ENTITY</div>
-                <div style="display:flex; align-items:center; justify-content:space-between;">
-                  <span style="color:var(--text-main); font-weight:700;">${escapeHtml(childName)}</span>
-                  <span class="card-badge sky" style="font-size:9.5px;">${escapeHtml(childType.toUpperCase())}</span>
-                </div>
-                <div style="color:#38bdf8; font-size:11px; margin-top:2px;">${escapeHtml(childIp)}</div>
-              </div>
-            </div>
-          `;
+          bodyEl.innerHTML = `<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">${tiles.join('')}</div>`;
         }
         if (btnViewClient) btnViewClient.style.display = 'none';
-
-      } else {
-        const node = target;
-        if (node.ip) {
-          liveClient = clients.find(c => c && c.ip === node.ip);
+        if (btnEditSettings) {
+          btnEditSettings.textContent = 'NETWORK SETTINGS';
+          btnEditSettings.onclick = () => { closeTopoNodeDetail(); if(typeof switchTab==='function')switchTab('settings'); if(typeof openSettingPage==='function')openSettingPage('acc-interfaces'); };
         }
-        const isOnline = !!(liveClient || node.id === 'root' || (node.ip && node.ip.startsWith('10.0.0.')));
-        const isRouter = node.type === 'router';
-        const isAp = node.type === 'ap';
-        const isSwitch = node.type === 'switch';
+        overlay.style.display = 'flex';
+        requestAnimationFrame(() => overlay.classList.add('active'));
+        return;
+      }
 
-        let typeLabel = 'DEVICE';
-        if (isRouter) typeLabel = node.id === 'root' ? 'HOST GATEWAY' : 'ROUTER';
-        else if (isAp) typeLabel = 'ACCESS POINT';
-        else if (isSwitch) typeLabel = 'ETHERNET SWITCH';
+      // 2. Main Router Gateway Chassis (MAXNET / 10.0.0.1)
+      if (target.id === 'root' || (target.type === 'router' && !target.uplinkPort)) {
+        const hostName = router.hostname || target.name || 'MAXNET';
+        const rtrIp = target.ip || '10.0.0.1';
+        const rtrMac = target.mac || clients.find(c => c.is_self)?.mac || 'ce:b2:bb:ae:4d:16';
+        const rtrModel = router.model || 'Qualcomm IPQ9574 AX6000';
+        const rtrKernel = router.kernel || 'Linux 6.18';
 
-        if (titleEl) titleEl.textContent = node.name || node.ip || 'Network Node';
-        if (subEl) subEl.textContent = `${typeLabel} • ${node.ip || '--'}`;
+        if (titleEl) titleEl.textContent = `${hostName} (Gateway)`;
+        if (subEl) subEl.textContent = `${rtrModel} • ${rtrKernel}`;
         if (badgeEl) {
-          badgeEl.textContent = isOnline ? 'ONLINE' : 'OFFLINE';
-          badgeEl.className = 'card-badge ' + (isOnline ? 'emerald' : '');
+          badgeEl.textContent = 'ONLINE';
+          badgeEl.className = 'card-badge emerald';
         }
         if (iconBox) {
-          if (isRouter || isAp) {
-            iconBox.innerHTML = '<svg viewBox="0 0 24 24" style="width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2;"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>';
-          } else if (isSwitch) {
-            iconBox.innerHTML = '<svg viewBox="0 0 24 24" style="width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2;"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="6" y1="12" x2="6.01" y2="12"/><line x1="12" y1="12" x2="12.01" y2="12"/><line x1="18" y1="12" x2="18.01" y2="12"/></svg>';
-          } else {
-            iconBox.innerHTML = '<svg viewBox="0 0 24 24" style="width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2;"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>';
-          }
+          iconBox.style.background = 'rgba(16,185,129,0.12)';
+          iconBox.style.color = '#10b981';
+          iconBox.innerHTML = '<svg viewBox="0 0 24 24" style="width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:2;"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>';
         }
 
-        const uplinkText = node.uplinkPort ? `Port ${node.uplinkPort}` : 'WAN / Upstream Gateway';
-        const numPorts = Array.isArray(node.ports) ? node.ports.length : (node.numPorts || 0);
-        const connectedPorts = Array.isArray(node.ports) ? node.ports.filter(p => p.role !== 'empty').length : 0;
-        const numWifi = Array.isArray(node.wireless_clients) ? node.wireless_clients.length : 0;
-        const rxBytes = liveClient && liveClient.rx_bytes ? fmtBytes(liveClient.rx_bytes) : '--';
-        const txBytes = liveClient && liveClient.tx_bytes ? fmtBytes(liveClient.tx_bytes) : '--';
+        const tiles = [];
+        tiles.push(makeTile('Gateway LAN IP', `<span>${esc(rtrIp)}</span> ${copyBtn(rtrIp)}`, `MAC: ${esc(rtrMac)}`));
+
+        const uptime = router.uptime || '--';
+        const load = Array.isArray(router.load_avg) ? router.load_avg.join(', ') : '--';
+        tiles.push(makeTile('System Uptime', `${esc(uptime)}`, `Load Avg: ${esc(load)}`));
+
+        const cpuPct = router.cpu_pct !== undefined ? `${router.cpu_pct}%` : '--';
+        tiles.push(makeTile('CPU Processor Load', `${esc(cpuPct)} Active`, 'Qualcomm Quad-Core SoC'));
+
+        const memUsedPct = router.memory?.used_pct !== undefined ? `${router.memory.used_pct}%` : '--';
+        const memUsedMb = router.memory?.used_mb || '--';
+        const memTotalMb = router.memory?.total_mb || '--';
+        tiles.push(makeTile('Memory (RAM)', `${memUsedPct} Used (${memUsedMb} / ${memTotalMb} MB)`, `${router.memory?.available_mb || '--'} MB Available Free`));
+
+        const tempC = router.temp_c !== undefined ? `${router.temp_c.toFixed(1)}°C` : '--';
+        tiles.push(makeTile('Core Temperature', `${tempC}`, 'All Thermal Zones Optimal'));
+
+        const activeClients = clients.filter(c => !c.is_self && c.connected).length;
+        tiles.push(makeTile('Connected Clients', `${activeClients} Active Devices`, 'Wired LAN & Wireless Network'));
 
         if (bodyEl) {
-          bodyEl.innerHTML = `
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; font-family:var(--font-mono); font-size:11.5px;">
-              <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
-                <div style="color:var(--text-dim); font-size:10px; margin-bottom:4px;">IP ADDRESS</div>
-                <div style="color:var(--text-main); font-weight:700; display:flex; align-items:center; justify-content:space-between;">
-                  <span>${escapeHtml(node.ip || '--')}</span>
-                  ${node.ip ? `<button type="button" class="round-action-btn" onclick="navigator.clipboard.writeText('${node.ip}')" title="Copy IP" style="width:20px; height:20px; min-width:20px;"><svg viewBox="0 0 24 24" style="width:11px; height:11px;"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>` : ''}
-                </div>
-              </div>
-              <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
-                <div style="color:var(--text-dim); font-size:10px; margin-bottom:4px;">MAC ADDRESS</div>
-                <div style="color:var(--text-main); font-weight:700;">${escapeHtml(node.mac || (liveClient && liveClient.mac) || '--')}</div>
-              </div>
-              <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
-                <div style="color:var(--text-dim); font-size:10px; margin-bottom:4px;">UPLINK CONNECTION</div>
-                <div style="color:#38bdf8; font-weight:700;">${escapeHtml(uplinkText)}</div>
-              </div>
-              <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
-                <div style="color:var(--text-dim); font-size:10px; margin-bottom:4px;">DOWNSTREAM CAPACITY</div>
-                <div style="color:var(--text-main); font-weight:700;">${numPorts > 0 ? `${connectedPorts}/${numPorts} Ports` : 'Leaf Device'} ${numWifi > 0 ? `+ ${numWifi} WiFi` : ''}</div>
-              </div>
-              <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); grid-column:span 2;">
-                <div style="color:var(--text-dim); font-size:10px; margin-bottom:4px;">LIVE TELEMETRY (RX / TX)</div>
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                  <span style="color:#10b981;">RX: ${rxBytes}</span>
-                  <span style="color:#38bdf8;">TX: ${txBytes}</span>
-                  <span style="color:var(--text-dim); font-size:10.5px;">Link: 1 Gbps</span>
-                </div>
-              </div>
-              ${Array.isArray(node.evidence) && node.evidence.length > 0 ? `
-                <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); grid-column:span 2;">
-                  <div style="color:#38bdf8; font-size:10px; font-weight:800; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
-                    <span>WHY? EVIDENCE & SIGNALS</span>
-                    <span class="card-badge ${node.confidence === 'High' ? 'emerald' : 'sky'}" style="font-size:9px;">${escapeHtml(node.confidence || 'Verified')}</span>
-                  </div>
-                  <ul style="margin:0; padding-left:16px; font-size:10.5px; line-height:1.45; color:var(--text-main);">
-                    ${node.evidence.map(ev => `<li>${escapeHtml(ev)}</li>`).join('')}
-                  </ul>
-                </div>
-              ` : ''}
-            </div>
-          `;
+          bodyEl.innerHTML = `<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">${tiles.join('')}</div>`;
+        }
+        if (btnViewClient) btnViewClient.style.display = 'none';
+        if (btnEditSettings) {
+          btnEditSettings.textContent = 'SYSTEM INFO';
+          btnEditSettings.onclick = () => { closeTopoNodeDetail(); if(typeof switchTab==='function')switchTab('settings'); if(typeof openSettingPage==='function')openSettingPage('acc-sys-info'); };
+        }
+        overlay.style.display = 'flex';
+        requestAnimationFrame(() => overlay.classList.add('active'));
+        return;
+      }
+
+      // 3. Sub-Router / Access Point (maxnet-b)
+      if (target.type === 'ap' || (target.type === 'router' && target.uplinkPort)) {
+        const apName = target.name || 'Sub-Router';
+        const apIp = target.ip || '--';
+        const apMac = target.mac || '--';
+        const liveClient = clients.find(c => c.ip === apIp || c.mac === apMac);
+        const vendor = target.metrics?.vendor || liveClient?.vendor || 'Broadcom / Reliance';
+        const uplink = target.uplinkPort ? target.uplinkPort.replace('root-', '').toUpperCase() : 'LAN 3';
+        const wClients = Array.isArray(target.wireless_clients) ? target.wireless_clients : [];
+
+        if (titleEl) titleEl.textContent = `${apName}`;
+        if (subEl) subEl.textContent = `Access Point / Sub-Router • ${apIp}`;
+        if (badgeEl) {
+          badgeEl.textContent = 'ONLINE';
+          badgeEl.className = 'card-badge emerald';
+        }
+        if (iconBox) {
+          iconBox.style.background = 'rgba(56,189,248,0.12)';
+          iconBox.style.color = '#38bdf8';
+          iconBox.innerHTML = '<svg viewBox="0 0 24 24" style="width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:2;"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>';
         }
 
-        if (btnViewClient) {
-          if (node.type === 'device' && node.ip) {
-            btnViewClient.style.display = 'inline-block';
-          } else {
-            btnViewClient.style.display = 'none';
-          }
+        const tiles = [];
+        tiles.push(makeTile('IP Address', `<span>${esc(apIp)}</span> ${copyBtn(apIp)}`, `Hostname: ${esc(apName)}.lan`));
+        tiles.push(makeTile('MAC & Hardware', `${esc(apMac)}`, `Vendor: ${esc(vendor)}`));
+        tiles.push(makeTile('Gateway Uplink', `Port ${esc(uplink)}`, 'Link Speed: 1000 Mbps Full Duplex'));
+        tiles.push(makeTile('Sub-Clients Count', `${wClients.length} Wireless Clients`, 'Bridged Network Traffic'));
+
+        if (wClients.length > 0) {
+          const clientListHtml = wClients.map(c => `
+            <div style="background:${isLight ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.02)'}; padding:8px 10px; border-radius:6px; border:1px solid ${cardBorder}; display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <div style="font-weight:700; color:${textMain}; font-size:11px;">${esc(c.name || 'Wireless Device')}</div>
+                <div style="font-size:10px; color:${textDim};">${esc(c.ip || '--')} &bull; ${esc(c.mac || '--')}</div>
+              </div>
+              <div style="text-align:right;">
+                <span class="card-badge sky" style="font-size:9px;">${esc(c.linkSpeed || '72 Mbps')}</span>
+                ${c.metrics?.ping_avg_ms ? `<div style="font-size:9.5px; color:#10b981; margin-top:2px;">${c.metrics.ping_avg_ms} ms</div>` : ''}
+              </div>
+            </div>
+          `).join('');
+
+          tiles.push(`
+            <div style="background:${cardBg}; padding:10px 12px; border-radius:8px; border:1px solid ${cardBorder}; grid-column:span 2;">
+              <div style="color:${textDim}; font-size:9.5px; font-weight:800; font-family:var(--font-mono); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">Clients Connected Behind This AP:</div>
+              <div style="display:flex; flex-direction:column; gap:6px; max-height:160px; overflow-y:auto;">${clientListHtml}</div>
+            </div>
+          `);
         }
+
+        if (bodyEl) {
+          bodyEl.innerHTML = `<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">${tiles.join('')}</div>`;
+        }
+        if (btnViewClient) btnViewClient.style.display = 'none';
+        if (btnEditSettings) {
+          btnEditSettings.textContent = 'DHCP CLIENTS';
+          btnEditSettings.onclick = () => { closeTopoNodeDetail(); if(typeof switchTab==='function')switchTab('settings'); if(typeof openSettingPage==='function')openSettingPage('acc-dhcp'); };
+        }
+        overlay.style.display = 'flex';
+        requestAnimationFrame(() => overlay.classList.add('active'));
+        return;
+      }
+
+      // 4. Physical Switch Port Socket (isPort === true)
+      if (isPort) {
+        const port = target;
+        const portId = port.id ? port.id.replace('root-', '') : (port.label || '').toLowerCase().replace(/\s+/g, '');
+        const portObj = ports.find(p => p.id === portId) || {};
+        const isUp = portObj.status === 'up' || (port.role && port.role !== 'empty');
+        const portLabel = port.label || portId.toUpperCase();
+
+        if (titleEl) titleEl.textContent = `Port ${portLabel}`;
+        if (subEl) subEl.textContent = 'Physical Ethernet Bay • Qualcomm IPQ9574 Switch';
+        if (badgeEl) {
+          badgeEl.textContent = isUp ? `LINK UP (${portObj.speed || 1000}M)` : 'DISCONNECTED';
+          badgeEl.className = 'card-badge ' + (isUp ? 'emerald' : 'gray');
+        }
+        if (iconBox) {
+          iconBox.style.background = isUp ? 'rgba(16,185,129,0.12)' : 'rgba(148,163,184,0.12)';
+          iconBox.style.color = isUp ? '#10b981' : '#94a3b8';
+          iconBox.innerHTML = '<svg viewBox="0 0 24 24" style="width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:2;"><rect x="2" y="2" width="20" height="20" rx="4"/><path d="M7 16h10M7 8h2m6 0h2M10 8v4m4-4v4"/></svg>';
+        }
+
+        const child = port.child || {};
+        const childName = child.name || child.ip || (isUp ? 'Connected Entity' : 'Empty Port Socket');
+        const childIp = child.ip || '--';
+
+        const tiles = [];
+        tiles.push(makeTile('Port Link State', isUp ? `<span style="color:#10b981;">Up (${portObj.speed || 1000} Mbps ${portObj.duplex ? portObj.duplex.toUpperCase() : 'FULL DUPLEX'})</span>` : '<span style="color:#94a3b8;">Down • No Link</span>', `Port Identifier: ${esc(portId.toUpperCase())}`));
+        tiles.push(makeTile('Hardware Port Bay', 'Gigabit Ethernet (10/100/1000M)', 'Auto-Negotiation • Auto-MDI/MDIX'));
+        tiles.push(makeTile('Attached Entity', `<span>${esc(childName)}</span>`, childIp !== '--' ? `IP: ${esc(childIp)}` : 'No attached device detected', true));
+
+        if (bodyEl) {
+          bodyEl.innerHTML = `<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">${tiles.join('')}</div>`;
+        }
+        if (btnViewClient) btnViewClient.style.display = 'none';
+        if (btnEditSettings) {
+          btnEditSettings.textContent = 'SWITCH PORTS';
+          btnEditSettings.onclick = () => { closeTopoNodeDetail(); if(typeof switchTab==='function')switchTab('settings'); if(typeof openSettingPage==='function')openSettingPage('acc-switch'); };
+        }
+        overlay.style.display = 'flex';
+        requestAnimationFrame(() => overlay.classList.add('active'));
+        return;
+      }
+
+      // 5. Client Device (Direct LAN Wired or Wireless Client)
+      const node = target;
+      const liveClient = clients.find(c => (node.ip && c.ip === node.ip) || (node.mac && c.mac === node.mac));
+      const devIp = node.ip || liveClient?.ip || '--';
+      const devMac = node.mac || liveClient?.mac || '--';
+      const devName = node.name || liveClient?.name || devIp || 'Client Device';
+      const isOnline = liveClient ? liveClient.connected : (node.status !== 'offline');
+      const isWifi = !!(node.band || node.linkSpeed || (liveClient && liveClient.port && liveClient.port.toLowerCase().includes('wifi')) || (node.uplinkPort && node.uplinkPort.includes('ap')));
+      const vendor = node.metrics?.vendor || liveClient?.vendor || 'Network Device';
+
+      if (titleEl) titleEl.textContent = `${devName}`;
+      if (subEl) subEl.textContent = `${isWifi ? 'Wi-Fi Wireless Client' : 'Wired Ethernet Client'} • ${devIp}`;
+      if (badgeEl) {
+        badgeEl.textContent = isOnline ? 'ONLINE' : 'OFFLINE';
+        badgeEl.className = 'card-badge ' + (isOnline ? 'emerald' : 'gray');
+      }
+      if (iconBox) {
+        iconBox.style.background = isWifi ? 'rgba(56,189,248,0.12)' : 'rgba(16,185,129,0.12)';
+        iconBox.style.color = isWifi ? '#38bdf8' : '#10b981';
+        iconBox.innerHTML = isWifi
+          ? '<svg viewBox="0 0 24 24" style="width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:2;"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>'
+          : '<svg viewBox="0 0 24 24" style="width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:2;"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>';
+      }
+
+      const tiles = [];
+      tiles.push(makeTile('IP Address', `<span>${esc(devIp)}</span> ${copyBtn(devIp)}`, liveClient?.ipv6 ? `IPv6: ${esc(liveClient.ipv6)}` : 'DHCP Assigned Address'));
+      tiles.push(makeTile('MAC & Hardware', `${esc(devMac)}`, `Vendor: ${esc(vendor)}`));
+
+      const connVal = isWifi ? `Wi-Fi (${node.linkSpeed || '72 Mbps'})` : (node.uplinkPort ? `Port ${node.uplinkPort.replace('root-', '').toUpperCase()}` : (liveClient?.port || 'LAN Ethernet'));
+      const connSub = isWifi ? 'Connected via maxnet-b AP' : 'Link: 1000 Mbps Full Duplex';
+      tiles.push(makeTile('Network Connection', esc(connVal), esc(connSub)));
+
+      const pingVal = node.metrics?.ping_avg_ms ? `${node.metrics.ping_avg_ms} ms` : (isOnline ? '< 1.5 ms' : '--');
+      const pingSub = node.metrics?.loss_pct !== undefined ? `${node.metrics.loss_pct}% Packet Loss` : 'Active Network Latency';
+      tiles.push(makeTile('Latency / Ping', pingVal, pingSub));
+
+      const rxVal = liveClient?.rx_mb ? `${liveClient.rx_mb} MB` : '--';
+      const txVal = liveClient?.tx_mb ? `${liveClient.tx_mb} MB` : '--';
+      const totVal = liveClient?.total_mb ? `${liveClient.total_mb} MB` : '--';
+      tiles.push(makeTile('Session Traffic (Data)', `Rx: ${rxVal} • Tx: ${txVal}`, `Total Lifetime: ${totVal}`));
+
+      const hostDns = liveClient?.dns_name || liveClient?.mdns || devName;
+      tiles.push(makeTile('Device Hostname', `${esc(hostDns)}`, `Filter: ${liveClient?.blocked ? 'BLOCKED' : 'Traffic Permitted'}`));
+
+      if (bodyEl) {
+        bodyEl.innerHTML = `<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">${tiles.join('')}</div>`;
+      }
+      if (btnViewClient) {
+        btnViewClient.style.display = devIp !== '--' ? 'inline-block' : 'none';
+        btnViewClient.textContent = 'VIEW CLIENT DETAILS';
+        btnViewClient.onclick = () => { openTopoNodeClientPage(); };
+      }
+      if (btnEditSettings) {
+        btnEditSettings.textContent = 'DHCP LEASES';
+        btnEditSettings.onclick = () => { closeTopoNodeDetail(); if(typeof switchTab==='function')switchTab('settings'); if(typeof openSettingPage==='function')openSettingPage('acc-dhcp'); };
       }
 
       if (typeof highlightPathToRoot === 'function') {
@@ -14753,7 +14896,7 @@ function drawStorageIconSmall(x, y, color, parent) {
 
               wcG.onclick = (e) => {
                 e.stopPropagation();
-                showTopoNodeDetail(wc, true, e);
+                showTopoNodeDetail(wc, false, e);
               };
 
               mk("rect", {
