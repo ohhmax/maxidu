@@ -53,7 +53,7 @@ fi
 
 [ -z "$ACTION" ] && ACTION="get"
 
-if [ "$ACTION" = "restart" ]; then
+if [ "$ACTION" = "restart" ] || [ "$ACTION" = "restart_modems" ]; then
     ifup wan_usb 2>/dev/null
     ifup wan_usb1 2>/dev/null
     /etc/init.d/network reload 2>/dev/null
@@ -61,7 +61,7 @@ if [ "$ACTION" = "restart" ]; then
     exit 0
 fi
 
-if [ "$ACTION" = "save" ]; then
+if [ "$ACTION" = "save" ] || [ "$ACTION" = "save_config" ]; then
     MODE=$(echo "$POST_DATA" | jq -r '.mode // "balanced"' 2>/dev/null)
     WATCHDOG=$(echo "$POST_DATA" | jq -r '.watchdog // 1' 2>/dev/null)
     PING_TARGET=$(echo "$POST_DATA" | jq -r '.ping_target // "1.1.1.1"' 2>/dev/null)

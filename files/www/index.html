@@ -8291,43 +8291,17 @@ GitHub: https://github.com/ohhmax | Email: max@maxnet.lan
                   </div>
                 </div>
 
-                <!-- USB WAN TETHERING SECTION -->
+                <!-- LINK TO DEDICATED USB WAN PANEL -->
                 <div class="setting-section-divider"></div>
-                <div class="setting-section-header">USB WAN Tethering</div>
+                <div class="setting-section-header">USB WAN Gateway</div>
 
-                <div class="setting-row-item">
+                <div class="setting-row-item setting-clickable-row" onclick="openSettingPage('acc-usb-wan')">
                   <div class="setting-label-col">
-                    <span class="setting-label-bold">USB WAN Tethering</span>
-                    <span class="setting-label-sub" id="dispUsbTetherState">State: Active (usb0) &bull; Primary upstream internet gateway over USB</span>
+                    <span class="setting-label-bold">USB WAN Settings</span>
+                    <span class="setting-label-sub">Configured in dedicated USB WAN panel &bull; Tap to configure</span>
                   </div>
-                  <div class="toggle-wrap-cell">
-                    <label class="toggle-switch">
-                      <input type="checkbox" id="usbTetherToggle" checked onchange="toggleUsbTethering(this.checked)">
-                      <span class="toggle-slider"></span>
-                    </label>
-                  </div>
-                </div>
-
-                <div class="setting-row-item">
-                  <div class="setting-label-col">
-                    <span class="setting-label-bold">Tethered Modem Details</span>
-                    <span class="setting-label-sub" id="dispUsbTetherDetails">Samsung Galaxy S21 FE 5G &bull; USB 3.0 (5 Gbps) &bull; IP: 10.228.157.164</span>
-                  </div>
-                  <div class="setting-control-col">
-                    <span class="setting-status-badge badge-active" id="dispUsbTetherBadge">5G SA ONLINE</span>
-                  </div>
-                </div>
-
-                <div class="setting-row-item">
-                  <div class="setting-label-col">
-                    <span class="setting-label-bold">Tethering DNS Forwarding</span>
-                    <span class="setting-label-sub">Forward upstream DNS queries to tethered phone gateway</span>
-                  </div>
-                  <div class="toggle-wrap-cell">
-                    <label class="toggle-switch">
-                      <input type="checkbox" id="usbTetherDnsToggle" checked onchange="toggleUsbTetherDns(this.checked)">
-                      <span class="toggle-slider"></span>
-                    </label>
+                  <div class="setting-arrow-col">
+                    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
                   </div>
                 </div>
 
@@ -8713,91 +8687,97 @@ GitHub: https://github.com/ohhmax | Email: max@maxnet.lan
           </div>
           <div class="accordion-content">
             <div class="settings-card-body">
-              <div class="setting-section-header">Active USB Modems &amp; Dongles</div>
-              <div id="usbWanDeviceListContainer" style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;">
-                <!-- Populated dynamically via renderUsbWanDevices -->
+              <div class="setting-section-header">Connected USB Modems</div>
+              <div id="usbWanDeviceListContainer" style="display:flex; flex-direction:column; gap:0;">
+                <!-- Populated dynamically via renderUsbWanDevices as standard setting-row-items -->
               </div>
 
               <div class="setting-section-divider"></div>
               <div class="setting-section-header">Multi-WAN Traffic Strategy</div>
-              <div style="display:flex; flex-direction:column; gap:4px;">
-                <div class="setting-row-item" id="usbLbModeRow" onclick="openSettingModal('usb_lb_mode')">
+              <div style="display:flex; flex-direction:column; gap:0;">
+                <div class="setting-row-item setting-clickable-row" id="usbLbModeRow" onclick="openSettingModal('usb_lb_mode')">
                   <div class="setting-label-col">
                     <span class="setting-label-bold">Multi-WAN Strategy</span>
                     <span class="setting-label-sub" id="usbLbModeVal">Balanced (Weighted Round-Robin)</span>
                   </div>
-                  <div class="setting-control-col">
-                    <button type="button" class="action-circle-btn" title="Configure Load Balancing"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+                  <div class="setting-arrow-col">
+                    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
                   </div>
                 </div>
 
                 <div class="setting-row-item">
                   <div class="setting-label-col">
-                    <span class="setting-label-bold">Connection Watchdog (Auto-Ping)</span>
-                    <span class="setting-label-sub">Monitors uplink health and switches to standby modem if primary fails</span>
+                    <span class="setting-label-bold">Connection Watchdog</span>
+                    <span class="setting-label-sub" id="usbWatchdogVal">Enabled</span>
                   </div>
-                  <div class="setting-control-col">
-                    <label class="toggle-switch"><input type="checkbox" id="usbWatchdogToggle" onchange="saveUsbWanConfig()"><span class="toggle-slider"></span></label>
+                  <div class="toggle-wrap-cell">
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="usbWatchdogToggle" onchange="saveUsbWanConfig()">
+                      <span class="toggle-slider"></span>
+                    </label>
                   </div>
                 </div>
 
-                <div class="setting-row-item" id="usbPingTargetRow" onclick="openSettingModal('usb_ping_target')">
+                <div class="setting-row-item setting-clickable-row" id="usbPingTargetRow" onclick="openSettingModal('usb_ping_target')">
                   <div class="setting-label-col">
                     <span class="setting-label-bold">Health Check Ping Target</span>
-                    <span class="setting-label-sub" id="usbPingTargetVal">1.1.1.1 (Cloudflare Anycast)</span>
+                    <span class="setting-label-sub" id="usbPingTargetVal">1.1.1.1</span>
                   </div>
-                  <div class="setting-control-col">
-                    <button type="button" class="action-circle-btn" title="Change Ping Target"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+                  <div class="setting-arrow-col">
+                    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
                   </div>
                 </div>
 
-                <div class="setting-row-item" onclick="openSettingModal('usb_ping_interval')">
+                <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('usb_ping_interval')">
                   <div class="setting-label-col">
                     <span class="setting-label-bold">Health Check Interval</span>
                     <span class="setting-label-sub" id="usbPingIntervalVal">15 Seconds</span>
                   </div>
-                  <div class="setting-control-col">
-                    <button type="button" class="action-circle-btn" title="Change Interval"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+                  <div class="setting-arrow-col">
+                    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
                   </div>
                 </div>
 
-                <div class="setting-row-item" onclick="openSettingModal('usb_dns_override')">
+                <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('usb_dns_override')">
                   <div class="setting-label-col">
-                    <span class="setting-label-bold">USB WAN DNS Servers</span>
-                    <span class="setting-label-sub" id="usbDnsOverrideVal">1.1.1.1, 8.8.8.8 (ISP Bypass)</span>
+                    <span class="setting-label-bold">DNS Nameservers</span>
+                    <span class="setting-label-sub" id="usbDnsOverrideVal">1.1.1.1, 8.8.8.8</span>
                   </div>
-                  <div class="setting-control-col">
-                    <button type="button" class="action-circle-btn" title="Configure DNS"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+                  <div class="setting-arrow-col">
+                    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
                   </div>
                 </div>
 
-                <div class="setting-row-item" onclick="openSettingModal('usb_tether_proto')">
+                <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('usb_tether_proto')">
                   <div class="setting-label-col">
                     <span class="setting-label-bold">Tethering Protocol Driver</span>
-                    <span class="setting-label-sub" id="usbTetherProtoVal">RNDIS (Android / Qualcomm standard)</span>
+                    <span class="setting-label-sub" id="usbTetherProtoVal">RNDIS</span>
                   </div>
-                  <div class="setting-control-col">
-                    <button type="button" class="action-circle-btn" title="Change Protocol"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+                  <div class="setting-arrow-col">
+                    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
                   </div>
                 </div>
 
                 <div class="setting-row-item">
                   <div class="setting-label-col">
                     <span class="setting-label-bold">Auto-Reconnect on Disconnect</span>
-                    <span class="setting-label-sub">Automatically restarts udhcpc on USB device replug</span>
+                    <span class="setting-label-sub" id="usbAutoReconnectVal">Enabled</span>
                   </div>
-                  <div class="setting-control-col">
-                    <label class="toggle-switch"><input type="checkbox" id="usbAutoReconnectToggle" checked onchange="saveUsbWanConfig()"><span class="toggle-slider"></span></label>
+                  <div class="toggle-wrap-cell">
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="usbAutoReconnectToggle" checked onchange="saveUsbWanConfig()">
+                      <span class="toggle-slider"></span>
+                    </label>
                   </div>
                 </div>
 
-                <div class="setting-row-item">
+                <div class="setting-row-item setting-clickable-row" onclick="restartUsbWanInterfaces()">
                   <div class="setting-label-col">
                     <span class="setting-label-bold">Restart USB Modems</span>
-                    <span class="setting-label-sub">Re-initialize USB network drivers, renew DHCP leases, and reset routing</span>
+                    <span class="setting-label-sub">Tap to restart modems &amp; renew DHCP</span>
                   </div>
-                  <div class="setting-control-col">
-                    <button type="button" class="mh-btn btn-sm" onclick="restartUsbWanInterfaces()" style="padding:6px 14px; font-size:11px; background:rgba(14,165,233,0.12); color:#38bdf8; border:1px solid rgba(14,165,233,0.3); font-weight:700; border-radius:6px;">RESTART</button>
+                  <div class="setting-arrow-col">
+                    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
                   </div>
                 </div>
               </div>
@@ -11834,8 +11814,10 @@ GitHub: https://github.com/ohhmax | Email: max@maxnet.lan
         }
 
         const wdToggle = document.getElementById('usbWatchdogToggle');
+        const wdVal = document.getElementById('usbWatchdogVal');
         if (wdToggle && data.load_balancing) {
           wdToggle.checked = !!data.load_balancing.watchdog;
+          if (wdVal) wdVal.textContent = data.load_balancing.watchdog ? 'Enabled' : 'Disabled';
         }
 
         const ptVal = document.getElementById('usbPingTargetVal');
@@ -11850,13 +11832,20 @@ GitHub: https://github.com/ohhmax | Email: max@maxnet.lan
 
         const dnsVal = document.getElementById('usbDnsOverrideVal');
         if (dnsVal && data.load_balancing) {
-          dnsVal.textContent = data.load_balancing.dns_override || '1.1.1.1 8.8.8.8';
+          dnsVal.textContent = data.load_balancing.dns_override || '1.1.1.1, 8.8.8.8';
         }
 
         const protoVal = document.getElementById('usbTetherProtoVal');
         if (protoVal && data.load_balancing) {
-          const p = data.load_balancing.tether_proto || 'rndis';
-          protoVal.textContent = p.toUpperCase() + ' (Android / Qualcomm standard)';
+          const p = (data.load_balancing.tether_proto || 'rndis').toUpperCase();
+          protoVal.textContent = p;
+        }
+
+        const arToggle = document.getElementById('usbAutoReconnectToggle');
+        const arVal = document.getElementById('usbAutoReconnectVal');
+        if (arToggle && data.load_balancing) {
+          arToggle.checked = !!data.load_balancing.auto_reconnect;
+          if (arVal) arVal.textContent = data.load_balancing.auto_reconnect ? 'Enabled' : 'Disabled';
         }
 
         renderUsbWanDevices(data.devices || []);
@@ -11871,8 +11860,11 @@ GitHub: https://github.com/ohhmax | Email: max@maxnet.lan
 
       if (!devices || devices.length === 0) {
         cont.innerHTML = `
-          <div style="background:rgba(255,255,255,0.02); border:1px dashed rgba(255,255,255,0.1); border-radius:8px; padding:14px; text-align:center; color:var(--text-dim); font-size:12px;">
-            No USB tethering modems or dongles detected. Plug in an Android phone or 4G/5G USB modem.
+          <div class="setting-row-item">
+            <div class="setting-label-col">
+              <span class="setting-label-bold">No USB Modems Detected</span>
+              <span class="setting-label-sub">Connect an Android phone or USB dongle</span>
+            </div>
           </div>
         `;
         return;
@@ -11880,33 +11872,19 @@ GitHub: https://github.com/ohhmax | Email: max@maxnet.lan
 
       cont.innerHTML = devices.map(d => {
         const isConn = d.present && d.status === 'connected';
-        const rxMb = (d.rx_bytes / (1024 * 1024)).toFixed(1);
-        const txMb = (d.tx_bytes / (1024 * 1024)).toFixed(1);
+        const subInfo = isConn
+          ? `${escapeHtml(d.ip || 'Connected')} &bull; Weight ${d.weight || 50}% &bull; ${escapeHtml(d.speed || 'USB 3.0')}`
+          : 'Disconnected / Standby';
 
         return `
-          <div style="background:rgba(255,255,255,0.03); border:1px solid ${isConn ? 'rgba(14,165,233,0.22)' : 'rgba(255,255,255,0.07)'}; border-radius:8px; padding:12px 14px; display:flex; flex-direction:column; gap:8px;">
-            <div style="display:flex; align-items:center; justify-content:space-between;">
-              <div style="display:flex; align-items:center; gap:8px;">
-                <span style="display:inline-block; width:7px; height:7px; border-radius:50%; background:${isConn ? '#38bdf8' : '#64748b'};"></span>
-                <strong style="font-size:12.5px; color:var(--text-main); font-family:var(--font-mono);">${escapeHtml(d.name)} (${escapeHtml(d.interface)})</strong>
-              </div>
-              <div style="display:flex; align-items:center; gap:6px;">
-                <span class="card-badge" style="font-size:10px; padding:2px 7px; background:${isConn ? 'rgba(14,165,233,0.12)' : 'rgba(255,255,255,0.05)'}; color:${isConn ? '#38bdf8' : 'var(--text-dim)'}; border:1px solid ${isConn ? 'rgba(14,165,233,0.3)' : 'rgba(255,255,255,0.1)'};">${d.status.toUpperCase()}</span>
-                <button type="button" class="action-circle-btn" style="width:26px; height:26px;" title="Edit USB Modem" onclick="openEditUsbDeviceModal('${escapeHtml(d.id)}')"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
-              </div>
+          <div class="setting-row-item setting-clickable-row" onclick="openEditUsbDeviceModal('${escapeHtml(d.id)}')">
+            <div class="setting-label-col">
+              <span class="setting-label-bold">${escapeHtml(d.name)} (${escapeHtml(d.interface)})</span>
+              <span class="setting-label-sub">${subInfo}</span>
             </div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size:11px; font-family:var(--font-mono); color:var(--text-dim);">
-              <div>IP: <span style="color:#38bdf8; font-weight:700;">${escapeHtml(d.ip || '--')}</span></div>
-              <div>MAC: <span>${escapeHtml(d.mac || '--')}</span></div>
-              <div>Weight: <span style="color:var(--text-main); font-weight:700;">${d.weight || 50}%</span> (Metric ${d.metric || 100})</div>
-              <div>Speed: <span>${escapeHtml(d.speed || 'USB 3.0')}</span></div>
+            <div class="setting-arrow-col">
+              <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
             </div>
-            ${isConn ? `
-              <div style="font-size:10.5px; font-family:var(--font-mono); color:var(--text-dim); border-top:1px solid rgba(255,255,255,0.05); padding-top:6px; display:flex; justify-content:space-between;">
-                <span>RX: <strong style="color:var(--text-main);">${rxMb} MB</strong> &bull; TX: <strong style="color:var(--text-main);">${txMb} MB</strong></span>
-                <span>Driver: ${escapeHtml(d.driver || 'rndis_host')}</span>
-              </div>
-            ` : ''}
           </div>
         `;
       }).join('');
@@ -11916,8 +11894,16 @@ GitHub: https://github.com/ohhmax | Email: max@maxnet.lan
       if (!_cachedUsbWanData) return;
       const wdToggle = document.getElementById('usbWatchdogToggle');
       const arToggle = document.getElementById('usbAutoReconnectToggle');
-      if (wdToggle) _cachedUsbWanData.load_balancing.watchdog = wdToggle.checked;
-      if (arToggle) _cachedUsbWanData.load_balancing.auto_reconnect = arToggle.checked;
+      const wdVal = document.getElementById('usbWatchdogVal');
+      const arVal = document.getElementById('usbAutoReconnectVal');
+      if (wdToggle) {
+        _cachedUsbWanData.load_balancing.watchdog = wdToggle.checked;
+        if (wdVal) wdVal.textContent = wdToggle.checked ? 'Enabled' : 'Disabled';
+      }
+      if (arToggle) {
+        _cachedUsbWanData.load_balancing.auto_reconnect = arToggle.checked;
+        if (arVal) arVal.textContent = arToggle.checked ? 'Enabled' : 'Disabled';
+      }
 
       try {
         const res = await fetch('/cgi-bin/usb_wan?action=save_config', {
@@ -11927,7 +11913,7 @@ GitHub: https://github.com/ohhmax | Email: max@maxnet.lan
         });
         const data = await res.json();
         if (data.status === 'ok') {
-          showNotificationToast('USB WAN configuration updated successfully');
+          showNotificationToast('USB WAN configuration updated');
           loadUsbWanConfig();
         } else {
           showNotificationToast('Failed to save USB WAN config: ' + (data.error || 'Unknown'), true);
