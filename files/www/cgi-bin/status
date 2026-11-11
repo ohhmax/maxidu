@@ -359,7 +359,13 @@ BEGIN {
       ip, c_ip6, mac, h, pt, v_nm, d_nm, m_nm, nb_nm, ll_nm, rx_mb, tx_mb, tot_mb, c_rx, c_tx, c_tot, conn_str, blk;
   }
 
-  while ((getline hline < "/etc/device_history_15d.json") > 0) {
+  hist_file = "/etc/device_history_30d.json";
+  if ((getline test_h < hist_file) <= 0) {
+    hist_file = "/etc/device_history_15d.json";
+  }
+  close(hist_file);
+
+  while ((getline hline < hist_file) > 0) {
     if (hline ~ /"mac":/ && hline ~ /"ip":/) {
       hmac = ""; hip = ""; hname = "";
       nh = split(hline, hp, "\"");
@@ -369,6 +375,7 @@ BEGIN {
         if (hp[k] == "name") hname = hp[k+2];
       }
       if (hmac != "" && !(hmac in all_macs) && hip != "" && hip != lan_ip && hmac != router_mac && hmac != "d2:61:fb:c9:5e:c5") {
+        all_macs[hmac] = 1;
         blk = ((hmac in is_blk) || (hip in is_blk)) ? "true" : "false";
         pt = (hmac in port) ? port[hmac] : "LAN 3";
         rx_mb = sprintf("%.2f", ((hmac in rx) ? rx[hmac] : 0) / 1048576);
@@ -384,7 +391,31 @@ BEGIN {
       }
     }
   }
-  close("/etc/device_history_15d.json");
+  close(hist_file);
+
+  # Ensure every device in /etc/blocked_clients.json is present in clients list
+  while ((getline bline < "/etc/blocked_clients.json") > 0) {
+    if (bline ~ /"ip":/ || bline ~ /"mac":/) {
+      bip = ""; bmac = ""; bname = "Blocked Device";
+      nb = split(bline, bp, "\"");
+      for (k = 1; k <= nb; k++) {
+        if (bp[k] == "ip") bip = bp[k+2];
+        if (bp[k] == "mac") bmac = tolower(bp[k+2]);
+        if (bp[k] == "name") bname = bp[k+2];
+      }
+      if (bmac != "" && !(bmac in all_macs) && bmac != router_mac) {
+        all_macs[bmac] = 1;
+        v_nm = get_vendor(bmac);
+        d_nm = (bname != "" && bname != "Device") ? tolower(bname) ".lan" : (bip ".lan");
+        m_nm = (bname != "" && bname != "Device") ? tolower(bname) ".local" : (bip ".local");
+        ll_nm = (bname != "" && bname != "Device") ? toupper(bname) : "DEVICE";
+        nb_nm = (bip in netbios_name) ? netbios_name[bip] : ll_nm;
+        printf ",{\"ip\":\"%s\",\"ipv6\":\"\",\"mac\":\"%s\",\"name\":\"%s\",\"port\":\"LAN\",\"vendor\":\"%s\",\"dns_name\":\"%s\",\"domain\":\"lan\",\"mdns\":\"%s\",\"netbios\":\"%s\",\"llmnr\":\"%s\",\"rx_mb\":\"0.00\",\"tx_mb\":\"0.00\",\"total_mb\":\"0.00\",\"rx_bytes\":0,\"tx_bytes\":0,\"total_bytes\":0,\"connected\":false,\"blocked\":true,\"status\":\"blocked\"}",
+          bip, bmac, bname, v_nm, d_nm, m_nm, nb_nm, ll_nm;
+      }
+    }
+  }
+  close("/etc/blocked_clients.json");
 
   printf "]";
 }')

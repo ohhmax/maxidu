@@ -82,6 +82,62 @@ if [ "$ACTION" = "del_lease" ]; then
     exit 0
 fi
 
+# ACTION: CONFIGURE WAN INTERFACE (DHCP / PPPOE / STATIC WITH CUSTOM MAC)
+if [ "$ACTION" = "set_wan" ]; then
+    WAN_P=$(echo "$POST_DATA" | jq -r '.proto // "dhcp"' 2>/dev/null)
+    WAN_U=$(echo "$POST_DATA" | jq -r '.username // empty' 2>/dev/null)
+    WAN_PW=$(echo "$POST_DATA" | jq -r '.password // empty' 2>/dev/null)
+    WAN_SRV=$(echo "$POST_DATA" | jq -r '.service // empty' 2>/dev/null)
+    WAN_MTU=$(echo "$POST_DATA" | jq -r '.mtu // empty' 2>/dev/null)
+    WAN_MAC=$(echo "$POST_DATA" | jq -r '.custom_mac // empty' 2>/dev/null | tr 'A-Z' 'a-z' | tr -cd '0-9a-f:')
+    WAN_IP_VAL=$(echo "$POST_DATA" | jq -r '.ipaddr // empty' 2>/dev/null)
+    WAN_NM=$(echo "$POST_DATA" | jq -r '.netmask // empty' 2>/dev/null)
+    WAN_GW=$(echo "$POST_DATA" | jq -r '.gateway // empty' 2>/dev/null)
+    WAN_DNS=$(echo "$POST_DATA" | jq -r '.dns // empty' 2>/dev/null)
+
+    if [ "$WAN_P" = "pppoe" ]; then
+        uci set network.wan.proto="pppoe"
+        uci set network.wan.username="$WAN_U"
+        uci set network.wan.password="$WAN_PW"
+        [ -n "$WAN_SRV" ] && uci set network.wan.service="$WAN_SRV" || uci -q delete network.wan.service
+        [ -n "$WAN_MTU" ] && [ "$WAN_MTU" -ge 576 ] && [ "$WAN_MTU" -le 1500 ] && uci set network.wan.mtu="$WAN_MTU" || uci set network.wan.mtu="1492"
+        uci -q delete network.wan.ipaddr
+        uci -q delete network.wan.netmask
+        uci -q delete network.wan.gateway
+    elif [ "$WAN_P" = "static" ]; then
+        uci set network.wan.proto="static"
+        [ -n "$WAN_IP_VAL" ] && uci set network.wan.ipaddr="$WAN_IP_VAL"
+        [ -n "$WAN_NM" ] && uci set network.wan.netmask="$WAN_NM"
+        [ -n "$WAN_GW" ] && uci set network.wan.gateway="$WAN_GW"
+        if [ -n "$WAN_DNS" ]; then
+            uci -q delete network.wan.dns
+            for s in $WAN_DNS; do uci add_list network.wan.dns="$s"; done
+        fi
+        uci -q delete network.wan.username
+        uci -q delete network.wan.password
+    else
+        uci set network.wan.proto="dhcp"
+        [ -n "$WAN_MTU" ] && [ "$WAN_MTU" -ge 576 ] && [ "$WAN_MTU" -le 1500 ] && uci set network.wan.mtu="$WAN_MTU" || uci set network.wan.mtu="1500"
+        uci -q delete network.wan.username
+        uci -q delete network.wan.password
+        uci -q delete network.wan.ipaddr
+        uci -q delete network.wan.netmask
+        uci -q delete network.wan.gateway
+    fi
+
+    # Custom MAC address for WAN (MAC Clone)
+    if [ "$WAN_MAC" = "reset" ] || [ "$WAN_MAC" = "default" ] || [ -z "$WAN_MAC" ]; then
+        uci -q delete network.wan.macaddr
+    elif is_valid_mac "$WAN_MAC"; then
+        uci set network.wan.macaddr="$WAN_MAC"
+    fi
+
+    uci commit network
+    (/sbin/ifup wan >/dev/null 2>&1) &
+    echo '{"status": "ok", "message": "WAN interface configuration applied successfully."}'
+    exit 0
+fi
+
 # ACTION: SET NETWORK SETTINGS
 if [ "$ACTION" = "set" ]; then
     LAN_IP=$(echo "$POST_DATA" | jq -r '.lan_ip // empty' 2>/dev/null)
@@ -114,7 +170,11 @@ if [ "$ACTION" = "set" ]; then
         uci -q set system.@system[0].hostname="$DEV_HOST"
         uci commit system
         echo "$DEV_HOST" > /proc/sys/kernel/hostname 2>/dev/null
+        h_lower=$(echo "$DEV_HOST" | tr 'A-Z' 'a-z')
         sed -i "s/127.0.0.1 localhost.*/127.0.0.1 localhost $DEV_HOST/" /etc/hosts 2>/dev/null
+        sed -i "/^10\.0\.0\.1 /d" /etc/hosts 2>/dev/null
+        echo "10.0.0.1 ${h_lower}.lan ${h_lower}.local ${DEV_HOST} maxnet.lan smb.lan disk.lan" >> /etc/hosts
+        killall -HUP dnsmasq 2>/dev/null
     fi
 
     # Custom MAC Address Override
@@ -261,12 +321,22 @@ LEASES_JSON=$(uci -q show dhcp | grep '=host$' | cut -d'=' -f1 | while read -r s
 done | jq -s .)
 [ -z "$LEASES_JSON" ] || [ "$LEASES_JSON" = "null" ] && LEASES_JSON="[]"
 
-# WAN status
+# WAN status & settings
 WAN_PROTO=$(uci -q get network.wan.proto || echo "dhcp")
+WAN_USER=$(uci -q get network.wan.username || echo "")
+WAN_SRV_VAL=$(uci -q get network.wan.service || echo "")
+WAN_MTU_VAL=$(uci -q get network.wan.mtu || echo "1500")
+WAN_CUST_MAC=$(uci -q get network.wan.macaddr || echo "")
+WAN_HW_MAC=$(cat /sys/class/net/wan/address 2>/dev/null || cat /sys/class/net/eth1/address 2>/dev/null || echo "ce:b2:bb:ae:4d:17")
 WAN_STATUS=$(ubus call network.interface.wan status 2>/dev/null || echo "{}")
 WAN_IP=$(echo "$WAN_STATUS" | jq -r '.["ipv4-address"][0].address // "--"' 2>/dev/null)
 [ -z "$WAN_IP" ] && WAN_IP="--"
 WAN_UP=$(echo "$WAN_STATUS" | jq -r '.up // false' 2>/dev/null)
+
+USB_WAN_IP=$(ip -4 -o addr show dev usb0 2>/dev/null | awk '{print $4}' | cut -d/ -f1 | head -n 1)
+[ -z "$USB_WAN_IP" ] && USB_WAN_IP="--"
+USB_WAN_MAC=$(cat /sys/class/net/usb0/address 2>/dev/null || echo "")
+USB_WAN_UP=$([ "$USB_WAN_IP" != "--" ] && echo true || echo false)
 
 DEV_HOST=$(uci -q get system.@system[0].hostname || cat /proc/sys/kernel/hostname 2>/dev/null || echo 'MAXNET')
 [ -z "$DEV_HOST" ] && DEV_HOST="MAXNET"
@@ -303,7 +373,56 @@ cat << JSON
   "wan": {
     "proto": "$WAN_PROTO",
     "ip": "$WAN_IP",
-    "up": $WAN_UP
-  }
+    "up": $WAN_UP,
+    "mtu": "$WAN_MTU_VAL",
+    "username": "$WAN_USER",
+    "service": "$WAN_SRV_VAL",
+    "custom_mac": "$WAN_CUST_MAC",
+    "hw_mac": "$WAN_HW_MAC"
+  },
+  "interfaces": [
+    {
+      "id": "lan",
+      "name": "LAN Bridge",
+      "device": "br-lan",
+      "proto": "static",
+      "ip": "$LAN_IP",
+      "netmask": "$NETMASK",
+      "mac": "$HW_MAC",
+      "mtu": "$MTU_VAL",
+      "up": true
+    },
+    {
+      "id": "wan_usb",
+      "name": "USB WAN Uplink",
+      "device": "usb0",
+      "proto": "dhcp",
+      "ip": "$USB_WAN_IP",
+      "mac": "$USB_WAN_MAC",
+      "mtu": "1400",
+      "up": $USB_WAN_UP
+    },
+    {
+      "id": "wan",
+      "name": "Physical WAN",
+      "device": "wan",
+      "proto": "$WAN_PROTO",
+      "ip": "$WAN_IP",
+      "mac": "${WAN_CUST_MAC:-$WAN_HW_MAC}",
+      "custom_mac": "$WAN_CUST_MAC",
+      "hw_mac": "$WAN_HW_MAC",
+      "mtu": "$WAN_MTU_VAL",
+      "username": "$WAN_USER",
+      "up": $WAN_UP
+    },
+    {
+      "id": "wan6",
+      "name": "IPv6 WAN",
+      "device": "usb0",
+      "proto": "dhcpv6",
+      "ip6": "$IPV6_WAN_ADDR",
+      "up": true
+    }
+  ]
 }
 JSON
