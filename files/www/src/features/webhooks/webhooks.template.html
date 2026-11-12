@@ -1,0 +1,344 @@
+<div class="settings-card settings-detail-panel accordion-item" id="acc-webhooks">
+          <div class="settings-card-header accordion-header" onclick="toggleAccordion('acc-webhooks')">
+            <div class="acc-title-left">
+              <div class="acc-icon-box" style="color:#0ea5e9;">
+                <svg class="svg-icon" viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+              </div>
+              <span class="acc-main-title">Webhooks</span>
+            </div>
+            <div class="acc-right-action">
+              <span class="card-badge emerald" id="webhookStatusBadge">ONLINE</span>
+              <svg class="svg-icon acc-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+          </div>
+          <div class="accordion-content">
+            <div class="settings-card-body">
+              <!-- MASTER TOGGLE -->
+              <div class="setting-section-header">Master Forwarding Control</div>
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Webhook Alerts Forwarding</span>
+                  <span class="setting-label-sub" id="dispWebhookMasterSub">Forward system alerts and event notifications externally</span>
+                </div>
+                <div class="toggle-wrap-cell">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="webhookMasterToggle" checked onchange="saveWebhooksConfig()">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- TELEGRAM INTEGRATION -->
+              <div class="setting-section-divider"></div>
+              <div class="setting-section-header">Telegram Bot Forwarding</div>
+
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Telegram Alerts</span>
+                  <span class="setting-label-sub" id="dispTgStatusSub">Forward alerts directly to your Telegram chat or channel</span>
+                </div>
+                <div class="toggle-wrap-cell">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="tgEnableToggle" onchange="saveWebhooksConfig()">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('webhook_tg_token')">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Telegram Bot Token</span>
+                  <span class="setting-label-sub" id="disp_webhook_tg_token">Click to configure Bot Token from @BotFather</span>
+                </div>
+                <div class="setting-arrow-col">
+                  <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+              </div>
+
+              <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('webhook_tg_chat_id')">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Telegram Chat ID</span>
+                  <span class="setting-label-sub" id="disp_webhook_tg_chat_id">Click to configure Chat or Channel ID</span>
+                </div>
+                <div class="setting-control-col" style="display:flex; align-items:center; gap:8px;">
+                  <button type="button" class="round-action-btn" title="Send Test Telegram Alert" onclick="event.stopPropagation(); testWebhookProvider('telegram', this)">
+                    <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  </button>
+                  <div class="setting-arrow-col">
+                    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                  </div>
+                </div>
+              </div>
+
+              <!-- DISCORD INTEGRATION -->
+              <div class="setting-section-divider"></div>
+              <div class="setting-section-header">Discord Webhook Forwarding</div>
+
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Discord Alerts</span>
+                  <span class="setting-label-sub" id="dispDiscordStatusSub">Post router event embeds into a Discord text channel</span>
+                </div>
+                <div class="toggle-wrap-cell">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="discordEnableToggle" onchange="saveWebhooksConfig()">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('webhook_discord_url')">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Discord Webhook URL</span>
+                  <span class="setting-label-sub" id="disp_webhook_discord_url">Click to configure https://discord.com/api/webhooks/...</span>
+                </div>
+                <div class="setting-control-col" style="display:flex; align-items:center; gap:8px;">
+                  <button type="button" class="round-action-btn" title="Send Test Discord Alert" onclick="event.stopPropagation(); testWebhookProvider('discord', this)">
+                    <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  </button>
+                  <div class="setting-arrow-col">
+                    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                  </div>
+                </div>
+              </div>
+
+              <!-- NTFY.SH INTEGRATION -->
+              <div class="setting-section-divider"></div>
+              <div class="setting-section-header">ntfy.sh Push Notifications</div>
+
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">ntfy.sh Mobile Push</span>
+                  <span class="setting-label-sub" id="dispNtfyStatusSub">Simple, open HTTP push alerts to Android / iOS devices</span>
+                </div>
+                <div class="toggle-wrap-cell">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="ntfyEnableToggle" onchange="saveWebhooksConfig()">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('webhook_ntfy_url')">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">ntfy Topic URL</span>
+                  <span class="setting-label-sub" id="disp_webhook_ntfy_url">https://ntfy.sh/maxnet-alerts</span>
+                </div>
+                <div class="setting-control-col" style="display:flex; align-items:center; gap:8px;">
+                  <button type="button" class="round-action-btn" title="Send Test ntfy Alert" onclick="event.stopPropagation(); testWebhookProvider('ntfy', this)">
+                    <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  </button>
+                  <div class="setting-arrow-col">
+                    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                  </div>
+                </div>
+              </div>
+
+              <!-- FORWARDED EVENT TRIGGERS -->
+              <div class="setting-section-divider"></div>
+              <div class="setting-section-header">Forwarded Event Triggers</div>
+
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">CPU Spikes (&gt; 85%)</span>
+                  <span class="setting-label-sub">Alert when router SoC processor exceeds 85% load threshold</span>
+                </div>
+                <div class="toggle-wrap-cell">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="evCpuToggle" checked onchange="saveWebhooksConfig()">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">New Device Connections</span>
+                  <span class="setting-label-sub">Alert when an unrecognized MAC or client joins the network</span>
+                </div>
+                <div class="toggle-wrap-cell">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="evDeviceToggle" checked onchange="saveWebhooksConfig()">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">PPPoE &amp; WAN Link Drops</span>
+                  <span class="setting-label-sub">Alert on broadband dialer termination or carrier drop</span>
+                </div>
+                <div class="toggle-wrap-cell">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="evWanToggle" checked onchange="saveWebhooksConfig()">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">DHCP &amp; IP Conflicts</span>
+                  <span class="setting-label-sub">Alert when DHCP pool is exhausted or lease collisions occur</span>
+                </div>
+                <div class="toggle-wrap-cell">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="evDhcpToggle" checked onchange="saveWebhooksConfig()">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Firmware &amp; OS Updates</span>
+                  <span class="setting-label-sub">Alert when a new MAXNET Gateway OS build is published</span>
+                </div>
+                <div class="toggle-wrap-cell">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="evUpdateToggle" checked onchange="saveWebhooksConfig()">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Security &amp; Brute-Force Bans</span>
+                  <span class="setting-label-sub">Alert on IP lockouts after repeated failed logins or scan floods</span>
+                </div>
+                <div class="toggle-wrap-cell">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="evSecurityToggle" checked onchange="saveWebhooksConfig()">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Router WebUI &amp; SSH Logins</span>
+                  <span class="setting-label-sub">Alert on administrator logins and invalid authentication attempts</span>
+                </div>
+                <div class="toggle-wrap-cell">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="evRouterLoginToggle" checked onchange="saveWebhooksConfig()">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Per-User High Data Consumption</span>
+                  <span class="setting-label-sub">Alert when a client device exceeds bandwidth/data quota threshold</span>
+                </div>
+                <div class="toggle-wrap-cell">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="evDataUsageToggle" checked onchange="saveWebhooksConfig()">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('webhook_data_quota')">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Data Quota Alert Threshold</span>
+                  <span class="setting-label-sub" id="disp_webhook_data_quota">1024 MB (1.0 GB)</span>
+                </div>
+                <div class="setting-arrow-col">
+                  <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+              </div>
+
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Ethernet Cable Plugged / Unplugged</span>
+                  <span class="setting-label-sub">Alert on physical LAN/WAN port cable link state changes</span>
+                </div>
+                <div class="toggle-wrap-cell">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="evLanPlugToggle" checked onchange="saveWebhooksConfig()">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">USB Device &amp; Modem Hotplug</span>
+                  <span class="setting-label-sub">Alert when USB modems, phones, or storage drives connect/disconnect</span>
+                </div>
+                <div class="toggle-wrap-cell">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="evUsbPlugToggle" checked onchange="saveWebhooksConfig()">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Router Reboot &amp; Power Events</span>
+                  <span class="setting-label-sub">Alert when router reboots or recovers from power loss/outage</span>
+                </div>
+                <div class="toggle-wrap-cell">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="evPowerToggle" checked onchange="saveWebhooksConfig()">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Custom IP Online / Offline Watchdog</span>
+                  <span class="setting-label-sub">Alert when monitored local or remote host IP goes offline/online</span>
+                </div>
+                <div class="toggle-wrap-cell">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="evCustomIpToggle" checked onchange="saveWebhooksConfig()">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('webhook_custom_ip')">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Monitored Watchdog Target IP</span>
+                  <span class="setting-label-sub" id="disp_webhook_custom_ip">10.0.0.2</span>
+                </div>
+                <div class="setting-arrow-col">
+                  <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+              </div>
+
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">18+ Adult Content Visit Detection</span>
+                  <span class="setting-label-sub">Alert when network clients query or access adult/restricted domains</span>
+                </div>
+                <div class="toggle-wrap-cell">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="evAdultToggle" checked onchange="saveWebhooksConfig()">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">WiFi Client Association &amp; Roaming</span>
+                  <span class="setting-label-sub">Alert on wireless client connect, disconnect, and deauth events</span>
+                </div>
+                <div class="toggle-wrap-cell">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="evWifiToggle" checked onchange="saveWebhooksConfig()">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>

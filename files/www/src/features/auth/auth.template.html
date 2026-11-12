@@ -1,0 +1,60 @@
+<div id="loginScreen" style="display:none; min-height:100vh; width:100%; flex-direction:column; justify-content:space-between; padding:28px 24px; background:var(--bg, #090b10); box-sizing:border-box;">
+
+    <!-- TOP BAR -->
+    <div style="display:flex; align-items:center; justify-content:space-between; width:100%; max-width:1160px; margin:0 auto;">
+      <div style="display:flex; flex-direction:column; gap:2px;">
+        <span id="loginDeviceHostTitle" style="font-size:15px; font-weight:900; letter-spacing:1.5px; font-family:var(--font-mono); color:var(--text-main); text-transform:uppercase;">MAXNET-GATEWAY</span>
+      </div>
+      <button onclick="toggleTheme()" class="btn-header-action" title="Toggle Theme">
+        <svg class="svg-icon" viewBox="0 0 24 24" style="width:14px; height:14px;"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.07" x2="5.64" y2="17.66"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+    </div>
+
+    <!-- CENTER LOGIN MODULE -->
+    <div style="width:100%; max-width:340px; margin:auto; padding:20px 0; display:flex; flex-direction:column; gap:16px;">
+      <div style="text-align:center; margin-bottom:4px;">
+        <h2 style="font-size:22px; font-weight:900; font-family:var(--font-mono); color:var(--text-main); margin:0; letter-spacing:1px; text-transform:uppercase;">Login</h2>
+      </div>
+
+      <div id="loginErrMsg" style="background:rgba(239,68,68,0.1); border:1px solid #ef4444; color:#ef4444; font-size:11px; padding:9px 12px; border-radius:6px; text-align:center; display:none; font-family:var(--font-mono);"></div>
+
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div class="mh-form-group" style="margin:0;">
+          <label class="mh-label" style="font-size:10px; text-transform:uppercase; letter-spacing:0.8px;">Username</label>
+          <input type="text" class="mh-input" id="loginUser" value="root" autocomplete="username" style="width:100%; box-sizing:border-box;">
+        </div>
+        <div class="mh-form-group" style="margin:0;">
+          <label class="mh-label" style="font-size:10px; text-transform:uppercase; letter-spacing:0.8px;">Password</label>
+          <input type="password" class="mh-input" id="loginPass" placeholder="Default: 1024" autocomplete="current-password" onkeydown="if(event.key==='Enter')submitLogin()" style="width:100%; box-sizing:border-box;">
+        </div>
+      </div>
+
+      <button class="login-submit-btn" onclick="submitLogin()" style="margin-top:4px;">
+        LOGIN
+      </button>
+    </div>
+
+    <!-- CLEAN EMPTY FOOTER PLACEHOLDER (NO BOTTOM BAR) -->
+    <div style="display:none;" id="loginFooter">
+      <div id="loginDevicesList"></div>
+      <div id="loginHealthContainer"><span id="loginHealthDot"></span><span id="loginOverallHealthBadge">GOOD</span></div>
+      <div id="loginSnapshotTs"></div>
+    </div>
+
+  </div>
+
+<div id="logoutConfirmModal" class="logout-modal-backdrop" style="display:none;" onclick="if(event.target === this) hideLogoutConfirm()">
+    <div class="logout-modal-card">
+      <div class="logout-modal-icon-wrap">
+        <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </div>
+      <div class="logout-modal-title">Sign Out of Gateway?</div>
+      <div class="logout-modal-desc">
+        Your active administrative session will be terminated and you will need to re-authenticate to access Gateway controls.
+      </div>
+      <div class="logout-modal-actions">
+        <button type="button" class="logout-modal-btn cancel" onclick="hideLogoutConfirm()">Keep Logged In</button>
+        <button type="button" class="logout-modal-btn confirm" onclick="logoutSession()">Log Out</button>
+      </div>
+    </div>
+  </div>

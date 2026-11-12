@@ -1,0 +1,101 @@
+/* ==============================================================================
+   MAXNET CYBERNETIC DESIGN SYSTEM - CORE VARIABLES
+   Author: Mahendra Mali (Max) | 2026
+   ============================================================================== */
+:root {
+  --bg: #080808;
+  --panel: #111113;
+  --panel-inner: #161618;
+  --usb3: #ffffff;
+  --usb2: #d4d4d8;
+  --wan: #e4e4e7;
+  --white: #ffffff;
+  --muted: #71717a;
+  --output-stroke: #ffffff;
+
+  --mh-gold: #ffffff;
+  --mh-cyan: #ffffff;
+  --mh-cyan-glow: rgba(255, 255, 255, 0.25);
+  --mh-cyan-dim: rgba(255, 255, 255, 0.08);
+  --mh-emerald: #ffffff;
+  --mh-emerald-glow: rgba(255, 255, 255, 0.25);
+  --mh-purple: #d4d4d8;
+  --mh-iris: #e4e4e7;
+  --mh-rose: #ffffff;
+  --mh-rose-glow: rgba(255, 255, 255, 0.25);
+
+  --body-bg-solid: #080808;
+  --body-bg-gradient: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.03) 0%, transparent 65%), #080808;
+
+  --card: #111319;
+  --card-bg: #111113;
+  --card-inner: #161618;
+  --card-hover: #1c1c20;
+
+  --border-main: rgba(255, 255, 255, 0.08);
+  --border-sub: rgba(255, 255, 255, 0.04);
+  --border-glow: rgba(255, 255, 255, 0.15);
+
+  --text-main: #ffffff;
+  --text-muted: #a1a1aa;
+  --text-dim: #71717a;
+
+  --radius-xl: 14px;
+  --radius-lg: 10px;
+  --radius-md: 8px;
+  --radius-sm: 5px;
+  --radius-full: 9999px;
+
+  --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--border-sub) inset;
+  --shadow-glow: 0 0 20px rgba(56, 189, 248, 0.12);
+  --shadow-dock: 0 12px 32px -4px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --font-family: -apple-system, BlinkMacSystemFont, "Plus Jakarta Sans", "Inter", "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, "JetBrains Mono", SFMono-Regular, Menlo, Monaco, monospace;
+  --trans-fast: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="light"],
+html[data-theme="light"],
+body[data-theme="light"] {
+  --bg: #f4f4f5;
+  --panel: #ffffff;
+  --panel-inner: #f4f4f5;
+  --usb3: #18181b;
+  --usb2: #52525b;
+  --wan: #3f3f46;
+  --white: #09090b;
+  --muted: #71717a;
+  --output-stroke: #09090b;
+
+  --mh-gold: #09090b;
+  --mh-cyan: #18181b;
+  --mh-cyan-glow: rgba(0, 0, 0, 0.12);
+  --mh-cyan-dim: rgba(0, 0, 0, 0.04);
+  --mh-emerald: #09090b;
+  --mh-emerald-glow: rgba(0, 0, 0, 0.12);
+  --mh-purple: #3f3f46;
+  --mh-iris: #52525b;
+  --mh-rose: #09090b;
+  --mh-rose-glow: rgba(0, 0, 0, 0.12);
+
+  --body-bg-solid: #f4f4f5;
+  --body-bg-gradient: none;
+
+  --card: #ffffff;
+  --card-bg: #ffffff;
+  --card-inner: #f4f4f5;
+  --card-hover: #fafafa;
+
+  --border-main: #e4e4e7;
+  --border-sub: #f4f4f5;
+  --border-glow: rgba(0, 0, 0, 0.12);
+
+  --text-main: #09090b;
+  --text-muted: #52525b;
+  --text-dim: #71717a;
+
+  --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+  --shadow-dock: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 0 0 1px #e4e4e7;
+}

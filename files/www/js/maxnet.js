@@ -1,17 +1,10 @@
-/*
-================================================================================
-MAXNET ENTERPRISE ROUTER OS & CYBERNETIC GATEWAY
-Engineered & Developed by Mahendra Mali - Max
-All Rights Reserved (c) 2026 Mahendra Mali - Max
-Donation & Support via UPI: 9824584454@ybl
-GitHub: https://github.com/ohhmax | Email: max@maxnet.lan
-================================================================================
-*/
 /* ==============================================================================
-   MAXNET UI DOM TEMPLATES
+   MAXNET ENTERPRISE ROUTER OS & CYBERNETIC GATEWAY
    Engineered & Developed by Mahendra Mali - Max (c) 2026
-   Donation & Support: 9824584454@ybl
+   Donation & Support via UPI: 9824584454@ybl
+   GitHub: https://github.com/ohhmax | Email: max@maxnet.lan
    ============================================================================== */
+
 const MAXNET_TEMPLATES = `
 </head>
 <body>
@@ -1565,7 +1558,6 @@ const MAXNET_TEMPLATES = `
                 <div style="display:flex; align-items:center; gap:8px;">
                   <span style="font-size:12px; font-weight:700; color:var(--text-main); font-family:var(--font-mono);" id="notifStatusSummary">All systems normal</span>
                 </div>
-
               </div>
 
               <!-- NOTIFICATIONS LIST CONTAINER -->
@@ -3917,23 +3909,16 @@ if (typeof window !== "undefined") {
     window.MAXNET_TEMPLATES = MAXNET_TEMPLATES;
 }
 
-
-
-/* ==============================================================================
-   MAXNET INSTANT-MOUNT ARCHITECTURE
-   Mounts DOM templates immediately on script execution for zero-latency paint
-   ============================================================================== */
 (function __maxnet_bootstrap() {
     if (typeof document !== "undefined") {
         const root = document.getElementById("maxnet-root") || document.body;
         if (root && !document.getElementById("loginScreen")) {
-            root.innerHTML = typeof MAXNET_TEMPLATES !== "undefined" ? MAXNET_TEMPLATES : "";
+            root.innerHTML = MAXNET_TEMPLATES;
         }
     }
 })();
 
-
-    let timer = null;
+let timer = null;
     let blockedIps = new Set();
     let currentThemeMode = localStorage.getItem('maxnet_theme_mode') || 'night';
     if (!localStorage.getItem('maxnet_theme_mode') && localStorage.getItem('maxnet_theme')) {
@@ -19295,5 +19280,6 @@ function onRemoveWifiClient(nodeId, clientIdent) {
     setInterval(() => {
       if (typeof checkForSystemFirmwareUpdates === 'function') checkForSystemFirmwareUpdates();
     }, 30 * 60 * 1000);
+
 
 
