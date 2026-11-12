@@ -17,6 +17,37 @@ fi
 cd "${BUILD_DIR}"
 
 echo "[*] Syncing custom MaxNet files and DTS overlays..."
+if [ -d "${CUSTOM_DIR}/frontend" ]; then
+    echo "[*] Building verified modern MAXNET UI..."
+    (
+        cd "${CUSTOM_DIR}/frontend"
+        npm run build
+    )
+
+    # Assertion Gate: verify dist is non-empty and contains valid bundle
+    DIST_INDEX="${CUSTOM_DIR}/files/www/dist/index.html"
+    if [ ! -s "${DIST_INDEX}" ] || [ ! -d "${CUSTOM_DIR}/files/www/dist/assets" ]; then
+        echo "[!] CRITICAL ERROR: Frontend build produced invalid or missing dist artifacts!"
+        exit 1
+    fi
+
+    # Verify minimum index.html size (> 1000 bytes) to prevent clobbering with stripped skeleton
+    INDEX_SIZE=$(stat -c%s "${DIST_INDEX}" 2>/dev/null || stat -f%z "${DIST_INDEX}")
+    if [ "${INDEX_SIZE}" -lt 1000 ]; then
+        echo "[!] CRITICAL ERROR: dist/index.html size (${INDEX_SIZE}B) indicates incomplete skeleton!"
+        exit 1
+    fi
+
+    echo "[*] Syncing verified modern distribution into files/www/..."
+    cp -a "${CUSTOM_DIR}/files/www/dist/." "${CUSTOM_DIR}/files/www/"
+fi
+
+echo "[*] Normalizing overlay permissions (0755 for CGI/dirs, 0644 for assets)..."
+chmod -R 0755 "${CUSTOM_DIR}/files/www/cgi-bin"
+chmod 0755 "${CUSTOM_DIR}/files/www/cgi-bin/"*
+find "${CUSTOM_DIR}/files/www" -type d -exec chmod 0755 {} +
+find "${CUSTOM_DIR}/files/www" -type f \( -name "*.html" -o -name "*.js" -o -name "*.css" -o -name "*.svg" -o -name "*.gz" \) -exec chmod 0644 {} +
+
 cp -r "${CUSTOM_DIR}/files" "${BUILD_DIR}/"
 mkdir -p "${BUILD_DIR}/target/linux/qualcommbe/dts/qcom/"
 cp -r "${CUSTOM_DIR}/target/linux/qualcommbe/"* "${BUILD_DIR}/target/linux/qualcommbe/"
