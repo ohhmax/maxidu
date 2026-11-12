@@ -83,6 +83,6 @@ echo "[*] Compiling OpenWrt Firmware (this will take time)..."
 make -j$(nproc)
 
 echo "========================================================"
-echo " [🎉] BUILD COMPLETE! Binaries located in:"
+echo " [+] BUILD COMPLETE! Binaries located in:"
 echo "      ${BUILD_DIR}/bin/targets/qualcommbe/ipq95xx/"
 echo "========================================================"

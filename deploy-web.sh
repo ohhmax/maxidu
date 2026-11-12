@@ -157,5 +157,5 @@ else
 fi
 
 echo "========================================================"
-echo " [🎉] SUCCESS: MAXNET UI Verified & Deployed to http://${ROUTER_IP}/"
+echo " [+] SUCCESS: MAXNET UI Verified & Deployed to http://${ROUTER_IP}/"
 echo "========================================================"
