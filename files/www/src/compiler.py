@@ -22,6 +22,7 @@ FEAT_DIR = os.path.join(SRC_DIR, "features")
 CSS_OUT = os.path.join(WWW_DIR, "css", "maxnet.css")
 M_JS_OUT = os.path.join(WWW_DIR, "m.js")
 MAXNET_JS_OUT = os.path.join(WWW_DIR, "js", "maxnet.js")
+ROOT_MAXNET_JS_OUT = os.path.join(WWW_DIR, "maxnet.js")
 INDEX_HTML = os.path.join(WWW_DIR, "index.html")
 INDEX_HTM = os.path.join(WWW_DIR, "index.htm")
 
@@ -203,11 +204,21 @@ if (typeof window !== "undefined") {{
         f.write(bundle)
     with open(MAXNET_JS_OUT, "w", encoding="utf-8") as f:
         f.write(bundle)
+    with open(ROOT_MAXNET_JS_OUT, "w", encoding="utf-8") as f:
+        f.write(bundle)
 
-    print(f"      Bundle m.js written: {len(bundle):,} bytes")
+    print(f"      Bundles written (m.js, maxnet.js): {len(bundle):,} bytes")
     run(f"node -c '{M_JS_OUT}'")
     run(f"node -c '{MAXNET_JS_OUT}'")
+    run(f"node -c '{ROOT_MAXNET_JS_OUT}'")
     print("      Node AST syntax verification passed with 0 errors.")
+
+    import gzip
+    for p in [M_JS_OUT, MAXNET_JS_OUT, ROOT_MAXNET_JS_OUT, CSS_OUT]:
+        gz_path = p + ".gz"
+        with open(p, "rb") as f_in, gzip.open(gz_path, "wb", compresslevel=9) as f_out:
+            shutil.copyfileobj(f_in, f_out)
+        print(f"      Pre-compressed: {os.path.basename(gz_path)} ({os.path.getsize(gz_path):,} bytes)")
 
 def build_html():
     print("[4/5] Generating zero-latency index.html & index.htm shells...")
@@ -278,9 +289,8 @@ GitHub: https://github.com/ohhmax | Email: max@maxnet.lan
     @keyframes m-spin { to { transform: rotate(360deg); } }
   </style>
 
-  <!-- Stylesheets -->
-  <link rel="stylesheet" href="/css/maxnet.css?v=2.6.0">
-  <link rel="stylesheet" href="/js/xterm/xterm.css">
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="/css/maxnet.css?v=2.7.0">
 </head>
 <body class="maxnet-shell">
   <!-- Minimalist SPA Root with Pure Centered Circle Loader -->
@@ -290,10 +300,8 @@ GitHub: https://github.com/ohhmax | Email: max@maxnet.lan
     </div>
   </div>
 
-  <!-- Terminal Addons & Core Orchestrator -->
-  <script src="/js/xterm/xterm.js"></script>
-  <script src="/js/xterm/xterm-addon-fit.js"></script>
-  <script src="/m.js?v=2.6.0" defer></script>
+  <!-- Ultra-Fast High-Performance Monolithic Application Orchestrator -->
+  <script src="/maxnet.js?v=2.7.0" defer></script>
 </body>
 </html>
 """

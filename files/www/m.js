@@ -4085,17 +4085,90 @@ let timer = null;
       }
     }
 
+    // Convert PEM SPKI public key to ArrayBuffer for Web Crypto API
+    function pemSpkiToArrayBuffer(pem) {
+      const cleanB64 = pem.replace(/-----[^\n]+-----/g, '').replace(/[\r\n\s]/g, '');
+      const raw = window.atob(cleanB64);
+      const buf = new Uint8Array(raw.length);
+      for (let i = 0; i < raw.length; i++) {
+        buf[i] = raw.charCodeAt(i);
+      }
+      return buf.buffer;
+    }
+
+    // Hardware-accelerated RSA-OAEP encryption for sensitive credentials (0% CPU impact)
+    async function encryptCredentials(user, pass) {
+      if (!window.crypto || !window.crypto.subtle) return null;
+      try {
+        const challengeRes = await fetch('/cgi-bin/auth?action=challenge', { cache: 'no-store' });
+        const challenge = await challengeRes.json();
+        if (!challenge || challenge.status !== 'ok' || !challenge.public_key || !challenge.nonce) {
+          return null;
+        }
+
+        const spkiBuf = pemSpkiToArrayBuffer(challenge.public_key);
+        const rsaKey = await window.crypto.subtle.importKey(
+          'spki',
+          spkiBuf,
+          { name: 'RSA-OAEP', hash: 'SHA-256' },
+          false,
+          ['encrypt']
+        );
+
+        const payloadStr = JSON.stringify({
+          user: user,
+          pass: pass,
+          nonce: challenge.nonce,
+          ts: challenge.timestamp || Date.now()
+        });
+
+        const enc = new TextEncoder();
+        const cipherBuf = await window.crypto.subtle.encrypt(
+          { name: 'RSA-OAEP' },
+          rsaKey,
+          enc.encode(payloadStr)
+        );
+
+        const bytes = new Uint8Array(cipherBuf);
+        let binary = '';
+        for (let i = 0; i < bytes.byteLength; i++) {
+          binary += String.fromCharCode(bytes[i]);
+        }
+        const b64Cipher = window.btoa(binary);
+
+        return {
+          action: 'login_encrypted',
+          payload: b64Cipher,
+          nonce: challenge.nonce
+        };
+      } catch (err) {
+        console.warn('Asymmetric credential encryption fell back:', err);
+        return null;
+      }
+    }
+
     async function submitLogin() {
       const u = document.getElementById('loginUser').value.trim();
       const p = document.getElementById('loginPass').value;
       const errMsg = document.getElementById('loginErrMsg');
+      const btn = document.getElementById('btnLogin');
       errMsg.style.display = 'none';
+      if (btn) btn.disabled = true;
 
       try {
+        let authPayload = null;
+        try {
+          authPayload = await encryptCredentials(u, p);
+        } catch (e) {}
+
+        if (!authPayload) {
+          authPayload = { action: 'login', user: u, pass: p };
+        }
+
         const res = await fetch('/cgi-bin/auth', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'login', user: u, pass: p })
+          body: JSON.stringify(authPayload)
         });
         const data = await res.json();
         if (data.status === 'ok') {
@@ -4108,6 +4181,8 @@ let timer = null;
       } catch (e) {
         errMsg.innerText = 'Authentication error. Check gateway connection.';
         errMsg.style.display = 'block';
+      } finally {
+        if (btn) btn.disabled = false;
       }
     }
 
@@ -4368,6 +4443,10 @@ let timer = null;
       } else if (id === 'acc-security') {
         document.body.classList.remove('terminal-active');
         if (typeof fetchSecuritySettings === 'function') fetchSecuritySettings();
+      } else if (id === 'acc-usb-wan') {
+        document.body.classList.remove('terminal-active');
+        if (typeof loadUsbWanSettings === 'function') loadUsbWanSettings();
+        if (typeof fetchUsbWanStatus === 'function') fetchUsbWanStatus();
       } else if (id === 'acc-adb-device') {
         document.body.classList.remove('terminal-active');
         if (typeof fetchAdbDeviceList === 'function') fetchAdbDeviceList();
@@ -17958,7 +18037,39 @@ function onRemoveWifiClient(nodeId, clientIdent) {
       } catch (e) {}
     }
 
-    function initNativeTerminal() {
+    function loadResource(tag, attrs) {
+      return new Promise((resolve, reject) => {
+        const el = document.createElement(tag);
+        Object.assign(el, attrs);
+        el.onload = () => resolve(el);
+        el.onerror = () => reject(new Error(`Failed to load ${attrs.src || attrs.href}`));
+        document.head.appendChild(el);
+      });
+    }
+
+    let _termLoadingPromise = null;
+    async function ensureTerminalEngine() {
+      if (typeof Terminal !== 'undefined' && typeof FitAddon !== 'undefined') {
+        return true;
+      }
+      if (_termLoadingPromise) return _termLoadingPromise;
+
+      _termLoadingPromise = (async () => {
+        if (!document.querySelector('link[href*="xterm.css"]')) {
+          await loadResource('link', { rel: 'stylesheet', href: '/js/xterm/xterm.css' });
+        }
+        if (typeof Terminal === 'undefined') {
+          await loadResource('script', { src: '/js/xterm/xterm.js' });
+        }
+        if (typeof FitAddon === 'undefined') {
+          await loadResource('script', { src: '/js/xterm/xterm-addon-fit.js' });
+        }
+        return true;
+      })();
+      return _termLoadingPromise;
+    }
+
+    async function initNativeTerminal() {
       const container = document.getElementById('terminalContainer');
       if (!container) return;
       document.body.classList.add('terminal-active');
@@ -17975,9 +18086,18 @@ function onRemoveWifiClient(nodeId, clientIdent) {
         return;
       }
 
-      if (typeof Terminal === 'undefined') {
-        container.innerHTML = '<div style="padding:14px; color:#ef4444; font-family:var(--font-mono); font-size:12px;">Terminal engine loading failed. Please refresh the page.</div>';
-        return;
+      if (typeof Terminal === 'undefined' || typeof FitAddon === 'undefined') {
+        container.innerHTML = `
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;min-height:220px;gap:12px;color:var(--text-sub);font-family:var(--font-mono);font-size:12px;">
+            <div class="m-spinner" style="width:28px;height:28px;border-width:2.5px;"></div>
+            <span>Loading Root Terminal Engine...</span>
+          </div>`;
+        try {
+          await ensureTerminalEngine();
+        } catch (err) {
+          container.innerHTML = '<div style="padding:14px; color:#ef4444; font-family:var(--font-mono); font-size:12px;">Failed to load terminal engine. Check network connection.</div>';
+          return;
+        }
       }
 
       const isDark = (typeof currentTheme !== 'undefined' && currentTheme === 'dark') ||
@@ -19280,6 +19400,7 @@ function onRemoveWifiClient(nodeId, clientIdent) {
     setInterval(() => {
       if (typeof checkForSystemFirmwareUpdates === 'function') checkForSystemFirmwareUpdates();
     }, 30 * 60 * 1000);
+
 
 
 

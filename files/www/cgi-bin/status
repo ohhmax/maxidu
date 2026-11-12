@@ -1,8 +1,22 @@
 #!/bin/sh
-echo "Content-Type: application/json"
-echo "Cache-Control: no-cache, no-store, must-revalidate"
-echo "Access-Control-Allow-Origin: *"
-echo ""
+send_response() {
+    if echo "$HTTP_ACCEPT_ENCODING" | grep -qi "gzip"; then
+        echo "Content-Type: application/json"
+        echo "Content-Encoding: gzip"
+        echo "Cache-Control: no-cache, no-store, must-revalidate"
+        echo "Access-Control-Allow-Origin: *"
+        echo ""
+        gzip -c -1
+    else
+        echo "Content-Type: application/json"
+        echo "Cache-Control: no-cache, no-store, must-revalidate"
+        echo "Access-Control-Allow-Origin: *"
+        echo ""
+        cat
+    fi
+}
+
+(
 
 # 1. Firmware info (Clean version without build number)
 FIRMWARE_VER=$(grep -o 'v2\.[0-9.]*' /etc/banner 2>/dev/null | head -n 1)
@@ -576,3 +590,4 @@ cat << JSON
   "mobile": ${MOBILE_JSON}
 }
 JSON
+) | send_response
