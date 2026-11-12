@@ -15018,12 +15018,18 @@ function onRemoveWifiClient(nodeId, clientIdent) {
       try {
         let updateAvailable = false;
         let latestVersion = 'v2.2.20';
+        let modelName = 'JioRouter AX6000';
+        let fileName = '';
         try {
-          const res = await fetch('/cgi-bin/system?action=check_update');
+          const res = await apiFetch('/cgi-bin/update');
           const data = await res.json();
-          if (data && data.update_available) {
+          if (data && data.status === 'update_available') {
             updateAvailable = true;
-            latestVersion = data.version || 'v2.2.21';
+            latestVersion = data.latest || 'v2.2.21';
+            modelName = data.model || modelName;
+            fileName = data.file || '';
+          } else if (data && data.model) {
+            modelName = data.model;
           }
         } catch (e) {}
 
@@ -15033,20 +15039,37 @@ function onRemoveWifiClient(nodeId, clientIdent) {
 
           if (updateAvailable) {
             if (pill) { pill.className = 'setting-pill pill-amber'; pill.textContent = `UPDATE: ${latestVersion}`; }
-            if (sub) sub.textContent = `New firmware ${latestVersion} ready for installation.`;
-            showToast(`Update found: ${latestVersion}!`, 'warning');
+            if (sub) sub.innerHTML = `<span style="color:#f59e0b; font-weight:700;">New ${escapeHtml(latestVersion)} ready for ${escapeHtml(modelName)}</span> &bull; <button type="button" class="mh-btn" style="padding:3px 10px; font-size:11px; font-weight:700; background:#38bdf8; color:#0f172a; border-radius:6px; cursor:pointer;" onclick="installSysupgradeUpdate('${escapeHtml(latestVersion)}')">FLASH NOW</button>`;
+            showToast(`Update found: ${latestVersion} for ${modelName}!`, 'warning');
           } else {
             if (pill) { pill.className = 'setting-pill pill-green'; pill.textContent = 'v2.2.20 UP TO DATE'; }
-            if (sub) sub.textContent = 'Router is running the latest stable release (Linux 6.18.60).';
-            showToast('Router gateway is up to date (v2.2.20)!', 'success');
+            if (sub) sub.textContent = `${modelName} is running the latest stable release.`;
+            showToast(`Router gateway (${modelName}) is up to date!`, 'success');
           }
-        }, 800);
+        }, 600);
       } catch (err) {
         if (icon) icon.classList.remove('spinning');
         if (btn) btn.classList.remove('btn-pulse');
         if (pill) { pill.className = 'setting-pill pill-green'; pill.textContent = 'v2.2.20 UP TO DATE'; }
-        if (sub) sub.textContent = 'Jio AX6000 Arcadyan Custom Firmware • Linux 6.18.60';
-        showToast('Router gateway is up to date (v2.2.20)!', 'success');
+        if (sub) sub.textContent = 'Jio AX6000 Custom Firmware • Up to date';
+        showToast('Router gateway is up to date!', 'success');
+      }
+    }
+
+    async function installSysupgradeUpdate(tag) {
+      if (!confirm(`Download and install firmware update (${tag}) for this router?\n\nThe update file tailored specifically for this hardware model will be verified and flashed.\nThe gateway will reboot automatically.`)) return;
+      showToast('Initiating model-specific sysupgrade flash...', 'info');
+      try {
+        const res = await apiFetch('/cgi-bin/update?action=flash');
+        const data = await res.json();
+        if (data.status === 'flashing') {
+          alert(`Firmware verified for ${data.model || 'router'}.\n\n` + data.message + '\n\nPlease wait 60-90 seconds while the device reboots.');
+          setTimeout(() => window.location.reload(), 60000);
+        } else {
+          alert('Update error: ' + (data.message || 'Unknown flash error'));
+        }
+      } catch (e) {
+        alert('Flash trigger request sent. Router will reboot if image verification succeeds.');
       }
     }
 
@@ -15568,6 +15591,7 @@ if (typeof window !== 'undefined') {
     drawTetheringIconSmall,
     drawAdbIconSmall,
     drawMtpIconSmall,
+    drawMobilePhoneIcon,
     drawPendriveIcon,
     drawStorageIconSmall,
     renderDeviceVerticalIcons,
@@ -15867,6 +15891,7 @@ if (typeof window !== 'undefined') {
     downloadKernelLog,
     showToast,
     checkLatestFirmwareUpdate,
+    installSysupgradeUpdate,
     confirmRebootRouter,
     checkUpdateStatus,
     executeFirmwareUpdate,
@@ -15983,6 +16008,7 @@ export {
   drawTetheringIconSmall,
   drawAdbIconSmall,
   drawMtpIconSmall,
+  drawMobilePhoneIcon,
   drawPendriveIcon,
   drawStorageIconSmall,
   renderDeviceVerticalIcons,
@@ -16282,6 +16308,7 @@ export {
   downloadKernelLog,
   showToast,
   checkLatestFirmwareUpdate,
+  installSysupgradeUpdate,
   confirmRebootRouter,
   checkUpdateStatus,
   executeFirmwareUpdate,
