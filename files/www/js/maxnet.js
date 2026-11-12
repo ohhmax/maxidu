@@ -1565,11 +1565,7 @@ const MAXNET_TEMPLATES = `
                 <div style="display:flex; align-items:center; gap:8px;">
                   <span style="font-size:12px; font-weight:700; color:var(--text-main); font-family:var(--font-mono);" id="notifStatusSummary">All systems normal</span>
                 </div>
-                <div style="display:flex; align-items:center; gap:8px;">
-                  <button type="button" class="mh-btn btn-ghost btn-sm" onclick="dispatchTestNotification()" style="font-size:11px; padding:6px 12px;">TEST ALERT</button>
-                  <button type="button" class="mh-btn btn-ghost btn-sm" onclick="clearAllNotifications()" style="font-size:11px; padding:6px 12px; color:#ef4444;">CLEAR ALL</button>
-                  <button type="button" class="mh-btn btn-sm" onclick="openSettingPage('acc-webhooks')" style="font-size:11px; padding:6px 12px; background:#0ea5e9; color:#fff; font-weight:700;">WEBHOOKS &rarr;</button>
-                </div>
+
               </div>
 
               <!-- NOTIFICATIONS LIST CONTAINER -->
@@ -17157,9 +17153,10 @@ function onRemoveWifiClient(nodeId, clientIdent) {
           }
 
           return `
-            <div class="notif-card" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-left:3px solid ${levelColor}; border-radius:8px; padding:12px 14px; display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
+            <div class="notif-card" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:8px; padding:12px 14px; display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
               <div style="flex:1; display:flex; flex-direction:column; gap:4px;">
                 <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                  <span style="width:7px; height:7px; border-radius:50%; background:${levelColor}; display:inline-block; flex-shrink:0; box-shadow:0 0 6px ${levelColor};"></span>
                   <span class="card-badge ${badgeCls}" style="font-size:9px; font-weight:800;">${escapeHtml(n.level || 'INFO').toUpperCase()}</span>
                   <span style="font-size:12.5px; font-weight:700; color:var(--text-main);">${escapeHtml(n.title || '')}</span>
                   <span style="font-size:10px; font-family:var(--font-mono); color:var(--text-dim); margin-left:auto;">${escapeHtml(n.timestamp || '')}</span>
@@ -17281,22 +17278,44 @@ function onRemoveWifiClient(nodeId, clientIdent) {
         localStorage.setItem('maxnet_known_macs', JSON.stringify([...known]));
       } catch (e) {}
 
-      // 4. Per-User High Data Consumption Alert
+      // 4. Per-User High Data Consumption Alert (Persistent & Anti-Refresh)
       const dataQuotaMB = (window._cachedWebhooksConfig && window._cachedWebhooksConfig.data_quota_mb) || 1024;
       const dataQuotaBytes = dataQuotaMB * 1024 * 1024;
-      window._notifiedClientDataQuota = window._notifiedClientDataQuota || new Set();
-      clients.forEach(c => {
-        const totalB = c.total_bytes || ((c.rx_bytes || 0) + (c.tx_bytes || 0)) || (((c.rx_mb || 0) + (c.tx_mb || 0)) * 1048576);
-        if (totalB >= dataQuotaBytes && c.mac && !window._notifiedClientDataQuota.has(c.mac)) {
-          window._notifiedClientDataQuota.add(c.mac);
-          dispatchAlertNotification({
-            title: `Data Quota Alert: ${c.name || c.ip}`,
-            message: `Client device ${c.name || 'Device'} (${c.ip}, MAC: ${c.mac}) has consumed ${fmtBytes(totalB)}, exceeding the ${dataQuotaMB} MB quota limit.`,
-            level: 'warning',
-            event_type: 'data_usage'
-          });
+      let notifiedData = window._notifiedClientDataQuota;
+      if (!notifiedData) {
+        try {
+          notifiedData = new Set(JSON.parse(localStorage.getItem('maxnet_notified_data_quota') || '[]'));
+        } catch (e) {
+          notifiedData = new Set();
         }
-      });
+        window._notifiedClientDataQuota = notifiedData;
+      }
+
+      if (window._isFirstDataScan === undefined) {
+        window._isFirstDataScan = true;
+        clients.forEach(c => {
+          if (c.mac) notifiedData.add(c.mac);
+        });
+        try {
+          localStorage.setItem('maxnet_notified_data_quota', JSON.stringify([...notifiedData]));
+        } catch (e) {}
+      } else {
+        clients.forEach(c => {
+          const totalB = c.total_bytes || ((c.rx_bytes || 0) + (c.tx_bytes || 0)) || (((c.rx_mb || 0) + (c.tx_mb || 0)) * 1048576);
+          if (totalB >= dataQuotaBytes && c.mac && !notifiedData.has(c.mac)) {
+            notifiedData.add(c.mac);
+            try {
+              localStorage.setItem('maxnet_notified_data_quota', JSON.stringify([...notifiedData]));
+            } catch (e) {}
+            dispatchAlertNotification({
+              title: `Data Quota Alert: ${c.name || c.ip}`,
+              message: `Client device ${c.name || 'Device'} (${c.ip}, MAC: ${c.mac}) has consumed ${fmtBytes(totalB)}, exceeding the ${dataQuotaMB} MB quota limit.`,
+              level: 'warning',
+              event_type: 'data_usage'
+            });
+          }
+        });
+      }
 
       // 5. LAN/WAN Ethernet Port Link State Changes
       const netPorts = (data.network && Array.isArray(data.network.ports)) ? data.network.ports : [];
