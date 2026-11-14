@@ -30,7 +30,7 @@
         </div>
         <div class="mh-form-group" style="margin:0;">
           <label class="mh-label" style="font-size:10px; text-transform:uppercase; letter-spacing:0.8px;">Password</label>
-          <input type="password" class="mh-input" id="loginPass" placeholder="Default: 1024" autocomplete="current-password" onkeydown="if(event.key==='Enter')submitLogin()" style="width:100%; box-sizing:border-box;">
+          <input type="password" class="mh-input" id="loginPass" placeholder="No password required" autocomplete="current-password" onkeydown="if(event.key==='Enter')submitLogin()" style="width:100%; box-sizing:border-box;">
         </div>
       </div>
 
@@ -83,21 +83,27 @@
           <svg id="usbBwSvg" role="img" aria-label="End-to-End Multi-Link Bandwidth Pipeline"></svg>
         </div>
 
-        <!-- REAL-TIME ROUTER TELEMETRY DOCK (0 CPU LOAD, REAL-TIME CPU %, RAM %, AVG TEMP) -->
+        <!-- REAL-TIME ROUTER TELEMETRY DOCK (0 CPU LOAD, REAL-TIME CPU %, PURE RAM %, ZRAM, AVG TEMP) -->
         <div class="topo-telemetry-dock" id="topoTelemetryDock">
-          <div class="topo-tele-item">
+          <div class="topo-tele-item" title="CPU Processor Load">
             <svg style="width:13px;height:13px;stroke:#38bdf8;fill:none;stroke-width:2;" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3m6-3v3M9 20v3m6-3v3M20 9h3m-3 6h3M1 9h3m-3 6h3"/></svg>
             <span>CPU</span>
             <span class="topo-tele-val" id="topoDockCpu" style="color:#38bdf8;">--%</span>
           </div>
           <div class="topo-tele-sep"></div>
-          <div class="topo-tele-item">
+          <div class="topo-tele-item" title="Pure Physical RAM Hardware Usage">
             <svg style="width:13px;height:13px;stroke:#10b981;fill:none;stroke-width:2;" viewBox="0 0 24 24"><path d="M6 19v-3m4 3v-6m4 3v-2m4 5V5"/><rect x="2" y="3" width="20" height="18" rx="2"/></svg>
             <span>RAM</span>
             <span class="topo-tele-val" id="topoDockRam" style="color:#10b981;">--%</span>
           </div>
           <div class="topo-tele-sep"></div>
-          <div class="topo-tele-item">
+          <div class="topo-tele-item" title="ZRAM Compressed Dynamic Swap Memory Pool">
+            <svg style="width:13px;height:13px;stroke:#a855f7;fill:none;stroke-width:2;" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+            <span>ZRAM</span>
+            <span class="topo-tele-val" id="topoDockZram" style="color:#a855f7;">--</span>
+          </div>
+          <div class="topo-tele-sep"></div>
+          <div class="topo-tele-item" title="Core SoC Temperature">
             <svg style="width:13px;height:13px;stroke:#f59e0b;fill:none;stroke-width:2;" viewBox="0 0 24 24"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>
             <span>TEMP</span>
             <span class="topo-tele-val" id="topoDockTemp" style="color:#f59e0b;">--°C</span>
@@ -137,6 +143,108 @@
         <button type="button" class="mh-btn" id="btnConfirmFactoryReset" disabled onclick="executeFactoryReset()" style="padding:7px 22px; font-size:12px; font-weight:800; background:rgba(239,68,68,0.2); color:rgba(255,255,255,0.4); border:1px solid rgba(239,68,68,0.4); cursor:not-allowed; transition:all 0.2s ease;">
           RESET GATEWAY (10s)
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== FIRMWARE FLASH MODAL (CLEAN & SIMPLE) ==================== -->
+  <div id="firmwareFlashModalOverlay" class="android-modal-overlay" style="display:none;" onclick="if(event.target===this)closeFirmwareFlashModal()">
+    <div class="android-modal-card" style="max-width:460px; width:92%;">
+      <div class="android-modal-header">
+        <div style="display:flex; align-items:center; justify-content:space-between; width:100%;">
+          <span class="android-modal-title">Firmware Upgrade</span>
+          <button type="button" class="btn-ghost" onclick="closeFirmwareFlashModal()" style="background:transparent; border:none; color:var(--text-dim); cursor:pointer; padding:4px;" aria-label="Close">
+            <svg viewBox="0 0 24 24" style="width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <span class="android-modal-desc" id="flashModalSubtitle">Install new firmware release on NAND storage</span>
+      </div>
+
+      <!-- Action Selection State -->
+      <div class="android-modal-body" id="flashModalContent" style="padding:16px 20px; font-size:12.5px; display:flex; flex-direction:column; gap:14px;">
+        <div style="display:flex; justify-content:space-between; padding:12px 14px; background:var(--bg-sub, rgba(255,255,255,0.03)); border:1px solid var(--border-sub, rgba(255,255,255,0.08)); border-radius:8px;">
+          <div>
+            <div style="font-size:10.5px; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Installed</div>
+            <div id="flashCurrentVer" style="font-size:13px; font-weight:700; color:var(--text-main); font-family:var(--font-mono);">v2.2.7-b7</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:10.5px; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Latest Build</div>
+            <div id="flashLatestVer" style="font-size:13px; font-weight:700; color:var(--primary, #10b981); font-family:var(--font-mono);">v2.2.10-b10</div>
+          </div>
+        </div>
+
+        <div style="font-size:11.5px; color:var(--text-muted); line-height:1.5;">
+          Target Image: <span id="flashFileName" style="color:var(--text-main); font-family:var(--font-mono);">maxnet-jidu6911-sysupgrade.bin</span> (<span id="flashFileSize">28.60 MB</span>)
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <button type="button" class="mh-btn btn-primary" onclick="startFirmwareFlash(false)" style="width:100%; justify-content:center; padding:10px 16px; font-size:12.5px; font-weight:700;">
+            Just Update (Keep Settings)
+          </button>
+          <button type="button" class="mh-btn btn-ghost" onclick="startFirmwareFlash(true)" style="width:100%; justify-content:center; padding:10px 16px; font-size:12.5px; font-weight:700;">
+            Clean Flash (Reset All Settings)
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Flashing Progress State -->
+      <div class="android-modal-body" id="flashProgressState" style="display:none; padding:24px 20px; flex-direction:column; align-items:center; text-align:center; gap:16px;">
+        <div class="m-spinner" style="width:40px; height:40px;"></div>
+        <div style="display:flex; flex-direction:column; gap:4px;">
+          <span style="font-size:14px; font-weight:800; color:var(--text-main);" id="flashProgressTitle">Downloading Firmware...</span>
+          <span style="font-size:12px; color:var(--text-muted); line-height:1.5;" id="flashProgressDesc">Starting background download from release mirror...</span>
+        </div>
+        <div style="width:100%; background:var(--bg-sub, rgba(255,255,255,0.08)); height:6px; border-radius:3px; overflow:hidden;">
+          <div id="flashProgressBar" style="width:5%; height:100%; background:var(--primary, #10b981); transition:width 0.4s ease;"></div>
+        </div>
+        <div style="font-family:var(--font-mono); font-size:11.5px; font-weight:700; color:var(--text-muted);" id="flashCountdownTimer">Please do not disconnect power</div>
+      </div>
+
+      <div class="android-modal-footer" id="flashModalFooter">
+        <button type="button" class="mh-btn btn-ghost" onclick="closeFirmwareFlashModal()" style="padding:7px 18px; font-size:12px; font-weight:700;">CANCEL</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== SAFE RAM BOOT MODAL (CLEAN & SIMPLE) ==================== -->
+  <div id="ramBootModalOverlay" class="android-modal-overlay" style="display:none;" onclick="if(event.target===this)closeRamBootModal()">
+    <div class="android-modal-card" style="max-width:480px; width:92%;">
+      <div class="android-modal-header">
+        <div style="display:flex; align-items:center; justify-content:space-between; width:100%;">
+          <span class="android-modal-title">Safe RAM Boot (.itb)</span>
+          <button type="button" class="btn-ghost" onclick="closeRamBootModal()" style="background:transparent; border:none; color:var(--text-dim); cursor:pointer; padding:4px;" aria-label="Close">
+            <svg viewBox="0 0 24 24" style="width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <span class="android-modal-desc">Test firmware directly in DDR RAM without flashing NAND</span>
+      </div>
+
+      <div class="android-modal-body" id="ramBootModalContent" style="padding:16px 20px; font-size:12px; display:flex; flex-direction:column; gap:14px;">
+        <p style="margin:0; color:var(--text-muted); line-height:1.5;">
+          Loads the entire operating system into volatile DDR RAM. Flash memory is untouched. If powered off, the router returns to its previous system with zero risk of bricking.
+        </p>
+
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <button type="button" class="mh-btn btn-primary" id="btnExecDirectRamBoot" onclick="executeDirectRamBoot()" style="width:100%; justify-content:center; padding:10px 16px; font-size:12.5px; font-weight:700;">
+            Reboot into RAM Boot Mode
+          </button>
+          <span style="font-size:10.5px; color:var(--text-dim); text-align:center;">Sets U-Boot bootcmd and restarts gateway</span>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:6px; border-top:1px solid var(--border-sub, rgba(255,255,255,0.08)); padding-top:12px;">
+          <span style="font-size:10.5px; font-weight:700; text-transform:uppercase; color:var(--text-muted);">TFTP Command</span>
+          <div style="display:flex; align-items:center; background:var(--bg-sub, rgba(0,0,0,0.4)); padding:8px 10px; border-radius:6px; font-family:var(--font-mono); font-size:11px; color:var(--text-main); justify-content:space-between; border:1px solid var(--border-sub, rgba(255,255,255,0.06));">
+            <span id="ramBootTftpCmd" style="user-select:all; word-break:break-all;">tftpboot 0x46000000 maxnet-jidu6911-initramfs.itb; bootm 0x46000000</span>
+            <button type="button" class="btn-ghost" onclick="copyTextToClipboard(document.getElementById('ramBootTftpCmd').textContent)" style="padding:2px 8px; font-size:10px; border:none; background:transparent; color:var(--primary, #10b981); cursor:pointer; font-weight:700;">COPY</button>
+          </div>
+          <a id="ramBootItbDownloadLink" href="#" target="_blank" class="mh-btn btn-ghost" style="width:100%; justify-content:center; padding:8px 14px; font-size:11.5px; font-weight:700; text-decoration:none; margin-top:4px;">
+            Download .itb Binary (<span id="ramBootItbSize">34.16 MB</span>)
+          </a>
+        </div>
+      </div>
+
+      <div class="android-modal-footer">
+        <button type="button" class="mh-btn btn-ghost" onclick="closeRamBootModal()" style="padding:7px 18px; font-size:12px; font-weight:700;">CLOSE</button>
       </div>
     </div>
   </div>
@@ -473,11 +581,27 @@
           <div class="settings-nav-card" id="card-pppoe" onclick="openSettingPage('acc-pppoe')" data-search="pppoe broadband wan isp dialer client server credentials access concentrator ac chap pap pppd">
             <div class="snc-left">
               <div class="snc-icon-box" style="color:#06b6d4;">
-                <svg viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+                <svg viewBox="0 0 24 24"><path d="M4 6h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-3v3H7v-3H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"/><line x1="8" y1="10" x2="8" y2="13"/><line x1="12" y1="10" x2="12" y2="13"/><line x1="16" y1="10" x2="16" y2="13"/></svg>
               </div>
               <div class="snc-info">
                 <span class="snc-title">PPPoE Broadband</span>
                 <span class="snc-desc">PPPoE Client dialer and high-performance PPPoE Server concentrator</span>
+              </div>
+            </div>
+            <div class="snc-right">
+              <svg class="snc-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+          </div>
+
+          <!-- Wi-Fi & Wireless Hotspot -->
+          <div class="settings-nav-card" id="card-wifi" onclick="openSettingPage('acc-wifi')" data-search="wifi wireless hotspot 2.4ghz 5ghz ssid password wpa2 wpa3 channel txpower bandwidth clients devices ap radio">
+            <div class="snc-left">
+              <div class="snc-icon-box" style="color:#10b981;">
+                <svg viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+              </div>
+              <div class="snc-info">
+                <span class="snc-title">Wi-Fi &amp; Hotspot</span>
+                <span class="snc-desc">Dual-band 2.4 GHz &amp; 5 GHz SSIDs, WPA3 encryption, channels, and client telemetry</span>
               </div>
             </div>
             <div class="snc-right">
@@ -709,8 +833,24 @@
             </div>
           </div>
 
+          <!-- Firmware & OS Updates -->
+          <div class="settings-nav-card" id="card-firmware" onclick="openSettingPage('acc-firmware')" data-search="firmware os updates sysupgrade ota ram boot itb flash changelog sha256 version build check update release">
+            <div class="snc-left">
+              <div class="snc-icon-box" style="color:#38bdf8;">
+                <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              </div>
+              <div class="snc-info">
+                <span class="snc-title">Firmware &amp; OS Updates</span>
+                <span class="snc-desc">OTA sysupgrade, release diagnostics, changelog, and Safe RAM Boot (.itb) testing</span>
+              </div>
+            </div>
+            <div class="snc-right">
+              <svg class="snc-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+          </div>
+
           <!-- 11. Maintenance -->
-          <div class="settings-nav-card" id="card-maintenance" onclick="openSettingPage('acc-maintenance')" data-search="maintenance reboot restart shutdown firmware upgrade backup restore factory reset logcat dmesg logs">
+          <div class="settings-nav-card" id="card-maintenance" onclick="openSettingPage('acc-maintenance')" data-search="maintenance reboot restart shutdown backup restore factory reset logcat dmesg logs">
             <div class="snc-left">
               <div class="snc-icon-box" style="color:#ef4444;">
                 <svg viewBox="0 0 24 24"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
@@ -1404,7 +1544,7 @@
           <div class="settings-card-header accordion-header" onclick="toggleAccordion('acc-pppoe')">
             <div class="acc-title-left">
               <div class="acc-icon-box" style="color:#06b6d4;">
-                <svg class="svg-icon" viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+                <svg class="svg-icon" viewBox="0 0 24 24"><path d="M4 6h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-3v3H7v-3H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"/><line x1="8" y1="10" x2="8" y2="13"/><line x1="12" y1="10" x2="12" y2="13"/><line x1="16" y1="10" x2="16" y2="13"/></svg>
               </div>
               <span class="acc-main-title">PPPoE Broadband</span>
             </div>
@@ -1525,6 +1665,196 @@
                     <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
                   </button>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DEDICATED WI-FI & WIRELESS HOTSPOT ACCORDION -->
+        <div class="settings-card settings-detail-panel accordion-item" id="acc-wifi">
+          <div class="settings-card-header accordion-header" onclick="toggleAccordion('acc-wifi')">
+            <div class="acc-title-left">
+              <div class="acc-icon-box" style="color:#06b6d4;">
+                <svg class="svg-icon" viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+              </div>
+              <span class="acc-main-title">Wi-Fi &amp; Hotspot</span>
+            </div>
+            <div class="acc-right-action">
+              <span class="card-badge" style="background:rgba(6,182,212,0.15); color:#06b6d4; border:1px solid rgba(6,182,212,0.3);">DUAL-BAND</span>
+              <svg class="svg-icon acc-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+          </div>
+          <div class="accordion-content">
+            <div class="settings-card-body">
+              <!-- MASTER WI-FI POWER SWITCH -->
+              <div class="setting-row-item" style="border-bottom:1px solid var(--border-sub, rgba(255,255,255,0.08)); padding-bottom:14px; margin-bottom:14px;">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Wi-Fi Gateway Master Power</span>
+                  <span class="setting-label-sub">Enable or disable all wireless transmitters dynamically</span>
+                </div>
+                <div class="setting-control-col">
+                  <label class="switch-toggle">
+                    <input type="checkbox" id="wifiMasterToggle" onchange="toggleWifiMasterPower(this.checked)">
+                    <span class="slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- 2.4 GHz BAND (QUALCOMM IPQ9574 WCSS) -->
+              <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-sub, rgba(255,255,255,0.08)); border-radius:12px; padding:16px; margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="font-size:13px; font-weight:800; color:var(--text-main);">2.4 GHz High-Efficiency (Wi-Fi 6)</span>
+                    <span class="setting-pill pill-cyan">HE20 / 2.4G</span>
+                  </div>
+                  <label class="switch-toggle">
+                    <input type="checkbox" id="wifi2gEnable" checked>
+                    <span class="slider"></span>
+                  </label>
+                </div>
+
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:14px;">
+                  <div>
+                    <label class="setting-label-bold" style="font-size:11px; margin-bottom:4px; display:block;">Network Name (SSID)</label>
+                    <input type="text" class="mh-input" id="wifi2gSsid" value="Maxnet_2.4Ghz" placeholder="e.g. Maxnet_2.4Ghz" style="width:100%; font-size:12px;">
+                  </div>
+                  <div>
+                    <label class="setting-label-bold" style="font-size:11px; margin-bottom:4px; display:block;">Security Mode</label>
+                    <select class="mh-input" id="wifi2gEnc" style="width:100%; font-size:12px;">
+                      <option value="psk2">WPA2-PSK (AES) - High Compatibility</option>
+                      <option value="sae">WPA3-SAE - Maximum Security</option>
+                      <option value="sae-mixed">WPA2/WPA3 Mixed</option>
+                      <option value="none">Open (No Security)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="setting-label-bold" style="font-size:11px; margin-bottom:4px; display:block;">Wi-Fi Password</label>
+                    <div style="position:relative; display:flex; align-items:center;">
+                      <input type="password" class="mh-input" id="wifi2gKey" value="" placeholder="Min 8 characters" style="width:100%; font-size:12px; padding-right:32px;">
+                      <button type="button" class="btn-ghost" onclick="togglePasswordVisibility('wifi2gKey', this)" style="position:absolute; right:6px; background:transparent; border:none; color:var(--text-dim); cursor:pointer; padding:4px;">
+                        <svg viewBox="0 0 24 24" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:2;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                      </button>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="setting-label-bold" style="font-size:11px; margin-bottom:4px; display:block;">Operating Channel</label>
+                    <select class="mh-input" id="wifi2gChannel" style="width:100%; font-size:12px;">
+                      <option value="1">Channel 1 (2412 MHz) - Standard</option>
+                      <option value="6">Channel 6 (2437 MHz)</option>
+                      <option value="11">Channel 11 (2462 MHz)</option>
+                      <option value="auto">Auto Select</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="setting-label-bold" style="font-size:11px; margin-bottom:4px; display:block;">Channel Bandwidth</label>
+                    <select class="mh-input" id="wifi2gHtmode" style="width:100%; font-size:12px;">
+                      <option value="HE20">HE20 (20 MHz - Best Stability &amp; Range)</option>
+                      <option value="HE40">HE40 (40 MHz - High Throughput)</option>
+                      <option value="HT20">HT20 (Legacy Compatibility)</option>
+                    </select>
+                  </div>
+                  <div style="display:flex; align-items:center; justify-content:space-between; padding-top:16px;">
+                    <div>
+                      <span class="setting-label-bold" style="font-size:11px; display:block;">Hide Network SSID</span>
+                      <span class="setting-label-sub" style="font-size:10px;">Do not broadcast name</span>
+                    </div>
+                    <label class="switch-toggle">
+                      <input type="checkbox" id="wifi2gHidden">
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 5 GHz BAND (QUALCOMM QCN9074 PINE) -->
+              <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-sub, rgba(255,255,255,0.08)); border-radius:12px; padding:16px; margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="font-size:13px; font-weight:800; color:var(--text-main);">5 GHz Ultra-Speed (Wi-Fi 6)</span>
+                    <span class="setting-pill pill-cyan">HE80/HE160 / 5G</span>
+                  </div>
+                  <label class="switch-toggle">
+                    <input type="checkbox" id="wifi5gEnable" checked>
+                    <span class="slider"></span>
+                  </label>
+                </div>
+
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:14px;">
+                  <div>
+                    <label class="setting-label-bold" style="font-size:11px; margin-bottom:4px; display:block;">Network Name (SSID)</label>
+                    <input type="text" class="mh-input" id="wifi5gSsid" value="Maxnet_5Ghz" placeholder="e.g. Maxnet_5Ghz" style="width:100%; font-size:12px;">
+                  </div>
+                  <div>
+                    <label class="setting-label-bold" style="font-size:11px; margin-bottom:4px; display:block;">Security Mode</label>
+                    <select class="mh-input" id="wifi5gEnc" style="width:100%; font-size:12px;">
+                      <option value="psk2">WPA2-PSK (AES) - High Compatibility</option>
+                      <option value="sae">WPA3-SAE - Maximum Security</option>
+                      <option value="sae-mixed">WPA2/WPA3 Mixed</option>
+                      <option value="none">Open (No Security)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="setting-label-bold" style="font-size:11px; margin-bottom:4px; display:block;">Wi-Fi Password</label>
+                    <div style="position:relative; display:flex; align-items:center;">
+                      <input type="password" class="mh-input" id="wifi5gKey" value="" placeholder="Min 8 characters" style="width:100%; font-size:12px; padding-right:32px;">
+                      <button type="button" class="btn-ghost" onclick="togglePasswordVisibility('wifi5gKey', this)" style="position:absolute; right:6px; background:transparent; border:none; color:var(--text-dim); cursor:pointer; padding:4px;">
+                        <svg viewBox="0 0 24 24" style="width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:2;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                      </button>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="setting-label-bold" style="font-size:11px; margin-bottom:4px; display:block;">Operating Channel</label>
+                    <select class="mh-input" id="wifi5gChannel" style="width:100%; font-size:12px;">
+                      <option value="36">Channel 36 (5180 MHz)</option>
+                      <option value="40">Channel 40 (5200 MHz)</option>
+                      <option value="44">Channel 44 (5220 MHz)</option>
+                      <option value="48">Channel 48 (5240 MHz)</option>
+                      <option value="149">Channel 149 (5745 MHz)</option>
+                      <option value="153">Channel 153 (5765 MHz)</option>
+                      <option value="157">Channel 157 (5785 MHz)</option>
+                      <option value="161">Channel 161 (5805 MHz)</option>
+                      <option value="auto">Auto Select</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="setting-label-bold" style="font-size:11px; margin-bottom:4px; display:block;">Channel Bandwidth</label>
+                    <select class="mh-input" id="wifi5gHtmode" style="width:100%; font-size:12px;">
+                      <option value="HE80">HE80 (80 MHz - Fast &amp; Wide Compatibility)</option>
+                      <option value="HE160">HE160 (160 MHz - Ultra Max Speed)</option>
+                      <option value="HE40">HE40 (40 MHz)</option>
+                      <option value="HE20">HE20 (20 MHz)</option>
+                    </select>
+                  </div>
+                  <div style="display:flex; align-items:center; justify-content:space-between; padding-top:16px;">
+                    <div>
+                      <span class="setting-label-bold" style="font-size:11px; display:block;">Hide Network SSID</span>
+                      <span class="setting-label-sub" style="font-size:10px;">Do not broadcast name</span>
+                    </div>
+                    <label class="switch-toggle">
+                      <input type="checkbox" id="wifi5gHidden">
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- CONNECTED WIRELESS CLIENTS -->
+              <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-sub, rgba(255,255,255,0.08)); border-radius:12px; padding:16px; margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                  <span style="font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.8px; color:var(--text-muted);">Connected Wireless Devices</span>
+                  <button type="button" class="round-action-btn" onclick="fetchWifiConfig()" style="width:26px; height:26px; min-width:26px;" title="Refresh Devices">
+                    <svg viewBox="0 0 24 24" style="width:13px; height:13px;"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                  </button>
+                </div>
+                <div id="wifiClientsContainer" style="display:flex; flex-direction:column; gap:8px;">
+                  <div style="padding:14px; text-align:center; color:var(--text-muted); font-size:11.5px;">No wireless devices currently connected.</div>
+                </div>
+              </div>
+
+              <!-- ACTION BAR -->
+              <div style="display:flex; justify-content:flex-end; gap:10px;">
+                <button type="button" class="mh-btn btn-ghost" onclick="fetchWifiConfig()" style="padding:8px 18px; font-size:12px; font-weight:700;">RESET FORM</button>
+                <button type="button" class="mh-btn btn-primary" onclick="saveWifiSettings()" style="padding:8px 22px; font-size:12px; font-weight:800;">APPLY WI-FI SETTINGS</button>
               </div>
             </div>
           </div>
@@ -2157,14 +2487,28 @@
                 </div>
               </div>
 
-              <!-- SECTION 2: MEMORY (RAM) -->
+              <!-- SECTION 2: MEMORY (RAM) & ZRAM -->
               <div class="setting-section-divider"></div>
-              <div class="setting-section-header">System Memory (RAM)</div>
+              <div class="setting-section-header">System Memory & ZRAM Swap</div>
 
               <div class="setting-row-item">
                 <div class="setting-label-col">
-                  <span class="setting-label-bold">Memory Allocation</span>
+                  <span class="setting-label-bold">Physical Hardware RAM (DDR4)</span>
                   <span class="setting-label-sub" id="sysRamSub">Used: -- MB &bull; Free: -- MB &bull; Avail: -- MB</span>
+                </div>
+              </div>
+
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">ZRAM Compressed Swap Engine</span>
+                  <span class="setting-label-sub" id="sysZramSub">Algorithm: LZO-RLE &bull; Pool: 215 MB &bull; Used: 0 MB &bull; Ratio: 1.00x</span>
+                </div>
+              </div>
+
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Total Working Memory Pool</span>
+                  <span class="setting-label-sub" id="sysMemPoolSub">Total: 648 MB &bull; Available: -- MB &bull; Active Usage: --%</span>
                 </div>
               </div>
 
@@ -2936,8 +3280,8 @@
                 <input type="text" id="dufsPathInput" value="/mnt/storage">
                 <input type="text" id="dufsAllowUpload" value="true">
                 <input type="text" id="dufsAllowDelete" value="true">
-                <input type="text" id="dufsUserInput" value="">
-                <input type="password" id="dufsPassInput" value="">
+                <input type="text" id="dufsUserInput" value="root">
+                <input type="password" id="dufsPassInput" value="admin">
               </div>
 
               <!-- SERVICE BANNER -->
@@ -3007,7 +3351,7 @@
               <div class="setting-row-item setting-clickable-row" onclick="openSettingModal('dufs_auth')">
                 <div class="setting-label-col">
                   <span class="setting-label-bold">WebDAV Access Authentication</span>
-                  <span class="setting-label-sub" id="disp_dufs_auth">Anonymous Public Access (No Password Required)</span>
+                  <span class="setting-label-sub" id="disp_dufs_auth">Authentication Enforced (Default: root / admin)</span>
                 </div>
                 <div class="setting-arrow-col">
                   <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
@@ -3479,6 +3823,84 @@
             </div></div>
         </div>
 
+        <!-- DEDICATED FIRMWARE & OS UPDATES ACCORDION -->
+        <div class="settings-card settings-detail-panel accordion-item" id="acc-firmware">
+          <div class="settings-card-header accordion-header" onclick="toggleAccordion('acc-firmware')">
+            <div class="acc-title-left">
+              <div class="acc-icon-box" style="color:#38bdf8;">
+                <svg class="svg-icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              </div>
+              <span class="acc-main-title">Firmware &amp; OS Updates</span>
+            </div>
+            <div class="acc-right-action">
+              <span class="card-badge" style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.3);">OS UPDATE</span>
+              <svg class="svg-icon acc-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+          </div>
+          <div class="accordion-content">
+            <div class="settings-card-body">
+              <!-- 1. FIRMWARE & RELEASE STATUS -->
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Firmware &amp; OS Updates</span>
+                  <span class="setting-label-sub" id="fwStatusSubtitle">
+                    Installed: <span id="fwCurrentVerBadge" style="font-weight:700;">v2.2.7-b7</span> &bull; Latest: <span id="fwLatestVerVal" style="font-weight:700;">v2.2.10-b10</span> &bull; <span id="fwModelVal">Jio JIDU6911</span>
+                  </span>
+                </div>
+                <div class="setting-control-col" style="display:flex; align-items:center; gap:8px;">
+                  <span id="fwUpdateStatusPill" class="setting-pill pill-green">UP TO DATE</span>
+                  <button class="round-action-btn" id="btnCheckFwPage" title="Check for New Releases" onclick="checkLatestFirmwareUpdate()">
+                    <svg id="iconCheckFwPage" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- 2. INSTALL FIRMWARE UPDATE (NAND FLASH) -->
+              <div class="setting-row-item" id="rowFwUpgradeAction" style="display:none;">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Install Firmware Update</span>
+                  <span class="setting-label-sub" id="fwSysupgradeSub">
+                    Download &amp; flash verified sysupgrade image (<span id="fwSizeVal">28.60 MB</span>) to NAND storage
+                  </span>
+                </div>
+                <div class="setting-control-col">
+                  <button type="button" class="mh-btn btn-primary" id="btnFwFlashDirect" onclick="openFirmwareFlashModal()" style="min-width:110px; font-weight:700; padding:7px 18px; font-size:12px;">
+                    UPGRADE
+                  </button>
+                </div>
+              </div>
+
+              <!-- 3. SAFE RAM BOOT (.itb) TEST -->
+              <div class="setting-row-item" id="rowFwRamBootAction" style="display:none;">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">Safe RAM Boot (.itb)</span>
+                  <span class="setting-label-sub">
+                    Test firmware in DDR RAM without flashing NAND memory (Zero brick risk)
+                  </span>
+                </div>
+                <div class="setting-control-col">
+                  <button type="button" class="mh-btn btn-ghost" id="btnFwRamBootTest" onclick="openRamBootModal()" style="min-width:110px; font-weight:700; padding:7px 18px; font-size:12px;">
+                    TEST IN RAM
+                  </button>
+                </div>
+              </div>
+
+              <!-- 4. SYSTEM ARCHITECTURE & DETAILS -->
+              <div class="setting-row-item">
+                <div class="setting-label-col">
+                  <span class="setting-label-bold">System Architecture</span>
+                  <span class="setting-label-sub">
+                    SoC: <span id="fwSocVal">Qualcomm IPQ9574 (AArch64)</span> &bull; Kernel: <span id="fwKernelVal">Linux 6.18.60</span> &bull; Flash: <span id="fwFlashVal">SPI-NAND UBI Dual-Slot</span>
+                  </span>
+                </div>
+                <div class="setting-control-col">
+                  <span class="setting-pill pill-cyan">ACTIVE</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- 6. MAINTENANCE & OPERATIONS -->
         <div class="settings-card settings-detail-panel accordion-item" id="acc-maintenance">
           <div class="settings-card-header accordion-header" onclick="toggleAccordion('acc-maintenance')">
@@ -3577,18 +3999,6 @@
                   </div>
                   <div class="setting-control-col">
                     <button class="mh-btn btn-danger btn-sm" onclick="uploadRestoreArchive()">FLASH &amp; REBOOT</button>
-                  </div>
-                </div>
-
-                <div class="setting-row-item">
-                  <div class="setting-label-col">
-                    <span class="setting-label-bold">Check Latest Updates</span>
-                    <span class="setting-label-sub" id="updateStatusSub"><span id="updateStatusPill">v2.2.20 Up to date</span> &bull; Arcadyan AX6000 Firmware</span>
-                  </div>
-                  <div class="setting-control-col">
-                    <button class="round-action-btn" id="btnCheckUpdate" title="Check for Latest Firmware Update" onclick="checkLatestFirmwareUpdate()">
-                      <svg id="iconCheckUpdate" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-                    </button>
                   </div>
                 </div>
 
