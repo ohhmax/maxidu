@@ -90,6 +90,12 @@ import {
   confirmRebootRouter,
   showFactoryResetModal,
   closeFactoryResetModal,
+  openFirmwareFlashModal,
+  closeFirmwareFlashModal,
+  openRamBootModal,
+  closeRamBootModal,
+  executeDirectRamBoot,
+  startFirmwareFlash,
   executeFactoryReset,
   downloadBackupArchive,
   handleRestoreFileChosen,
@@ -110,7 +116,15 @@ import {
   apiFetch,
   fetchDeviceInfo,
   fetchTailscale,
-  fetchAdbLiveTelemetry
+  fetchAdbLiveTelemetry,
+  fetchWifiConfig,
+  renderWifiClients,
+  saveWifiSettings,
+  scanNearbyWifi,
+  connectToWifiNetwork,
+  disconnectWifiWan,
+  toggleWifiMasterPower,
+  togglePasswordVisibility
 } from './maxnet-engine.js';
 
 // Helper aliases and inline handler adapters
@@ -229,6 +243,12 @@ if (typeof window !== 'undefined') {
   window.confirmRebootRouter = confirmRebootRouter;
   window.showFactoryResetModal = showFactoryResetModal;
   window.closeFactoryResetModal = closeFactoryResetModal;
+  window.openFirmwareFlashModal = openFirmwareFlashModal;
+  window.closeFirmwareFlashModal = closeFirmwareFlashModal;
+  window.openRamBootModal = openRamBootModal;
+  window.closeRamBootModal = closeRamBootModal;
+  window.executeDirectRamBoot = executeDirectRamBoot;
+  window.startFirmwareFlash = startFirmwareFlash;
   window.executeFactoryReset = executeFactoryReset;
   window.downloadBackupArchive = downloadBackupArchive;
   window.handleRestoreFileChosen = handleRestoreFileChosen;
@@ -255,9 +275,25 @@ if (typeof window !== 'undefined') {
   window.showNotificationToast = showNotificationToast;
   window.saveSmbGuestSetting = saveSmbGuestSetting;
   window.powerCycleUsbHub = powerCycleUsbHub;
+  window.fetchWifiConfig = fetchWifiConfig;
+  window.renderWifiClients = renderWifiClients;
+  window.saveWifiSettings = saveWifiSettings;
+  window.scanNearbyWifi = scanNearbyWifi;
+  window.connectToWifiNetwork = connectToWifiNetwork;
+  window.disconnectWifiWan = disconnectWifiWan;
+  window.toggleWifiMasterPower = toggleWifiMasterPower;
+  window.togglePasswordVisibility = togglePasswordVisibility;
 
   // Mass object assign
   Object.assign(window, {
+    fetchWifiConfig,
+    renderWifiClients,
+    saveWifiSettings,
+    scanNearbyWifi,
+    connectToWifiNetwork,
+    disconnectWifiWan,
+    toggleWifiMasterPower,
+    togglePasswordVisibility,
     submitLogin,
     logoutSession,
     hideLogoutConfirm,
@@ -462,6 +498,12 @@ export {
   confirmRebootRouter,
   showFactoryResetModal,
   closeFactoryResetModal,
+  openFirmwareFlashModal,
+  closeFirmwareFlashModal,
+  openRamBootModal,
+  closeRamBootModal,
+  executeDirectRamBoot,
+  startFirmwareFlash,
   executeFactoryReset,
   downloadBackupArchive,
   handleRestoreFileChosen,
@@ -487,5 +529,13 @@ export {
   filterAdbContacts,
   showNotificationToast,
   saveSmbGuestSetting,
-  powerCycleUsbHub
+  powerCycleUsbHub,
+  fetchWifiConfig,
+  renderWifiClients,
+  saveWifiSettings,
+  scanNearbyWifi,
+  connectToWifiNetwork,
+  disconnectWifiWan,
+  toggleWifiMasterPower,
+  togglePasswordVisibility
 };

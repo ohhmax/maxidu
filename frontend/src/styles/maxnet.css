@@ -4103,8 +4103,8 @@ body[data-theme="dark"] {
     }
     .usb-bw-container {
       position: relative;
-      width: 100vw;
-      max-width: 100vw;
+      width: 100%;
+      max-width: 100%;
       height: 100vh;
       max-height: 100vh;
       min-height: 100vh;
@@ -4117,7 +4117,7 @@ body[data-theme="dark"] {
       overflow: hidden !important;
       overscroll-behavior: none !important;
       touch-action: none;
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: width 0.28s cubic-bezier(0.16, 1, 0.3, 1), max-width 0.28s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .usb-bw-container::before {
       content: "";
@@ -4139,8 +4139,8 @@ body[data-theme="dark"] {
       position: fixed !important;
       inset: 0 !important;
       z-index: 99999 !important;
-      width: 100vw !important;
-      max-width: 100vw !important;
+      width: 100% !important;
+      max-width: 100% !important;
       height: 100vh !important;
       margin: 0 !important;
       padding: 14px 18px !important;
@@ -5082,6 +5082,22 @@ body[data-theme="dark"] {
       border-color: #f59e0b !important;
       color: #f59e0b !important;
       box-shadow: 0 0 14px rgba(245, 158, 11, 0.4) !important;
+    }
+    .round-action-btn.btn-flash-ready {
+      background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%) !important;
+      border-color: #7dd3fc !important;
+      color: #0f172a !important;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.65) !important;
+      animation: flashBtnReadyGlow 1.8s infinite ease-in-out !important;
+      cursor: pointer;
+    }
+    .round-action-btn.btn-flash-ready svg {
+      stroke: #0f172a !important;
+      stroke-width: 2.3 !important;
+    }
+    @keyframes flashBtnReadyGlow {
+      0%, 100% { box-shadow: 0 0 10px rgba(56, 189, 248, 0.45); transform: scale(1); }
+      50% { box-shadow: 0 0 22px rgba(56, 189, 248, 0.95); transform: scale(1.08); }
     }
     .round-action-btn.btn-pulse {
       animation: btnPulseAnim 0.35s ease;
@@ -6246,13 +6262,38 @@ body[data-theme="dark"] {
     }
     @media (max-width: 600px) {
       .topo-telemetry-dock {
-        gap: 8px;
-        padding: 5px 12px;
-        bottom: max(10px, env(safe-area-inset-bottom, 10px)) !important;
+        gap: 6px !important;
+        padding: 4px 10px !important;
+        max-width: calc(100vw - 20px) !important;
+        bottom: max(8px, env(safe-area-inset-bottom, 8px)) !important;
       }
       .topo-tele-item {
-        font-size: 10px;
-        gap: 3.5px;
+        font-size: 9.5px !important;
+        gap: 2.5px !important;
+      }
+      .topo-tele-item svg {
+        width: 11px !important;
+        height: 11px !important;
+      }
+      .topo-tele-val {
+        font-size: 9.5px !important;
+      }
+      .topo-tele-sep {
+        width: 2px !important;
+        height: 2px !important;
+      }
+    }
+    @media (max-width: 380px) {
+      .topo-telemetry-dock {
+        gap: 4px !important;
+        padding: 3px 8px !important;
+      }
+      .topo-tele-item {
+        font-size: 9px !important;
+        gap: 2px !important;
+      }
+      .topo-tele-item svg {
+        display: none !important;
       }
     }
     /* TOPOLOGY CANVAS BRAND META */
@@ -6496,6 +6537,10 @@ body[data-theme="dark"] {
         width: calc(100vw - min(480px, 44vw)) !important;
         max-width: calc(100vw - min(480px, 44vw)) !important;
         margin: 0 !important;
+      }
+      #dashboardContainer.settings-side-open .usb-bw-container {
+        width: 100% !important;
+        max-width: 100% !important;
       }
       #dashboardContainer.settings-side-open .topo-telemetry-dock {
         left: calc((100vw - min(480px, 44vw)) / 2) !important;
@@ -7463,7 +7508,75 @@ body[data-theme="dark"] {
       }
     }
 
-    /* ==================== NETWORK SETTINGS PRESETS & LEASES ==================== */
+    /* ==================== FIRMWARE FLASH MODAL STYLING & LIGHT MODE ==================== */
+    .firmware-modal-card {
+      max-width: 480px !important;
+      border: 1px solid rgba(56, 189, 248, 0.35) !important;
+      box-shadow: 0 16px 50px rgba(0, 0, 0, 0.65), 0 0 20px rgba(56, 189, 248, 0.2) !important;
+    }
+    [data-theme="light"] .firmware-modal-card {
+      background: #ffffff !important;
+      border: 1px solid rgba(2, 132, 199, 0.35) !important;
+      box-shadow: 0 16px 50px rgba(0, 0, 0, 0.12), 0 0 20px rgba(2, 132, 199, 0.1) !important;
+    }
+
+    .firmware-modal-header {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    }
+    [data-theme="light"] .firmware-modal-header {
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+    }
+
+    .flash-version-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+    [data-theme="light"] .flash-version-grid {
+      background: #f8fafc !important;
+      border: 1px solid #e2e8f0 !important;
+    }
+
+    .flash-meta-box {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+    [data-theme="light"] .flash-meta-box {
+      background: #f1f5f9 !important;
+      border: 1px solid #cbd5e1 !important;
+      color: #0f172a !important;
+    }
+
+    /* Modal typography in light mode */
+    [data-theme="light"] #flashCurrentVer {
+      color: #0f172a !important;
+    }
+    [data-theme="light"] #flashLatestVer {
+      color: var(--primary, #0284c7) !important;
+    }
+    [data-theme="light"] #flashFileName {
+      color: #0f172a !important;
+    }
+    [data-theme="light"] #flashSha256 {
+      color: #475569 !important;
+    }
+    [data-theme="light"] #firmwareFlashModalOverlay .android-modal-title {
+      color: #0f172a !important;
+    }
+    [data-theme="light"] #firmwareFlashModalOverlay .android-modal-desc {
+      color: #64748b !important;
+    }
     .dns-preset-pill {
       display: inline-flex;
       align-items: center;
