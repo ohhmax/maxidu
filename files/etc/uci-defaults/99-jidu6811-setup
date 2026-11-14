@@ -49,4 +49,10 @@ fi
 # Enable uhttpd web monitor on port 80
 [ -x /etc/init.d/uhttpd ] && /etc/init.d/uhttpd enable && /etc/init.d/uhttpd restart
 
+# Enable MAXNET Core Background Daemons & Services
+for s in trafficd maxnet_devices maxnet_storage multilinkd maxnet_alert_monitor maxnet_health_watchdog phone_telemetry ttyd dufs; do
+	[ -x "/etc/init.d/$s" ] && /etc/init.d/"$s" enable 2>/dev/null && /etc/init.d/"$s" start 2>/dev/null || true
+done
+[ -x /etc/init.d/samba4 ] && /etc/init.d/samba4 enable 2>/dev/null || true
+
 exit 0

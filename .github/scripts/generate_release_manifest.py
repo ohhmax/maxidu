@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""Generates unified manifest.json and standard sysupgrade filenames for all Jio router models.
-Enables instant, model-specific OTA firmware updates from the router WebUI.
+"""Generates unified manifest.json and standard binaries (sysupgrade.bin & factory.ubi/bin)
+for all Jio router models. Completely eliminates obsolete/broken .itb initramfs packaging.
 """
 import os
 import sys
 import json
 import hashlib
 import shutil
+import re
 
 DEVICE_REGISTRY = {
     # Qualcomm Family (qualcommbe/ipq95xx)
@@ -16,7 +17,9 @@ DEVICE_REGISTRY = {
         "target": "qualcommbe/ipq95xx",
         "soc": "Qualcomm IPQ9574",
         "canonical_name": "maxnet-jidu6811-sysupgrade.bin",
-        "pattern": "jidu6j11-6811.*sysupgrade"
+        "canonical_factory": "maxnet-jidu6811-factory.ubi",
+        "pattern": r"(jidu6j11[-_]6811|jio[-_]jidu6811|[-_]6811).*sysupgrade",
+        "factory_pattern": r"(jidu6j11[-_]6811|jio[-_]jidu6811|[-_]6811).*factory\.ubi"
     },
     "jiorouter,ax6000-jidu6j11-6911": {
         "model": "JioRouter AX6000 JIDU6J11-6911",
@@ -24,7 +27,9 @@ DEVICE_REGISTRY = {
         "target": "qualcommbe/ipq95xx",
         "soc": "Qualcomm IPQ9574",
         "canonical_name": "maxnet-jidu6911-sysupgrade.bin",
-        "pattern": "jidu6j11-6911.*sysupgrade"
+        "canonical_factory": "maxnet-jidu6911-factory.ubi",
+        "pattern": r"(jidu6j11[-_]6911|jio[-_]jidu6911|[-_]6911).*sysupgrade",
+        "factory_pattern": r"(jidu6j11[-_]6911|jio[-_]jidu6911|[-_]6911).*factory\.ubi"
     },
     "jiorouter,ax6000-jidu6j11-6611": {
         "model": "JioRouter AX6000 JIDU6J11-6611",
@@ -32,7 +37,9 @@ DEVICE_REGISTRY = {
         "target": "qualcommbe/ipq95xx",
         "soc": "Qualcomm IPQ9574",
         "canonical_name": "maxnet-jidu6611-sysupgrade.bin",
-        "pattern": "jidu6j11-6611.*sysupgrade"
+        "canonical_factory": "maxnet-jidu6611-factory.ubi",
+        "pattern": r"(jidu6j11[-_]6611|jio[-_]jidu6611|[-_]6611).*sysupgrade",
+        "factory_pattern": r"(jidu6j11[-_]6611|jio[-_]jidu6611|[-_]6611).*factory\.ubi"
     },
     "jiorouter,ax6000-jidu6j11-6411": {
         "model": "JioRouter AX6000 JIDU6J11-6411",
@@ -40,7 +47,9 @@ DEVICE_REGISTRY = {
         "target": "qualcommbe/ipq95xx",
         "soc": "Qualcomm IPQ9574",
         "canonical_name": "maxnet-jidu6411-sysupgrade.bin",
-        "pattern": "jidu6j11-6411.*sysupgrade"
+        "canonical_factory": "maxnet-jidu6411-factory.ubi",
+        "pattern": r"(jidu6j11[-_]6411|jio[-_]jidu6411|[-_]6411).*sysupgrade",
+        "factory_pattern": r"(jidu6j11[-_]6411|jio[-_]jidu6411|[-_]6411).*factory\.ubi"
     },
     "jiorouter,ax6000-jidu6j11-6111": {
         "model": "JioRouter AX6000 JIDU6J11-6111",
@@ -48,7 +57,9 @@ DEVICE_REGISTRY = {
         "target": "qualcommbe/ipq95xx",
         "soc": "Qualcomm IPQ9574",
         "canonical_name": "maxnet-jidu6111-sysupgrade.bin",
-        "pattern": "jidu6j11-6111.*sysupgrade"
+        "canonical_factory": "maxnet-jidu6111-factory.ubi",
+        "pattern": r"(jidu6j11[-_]6111|jio[-_]jidu6111|[-_]6111).*sysupgrade",
+        "factory_pattern": r"(jidu6j11[-_]6111|jio[-_]jidu6111|[-_]6111).*factory\.ubi"
     },
     "jio,jidu6811": {
         "model": "Jio JIDU6811",
@@ -56,7 +67,9 @@ DEVICE_REGISTRY = {
         "target": "qualcommbe/ipq95xx",
         "soc": "Qualcomm IPQ9574",
         "canonical_name": "maxnet-jidu6811-sysupgrade.bin",
-        "pattern": "jidu6811.*sysupgrade"
+        "canonical_factory": "maxnet-jidu6811-factory.ubi",
+        "pattern": r"(jio[-_]jidu6811|[-_]6811).*sysupgrade",
+        "factory_pattern": r"(jio[-_]jidu6811|[-_]6811).*factory\.ubi"
     },
     # MediaTek Family (mediatek/filogic)
     "jiorouter,ax6000-jidu6j01": {
@@ -65,7 +78,9 @@ DEVICE_REGISTRY = {
         "target": "mediatek/filogic",
         "soc": "MediaTek MT7986A",
         "canonical_name": "maxnet-jidu6j01-sysupgrade.bin",
-        "pattern": "jidu6j01.*sysupgrade"
+        "canonical_factory": "maxnet-jidu6j01-factory.bin",
+        "pattern": r"(jidu6j01|[-_]6j01).*sysupgrade",
+        "factory_pattern": r"(jidu6j01|[-_]6j01).*factory\.bin"
     },
     "jiorouter,ax6000-jidu6801": {
         "model": "JioRouter AX6000 JIDU6801",
@@ -73,7 +88,9 @@ DEVICE_REGISTRY = {
         "target": "mediatek/filogic",
         "soc": "MediaTek MT7986A",
         "canonical_name": "maxnet-jidu6801-sysupgrade.bin",
-        "pattern": "jidu6801.*sysupgrade"
+        "canonical_factory": "maxnet-jidu6801-factory.bin",
+        "pattern": r"(jidu6801|[-_]6801).*sysupgrade",
+        "factory_pattern": r"(jidu6801|[-_]6801).*factory\.bin"
     },
     "jiorouter,ax6000-jidu6401": {
         "model": "JioRouter AX6000 JIDU6401",
@@ -81,7 +98,9 @@ DEVICE_REGISTRY = {
         "target": "mediatek/filogic",
         "soc": "MediaTek MT7986A",
         "canonical_name": "maxnet-jidu6401-sysupgrade.bin",
-        "pattern": "jidu6401.*sysupgrade"
+        "canonical_factory": "maxnet-jidu6401-factory.bin",
+        "pattern": r"(jidu6401|[-_]6401).*sysupgrade",
+        "factory_pattern": r"(jidu6401|[-_]6401).*factory\.bin"
     },
     "jiorouter,ax6000-jidu6101": {
         "model": "JioRouter AX6000 JIDU6101",
@@ -89,90 +108,125 @@ DEVICE_REGISTRY = {
         "target": "mediatek/filogic",
         "soc": "MediaTek MT7986A",
         "canonical_name": "maxnet-jidu6101-sysupgrade.bin",
-        "pattern": "jidu6101.*sysupgrade"
+        "canonical_factory": "maxnet-jidu6101-factory.bin",
+        "pattern": r"(jidu6101|[-_]6101).*sysupgrade",
+        "factory_pattern": r"(jidu6101|[-_]6101).*factory\.bin"
     }
 }
 
 def calc_sha256(filepath):
     h = hashlib.sha256()
-    with open(filepath, 'rb') as f:
+    with open(filepath, "rb") as f:
         while chunk := f.read(65536):
             h.update(chunk)
     return h.hexdigest()
 
 def main():
-    if len(sys.argv) < 3:
-        print("Usage: generate_release_manifest.py <bin_dirs_comma_separated> <out_dir> [tag_name]")
+    if len(sys.argv) < 4:
+        print("Usage: generate_release_manifest.py <harvest_bin_dirs> <out_dir> <tag_name>")
         sys.exit(1)
 
-    bin_dirs = [d.strip() for d in sys.argv[1].split(',') if os.path.isdir(d.strip())]
+    bin_dirs = [d.strip() for d in sys.argv[1].split(",") if d.strip()]
     out_dir = sys.argv[2]
-    tag_name = sys.argv[3] if len(sys.argv) > 3 else "latest"
+    tag_name = sys.argv[3]
+
     os.makedirs(out_dir, exist_ok=True)
 
-    repo_url = os.environ.get("GITHUB_REPOSITORY", "ohhmax/maxidu")
+    repo_url = os.environ.get("GITHUB_REPOSITORY", "ohhmax/maxnet")
     base_download_url = f"https://github.com/{repo_url}/releases/download/{tag_name}"
 
     manifest_devices = {}
     sums_lines = []
 
-    # Map discovered files to registered devices
+    primary_qcom_bin = None
+    primary_mtk_bin = None
+    primary_qcom_factory = None
+    primary_mtk_factory = None
+
+    # Discovered files across all architecture harvest outputs
+    discovered_files = []
     for bin_dir in bin_dirs:
-        for fname in os.listdir(bin_dir):
-            fpath = os.path.join(bin_dir, fname)
-            if not os.path.isfile(fpath):
-                continue
+        for root, _, files in os.walk(bin_dir):
+            for fname in files:
+                fpath = os.path.join(root, fname)
+                if not os.path.isfile(fpath):
+                    continue
+                discovered_files.append((fpath, fname))
 
-            for board_key, dev in DEVICE_REGISTRY.items():
-                import re
-                if re.search(dev["pattern"], fname, re.IGNORECASE):
-                    target_filename = dev["canonical_name"]
-                    target_path = os.path.join(out_dir, target_filename)
-                    shutil.copy2(fpath, target_path)
+                # Identify primary sysupgrade and factory binaries
+                if "qualcomm" in fpath.lower():
+                    if "sysupgrade" in fname.lower() and fname.endswith(".bin"):
+                        primary_qcom_bin = fpath
+                    if "factory" in fname.lower() and (fname.endswith(".ubi") or fname.endswith(".bin")):
+                        primary_qcom_factory = fpath
+                elif "mediatek" in fpath.lower():
+                    if "sysupgrade" in fname.lower() and fname.endswith(".bin"):
+                        primary_mtk_bin = fpath
+                    if "factory" in fname.lower() and fname.endswith(".bin"):
+                        primary_mtk_factory = fpath
 
-                    c_sum = calc_sha256(target_path)
-                    f_size = os.path.getsize(target_path)
+    # Process each registered device model
+    for board_key, dev in DEVICE_REGISTRY.items():
+        matched_bin = None
+        matched_factory = None
 
-                    sums_lines.append(f"{c_sum}  {target_filename}")
+        for fpath, fname in discovered_files:
+            if re.search(dev["pattern"], fname, re.IGNORECASE) and fname.endswith(".bin"):
+                matched_bin = fpath
+            if re.search(dev.get("factory_pattern", ""), fname, re.IGNORECASE):
+                matched_factory = fpath
 
-                    dev_entry = {
-                        "model": dev["model"],
-                        "target": dev["target"],
-                        "soc": dev["soc"],
-                        "filename": target_filename,
-                        "download_url": f"{base_download_url}/{target_filename}",
-                        "sha256": c_sum,
-                        "size": f_size
-                    }
+        # Apply fallbacks if model-specific file was not generated
+        is_qcom = "qualcomm" in dev["target"]
+        if not matched_bin:
+            matched_bin = primary_qcom_bin if is_qcom else primary_mtk_bin
+        if not matched_factory:
+            matched_factory = primary_qcom_factory if is_qcom else primary_mtk_factory
 
-                    manifest_devices[board_key] = dev_entry
-                    for alias in dev.get("aliases", []):
-                        manifest_devices[alias] = dev_entry
+        # 1. Copy Sysupgrade Binary
+        dev_entry = {
+            "model": dev["model"],
+            "target": dev["target"],
+            "soc": dev["soc"]
+        }
 
-    # In case JIDU6801 or JIDU6401 share binary with JIDU6J01, create fallback copies
-    if "jiorouter,ax6000-jidu6j01" in manifest_devices:
-        j01_info = manifest_devices["jiorouter,ax6000-jidu6j01"]
-        for alias_key, alias_fname in [
-            ("jiorouter,ax6000-jidu6801", "maxnet-jidu6801-sysupgrade.bin"),
-            ("jiorouter,ax6000-jidu6401", "maxnet-jidu6401-sysupgrade.bin")
-        ]:
-            if alias_key not in manifest_devices:
-                alias_path = os.path.join(out_dir, alias_fname)
-                src_path = os.path.join(out_dir, j01_info["filename"])
-                if os.path.exists(src_path):
-                    shutil.copy2(src_path, alias_path)
-                    c_sum = calc_sha256(alias_path)
-                    f_size = os.path.getsize(alias_path)
-                    sums_lines.append(f"{c_sum}  {alias_fname}")
-                    manifest_devices[alias_key] = {
-                        "model": DEVICE_REGISTRY[alias_key]["model"],
-                        "target": "mediatek/filogic",
-                        "soc": "MediaTek MT7986A",
-                        "filename": alias_fname,
-                        "download_url": f"{base_download_url}/{alias_fname}",
-                        "sha256": c_sum,
-                        "size": f_size
-                    }
+        if matched_bin and os.path.exists(matched_bin):
+            target_filename = dev["canonical_name"]
+            target_path = os.path.join(out_dir, target_filename)
+            if not os.path.exists(target_path) or os.path.getsize(target_path) == 0:
+                shutil.copy2(matched_bin, target_path)
+
+            c_sum = calc_sha256(target_path)
+            f_size = os.path.getsize(target_path)
+            sums_lines.append(f"{c_sum}  {target_filename}")
+
+            dev_entry["filename"] = target_filename
+            dev_entry["download_url"] = f"{base_download_url}/{target_filename}"
+            dev_entry["sha256"] = c_sum
+            dev_entry["size"] = f_size
+
+        # 2. Copy Factory Image (NAND UBI or MediaTek Factory) - NO ITB!
+        if matched_factory and os.path.exists(matched_factory):
+            target_factory_name = dev["canonical_factory"]
+            target_factory_path = os.path.join(out_dir, target_factory_name)
+            if not os.path.exists(target_factory_path) or os.path.getsize(target_factory_path) == 0:
+                shutil.copy2(matched_factory, target_factory_path)
+
+            factory_sum = calc_sha256(target_factory_path)
+            factory_size = os.path.getsize(target_factory_path)
+            sums_lines.append(f"{factory_sum}  {target_factory_name}")
+
+            dev_entry["factory_filename"] = target_factory_name
+            dev_entry["factory_download_url"] = f"{base_download_url}/{target_factory_name}"
+            dev_entry["factory_sha256"] = factory_sum
+            dev_entry["factory_size"] = factory_size
+
+        manifest_devices[board_key] = dev_entry
+        for alias in dev.get("aliases", []):
+            manifest_devices[alias] = dev_entry
+
+    # Remove duplicates from sha256sums
+    unique_sums = list(dict.fromkeys(sums_lines))
 
     manifest = {
         "version": tag_name,
@@ -186,9 +240,10 @@ def main():
 
     sums_path = os.path.join(out_dir, "sha256sums")
     with open(sums_path, 'w') as f:
-        f.write('\n'.join(sums_lines) + '\n')
+        f.write('\n'.join(unique_sums) + '\n')
 
     print(f"Manifest written to {manifest_path} with {len(manifest_devices)} registered device models.")
+    print(f"Total checksum entries: {len(unique_sums)}")
 
 if __name__ == "__main__":
     main()

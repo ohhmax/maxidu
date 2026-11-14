@@ -21,7 +21,7 @@ CURRENT_VER=$(grep -o 'v2\.[0-9.]*' /etc/banner 2>/dev/null | head -n 1)
 [ -z "$CURRENT_BUILD" ] && CURRENT_BUILD=20
 [ -z "$CURRENT_VER" ] && CURRENT_VER="v2.2.20"
 
-REPO="ohhmax/maxidu"
+REPO="ohhmax/maxnet"
 
 # 1. Fetch Latest Release Tag from GitHub
 LATEST_TAG=$(curl -s -H 'User-Agent: MaxNet-OTA' --connect-timeout 5 "https://api.github.com/repos/${REPO}/releases" | \

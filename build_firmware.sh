@@ -8,8 +8,9 @@
 # ==============================================================================
 set -e
 
-BASE_DIR="/home/max/Projects"
-CUSTOM_DIR="${BASE_DIR}/maxidu"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BASE_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+CUSTOM_DIR="${SCRIPT_DIR}"
 BUILD_DIR="${BASE_DIR}/openwrt"
 
 REQ_TARGET="${1:-qualcommbe}"

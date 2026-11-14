@@ -35,6 +35,21 @@ common_packages = [
     "CONFIG_PACKAGE_kmod-usb-net-cdc-ether=y",
     "CONFIG_PACKAGE_kmod-usb-net-cdc-ncm=y",
 
+    # USB Storage, Automount, & Filesystems (Samba4, NTFS-3G, exFAT, EXT4, F2FS)
+    "CONFIG_PACKAGE_kmod-usb-storage=y",
+    "CONFIG_PACKAGE_kmod-usb-storage-uas=y",
+    "CONFIG_PACKAGE_kmod-fs-vfat=y",
+    "CONFIG_PACKAGE_kmod-fs-ntfs3=y",
+    "CONFIG_PACKAGE_kmod-fs-exfat=y",
+    "CONFIG_PACKAGE_kmod-fs-ext4=y",
+    "CONFIG_PACKAGE_kmod-fs-f2fs=y",
+    "CONFIG_PACKAGE_kmod-fuse=y",
+    "CONFIG_PACKAGE_block-mount=y",
+    "CONFIG_PACKAGE_ntfs-3g=y",
+    "CONFIG_PACKAGE_samba4-server=y",
+    "CONFIG_PACKAGE_samba4-libs=y",
+    "CONFIG_PACKAGE_samba4-utils=y",
+
     # Android Debug Bridge (ADB)
     "CONFIG_PACKAGE_adb=y",
 
@@ -43,8 +58,12 @@ common_packages = [
     "CONFIG_PACKAGE_nftables=y",
     "CONFIG_PACKAGE_kmod-nft-offload=y",
 
-    # Lightweight Web Monitor (Port 80 Dashboard)
+    # Lightweight Web Monitor (Port 80 Dashboard) & Terminal
     "CONFIG_PACKAGE_uhttpd=y",
+    "CONFIG_PACKAGE_ttyd=y",
+
+    # JSON processing & CLI utilities
+    "CONFIG_PACKAGE_jq=y",
 
     # CLI Management & System tools (NO LuCI WebUI)
     "CONFIG_PACKAGE_busybox=y",
@@ -55,6 +74,18 @@ common_packages = [
     "CONFIG_PACKAGE_iperf3=y",
     "CONFIG_PACKAGE_htop=y",
     "CONFIG_PACKAGE_curl=y",
+
+    # ZRAM Dynamic RAM Compression & OOM Protection
+    "CONFIG_PACKAGE_kmod-zram=y",
+    "CONFIG_PACKAGE_zram-swap=y",
+
+    # Ultra-Lean Wireless Cryptography & Core IEEE 802.11 Stack
+    "CONFIG_PACKAGE_wpad-basic-mbedtls=y",
+    "CONFIG_PACKAGE_iw=y",
+    "CONFIG_PACKAGE_libiwinfo=y",
+    "CONFIG_PACKAGE_libiwinfo-data=y",
+    "CONFIG_PACKAGE_iwinfo=y",
+    "CONFIG_PACKAGE_wireless-regdb=y",
 ]
 
 if args.target == "qualcommbe":
@@ -68,8 +99,7 @@ if args.target == "qualcommbe":
         "CONFIG_TARGET_qualcommbe_ipq95xx_DEVICE_jiorouter_ax6000-jidu6j11-6111=y",
         "CONFIG_TARGET_qualcommbe_ipq95xx_DEVICE_jio_jidu6811=y",
         "CONFIG_TARGET_qualcommbe_ipq95xx_DEVICE_jio_jidu6911=y",
-        "CONFIG_TARGET_ROOTFS_INITRAMFS=y",
-        "CONFIG_TARGET_INITRAMFS_FORCE=y",
+        "# CONFIG_TARGET_ROOTFS_INITRAMFS is not set",
         "CONFIG_KERNEL_GZIP=y",
         "CONFIG_DEVEL=y",
         "CONFIG_CCACHE=y",
@@ -86,18 +116,15 @@ if args.target == "qualcommbe":
         "CONFIG_PACKAGE_kmod-shortcut-fe=y",
         "CONFIG_PACKAGE_kmod-shortcut-fe-cm=y",
 
-        # Strip unneeded Wi-Fi firmware
-        "CONFIG_PACKAGE_kmod-ath11k=n",
-        "CONFIG_PACKAGE_kmod-ath11k-ahb=n",
-        "CONFIG_PACKAGE_kmod-ath11k-pci=n",
-        "CONFIG_PACKAGE_kmod-mac80211=n",
-        "CONFIG_PACKAGE_kmod-cfg80211=n",
-        "CONFIG_PACKAGE_ath11k-firmware-ipq9574=n",
-        "CONFIG_PACKAGE_ath11k-firmware-qcn9074=n",
-        "CONFIG_PACKAGE_wireless-regdb=n",
-        "CONFIG_PACKAGE_wpad-basic=n",
-        "CONFIG_PACKAGE_wpad=n",
-        "CONFIG_QCOM_Q6V5_WCSS=n",
+        # Qualcomm ath11k Wi-Fi 6 Subsystem (Modular Loading for Zero Idle RAM)
+        "CONFIG_PACKAGE_kmod-qrtr=y",
+        "CONFIG_PACKAGE_kmod-qrtr-smd=y",
+        "CONFIG_PACKAGE_kmod-qrtr-mhi=y",
+        "CONFIG_PACKAGE_kmod-ath11k=y",
+        "CONFIG_PACKAGE_kmod-ath11k-ahb=y",
+        "CONFIG_PACKAGE_kmod-ath11k-pci=y",
+        "CONFIG_PACKAGE_ath11k-firmware-ipq9574=y",
+        "CONFIG_PACKAGE_ath11k-firmware-qcn9074=y",
     ]
 else: # mediatek
     target_config = [
@@ -107,13 +134,17 @@ else: # mediatek
         "CONFIG_TARGET_mediatek_filogic_DEVICE_jiorouter_ax6000-jidu6101=y",
         "CONFIG_TARGET_mediatek_filogic_DEVICE_jiorouter_ax6000-jidu6801=y",
         "CONFIG_TARGET_mediatek_filogic_DEVICE_jiorouter_ax6000-jidu6401=y",
-        "CONFIG_TARGET_ROOTFS_INITRAMFS=y",
+        "# CONFIG_TARGET_ROOTFS_INITRAMFS is not set",
         "CONFIG_DEVEL=y",
         "CONFIG_CCACHE=y",
 
         # MediaTek Ethernet & Switch support
         "CONFIG_PACKAGE_kmod-mt753x=y",
         "CONFIG_PACKAGE_kmod-hwmon-pwmfan=y",
+
+        # MediaTek MT7986 Wi-Fi 6 Filogic
+        "CONFIG_PACKAGE_kmod-mt7915e=y",
+        "CONFIG_PACKAGE_mt7986-firmware=y",
     ]
 
 full_config = target_config + common_packages
